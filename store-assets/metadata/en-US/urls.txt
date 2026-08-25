@@ -1,0 +1,3 @@
+Support URL: https://[FINAL DOMAIN]/support/
+Marketing URL: https://[FINAL DOMAIN]/
+Privacy URL: https://[FINAL DOMAIN]/privacy/

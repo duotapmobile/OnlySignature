@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1100" viewBox="0 0 900 1100">
+  <rect width="900" height="1100" rx="30" fill="#E8E3D8"/>
+  <text x="80" y="100" font-family="-apple-system, BlinkMacSystemFont, Arial" font-size="42" font-weight="700" fill="#102A3A">SAMPLE SERVICE AGREEMENT</text>
+  <text x="80" y="160" font-family="Arial" font-size="22" fill="#334A56">Fictional preview — not a real contract</text>
+  <g font-family="Arial" font-size="24" fill="#334A56">
+    <text x="80" y="245">This sample shows how an image sits beside ordinary form content.</text>
+    <text x="80" y="300">The parties agree that this page is used only as a visual fixture.</text>
+    <text x="80" y="355">No real names, addresses, terms, or obligations appear here.</text>
+  </g>
+  <rect x="80" y="430" width="740" height="260" rx="20" fill="#F3EFE6" stroke="#B5AA97" stroke-width="3"/>
+  <text x="115" y="490" font-family="Arial" font-size="24" font-weight="700" fill="#102A3A">Example work</text>
+  <text x="115" y="540" font-family="Arial" font-size="22" fill="#334A56">Prepare one fictional project by August 30, 2026.</text>
+  <text x="115" y="590" font-family="Arial" font-size="22" fill="#334A56">Sample company: Cedar Hollow Services</text>
+  <text x="115" y="640" font-family="Arial" font-size="22" fill="#334A56">Sample contact: 100 Example Lane</text>
+  <text x="80" y="820" font-family="Arial" font-size="28" font-weight="700" fill="#102A3A">Signature</text>
+  <line x1="80" y1="900" x2="540" y2="900" stroke="#102A3A" stroke-width="3"/>
+  <text x="610" y="820" font-family="Arial" font-size="28" font-weight="700" fill="#102A3A">Date</text>
+  <line x1="610" y1="900" x2="820" y2="900" stroke="#102A3A" stroke-width="3"/>
+  <text x="650" y="885" font-family="Arial" font-size="22" fill="#334A56">08/25/2026</text>
+  <text x="80" y="1025" font-family="Arial" font-size="18" fill="#586C76">Only Signature fictional fixture OS-AGREEMENT-1</text>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="{{WIDTH}}" height="{{HEIGHT}}" viewBox="0 0 {{WIDTH}} {{HEIGHT}}">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0A2637"/><stop offset="1" stop-color="#133A50"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="24" stdDeviation="30" flood-color="#04141E" flood-opacity="0.45"/></filter>
+  </defs>
+  <rect width="{{WIDTH}}" height="{{HEIGHT}}" fill="url(#bg)"/>
+  <text x="{{CENTER}}" y="{{HEADLINE_Y}}" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, Arial" font-size="{{HEADLINE_SIZE}}" font-weight="800" fill="#FFFFFF">{{HEADLINE}}</text>
+  <rect x="{{CARD_X}}" y="{{CARD_Y}}" width="{{CARD_WIDTH}}" height="{{CARD_HEIGHT}}" rx="{{CARD_RADIUS}}" fill="#F5F3EE" filter="url(#shadow)"/>
+  <text x="{{CENTER}}" y="{{FOOTER_Y}}" text-anchor="middle" font-family="Arial" font-size="{{FOOTER_SIZE}}" fill="#D8E5EA">Only Signature</text>
+</svg>

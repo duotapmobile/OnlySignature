@@ -1,0 +1,14 @@
+Only Signature creates signature image assets. It does not upload or edit documents, require an account, offer a subscription, or use a backend.
+
+Quick review path:
+1. Tap Get Started.
+2. Draw a signature, initials, or both. Either slot alone is allowed.
+3. Tap Continue and compare the same fictional agreement with white and transparent backgrounds.
+4. Tap Confirm.
+5. On Transparent Export, choose the visible free white-background export or purchase transparent export.
+
+One consumable purchase covers the current local signature-plus-initials set and one later unused companion slot. Re-exporting the same saved set does not repurchase. Purchased artwork is local and immutable; changing strokes creates a new draft. There is no Restore Purchase control because a consumed purchase cannot reconstruct locally deleted artwork. Unfinished transactions are observed at launch and finished only after durable local binding.
+
+The app supports portrait and landscape drawing while preserving both slots. Privacy, Terms, support, purchase FAQ, data/storage behavior, and Delete All Saved Signatures are in Settings. Delete All is unavailable while a purchase is pending or recovering.
+
+Mock StoreKit exists only in development/fixture builds. Production configuration fails if mock mode or screenshot fixtures are enabled.

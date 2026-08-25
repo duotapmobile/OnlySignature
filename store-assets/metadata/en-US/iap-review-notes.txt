@@ -1,0 +1,5 @@
+This is a repeat-purchasable consumable. One purchase finalizes one local Signature Set containing one signature slot and one initials slot. If one slot is empty, it remains included and may be filled once later without another purchase. The same purchased set may be re-exported repeatedly without another charge. The app has no global premium flag and no subscription.
+
+Reviewer path: launch the app, tap Get Started, draw in either slot, continue, compare the identical fictional document, confirm, and reach Transparent Export. The free white-background action remains visible. Use the purchase button to invoke StoreKit. The localized product price comes from StoreKit in non-fixture builds.
+
+App Review screenshot: store-assets/app-review/iap-review-1024.png (generated from the implemented purchase screen before submission).

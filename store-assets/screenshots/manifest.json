@@ -1,0 +1,49 @@
+{
+  "fixture": "EXPO_PUBLIC_SCREENSHOT_FIXTURE_MODE=1 with the Only Signature development build installed",
+  "screenshots": [
+    {
+      "id": "01-signature-initials",
+      "route": "/draw?fixture=both",
+      "headline": "Your Signature and Initials"
+    },
+    {
+      "id": "02-remove-white-box",
+      "route": "/preview?fixture=comparison",
+      "headline": "Remove the White Box"
+    },
+    {
+      "id": "03-no-editing",
+      "route": "/purchase?fixture=both",
+      "headline": "No Editing or Cropping"
+    },
+    {
+      "id": "04-any-document",
+      "route": "/purchase?fixture=signature",
+      "headline": "Place It on Any Document"
+    },
+    {
+      "id": "05-no-login",
+      "route": "/?fixture=landing",
+      "headline": "No Login. No Subscription."
+    },
+    {
+      "id": "06-no-upload",
+      "route": "/privacy?fixture=privacy",
+      "headline": "We Do Not Upload Your Signature"
+    },
+    {
+      "id": "07-formats",
+      "route": "/export?fixture=purchased",
+      "headline": "Choose the Format You Need"
+    },
+    {
+      "id": "08-one-purchase",
+      "route": "/saved?fixture=purchased",
+      "headline": "One Purchase for This Set"
+    }
+  ],
+  "outputs": {
+    "iphone": { "width": 1290, "height": 2796 },
+    "ipad": { "width": 2064, "height": 2752 }
+  }
+}

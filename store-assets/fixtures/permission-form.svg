@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1100" viewBox="0 0 900 1100">
+  <rect width="900" height="1100" rx="30" fill="#E6EEE9"/>
+  <text x="80" y="100" font-family="-apple-system, BlinkMacSystemFont, Arial" font-size="42" font-weight="700" fill="#102A3A">SAMPLE PERMISSION FORM</text>
+  <text x="80" y="155" font-family="Arial" font-size="22" fill="#334A56">Fictional preview — no real person or organization</text>
+  <g font-family="Arial" font-size="24" fill="#334A56">
+    <text x="80" y="250">Participant: Jordan Example</text>
+    <text x="80" y="310">Activity: Cedar Hollow Community Workshop</text>
+    <text x="80" y="370">Date: August 30, 2026</text>
+  </g>
+  <rect x="80" y="435" width="740" height="250" rx="20" fill="#F6F9F7" stroke="#99ADA2" stroke-width="3"/>
+  <text x="115" y="500" font-family="Arial" font-size="23" fill="#334A56">I confirm that this fictional form is used only to preview</text>
+  <text x="115" y="545" font-family="Arial" font-size="23" fill="#334A56">placement of a locally created signature image.</text>
+  <text x="115" y="610" font-family="Arial" font-size="23" fill="#334A56">It creates no obligation and collects no information.</text>
+  <text x="80" y="820" font-family="Arial" font-size="28" font-weight="700" fill="#102A3A">Authorized signature</text>
+  <line x1="80" y1="910" x2="650" y2="910" stroke="#102A3A" stroke-width="3"/>
+  <text x="80" y="1025" font-family="Arial" font-size="18" fill="#586C76">Only Signature fictional fixture OS-PERMISSION-1</text>
+</svg>

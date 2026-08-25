@@ -1,0 +1,1 @@
+Recommended draft: 4+ under Apple’s current questionnaire, with all content descriptors set to None and in-app purchase capability disclosed. Re-answer the current questionnaire in App Store Connect; do not submit this draft without portal verification.
