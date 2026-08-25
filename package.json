@@ -1,0 +1,47 @@
+{
+  "name": "only-signature",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Only Signature iOS app, static website, launch artifacts, and shared product content.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": "22.22.0",
+    "npm": "10.9.4"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "check": "npm run format:check && npm run typecheck && npm run lint && npm run test && npm run check:content && npm run check:release && npm run verify:network && npm run verify:native-autolink && npm run verify:store-assets && npm audit --audit-level=high",
+    "check:content": "node scripts/check-content-drift.mjs",
+    "check:release": "node scripts/check-release-config.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "vitest run --coverage && npm run test --workspace @only-signature/mobile",
+    "test:watch": "vitest",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "sbom": "node scripts/generate-sbom.mjs",
+    "screenshots:compose": "node scripts/compose-store-screenshots.mjs",
+    "preview:capture:ios": "node scripts/capture-app-preview.mjs",
+    "sync:legal": "node scripts/sync-legal-content.mjs",
+    "verify:exports": "vitest run tests/export",
+    "verify:network": "node scripts/check-production-network.mjs",
+    "verify:native-autolink": "node scripts/verify-native-autolink.mjs",
+    "verify:store-assets": "node scripts/verify-store-assets.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "26.3.0",
+    "@types/pngjs": "6.0.5",
+    "@vitest/coverage-v8": "4.1.11",
+    "eslint": "9.39.2",
+    "prettier": "3.6.2",
+    "pngjs": "7.0.0",
+    "sharp": "0.35.3",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.68.0",
+    "vitest": "4.1.11"
+  }
+}

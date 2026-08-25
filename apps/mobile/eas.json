@@ -1,0 +1,50 @@
+{
+  "cli": { "version": ">= 18.0.0", "appVersionSource": "local" },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "resourceClass": "m-medium",
+        "image": "macos-tahoe-26.5-xcode-26.6"
+      },
+      "env": {
+        "APP_VARIANT": "development",
+        "EXPO_PUBLIC_RELEASE_MODE": "development"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": true,
+        "resourceClass": "m-medium",
+        "image": "macos-tahoe-26.5-xcode-26.6"
+      },
+      "env": {
+        "APP_VARIANT": "preview",
+        "EXPO_PUBLIC_RELEASE_MODE": "preview"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "ios": {
+        "resourceClass": "m-medium",
+        "image": "macos-tahoe-26.5-xcode-26.6"
+      },
+      "env": {
+        "APP_VARIANT": "production",
+        "EXPO_PUBLIC_RELEASE_MODE": "production",
+        "EXPO_PUBLIC_STOREKIT_MODE": "real"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "REPLACE_BEFORE_RELEASE",
+        "ascAppId": "REPLACE_BEFORE_RELEASE",
+        "appleTeamId": "REPLACE_BEFORE_RELEASE"
+      }
+    }
+  }
+}

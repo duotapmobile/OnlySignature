@@ -1,0 +1,16 @@
+:root {
+  --os-primary: #133a50;
+  --os-primary-dark: #0a2637;
+  --os-primary-light: #3b6478;
+  --os-white: #ffffff;
+  --os-off-white: #f5f3ee;
+  --os-dark-text: #102a3a;
+  --os-muted-text: #4b626e;
+  --os-success: #1f6b4f;
+  --os-warning: #8a5b12;
+  --os-destructive: #a53a3a;
+  --os-glass-border: rgba(255, 255, 255, 0.46);
+  --os-glass-fill: rgba(255, 255, 255, 0.18);
+  --os-shadow: rgba(4, 20, 30, 0.24);
+  --os-focus: #f3b544;
+}

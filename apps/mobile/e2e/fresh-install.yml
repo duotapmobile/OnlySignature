@@ -1,0 +1,12 @@
+appId: com.onlysignature.preview
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Signature and Initials"
+- assertVisible: "EXPORT WITH A TRANSPARENT BACKGROUND"
+- tapOn: "Get Started"
+- assertVisible: "Authorized use only"
+- tapOn: "Continue"
+- assertVisible: "Draw Your Signature"
+- assertVisible: "Clear"
+- assertVisible: "Continue"
