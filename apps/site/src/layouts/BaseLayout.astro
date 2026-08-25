@@ -1,0 +1,112 @@
+---
+import '../styles/global.css';
+import { APP_STORE_URL, IS_APP_STORE_PLACEHOLDER, PRODUCT_NAME, navigation } from '../content/site';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  image = '/og-card.svg',
+  noindex = false,
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const imageUrl = new URL(image, Astro.site);
+const currentPath = Astro.url.pathname;
+const fullTitle = title === PRODUCT_NAME ? title : `${title} | ${PRODUCT_NAME}`;
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: PRODUCT_NAME,
+  operatingSystem: 'iOS',
+  applicationCategory: 'UtilitiesApplication',
+  description:
+    'Create a handwritten signature and initials on your device, then export clean image assets without uploading a document.',
+  url: canonical.origin,
+};
+---
+
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#133A50" />
+    {noindex && <meta name="robots" content="noindex,follow" />}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={PRODUCT_NAME} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={imageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="/" aria-label={`${PRODUCT_NAME} home`}>
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" role="img">
+              <circle cx="24" cy="24" r="20"></circle>
+              <path d="M12 28c5-9 8 7 13-4 4-8 5 6 11-2"></path>
+              <path d="M12 34h24"></path>
+            </svg>
+          </span>
+          <span>{PRODUCT_NAME}</span>
+        </a>
+        <nav aria-label="Primary navigation">
+          <ul>
+            {navigation.map((item) => (
+              <li>
+                <a href={item.href} aria-current={currentPath === item.href ? 'page' : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <a class="button button-small" href={APP_STORE_URL} aria-describedby={IS_APP_STORE_PLACEHOLDER ? 'download-status' : undefined}>
+          {IS_APP_STORE_PLACEHOLDER ? 'App Store soon' : 'Download'}
+        </a>
+        {IS_APP_STORE_PLACEHOLDER && <span id="download-status" class="visually-hidden">The App Store link is not yet available.</span>}
+      </div>
+    </header>
+    <main id="main-content">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="shell footer-grid">
+        <div>
+          <a class="brand footer-brand" href="/">{PRODUCT_NAME}</a>
+          <p>We do not sign your documents. We give you your signature.</p>
+        </div>
+        <nav aria-label="Legal and support">
+          <a href="/privacy/">Privacy</a>
+          <a href="/terms/">Terms</a>
+          <a href="/support/">Support</a>
+          <a href="/contact/">Contact</a>
+          <a href="/accessibility/">Accessibility</a>
+        </nav>
+      </div>
+      <div class="shell footer-bottom">
+        <p>© {new Date().getFullYear()} Only Signature. All rights reserved.</p>
+        <p>No advertising, analytics, or tracking cookies.</p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,26 @@
+---
+import PageIntro from '../components/PageIntro.astro';
+import { IS_APP_STORE_PLACEHOLDER } from '../content/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="App Download" description="Only Signature App Store availability and launch status.">
+  <PageIntro eyebrow="iPhone and iPad" title="App download" description="Only Signature is being prepared for the App Store." />
+  <section class="content-wrap">
+    <div class="shell narrow prose">
+      <div class="notice">
+        <strong>{IS_APP_STORE_PLACEHOLDER ? 'The public App Store link is not available yet.' : 'The App Store link is configured.'}</strong>
+        <p>This page does not claim that submission, review, TestFlight, or public release has occurred. The final link will be added after Apple creates the public product page and the founder authorizes release.</p>
+      </div>
+      <h2>What to expect</h2>
+      <ul>
+        <li>Create a handwritten signature and initials.</li>
+        <li>Compare a white image rectangle with a transparent result.</li>
+        <li>Export without uploading your real document.</li>
+        <li>Use a functional free white-background export.</li>
+        <li>Choose a per-set transparent purchase with no subscription.</li>
+      </ul>
+      <p><a href="/faq/">Review the purchase details</a> before release.</p>
+    </div>
+  </section>
+</BaseLayout>

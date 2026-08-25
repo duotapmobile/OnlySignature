@@ -1,0 +1,23 @@
+---
+import PageIntro from '../components/PageIntro.astro';
+import { SUPPORT_EMAIL } from '../content/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Contact" description="Contact Only Signature support without a tracking form or unnecessary data collection.">
+  <PageIntro eyebrow="No tracking form" title="Contact" description="Use email so you control what you send. The site does not collect contact details through a web form." />
+  <section class="content-wrap">
+    <div class="shell narrow prose">
+      <div class="card">
+        <h2>Support email</h2>
+        <p><a class="button" href={`mailto:${SUPPORT_EMAIL}`}>Email {SUPPORT_EMAIL}</a></p>
+        <p>The current <code>.invalid</code> address is a deliberate pre-launch placeholder. It will be replaced with the verified founder-supplied address before deployment.</p>
+      </div>
+      <h2>What to include</h2>
+      <p>Describe the screen, action, selected format, and plain-language error. You may copy the app’s privacy-safe diagnostics voluntarily.</p>
+      <h2>What not to include</h2>
+      <p>Do not send Apple credentials, passwords, payment-card information, a signature image, stroke data, or a private document unless support specifically requests an item and you decide it is necessary.</p>
+      <p>See the <a href="/privacy/">Privacy Policy</a> for support-message processing and deletion requests.</p>
+    </div>
+  </section>
+</BaseLayout>

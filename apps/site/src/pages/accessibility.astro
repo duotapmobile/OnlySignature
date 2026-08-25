@@ -1,0 +1,22 @@
+---
+import PageIntro from '../components/PageIntro.astro';
+import { SUPPORT_EMAIL } from '../content/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Accessibility" description="Only Signature accessibility commitments and the current website support statement.">
+  <PageIntro eyebrow="Built for clarity" title="Accessibility" description="Large controls, readable language, and more than one way to understand status are core product requirements." />
+  <section class="content-wrap">
+    <div class="shell narrow prose">
+      <h2>Website support</h2>
+      <p>This static site is built with semantic headings, landmarks, a skip link, visible keyboard focus, text labels, flexible layouts, reduced-motion support, increased-contrast support, and touch targets designed to be at least 44 by 44 points. It uses system fonts and does not require JavaScript for navigation or FAQ disclosure controls.</p>
+      <h2>App accessibility target</h2>
+      <p>The iOS app is being prepared for VoiceOver, Dynamic Type and Larger Text, Voice Control labels, reduced motion, increased contrast, Button Shapes, landscape orientation, and adaptive iPad layouts. Drawing instructions, Clear, purchase status, export outcomes, and errors must be announced without relying on color alone.</p>
+      <h2>Current verification boundary</h2>
+      <p>Automated checks and static review do not replace final assistive-technology testing on signed iOS builds and deployed pages. Only accessibility features actually tested for the submitted version will be selected in Apple’s Accessibility Nutrition Labels.</p>
+      <h2>Tell us about a barrier</h2>
+      <p>Contact <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a> with the page or app screen, device, iOS/browser version, assistive technology, and a description of the barrier. Do not include signature content or private documents.</p>
+      <p>The placeholder support address will be replaced before launch.</p>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,31 @@
+---
+import PageIntro from '../components/PageIntro.astro';
+import { SUPPORT_EMAIL } from '../content/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Support" description="Help with drawing, exporting, purchases, local storage, and privacy in Only Signature.">
+  <PageIntro eyebrow="Plain-language help" title="Support" description="Start with the quick checks below. Your signature does not need to be sent to us." />
+  <section class="content-wrap">
+    <div class="shell narrow prose">
+      <div class="notice success-notice"><strong>Protect your signature.</strong> Do not attach your signature, initials, or a private document to a support email unless it is necessary and you choose to do so.</div>
+      <h2>Export did not complete</h2>
+      <ol>
+        <li>Confirm that your device has available storage.</li>
+        <li>Choose Files or the system Share sheet for a transparent PNG.</li>
+        <li>Remember that JPEG always has a white background.</li>
+        <li>Try the export again. Re-exporting the same purchased set does not require another payment.</li>
+      </ol>
+      <h2>Purchase is pending or interrupted</h2>
+      <p>Do not start another purchase immediately. Reopen the app while connected to the internet so it can reconcile unfinished verified StoreKit transactions. If Apple still shows a pending transaction, Apple may be waiting for approval or payment resolution.</p>
+      <h2>Deleting the app</h2>
+      <p>Deleting Only Signature may delete reusable sets stored inside it. Exported files remain wherever you saved them. There is no account or developer cloud that can reconstruct deleted artwork.</p>
+      <h2>Local diagnostics</h2>
+      <p>The in-app Support screen can provide privacy-safe diagnostic text containing app/build version, device and iOS version, and non-sensitive StoreKit/export error categories. It does not include strokes, images, labels, or file contents.</p>
+      <h2>Contact support</h2>
+      <p>Email <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>. Until the founder supplies the public support address, the <code>.invalid</code> address shown here is intentionally non-deliverable.</p>
+      <p>Include what you were trying to do, the format selected, and the exact plain-language message shown by the app. Do not send passwords, payment-card details, Apple credentials, or unnecessary personal documents.</p>
+      <p><a href="/faq/">Read the Purchase FAQ</a> or <a href="/privacy/">review privacy and deletion details</a>.</p>
+    </div>
+  </section>
+</BaseLayout>

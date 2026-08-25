@@ -1,0 +1,38 @@
+package,version,scope,purpose,maintenance_status,license_status,native_code,data_behavior,network_behavior,permissions_or_privacy_impact,release_decision
+expo,~57.0.16,mobile-runtime,Expo runtime and prebuild,Current selected Expo 57 line,Verify installed metadata,Yes,Platform runtime only by policy,No production OTA; build service separate,Inspect runtime and privacy report,Required
+react,19.2.3,mobile-runtime,UI runtime,Current compatible baseline,Verify installed metadata,No,In-memory UI,None,None,Required
+react-native,0.86.2,mobile-runtime,Native UI bridge,Current Expo-compatible 0.86 patch,Verify installed metadata,Yes,Platform UI and bridge,None by policy,Inspect required-reason use and archive,Required
+react-dom,19.2.3,mobile-web,Web rendering compatibility,Current compatible baseline,Verify installed metadata,No,UI only,None,None,Exclude from native bundle where tooling permits
+react-native-web,~0.21.0,mobile-web,Web preview compatibility,Selected Expo-compatible line,Verify installed metadata,No,UI only,None,None,Not evidence of iOS behavior
+expo-router,~57.0.16,mobile-runtime,Local navigation,Expo-maintained selected line,Verify installed metadata,Yes,Route state only,None,Config plugin and deep-link inventory,Required
+expo-constants,~57.0.14,mobile-runtime,Read embedded config/version,Expo-maintained selected line,Verify installed metadata,Yes,App/build configuration,None,Must not expose secrets,Required for current adapters
+expo-device,~57.0.1,mobile-runtime,Coarse local diagnostics,Expo-maintained selected line,Verify installed metadata,Yes,Device model/OS locally only,None,No identifier transmission,Retain only if diagnostics use it
+expo-crypto,~57.0.1,mobile-runtime,Local SHA-256 and UUID support,Expo-maintained selected line,Verify installed metadata,Yes,Local hashes/random values,None,Audit crypto/export and no artwork hash transmission,Required if implementation uses it
+expo-file-system,~57.0.4,mobile-runtime,Development file and export plumbing,Expo-maintained selected line,Verify installed metadata,Yes,Local paths/files,None,Required-reason/file-protection limits,Production canonical storage requires owned native module
+expo-haptics,~57.0.1,mobile-runtime,Supplementary feedback,Expo-maintained selected line,Verify installed metadata,Yes,None,None,Haptics never sole status,Allowed
+expo-linking,~57.0.7,mobile-runtime,Explicit legal/support links,Expo-maintained selected line,Verify installed metadata,Yes,Configured URLs,Explicit user-initiated HTTPS only,URL scheme inventory,Allowed
+expo-sharing,~57.0.2,mobile-runtime,System share sheet,Expo-maintained selected line,Verify installed metadata,Yes,Selected local export,OS/user-selected destination,None,Files/Share baseline after temp controls
+expo-splash-screen,~57.0.8,mobile-runtime,Launch screen,Expo-maintained selected line,Verify installed metadata,Yes,Bundled asset,None,None,Allowed
+expo-status-bar,~57.0.1,mobile-runtime,System status bar,Expo-maintained selected line,Verify installed metadata,Yes,None,None,None,Allowed
+expo-store-review,~57.0.2,mobile-runtime,Apple native review prompt,Expo-maintained selected line,Verify installed metadata,Yes,Local prompt invocation,Apple system UI,No transmitted eligibility state,Allowed
+react-native-gesture-handler,~2.32.0,mobile-runtime,Low-latency gestures,Maintained selected Expo-compatible line,Verify installed metadata,Yes,Touch coordinates in memory,None,No telemetry,Required for gesture path if used
+react-native-reanimated,4.5.1,mobile-runtime,UI-thread interaction/animation,Maintained selected compatible version,Verify installed metadata,Yes,UI state/worklets,None,Reduced Motion; inspect native manifest,Justify actual use or remove
+react-native-worklets,0.10.1,mobile-runtime,Worklet runtime for UI thread,Maintained dependency line,Verify installed metadata,Yes,UI worklet state,None,Inspect native manifest,Required only if Reanimated/gesture path needs it
+react-native-svg,15.15.4,mobile-runtime,Vector drawing and preview,Expo-compatible maintained version,MIT,Yes,Canonical paths rendered locally,None,No external SVG/resources/scripts,Current drawing renderer
+react-native-view-shot,5.1.0,mobile-runtime,Raster capture for PNG and JPEG export,Expo-compatible maintained version,MIT,Yes,Rendered signature surface pixels,None,Device re-import must prove alpha and quality,Retain for raster export
+react-native-safe-area-context,~5.7.0,mobile-runtime,Safe-area layout,Maintained Expo-compatible line,Verify installed metadata,Yes,Insets only,None,None,Required
+react-native-screens,~4.26.0,mobile-runtime,Native navigation screens,Maintained Expo-compatible line,Verify installed metadata,Yes,Navigation state,None,Inspect archive,Required by router
+@only-signature/config,1.0.0,first-party-runtime,Typed release configuration,First-party,Private first-party,No,Public config values only,None,Fail closed; no secrets,Required
+@only-signature/content,1.0.0,first-party-runtime,Authoritative copy policies FAQ,First-party,Private first-party,No,Consumer copy only,None,Drift tests,Required
+@only-signature/core,1.0.0,first-party-runtime,Canonical model export purchase state,First-party,Private first-party,No,Local domain data,None,Sensitive logging prohibited,Required
+@only-signature/design-tokens,1.0.0,first-party-runtime,Shared style tokens,First-party,Private first-party,No,None,None,Contrast verification,Required
+astro,7.2.6,site-build,Static website generation,Maintained declared version,Verify installed metadata,Build-time,Site source/content,Package install/build only,No runtime analytics,Required for site build
+@astrojs/check,0.9.10,site-build,Astro validation,Maintained declared version,Verify installed metadata,No,Source only,Package install only,None,Build-time only
+typescript,6.0.3,multi-build,Static type checking,Maintained declared versions,Apache-2.0 expected; verify installed metadata,No,Source only,Package install only,None,Build-time only
+vitest,4.1.11,test,Test runner,Maintained declared version,Verify installed metadata,No,Fixtures/results,Package install only,None,Exclude from runtime
+@vitest/coverage-v8,4.1.11,test,Coverage,Maintained declared version,Verify installed metadata,Yes,Source coverage,Package install only,None,Exclude from runtime
+eslint,9.39.2,build,Lint,Maintained declared versions,Verify installed metadata,No,Source/results,Package install only,None,Build-time only
+prettier,3.6.2,build,Formatting,Maintained declared version,Verify installed metadata,No,Source files,Package install only,None,Build-time only
+sharp,0.35.3,build-assets,Deterministic image screenshot processing,Maintained declared version,Apache-2.0 expected; verify binaries/metadata,Yes,Fixture/store images,Package install only,None,Must not ship in mobile runtime
+pngjs,7.0.0,test,Pixel decoding,Declared version; maintenance review required,MIT expected; verify installed metadata,No,Test images,Package install only,None,Test only
+typescript-eslint,8.68.0,build,Type-aware lint,Maintained declared version,Verify installed metadata,No,Source/results,Package install only,None,Build-time only

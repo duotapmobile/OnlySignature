@@ -1,0 +1,104 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { APP_STORE_URL, IS_APP_STORE_PLACEHOLDER, purchaseFacts } from '../content/site';
+---
+
+<BaseLayout
+  title="Only Signature"
+  description="Draw a handwritten signature and initials on your device, then export clean image assets with a transparent or white background. No document upload, login, or subscription."
+>
+  <section class="hero">
+    <div class="shell hero-grid">
+      <div>
+        <p class="eyebrow">Signature and Initials</p>
+        <h1>Export in the format you need.</h1>
+        <p class="hero-callout">EXPORT WITH A TRANSPARENT BACKGROUND</p>
+        <p class="lede">Draw it on your device. Avoid the white rectangle. Place the clean result on the document or app you choose.</p>
+        <div class="button-row">
+          <a class="button" href={APP_STORE_URL}>{IS_APP_STORE_PLACEHOLDER ? 'App Store release coming soon' : 'Download on the App Store'}</a>
+          <a class="button button-secondary" href="#how-it-works">See how it works</a>
+        </div>
+      </div>
+      <div class="glass-demo" aria-label="Illustration comparing a white signature box with a transparent signature">
+        <div class="document">
+          <div class="document-lines" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div class="signature-row">
+            <div>
+              <div class="signature-line">
+                <svg viewBox="0 0 260 70" aria-hidden="true"><path d="M6 54c21-42 22 28 50-7 18-22 13 19 36 2 19-14 26-40 22-7-2 16 15 18 28 3 13-15 5 23 39 1 17-11 17 8 35-2 12-7 24-3 38 1" /></svg>
+                <span class="white-box" aria-hidden="true"></span>
+              </div>
+              <div class="signature-label">Signature</div>
+            </div>
+            <div>
+              <div class="signature-line"></div>
+              <div class="signature-label">Date</div>
+            </div>
+          </div>
+        </div>
+        <div class="comparison-labels"><span>White Background</span><span>Transparent</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-light" aria-labelledby="benefits-title">
+    <div class="shell">
+      <div class="section-heading">
+        <p class="eyebrow">A narrow tool on purpose</p>
+        <h2 id="benefits-title">Your handwriting. A clean asset.</h2>
+        <p>Only Signature creates the signature image. It does not ask for your real form, contract, invoice, or PDF.</p>
+      </div>
+      <div class="card-grid">
+        <article class="card"><div class="card-icon" aria-hidden="true">✓</div><h3>No white box</h3><p>Transparent PNG places your strokes without covering nearby text or lines.</p></article>
+        <article class="card"><div class="card-icon" aria-hidden="true">↗</div><h3>No editing or cropping</h3><p>The app finds the visible bounds, adds balanced padding, and prepares the export.</p></article>
+        <article class="card"><div class="card-icon" aria-hidden="true">⌂</div><h3>Created on your device</h3><p>We do not upload your signature or ask you to upload a private document.</p></article>
+        <article class="card"><div class="card-icon" aria-hidden="true">1×</div><h3>No login. No subscription.</h3><p>The free white-background export works. Transparent export is one purchase for one signature + initials set.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="how-it-works" class="section section-dark" aria-labelledby="steps-title">
+    <div class="shell">
+      <div class="section-heading">
+        <p class="eyebrow">Three clear steps</p>
+        <h2 id="steps-title">Create it. Compare it. Export it.</h2>
+      </div>
+      <ol class="steps">
+        <li><h3>Draw</h3><p>Create a signature, initials, or both. Rotate the device when you want more room.</p></li>
+        <li><h3>Preview</h3><p>See the same drawing on the same sample agreement—with and without the white rectangle.</p></li>
+        <li><h3>Export</h3><p>Choose transparent PNG or a verified supported format. JPEG is always white-background.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section-light" aria-labelledby="purchase-title">
+    <div class="shell hero-grid">
+      <div>
+        <p class="eyebrow">Straightforward purchase</p>
+        <h2 id="purchase-title">One purchase for this set.</h2>
+        <p class="lede">The planned U.S. price is {purchaseFacts.plannedUSPrice}. Apple shows the actual localized StoreKit price before purchase.</p>
+        <p>No subscription. Re-export the purchased set anytime. If you complete only one slot before purchase, the other included slot remains available to fill later.</p>
+        <div class="button-row"><a class="button" href="/faq/">Read the purchase FAQ</a></div>
+      </div>
+      <aside class="card" aria-label="Purchase scope">
+        <h3>One Signature Set includes</h3>
+        <ul>
+          <li>One full-signature slot</li>
+          <li>One initials slot</li>
+          <li>Repeat export for that set</li>
+          <li>Independent supported formats</li>
+        </ul>
+        <p><strong>Free alternative:</strong> {purchaseFacts.freeExport}.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="trust-title">
+    <div class="shell narrow">
+      <p class="eyebrow">Privacy without absolutes</p>
+      <h2 id="trust-title">We do not upload your signature.</h2>
+      <p>When you export, you choose the destination through Apple’s system share sheet. That may be Files, AirDrop, another app, email, or a cloud location you select.</p>
+      <p><a href="/privacy/">Read the complete Privacy Policy</a> to see exactly what the app, Apple purchases, support email, and website hosting each process.</p>
+    </div>
+  </section>
+</BaseLayout>

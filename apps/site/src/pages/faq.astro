@@ -1,0 +1,19 @@
+---
+import PageIntro from '../components/PageIntro.astro';
+import { faqItems } from '../content/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Purchase FAQ" description="Clear answers about the Only Signature per-set purchase, included initials, formats, storage, deletion, refunds, and authorized use.">
+  <PageIntro eyebrow="No subscription" title="Purchase FAQ" description="One purchase unlocks transparent export for one signature + initials set. Here is exactly what that means." />
+  <section class="content-wrap">
+    <div class="shell narrow faq-list">
+      {faqItems.map((item, index) => (
+        <details open={index === 0}>
+          <summary>{item.question}</summary>
+          <p>{item.answer}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
