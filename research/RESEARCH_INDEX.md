@@ -1,0 +1,116 @@
+# Research Index
+
+Research date: 2026-08-25  
+Research policy: Current primary authority controls. Apple technical and store facts use official Apple sources. Legal preparation prioritizes statutes, regulators, government guidance, and official standards. Competitor/ASO observations must use live listings and clearly distinguish observed facts from inference.
+
+No private credential source was used. No download, revenue, conversion, retention, market-share, or keyword-volume figure may be invented. Public rating counts, when recorded elsewhere, are demand proxies only and are not download estimates.
+
+## Package map
+
+| Package | Status on 2026-08-25 | Scope | Primary authority | Submission recheck? |
+|---|---|---|---|---|
+| [Apple requirements](apple/APPLE_REQUIREMENTS.md) | Complete research package | App Review, privacy links and answers, manifests, required-reason APIs, third-party SDK rules, Xcode/SDK minimum, StoreKit/IAP, metadata, screenshots/previews, age rating, accessibility labels, encryption/export, DSA, regions, roles, TestFlight, submission | Apple Developer and App Store Connect Help | Yes; all mutable portal, SDK, asset, role, and compliance facts |
+| [Legal-claim boundaries](legal/LEGAL_CLAIMS.md) | Complete preliminary legal-preparation package | Handwritten image vs electronic/digital/cryptographic/advanced/qualified/notarized signatures; signing-platform limits; authorized use and claims | U.S. Code, EUR-Lex, NIST, state statute/regulator, ULC | Yes; counsel review and territory-specific refresh |
+| `aso/COMPETITOR_MATRIX.csv` | Reserved for independent ASO/competitor package | At least 20 relevant U.S. App Store observations | Live App Store listings and current reviews | Yes; listings and reviews change continuously |
+| `aso/REVIEW_MINING.md` | Reserved for independent ASO/competitor package | Recent and critical review evidence, separated from inference | Live App Store reviews | Yes |
+| `aso/KEYWORD_MAP.csv` | Reserved for independent ASO/competitor package | Intent, observed competition, metadata and screenshot candidates; no invented popularity | Live App Store search/listings and public evidence | Yes |
+| `aso/PPO_TEST_PLAN.md` | Reserved for independent ASO/competitor package | Three materially different product-page hypotheses without invented lift | Apple PPO guidance plus product evidence | Yes |
+| `aso/LOCALIZATION_PLAN.md` | Reserved for independent ASO/competitor package | Evidence-led localization priority and validation procedure | Live market/listing evidence and official Apple localization guidance | Yes |
+| `brand/NAME_CLEARANCE.md` | Reserved for independent brand package | App Store use, federal marks, similar/common-law uses, domains/social handles, alternatives | USPTO and live public sources | Yes; preliminary review is not legal clearance |
+
+## Most important conclusions and product decisions
+
+### R-001 — Current submission toolchain
+
+| Field | Record |
+|---|---|
+| Claim | Since 2026-04-28, iOS/iPadOS submissions require the iOS/iPadOS 26 SDK or later; Apple currently lists Xcode 26.6 with iOS 26.5 SDK. |
+| Source | [Apple SDK minimum announcement](https://developer.apple.com/news/?id=ueeok6yw); [Xcode system requirements](https://developer.apple.com/xcode/system-requirements/) |
+| Source type | Official Apple primary source |
+| Publication/access date | Announcement 2026-02-03; accessed 2026-08-25 |
+| Confidence | High |
+| Product decision effect | Pin/resolve a production EAS image satisfying the current Apple toolchain, record resolved versions, and leave signed iOS certification for credentialed build/TestFlight. |
+| May change before submission? | Yes, high drift; recheck within seven days and on upload day. |
+
+### R-002 — Consumable per-set purchase
+
+| Field | Record |
+|---|---|
+| Claim | Apple defines consumables as depleted and repeat-purchasable; finished consumables are not represented by StoreKit current entitlements. |
+| Source | [Apple IAP type overview](https://developer.apple.com/help/app-store-connect/configure-in-app-purchase-settings/overview-for-configuring-in-app-purchases/); [Transaction currentEntitlements](https://developer.apple.com/documentation/storekit/transaction/currententitlements) |
+| Source type | Official Apple primary source |
+| Publication/access date | Accessed 2026-08-25 |
+| Confidence | High |
+| Product decision effect | One verified consumption finalizes one immutable local signature-plus-initials set. Repeat export is local and free. No subscription, global premium, or misleading restore of deleted artwork. |
+| May change before submission? | Product concept low drift; StoreKit/reviewer details must be retested. |
+
+### R-003 — Privacy truth requires final-binary evidence
+
+| Field | Record |
+|---|---|
+| Claim | Apple App Privacy answers cover developer and third-party partner collection; privacy manifests and required-reason declarations are separate binary disclosures. “No backend” alone does not prove “Data Not Collected.” |
+| Source | [Apple App Privacy details](https://developer.apple.com/app-store/app-privacy-details/); [Privacy manifest files](https://developer.apple.com/documentation/bundleresources/privacy-manifest-files); [Required-reason APIs](https://developer.apple.com/documentation/bundleresources/describing-use-of-required-reason-api) |
+| Source type | Official Apple primary source |
+| Publication/access date | Accessed 2026-08-25 |
+| Confidence | High |
+| Product decision effect | Final App Privacy answers remain a release gate until archive manifest/API/network inspection. Distinguish app processing, user-selected exports, Apple purchases, voluntary support, website hosting, and TestFlight beta diagnostics. |
+| May change before submission? | Yes; dependencies and Apple definitions change. |
+
+### R-004 — StoreKit finish-last recovery
+
+| Field | Record |
+|---|---|
+| Claim | StoreKit provides verified results, launch-observable transaction updates, unfinished transactions, and explicit finishing. Correct delivery must survive duplicate callbacks and termination. |
+| Source | [StoreKit In-App Purchase](https://developer.apple.com/documentation/storekit/in-app-purchase); [Transaction updates](https://developer.apple.com/documentation/storekit/transaction/updates); [Unfinished transactions](https://developer.apple.com/documentation/storekit/transaction/unfinished); [Finishing a transaction](https://developer.apple.com/documentation/storekit/finishing-a-transaction) |
+| Source type | Official Apple technical source |
+| Publication/access date | Accessed 2026-08-25 |
+| Confidence | High |
+| Product decision effect | Persist frozen set and pending record first; verify; atomically bind transaction to the exact set; confirm durability; finish last; reconcile by transaction ID/idempotency key. |
+| May change before submission? | APIs moderate drift; behavior must be sandbox/device verified. |
+
+### R-005 — Asset and metadata limits are release inputs
+
+| Field | Record |
+|---|---|
+| Claim | Name/subtitle/keyword limits, screenshot sizes/counts/file rules, and preview specifications are explicit App Store Connect constraints. |
+| Source | [App information](https://developer.apple.com/help/app-store-connect/reference/app-information/app-information); [Platform version information](https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information); [Screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/); [App preview specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/app-preview-specifications/) |
+| Source type | Official App Store Connect primary source |
+| Publication/access date | Accessed 2026-08-25 |
+| Confidence | High |
+| Product decision effect | Automate byte/character checks and generate opaque actual-UI screenshots at current iPhone/iPad sizes. A preview is optional and must not imply document upload. |
+| May change before submission? | Yes, especially device dimensions. |
+
+### R-006 — Signature image is not a certified signing service
+
+| Field | Record |
+|---|---|
+| Claim | U.S. and EU electronic-signature definitions require contextual association/use and intent; digital signatures are cryptographic; advanced/qualified signatures and notarization impose capabilities the app does not provide. |
+| Source | [15 U.S.C. §§7001 and 7006](https://uscode.house.gov/view.xhtml?edition=prelim&path=%2Fprelim%40title15%2Fchapter96); [EU eIDAS Regulation](https://eur-lex.europa.eu/eli/reg/2014/910); [NIST digital signature definition](https://csrc.nist.gov/glossary/term/digital_signature); [Florida notary law](https://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&URL=0100-0199%2F0117%2F0117PartIIContentsIndex.html) |
+| Source type | Official statutes, official EU law, official U.S. standard |
+| Publication/access date | Accessed 2026-08-25 |
+| Confidence | High on capability boundaries; legal outcome fact-specific |
+| Product decision effect | Market an image asset only. No identity, certificate, cryptographic signature, QES, notary, audit-trail, enforceability, or universal-acceptance claim. Terms prohibit unauthorized use. |
+| May change before submission? | Yes; counsel and territory-specific review required. |
+
+### R-007 — External release gates are finite
+
+| Field | Record |
+|---|---|
+| Claim | Several launch facts cannot be completed locally: legal identity/contact details, public URLs/domain, Apple team/bundle IDs and credentials, paid-app banking/tax agreements, DSA declaration, territory choice, signed build, StoreKit sandbox/TestFlight proof, and portal submission. |
+| Source | [Apple roles](https://developer.apple.com/help/app-store-connect/manage-your-team/overview-of-accounts-and-roles); [IAP submission](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-in-app-purchase/); [DSA requirements](https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-european-union-digital-services-act-trader-requirements); [Upload builds](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds/) |
+| Source type | Official App Store Connect primary sources |
+| Publication/access date | Accessed 2026-08-25 |
+| Confidence | High |
+| Product decision effect | Build and test local substitutes now, but report these as founder/portal gates and never claim they occurred. |
+| May change before submission? | Yes; portal and legal state are inherently external. |
+
+## Research quality and freshness rules
+
+1. A linked primary source outranks remembered rules, blog summaries, or generated prose.
+2. If a current source conflicts with this package, update the decision record and record the date; do not silently preserve the older conclusion.
+3. Every research package must distinguish observed facts, source-backed conclusions, and inference.
+4. Unknown commercial metrics remain “not publicly available.” Ratings and rating counts are not downloads.
+5. App Store listings, ratings, IAPs, privacy labels, screenshots, reviews, release histories, names, domains, social handles, SDK lists, toolchain rules, and portal fields must be refreshed before submission.
+6. Final legal policies require actual operator facts and qualified legal review. This research is legal preparation, not attorney certification or a legal opinion.
+7. Final Apple privacy/export/accessibility answers require inspection and testing of the actual signed production artifact, not just source code.
+

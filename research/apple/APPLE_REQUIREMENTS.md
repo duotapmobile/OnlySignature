@@ -1,0 +1,359 @@
+# Apple Requirements Research
+
+Research date: 2026-08-25  
+Market and platform scope: United States App Store first; iPhone and iPad distribution contemplated  
+Authority rule: Apple documentation and Apple agreements/guidelines are the primary authority for Apple requirements.  
+Status: Release-preparation research. Every item marked mutable must be rechecked against the linked Apple page before submission.
+
+This document records requirements that affect Only Signature. It is not a representation that an App Store record, signed build, sandbox purchase, TestFlight build, or review submission has occurred.
+
+## Release-impact summary
+
+- From April 28, 2026, iPhone and iPad apps submitted to App Store Connect must be built with the iOS/iPadOS 26 SDK or later. The release build must therefore use a supported Xcode 26 toolchain; the current Apple Xcode requirements page lists Xcode 26.6 with the iOS 26.5 SDK.
+- The production product is a consumable in-app purchase: one purchase delivers one locally frozen signature-plus-initials set. A consumable is repeat-purchasable and is not included in current entitlements after it is finished.
+- The app must observe and verify StoreKit transactions, persist delivery durably, and finish only after delivery. The local signature artwork—not Apple’s transaction history—is the durable reusable product.
+- Privacy policy placement, App Privacy answers, privacy manifests, required-reason API declarations, third-party SDK manifests/signatures, export compliance, age rating, DSA status, and accessibility labels all require final-binary or founder/portal review.
+- Support and privacy URLs must be live and functional. The marketing URL is optional. Placeholder URLs must not reach review.
+
+## Evidence records
+
+### APL-001 — App Review readiness
+
+| Field | Record |
+|---|---|
+| Claim | A submission must be a complete, reviewable build with accurate metadata, functional URLs, working back-end dependencies if any, and complete review information. Apple reviews app versions and associated items such as in-app purchases. |
+| Source | [App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/); [Overview of submitting for review](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/overview-of-submitting-for-review); [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app) |
+| Source type | Official Apple guideline and App Store Connect Help |
+| Publication/access date | Living documents; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Ship a complete free path, a reviewable IAP path, working legal/support links, and concise reviewer instructions. Mock StoreKit must never be enabled in a submitted build. |
+| May change before submission? | Yes. Recheck guidelines, submission workflow, and agreements immediately before review. |
+
+### APL-002 — Privacy-policy placement and URLs
+
+| Field | Record |
+|---|---|
+| Claim | Every app must provide a privacy-policy link in App Store Connect metadata and within the app in an easily accessible manner. The policy must explain collection, use, sharing, retention/deletion, and consent/revocation where applicable. The privacy-policy URL is required for iOS. |
+| Source | [App Review Guidelines §5.1.1](https://developer.apple.com/app-store/review/guidelines/#privacy); [App information](https://developer.apple.com/help/app-store-connect/reference/app-information/app-information); [Manage app privacy](https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy) |
+| Source type | Official Apple guideline and App Store Connect Help |
+| Publication/access date | Living documents; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Privacy Policy appears in Settings/About and at a public HTTPS URL. Release configuration fails closed if the URL is a placeholder. |
+| May change before submission? | Yes; wording and portal fields can change. |
+
+### APL-003 — Support and marketing URLs
+
+| Field | Record |
+|---|---|
+| Claim | A Support URL is required and must lead to actual support information. A Marketing URL is optional. URLs supplied for review must be functional and may not be placeholders. |
+| Source | [Platform version information](https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information); [Required, localizable, and editable properties](https://developer.apple.com/help/app-store-connect/reference/app-information/required-localizable-and-editable-properties); [App Review Guidelines §2.1](https://developer.apple.com/app-store/review/guidelines/#app-completeness) |
+| Source type | Official App Store Connect Help and Apple guideline |
+| Publication/access date | Living documents; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Publish `/support` and `/privacy` before submission. `/` may be the optional marketing URL. Automated release validation rejects example domains. |
+| May change before submission? | Low-to-medium; recheck required properties. |
+
+### APL-004 — App Privacy answers
+
+| Field | Record |
+|---|---|
+| Claim | App Privacy details are required for new apps and app updates. Apple defines “collect” as transmitting data off-device in a way that permits the developer or partners to access it for longer than needed to service the real-time request. Answers must include third-party partner code. Data entered into Apple payment flows and never accessible to the developer is not developer collection, while developer-accessible sales, support, website, or diagnostics data must be assessed separately. |
+| Source | [App privacy details on the App Store](https://developer.apple.com/app-store/app-privacy-details/); [Manage app privacy](https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy); [App privacy reference](https://developer.apple.com/help/app-store-connect/reference/app-privacy/) |
+| Source type | Official Apple developer and App Store Connect documentation |
+| Publication/access date | Living documents; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Do not infer “Data Not Collected” merely from no backend. Audit the archived production binary and distinguish app runtime, Apple commerce records, voluntary support, website hosting logs, and user-selected sharing. No tracking or ATT prompt. |
+| May change before submission? | Yes. Re-audit every dependency and final binary, then answer in App Store Connect. |
+
+### APL-005 — Privacy manifests
+
+| Field | Record |
+|---|---|
+| Claim | Apps and third-party SDKs use `PrivacyInfo.xcprivacy` to declare data practices, tracking domains, and required-reason API use. Invalid manifests can block upload. Since February 12, 2025, apps that include a listed commonly used SDK must meet Apple’s manifest requirements. |
+| Source | [Privacy manifest files](https://developer.apple.com/documentation/bundleresources/privacy-manifest-files); [Adding a privacy manifest](https://developer.apple.com/documentation/bundleresources/adding-a-privacy-manifest-to-your-app-or-third-party-sdk); [Third-party SDK requirements](https://developer.apple.com/support/third-party-SDK-requirements/) |
+| Source type | Official Apple technical documentation and requirements list |
+| Publication/access date | Third-party SDK page updated as a living list; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Include a valid app manifest, merge/inspect manifests in the built archive, declare no tracking domains, and verify the installed versions of listed SDKs such as Hermes. |
+| May change before submission? | Yes. Apple’s SDK list and validation behavior are explicitly mutable. |
+
+### APL-006 — Required-reason APIs
+
+| Field | Record |
+|---|---|
+| Claim | Since May 1, 2024, submitted apps must state approved reasons for covered required-reason APIs. The declared reason must match actual use and may not be used for fingerprinting. Each executable or dynamic library must carry its applicable declaration. |
+| Source | [Describing use of required-reason API](https://developer.apple.com/documentation/bundleresources/describing-use-of-required-reason-api); [Privacy updates](https://developer.apple.com/news/?id=3d8a9yyh) |
+| Source type | Official Apple technical documentation and developer news |
+| Publication/access date | Enforcement announcement 2024; living technical page accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Generate an archive-level API-use inventory, map every declaration to actual first- or third-party behavior, and reject speculative “just in case” reasons. |
+| May change before submission? | Yes; approved reason codes and covered APIs can change. |
+
+### APL-007 — Third-party SDK signatures and manifests
+
+| Field | Record |
+|---|---|
+| Claim | When a listed SDK is added as a binary dependency, Apple requires its privacy manifest and signature; listed SDK source use also requires the manifest. Repackaged SDKs remain subject to the rule. |
+| Source | [Third-party SDK requirements](https://developer.apple.com/support/third-party-SDK-requirements/) |
+| Source type | Official Apple requirement |
+| Publication/access date | Living list; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Pin dependencies, prefer maintained source packages, inspect the `.ipa`/archive rather than only `package.json`, and fail release if a listed SDK lacks a valid manifest/signature where required. |
+| May change before submission? | Yes; recheck after every dependency update and before upload. |
+
+### APL-008 — Current Xcode and SDK submission versions
+
+| Field | Record |
+|---|---|
+| Claim | Beginning April 28, 2026, iOS and iPadOS submissions must use the iOS/iPadOS 26 SDK or later. Apple’s current Xcode system-requirements page lists Xcode 26.6 with the iOS 26.5 SDK. |
+| Source | [Upcoming SDK minimum requirements](https://developer.apple.com/news/?id=ueeok6yw); [Xcode system requirements](https://developer.apple.com/xcode/system-requirements/) |
+| Source type | Official Apple developer news and toolchain requirements |
+| Publication/access date | Requirement published 2026-02-03; Xcode page accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Production EAS image must resolve to Xcode 26.6 or another Apple-accepted Xcode 26 toolchain with iOS 26 SDK or later. Record the resolved image, Xcode, SDK, and deployment target in build evidence. |
+| May change before submission? | Yes, high drift. Recheck within seven days of upload and again on upload day. |
+
+### APL-009 — In-app purchase product type
+
+| Field | Record |
+|---|---|
+| Claim | A consumable is depleted after use and can be purchased more than once. A non-consumable is purchased once and does not expire. A subscription provides ongoing access for a duration. |
+| Source | [Overview for configuring in-app purchases](https://developer.apple.com/help/app-store-connect/configure-in-app-purchase-settings/overview-for-configuring-in-app-purchases/); [Create consumable or non-consumable IAPs](https://developer.apple.com/help/app-store-connect/manage-in-app-purchases/create-consumable-or-non-consumable-in-app-purchases/) |
+| Source type | Official App Store Connect Help |
+| Publication/access date | Living documents; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Configure one consumable product. One consumption finalizes one signature-plus-initials set, including a later-fillable unused slot. Do not implement a subscription or global premium flag. |
+| May change before submission? | Low concept drift; portal workflow and contracts may change. |
+
+### APL-010 — StoreKit price and purchase presentation
+
+| Field | Record |
+|---|---|
+| Claim | StoreKit product information supplies the storefront product and localized display price; the purchase UI should use that returned value rather than a hard-coded currency string. |
+| Source | [Product](https://developer.apple.com/documentation/storekit/product); [Product display price](https://developer.apple.com/documentation/storekit/product/displayprice) |
+| Source type | Official Apple StoreKit documentation |
+| Publication/access date | Living documentation; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Development fixtures may show `$1.99`; production purchase UI displays `Product.displayPrice` and fails with plain-language unavailable messaging if the product cannot load. |
+| May change before submission? | Low; verify API availability against deployment target. |
+
+### APL-011 — Transaction verification, observation, and recovery
+
+| Field | Record |
+|---|---|
+| Claim | StoreKit 2 exposes signed verification results, transaction updates, unfinished transactions, and a transaction `finish()` operation. A purchase must be verified; delivery must be durable and idempotent before finishing. A transaction listener should begin at launch so updates are not missed. |
+| Source | [In-App Purchase](https://developer.apple.com/documentation/storekit/in-app-purchase); [VerificationResult](https://developer.apple.com/documentation/storekit/verificationresult); [Transaction updates](https://developer.apple.com/documentation/storekit/transaction/updates); [Unfinished transactions](https://developer.apple.com/documentation/storekit/transaction/unfinished); [Finishing a transaction](https://developer.apple.com/documentation/storekit/finishing-a-transaction) |
+| Source type | Official Apple StoreKit documentation |
+| Publication/access date | Living documentation; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Implement a launch observer and durable journal: freeze set → hash and persist pending record → purchase → verify → bind transaction ID → atomically persist purchased set and unclaimed slot → confirm read-back → finish. Duplicate callbacks reconcile by transaction ID and set snapshot. Never send strokes/pixels as metadata. |
+| May change before submission? | Medium; APIs are stable but implementation and OS behavior require sandbox/device tests. |
+
+### APL-012 — Consumables and restoration boundary
+
+| Field | Record |
+|---|---|
+| Claim | StoreKit’s current entitlements sequence does not include finished consumables. Apple commerce history cannot reconstruct locally deleted signature artwork. Unfinished transactions remain recoverable until correctly finished. |
+| Source | [Transaction currentEntitlements](https://developer.apple.com/documentation/storekit/transaction/currententitlements); [Unfinished transactions](https://developer.apple.com/documentation/storekit/transaction/unfinished) |
+| Source type | Official Apple StoreKit documentation |
+| Publication/access date | Living documentation; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Do not show a misleading “Restore Purchase” control for consumed local artwork. Explain deletion limits. Recover unfinished verified delivery automatically, and retain local transaction associations for idempotence. |
+| May change before submission? | Medium. Reverify guidelines and reviewer expectations for this exact consumable before submission. |
+
+### APL-013 — IAP creation and review submission
+
+| Field | Record |
+|---|---|
+| Claim | An app’s first in-app purchase must be submitted with a new app version. The IAP must be in a reviewable state and selected on the version submission. Account Holder, Admin, or App Manager can create/submit it. Paid Applications agreement, tax, and banking setup must be complete for commerce. |
+| Source | [Submit an in-app purchase](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-in-app-purchase/); [Create consumable or non-consumable IAPs](https://developer.apple.com/help/app-store-connect/manage-in-app-purchases/create-consumable-or-non-consumable-in-app-purchases/); [Overview of accounts and roles](https://developer.apple.com/help/app-store-connect/manage-your-team/overview-of-accounts-and-roles) |
+| Source type | Official App Store Connect Help |
+| Publication/access date | Living documents; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Founder portal gate: accept agreements, complete tax/banking, create consumable ID, localize, attach it to version 1.0, and submit it with the binary. |
+| May change before submission? | Yes; recheck portal state and agreements. |
+
+### APL-014 — IAP metadata and review screenshot
+
+| Field | Record |
+|---|---|
+| Claim | IAP display name is 2–30 characters and description is up to 45 characters. Review notes allow up to 4,000 characters. The required review screenshot must clearly show the item or service and follows screenshot file specifications; it is for review, not the public product page. |
+| Source | [In-app purchase information](https://developer.apple.com/help/app-store-connect/reference/in-app-purchases-and-subscriptions/in-app-purchase-information/); [View and edit IAP information](https://developer.apple.com/help/app-store-connect/manage-in-app-purchases/view-and-edit-in-app-purchase-information/) |
+| Source type | Official App Store Connect Help |
+| Publication/access date | Living documents; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Prepare actual purchase-screen capture showing localized price and exact per-set scope, plus concise reviewer steps for signature-only, initials-only, and both-slot behavior. |
+| May change before submission? | Yes; recheck field limits and image rules. |
+
+### APL-015 — App name and subtitle limits
+
+| Field | Record |
+|---|---|
+| Claim | The App Store name is 2–30 characters. The subtitle is limited to 30 characters. Both are localizable metadata and must accurately describe the app without protected competitor terms or misleading claims. |
+| Source | [App information](https://developer.apple.com/help/app-store-connect/reference/app-information/app-information); [Platform version information](https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information); [App Review Guidelines §2.3](https://developer.apple.com/app-store/review/guidelines/#accurate-metadata) |
+| Source type | Official App Store Connect Help and Apple guideline |
+| Publication/access date | Living documents; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | `Only Signature` fits the limit but remains subject to brand clearance. Test subtitle candidates; do not lock “Transparent Signature Export” without research. |
+| May change before submission? | Medium; limits rarely change, naming availability does. |
+
+### APL-016 — Promotional text, description, and keywords
+
+| Field | Record |
+|---|---|
+| Claim | Promotional text permits 170 characters; full description permits 4,000 characters; the keyword field permits 100 bytes. Keywords should be comma-separated and may not use other app or company names, inappropriate terms, or irrelevant words. |
+| Source | [Platform version information](https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information) |
+| Source type | Official App Store Connect Help |
+| Publication/access date | Living document; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Validate metadata length in bytes, omit title/subtitle duplication where practical, and exclude competitor marks and deceptive terms such as “certified digital signature.” |
+| May change before submission? | Yes; recheck fields and content rules. |
+
+### APL-017 — Screenshot count, dimensions, and file restrictions
+
+| Field | Record |
+|---|---|
+| Claim | App Store Connect accepts 1–10 screenshots per supported device class/localization in `.jpeg`, `.jpg`, or `.png`; screenshots may not contain alpha transparency. Current accepted 6.9-inch iPhone portrait sizes include 1260×2736, 1290×2796, and 1320×2868 pixels (and reversed landscape dimensions). If no 6.9-inch screenshots are supplied, accepted 6.5-inch fallback sizes include 1284×2778 and 1242×2688. For iPad apps, current 13-inch accepted portrait sizes include 2064×2752 and 2048×2732 (and reversed landscape dimensions). |
+| Source | [Upload app previews and screenshots](https://developer.apple.com/help/app-store-connect/manage-app-information/upload-app-previews-and-screenshots); [Screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/) |
+| Source type | Official App Store Connect Help/specification |
+| Publication/access date | Living specifications; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Produce opaque flattened assets from actual implemented UI for current primary iPhone and, because the app supports iPad, 13-inch iPad. Keep editable sources and regenerate after material UI changes. |
+| May change before submission? | Yes, high drift as devices change. Recheck immediately before capture/upload. |
+
+### APL-018 — App Preview requirements
+
+| Field | Record |
+|---|---|
+| Claim | App previews are optional, with up to three per device size and language. Each is 15–30 seconds, up to 500 MB, no more than 30 fps, and must use accepted H.264 or ProRes formats/containers and dimensions. Current iPhone accepted preview dimensions include 886×1920 portrait (or reverse landscape). Preview content must represent the app experience. |
+| Source | [App preview specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/app-preview-specifications/); [App previews](https://developer.apple.com/app-store/app-previews/) |
+| Source type | Official Apple App Store specification and guidance |
+| Publication/access date | Living specifications; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Build a truthful, audio-optional storyboard and capture plan. Do not block release on a preview; produce one only after current-device capture proves it communicates value better than screenshots. Do not imply document upload. |
+| May change before submission? | Yes; recheck formats, dimensions, and upload workflow. |
+
+### APL-019 — Age rating
+
+| Field | Record |
+|---|---|
+| Claim | The age-rating questionnaire is required; an Unrated app cannot be published. Apple’s current system can produce different ratings by region. The developer must keep answers accurate as features change. |
+| Source | [Set an app age rating](https://developer.apple.com/help/app-store-connect/manage-app-information/set-an-app-age-rating) |
+| Source type | Official App Store Connect Help |
+| Publication/access date | Current iOS 26-era questionnaire; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Draft as a general utility with no user-generated content service, messaging, gambling, violence, or child-directed design. Final answers must be entered against the actual binary; do not select Made for Kids. |
+| May change before submission? | Yes; questionnaire and regional systems change. |
+
+### APL-020 — Accessibility Nutrition Labels
+
+| Field | Record |
+|---|---|
+| Claim | Accessibility Nutrition Labels appear on supported App Store product pages. Apple currently describes participation as voluntary, but a feature should be claimed only when users can complete common tasks—including first launch, purchases, settings, and other critical flows—with it. If not indicated, the product page says the developer has not indicated support. |
+| Source | [Overview of Accessibility Nutrition Labels](https://developer.apple.com/help/app-store-connect/manage-app-accessibility/overview-of-accessibility-nutrition-labels/); [Manage Accessibility Nutrition Labels](https://developer.apple.com/help/app-store-connect/manage-app-accessibility/manage-accessibility-nutrition-labels) |
+| Source type | Official App Store Connect Help |
+| Publication/access date | iOS 26-era living documents; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Draft labels conservatively and publish only claims demonstrated on physical iPhone/iPad across landing, drawing, preview, purchase, export, saved sets, and settings. An accessibility URL may be supplied. |
+| May change before submission? | Yes; feature categories and program status can change. |
+
+### APL-021 — Encryption and export compliance
+
+| Field | Record |
+|---|---|
+| Claim | App Store Connect requires an export-compliance determination for encryption use. Apps using only encryption built into Apple operating systems generally do not need documentation; use of standard or proprietary encryption outside the OS can require documentation and, for France, additional declarations. `ITSAppUsesNonExemptEncryption` must truthfully reflect the final app and all libraries. |
+| Source | [Overview of export compliance](https://developer.apple.com/help/app-store-connect/manage-app-information/overview-of-export-compliance); [Export compliance documentation for encryption](https://developer.apple.com/help/app-store-connect/reference/export-compliance-documentation-for-encryption/); [`ITSAppUsesNonExemptEncryption`](https://developer.apple.com/documentation/bundleresources/information-property-list/itsappusesnonexemptencryption); [Complying with encryption export regulations](https://developer.apple.com/documentation/security/complying-with-encryption-export-regulations) |
+| Source type | Official Apple App Store Connect and Security documentation |
+| Publication/access date | Living documents; accessed 2026-08-25 |
+| Confidence | High on Apple process; legal classification requires final dependency facts |
+| Product effect | Audit final native libraries. If only Apple OS cryptography/hashing is used and no non-exempt encryption is bundled, document the basis and set the key accordingly. Otherwise obtain the required classification before upload. Do not guess from JavaScript dependencies alone. |
+| May change before submission? | Yes; laws, territories, and Apple questions change. |
+
+### APL-022 — EU Digital Services Act trader status
+
+| Field | Record |
+|---|---|
+| Claim | Apple requires every developer distributing in the EU to declare trader or non-trader status. A trader must provide and verify contact information that Apple displays on EU product pages. Organizations generally use their D‑U‑N‑S address and verify phone/email; individuals provide address or post-office box, phone, and email. Account Holder or Admin performs the workflow. |
+| Source | [Manage EU DSA trader requirements](https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-european-union-digital-services-act-trader-requirements) |
+| Source type | Official App Store Connect Help |
+| Publication/access date | Living compliance page; accessed 2026-08-25 |
+| Confidence | High on Apple process; trader classification is founder/legal input |
+| Product effect | Do not enable EU distribution until the founder chooses status and completes verification. Centralize the displayed contact details and keep legal/site disclosures consistent. |
+| May change before submission? | Yes; legal and portal requirements can change. |
+
+### APL-023 — Regional distribution and release controls
+
+| Field | Record |
+|---|---|
+| Claim | Public App Store distribution can be limited by country or region. Distribution method selection and later changes have consequences; availability can also be blocked by local ratings, tax, agreements, or regional compliance. Release can be manual, automatic after approval, or scheduled. |
+| Source | [Set distribution methods](https://developer.apple.com/help/app-store-connect/manage-your-apps-availability/set-distribution-methods); [App and submission statuses](https://developer.apple.com/help/app-store-connect/reference/app-information/app-and-submission-statuses); [Select a version release option](https://developer.apple.com/help/app-store-connect/manage-your-apps-availability/select-an-app-store-version-release-option) |
+| Source type | Official App Store Connect Help |
+| Publication/access date | Living documents; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Default release preparation to a documented territory set, not worldwide. United States can be the initial target; EU/UK/Canada/Australia require founder distribution and legal decisions. Prefer manual release for 1.0 unless the founder chooses otherwise. |
+| May change before submission? | Yes; territory rules and product statuses change. |
+
+### APL-024 — App Store Connect roles
+
+| Field | Record |
+|---|---|
+| Claim | Role requirements vary by operation. Account Holder controls legal agreements and is unique. Uploading builds can be performed by Account Holder, Admin, App Manager, or Developer. Submitting an app or first IAP requires Account Holder, Admin, or App Manager. App Privacy answers require Account Holder, Admin, or App Manager; privacy-policy URL editing also permits Marketing. Accessibility labels permit Account Holder, Admin, Finance, App Manager, or Marketing. DSA information requires Account Holder or Admin. |
+| Source | [Overview of accounts and roles](https://developer.apple.com/help/app-store-connect/manage-your-team/overview-of-accounts-and-roles); [Upload builds](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds/); [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app); [Manage app privacy](https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy); [Manage accessibility labels](https://developer.apple.com/help/app-store-connect/manage-app-accessibility/manage-accessibility-nutrition-labels); [DSA trader requirements](https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-european-union-digital-services-act-trader-requirements) |
+| Source type | Official App Store Connect Help |
+| Publication/access date | Living documents; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Apply least privilege. Founder must retain Account Holder authority for agreements and grant only the minimum role needed for upload/submission/configuration. Require two-factor authentication. |
+| May change before submission? | Yes; recheck operation-specific role tables. |
+
+### APL-025 — TestFlight process and limits
+
+| Field | Record |
+|---|---|
+| Claim | TestFlight builds are testable for up to 90 days. Internal testing supports up to 100 App Store Connect users. External testing supports up to 10,000 testers; the first build for an external group requires TestFlight App Review. Export-compliance information and beta test details must be complete. TestFlight can collect crash, session, and tester-feedback information through Apple. |
+| Source | [TestFlight overview](https://developer.apple.com/help/app-store-connect/test-a-beta-version/testflight-overview); [Testing IAPs in TestFlight](https://developer.apple.com/help/app-store-connect/test-a-beta-version/testing-subscriptions-and-in-app-purchases-in-testflight/) |
+| Source type | Official App Store Connect Help |
+| Publication/access date | Living documents; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Test sandbox purchases and recovery in StoreKit configuration, then signed development/preview builds, then TestFlight. Document that Apple’s TestFlight service may process beta diagnostics even though the production app includes no developer telemetry. Never use TestFlight evidence as proof of App Store approval. |
+| May change before submission? | Yes; limits and review workflow may change. |
+
+### APL-026 — Upload and submission workflow
+
+| Field | Record |
+|---|---|
+| Claim | A build may be uploaded with Xcode, Transporter, or supported API/tooling, then must finish processing before selection. The app record must have required metadata, a selected build, pricing/availability, compliance answers, and review information; an authorized role adds the version to review and submits it. |
+| Source | [Upload builds](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds/); [Submit an app](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app); [Overview of publishing](https://developer.apple.com/help/app-store-connect/manage-your-apps-availability/overview-of-publishing-your-app-on-the-app-store) |
+| Source type | Official App Store Connect Help |
+| Publication/access date | Living documents; accessed 2026-08-25 |
+| Confidence | High |
+| Product effect | Windows development remains viable through Expo/EAS, but a credentialed signed iOS build, processing, sandbox/TestFlight verification, metadata entry, and portal submission remain external release gates. Record exact build IDs and never claim a signed build before it exists. |
+| May change before submission? | Yes; tooling and portal workflow change frequently. |
+
+## StoreKit product decision for Only Signature
+
+The Apple evidence supports a consumable, with important product-side durability rules:
+
+1. The consumable is a unit of service: finalize transparent export rights for one immutable local Signature Set containing one signature slot and one initials slot.
+2. A missing slot remains locally unclaimed after verified purchase and may be filled once later without another purchase.
+3. Repeat export of the same purchased set is a local entitlement and is never a new StoreKit purchase.
+4. Editing finalized strokes is not allowed. “Duplicate as New Draft” preserves the purchased original; only transparent export of the new set starts a new consumable purchase.
+5. Apple’s transaction ID and optional app-account token/set correlation identify delivery. No signature pixels, strokes, local label, or typed name are purchase metadata.
+6. The app finishes a verified transaction only after the frozen set, transaction association, purchased state, and unclaimed-slot state are durably persisted and read back.
+7. App deletion can remove local artwork and completed-consumable delivery state. Exported files remain at destinations selected by the user. The app and policies must not claim Apple can recreate deleted artwork.
+
+## Submission revalidation checklist
+
+Re-run these checks within seven days of submission and again after any dependency, Xcode image, binary, metadata, or territory change:
+
+- Apple SDK minimum and Xcode system requirements.
+- App Review Guidelines and Paid Applications agreement status.
+- App Store Connect roles, required metadata, character/byte limits, and URLs.
+- Screenshot and preview counts, sizes, formats, alpha restrictions, and device classes.
+- Product identifier, type, localization, price schedule, review screenshot, and first-IAP attachment.
+- StoreKit sandbox scenarios: success, cancel, pending, interruption, duplicate callback, termination after charge, unfinished recovery, verification failure, and same-set re-export.
+- Privacy answers against the final archived binary.
+- App and third-party privacy manifests, SDK signatures, required-reason declarations, and tracking-domain absence.
+- Export-compliance classification against all bundled libraries.
+- Age-rating answers, Accessibility Nutrition Labels, DSA declaration, and territory availability.
+- TestFlight/production build configuration: no mock StoreKit, no debug endpoints, no OTA update path, no analytics/tracking, and no placeholder URLs.
+
