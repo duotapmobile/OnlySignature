@@ -249,16 +249,16 @@ Apple requires iOS and iPadOS uploads beginning 2026-04-28 to use the iOS/iPadOS
 
 ## Architecture comparison
 
-| Criterion | Expo React Native + prebuild | Bare React Native | Native SwiftUI |
-|---|---|---|---|
-| Windows product work | Strong; TypeScript, web/site, tests, prebuild | Moderate; more manual native setup | Poor for executable app work |
-| Cloud iOS build | First-class EAS path | EAS supports it, with more manual native ownership | Requires a separate Mac/cloud Xcode workflow |
-| StoreKit 2 | Bridge or small Expo native module | Bridge or custom native module | Direct and strongest native surface |
-| Protected storage/pasteboard | Small owned native modules needed | Native customization needed | Direct APIs |
-| Drawing/export | Skia + canonical path core | Same | Native PencilKit/Core Graphics, but Windows-host mismatch |
-| Cross-platform testability | Highest | Good | Lowest on this host |
-| Native debugging burden | Moderate | High | High and macOS-dependent |
-| Recommendation | **Use** | No demonstrated advantage for this narrow app | Reject for this Windows-first build |
+| Criterion                    | Expo React Native + prebuild                  | Bare React Native                                  | Native SwiftUI                                            |
+| ---------------------------- | --------------------------------------------- | -------------------------------------------------- | --------------------------------------------------------- |
+| Windows product work         | Strong; TypeScript, web/site, tests, prebuild | Moderate; more manual native setup                 | Poor for executable app work                              |
+| Cloud iOS build              | First-class EAS path                          | EAS supports it, with more manual native ownership | Requires a separate Mac/cloud Xcode workflow              |
+| StoreKit 2                   | Bridge or small Expo native module            | Bridge or custom native module                     | Direct and strongest native surface                       |
+| Protected storage/pasteboard | Small owned native modules needed             | Native customization needed                        | Direct APIs                                               |
+| Drawing/export               | Skia + canonical path core                    | Same                                               | Native PencilKit/Core Graphics, but Windows-host mismatch |
+| Cross-platform testability   | Highest                                       | Good                                               | Lowest on this host                                       |
+| Native debugging burden      | Moderate                                      | High                                               | High and macOS-dependent                                  |
+| Recommendation               | **Use**                                       | No demonstrated advantage for this narrow app      | Reject for this Windows-first build                       |
 
 The expected Expo architecture stands. Prebuild does not remove native responsibility; it makes owned native changes reproducible through modules/config plugins. Committing or regenerating the `ios` directory is an implementation choice, but the project must choose one authoritative strategy and test clean regeneration so native privacy/security changes cannot disappear.
 
@@ -280,16 +280,16 @@ The implementation should enforce these invariants independent of UI:
 
 ## Production network allowlist
 
-| Activity | Allowed | App-controlled payload | Constraint |
-|---|---:|---|---|
-| StoreKit product fetch/purchase | Yes | Product ID and random correlation UUID through StoreKit | Apple system API only; no strokes, images, labels, or hashes |
-| Open privacy/support/Terms/App Store HTTPS link | Yes | URL | Explicit user action only |
-| System share/AirDrop/Files/Photos | Yes | User-selected exported file | Explicit user action; destination may be third-party/cloud |
-| EAS Build source upload | Build-time only | Source bundle required for build | `.easignore`, no secrets; never describe as runtime behavior |
-| Expo Updates/OTA | No in production | None | `updates.enabled=false`, embedded bundle |
-| Analytics, ads, crash upload, remote logs | No | None | Dependency and packet audit |
-| App backend, cloud signature storage, accounts | No | None | No endpoints or credentials |
-| Remote fonts/images/config | No | None | Bundle assets locally |
+| Activity                                        |          Allowed | App-controlled payload                                  | Constraint                                                   |
+| ----------------------------------------------- | ---------------: | ------------------------------------------------------- | ------------------------------------------------------------ |
+| StoreKit product fetch/purchase                 |              Yes | Product ID and random correlation UUID through StoreKit | Apple system API only; no strokes, images, labels, or hashes |
+| Open privacy/support/Terms/App Store HTTPS link |              Yes | URL                                                     | Explicit user action only                                    |
+| System share/AirDrop/Files/Photos               |              Yes | User-selected exported file                             | Explicit user action; destination may be third-party/cloud   |
+| EAS Build source upload                         |  Build-time only | Source bundle required for build                        | `.easignore`, no secrets; never describe as runtime behavior |
+| Expo Updates/OTA                                | No in production | None                                                    | `updates.enabled=false`, embedded bundle                     |
+| Analytics, ads, crash upload, remote logs       |               No | None                                                    | Dependency and packet audit                                  |
+| App backend, cloud signature storage, accounts  |               No | None                                                    | No endpoints or credentials                                  |
+| Remote fonts/images/config                      |               No | None                                                    | Bundle assets locally                                        |
 
 The allowlist is a policy target, not a current test result. It must be verified against the final release binary.
 
@@ -346,22 +346,22 @@ Likely justified runtime dependencies are Expo/React Native core, routing, gestu
 
 ## P0/P1 closure table
 
-| Finding | Severity | Disposition before implementation |
-|---|---:|---|
-| Windows cannot locally certify iOS | P1 | Feasibility disproven as blocker; final native evidence founder-gated |
-| Version compatibility | P1 | Fixed: Expo SDK 57/RN 0.86/Node 22.22.0 and Expo-managed installs |
-| StoreKit bridge semantics | P1 | Fixed: mandatory contract test; owned bridge fallback |
-| Consumable versus global unlock | P1 | Fixed: consumable per local set; no global entitlement/restore claim |
-| Crash-safe purchase binding | P1 | Fixed: frozen snapshot + durable idempotent journal + finish last |
-| Included unclaimed slot | P1 | Fixed: independent slot state machine |
-| No-backend verification/refunds | P1 | Fixed: rely on StoreKit verification; disclose refund-telemetry limitation |
-| File protection/backup/atomicity | P1 | Fixed: owned protected storage module |
-| Clipboard/temp exposure | P1 | Fixed: owned expiring local-only pasteboard and cleanup journal |
-| Export format truth | P1 | Fixed for PNG/JPEG; SVG/PDF gated |
-| Production network behavior | P1 | Fixed: OTA disabled, embedded bundle, allowlist and binary observation |
-| Privacy manifests/required reasons | P1 | Fixed: final archive/privacy report is authority |
-| Production release config | P1 | Fixed: fail closed; final identities/credentials founder-gated |
-| Native acceptance testing | P1 | Test assets built locally; execution on Apple environment founder-gated |
+| Finding                            | Severity | Disposition before implementation                                          |
+| ---------------------------------- | -------: | -------------------------------------------------------------------------- |
+| Windows cannot locally certify iOS |       P1 | Feasibility disproven as blocker; final native evidence founder-gated      |
+| Version compatibility              |       P1 | Fixed: Expo SDK 57/RN 0.86/Node 22.22.0 and Expo-managed installs          |
+| StoreKit bridge semantics          |       P1 | Fixed: mandatory contract test; owned bridge fallback                      |
+| Consumable versus global unlock    |       P1 | Fixed: consumable per local set; no global entitlement/restore claim       |
+| Crash-safe purchase binding        |       P1 | Fixed: frozen snapshot + durable idempotent journal + finish last          |
+| Included unclaimed slot            |       P1 | Fixed: independent slot state machine                                      |
+| No-backend verification/refunds    |       P1 | Fixed: rely on StoreKit verification; disclose refund-telemetry limitation |
+| File protection/backup/atomicity   |       P1 | Fixed: owned protected storage module                                      |
+| Clipboard/temp exposure            |       P1 | Fixed: owned expiring local-only pasteboard and cleanup journal            |
+| Export format truth                |       P1 | Fixed for PNG/JPEG; SVG/PDF gated                                          |
+| Production network behavior        |       P1 | Fixed: OTA disabled, embedded bundle, allowlist and binary observation     |
+| Privacy manifests/required reasons |       P1 | Fixed: final archive/privacy report is authority                           |
+| Production release config          |       P1 | Fixed: fail closed; final identities/credentials founder-gated             |
+| Native acceptance testing          |       P1 | Test assets built locally; execution on Apple environment founder-gated    |
 
 All P1 concerns therefore have an allowed disposition under the governing contract. Implementation may proceed automatically. None is permission to declare release readiness before its verification gate is executed.
 

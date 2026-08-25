@@ -52,12 +52,12 @@ The goods/services appear different from a downloadable signature-image utility,
 
 Live RDAP checks on 2026-08-25 produced:
 
-| Domain | Result at check time | Interpretation |
-|---|---|---|
-| `onlysignature.com` | Registered 2020-07-28; registry status included transfer/update/delete/renew locks; expiration shown as 2027-07-28 | Unavailable through ordinary registration; prior commercial-use evidence exists |
-| `onlysignature.app` | Not found in the queried Google Registry RDAP endpoint | May be unregistered at that moment; not reserved and not a promise of availability |
-| `onlysignature.co` | Not found in the queried RDAP endpoint | May be unregistered at that moment; verify with the selected registrar immediately before purchase |
-| `onlysignature.io` | Not found in the queried RDAP endpoint | May be unregistered at that moment; verify with the selected registrar immediately before purchase |
+| Domain              | Result at check time                                                                                               | Interpretation                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `onlysignature.com` | Registered 2020-07-28; registry status included transfer/update/delete/renew locks; expiration shown as 2027-07-28 | Unavailable through ordinary registration; prior commercial-use evidence exists                    |
+| `onlysignature.app` | Not found in the queried Google Registry RDAP endpoint                                                             | May be unregistered at that moment; not reserved and not a promise of availability                 |
+| `onlysignature.co`  | Not found in the queried RDAP endpoint                                                                             | May be unregistered at that moment; verify with the selected registrar immediately before purchase |
+| `onlysignature.io`  | Not found in the queried RDAP endpoint                                                                             | May be unregistered at that moment; verify with the selected registrar immediately before purchase |
 
 Registry evidence: [Verisign RDAP record for onlysignature.com](https://rdap.verisign.com/com/v1/domain/onlysignature.com). Availability can change at any time. Do not publish a public URL until the founder authorizes acquisition and hosting.
 
@@ -74,14 +74,14 @@ Public web-index checks for `@onlysignature` on Instagram, TikTok, X, and Facebo
 
 ## Risk table
 
-| Finding | Severity | Why | Disposition | Verification |
-|---|---:|---|---|---|
-| Exact `.com` is registered and has documented prior use | P1 | Blocks the natural domain and may confuse traffic/support | Founder selects an authorized alternate domain or negotiates lawful acquisition; never imply control now | RDAP + DNS/HTTP + counsel review immediately before lock |
-| Federal and common-law clearance is incomplete | P1 | A similar live mark for related software/services could force a late rename or trigger refusal/dispute | Attorney completes comprehensive clearance before submission/brand spend | Dated counsel report with query strings, records, goods/services analysis, and conclusion |
-| Name is highly suggestive/descriptive | P2 | Clear to users, but likely crowded and potentially narrow to protect | Accept only with realistic protection expectations; prioritize distinctive icon/wordmark | Counsel registrability assessment; App Store shelf test |
-| Social handles unverified | P2 | Inconsistent handles increase impersonation/support risk | Same-day logged-in checks and reservation after name decision | Founder-owned account inventory with URLs and recovery controls |
-| “Only…” famous-brand association | P2 | Could create avoidable reputation/confusion risk if visual/search choices imitate another brand | No brand-bidding or imitation; run independent brand test | Counsel and 5–8 person unaided association test using final icon/name |
-| App Store exact name can change before submission | P2 | App names are not reserved by this research | Recheck in App Store Connect and live storefront immediately before record creation | Dated screenshot/search log |
+| Finding                                                 | Severity | Why                                                                                                    | Disposition                                                                                              | Verification                                                                              |
+| ------------------------------------------------------- | -------: | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Exact `.com` is registered and has documented prior use |       P1 | Blocks the natural domain and may confuse traffic/support                                              | Founder selects an authorized alternate domain or negotiates lawful acquisition; never imply control now | RDAP + DNS/HTTP + counsel review immediately before lock                                  |
+| Federal and common-law clearance is incomplete          |       P1 | A similar live mark for related software/services could force a late rename or trigger refusal/dispute | Attorney completes comprehensive clearance before submission/brand spend                                 | Dated counsel report with query strings, records, goods/services analysis, and conclusion |
+| Name is highly suggestive/descriptive                   |       P2 | Clear to users, but likely crowded and potentially narrow to protect                                   | Accept only with realistic protection expectations; prioritize distinctive icon/wordmark                 | Counsel registrability assessment; App Store shelf test                                   |
+| Social handles unverified                               |       P2 | Inconsistent handles increase impersonation/support risk                                               | Same-day logged-in checks and reservation after name decision                                            | Founder-owned account inventory with URLs and recovery controls                           |
+| “Only…” famous-brand association                        |       P2 | Could create avoidable reputation/confusion risk if visual/search choices imitate another brand        | No brand-bidding or imitation; run independent brand test                                                | Counsel and 5–8 person unaided association test using final icon/name                     |
+| App Store exact name can change before submission       |       P2 | App names are not reserved by this research                                                            | Recheck in App Store Connect and live storefront immediately before record creation                      | Dated screenshot/search log                                                               |
 
 ## Three fallback candidates
 

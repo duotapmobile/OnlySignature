@@ -30,13 +30,13 @@ Required before release:
 
 ## Candidate expansion order
 
-| Priority | Locale | Why it merits validation | Gate before shipping |
-|---|---|---|---|
-| 1 | Spanish (start with es-US or the precise App Store Connect locale supported for the chosen storefronts) | High practical relevance to U.S. users and a broad set of potential founder-selected territories; simple utility vocabulary can localize well if legal/purchase terms are reviewed | Native translator; locale-specific App Store keyword research; product and legal review; localized screenshots; VoiceOver pronunciation test |
-| 2 | Portuguese (Brazil) | Large distinct Portuguese storefront and common mobile-utility category; competitor localization indicates category participation | Confirm Brazil is an approved territory; native translation; price/consumer disclosure review; Apple Ads/storefront evidence |
-| 3 | French | Apple metadata supports language-based discovery across relevant storefronts; competitor set includes French | Native translation; Canada/EU territory decision; privacy/consumer-language review where applicable |
-| 4 | German | Competitors localize into German and utility intent is plausible | Native translation; German compound-term/keyword research; EU trader and consumer disclosure completion |
-| 5 | Japanese | Several competitors list Japanese and the App Store is a distinct high-quality localization environment | Professional translator; screenshot layout rewrite rather than literal compression; Japanese support readiness |
+| Priority | Locale                                                                                                  | Why it merits validation                                                                                                                                                           | Gate before shipping                                                                                                                         |
+| -------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1        | Spanish (start with es-US or the precise App Store Connect locale supported for the chosen storefronts) | High practical relevance to U.S. users and a broad set of potential founder-selected territories; simple utility vocabulary can localize well if legal/purchase terms are reviewed | Native translator; locale-specific App Store keyword research; product and legal review; localized screenshots; VoiceOver pronunciation test |
+| 2        | Portuguese (Brazil)                                                                                     | Large distinct Portuguese storefront and common mobile-utility category; competitor localization indicates category participation                                                  | Confirm Brazil is an approved territory; native translation; price/consumer disclosure review; Apple Ads/storefront evidence                 |
+| 3        | French                                                                                                  | Apple metadata supports language-based discovery across relevant storefronts; competitor set includes French                                                                       | Native translation; Canada/EU territory decision; privacy/consumer-language review where applicable                                          |
+| 4        | German                                                                                                  | Competitors localize into German and utility intent is plausible                                                                                                                   | Native translation; German compound-term/keyword research; EU trader and consumer disclosure completion                                      |
+| 5        | Japanese                                                                                                | Several competitors list Japanese and the App Store is a distinct high-quality localization environment                                                                            | Professional translator; screenshot layout rewrite rather than literal compression; Japanese support readiness                               |
 
 Do not infer that this table ranks market size. Reorder it using actual App Store Connect acquisition data, ratings/reviews language, support demand, and authorized Apple Ads popularity after launch.
 
@@ -55,16 +55,16 @@ For each candidate locale:
 
 ## Product-string risks
 
-| English concept | Translation requirement |
-|---|---|
-| Transparent background | Must mean image transparency/alpha, not vague honesty or document visibility |
-| White background | Must remain the honest PNG/JPEG free-output description |
-| Signature Set | Must communicate one signature slot plus one initials slot bound to one purchase |
-| No subscription | Must not be translated as free or lifetime access |
-| Re-export this set anytime | Must preserve “this set” limitation |
-| Initials included | Must communicate that an unused included slot may be filled later without another purchase |
-| Created on your device | Must not become the absolute “never leaves your device” |
-| Place on any document | Must not imply recipient acceptance or legal enforceability |
+| English concept            | Translation requirement                                                                    |
+| -------------------------- | ------------------------------------------------------------------------------------------ |
+| Transparent background     | Must mean image transparency/alpha, not vague honesty or document visibility               |
+| White background           | Must remain the honest PNG/JPEG free-output description                                    |
+| Signature Set              | Must communicate one signature slot plus one initials slot bound to one purchase           |
+| No subscription            | Must not be translated as free or lifetime access                                          |
+| Re-export this set anytime | Must preserve “this set” limitation                                                        |
+| Initials included          | Must communicate that an unused included slot may be filled later without another purchase |
+| Created on your device     | Must not become the absolute “never leaves your device”                                    |
+| Place on any document      | Must not imply recipient acceptance or legal enforceability                                |
 
 ## Screenshot localization
 

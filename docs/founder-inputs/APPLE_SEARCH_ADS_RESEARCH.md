@@ -81,11 +81,11 @@ Use exact spelling and keep out-of-scope terms as controls rather than adopting 
 - signature SVG
 - no subscription signature
 - offline signature
-- digital signature *(intent-control; likely mismatched)*
-- electronic signature *(intent-control; likely mismatched)*
-- sign PDF *(out-of-scope control)*
-- sign documents *(out-of-scope control)*
-- signature scanner *(out-of-scope control)*
+- digital signature _(intent-control; likely mismatched)_
+- electronic signature _(intent-control; likely mismatched)_
+- sign PDF _(out-of-scope control)_
+- sign documents _(out-of-scope control)_
+- signature scanner _(out-of-scope control)_
 
 Do not add competitor brand names to App Store metadata. A later paid-ads decision about competitor terms requires separate founder and counsel approval.
 

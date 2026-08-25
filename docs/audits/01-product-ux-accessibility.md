@@ -34,12 +34,12 @@ Primary sources accessed on 2026-08-25:
 
 ## Severity and disposition model
 
-| Severity | Meaning |
-|---|---|
-| P0 | Prevents safe or truthful release; no reasonable workaround. |
-| P1 | Blocks a core flow, creates material purchase/accessibility unfairness, or makes a public claim materially unsupported. Must be fixed, disproven, founder-gated, or defensibly excluded before implementation authority. |
-| P2 | Material usability/accessibility degradation with a workaround; fix before release unless explicitly accepted with evidence. |
-| P3 | Improvement or validation detail that does not block the core product. |
+| Severity | Meaning                                                                                                                                                                                                                  |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| P0       | Prevents safe or truthful release; no reasonable workaround.                                                                                                                                                             |
+| P1       | Blocks a core flow, creates material purchase/accessibility unfairness, or makes a public claim materially unsupported. Must be fixed, disproven, founder-gated, or defensibly excluded before implementation authority. |
+| P2       | Material usability/accessibility degradation with a workaround; fix before release unless explicitly accepted with evidence.                                                                                             |
+| P3       | Improvement or validation detail that does not block the core product.                                                                                                                                                   |
 
 Disposition vocabulary used below:
 
@@ -96,11 +96,11 @@ No P0 issue is established by the specification alone.
 
 **Required correction — fix in specification:** Make consumer copy state-aware while retaining the supplied copy where it is accurate:
 
-| State | Draw heading | Preview confirmation | Purchase supporting line | Scope line |
-|---|---|---|---|---|
-| Signature only | Draw Your Signature | Confirm Signature | Place your signature on any document. | One purchase for this signature + included initials slot. |
-| Initials only | Draw Your Initials | Confirm Initials | Place your initials on any document. | One purchase for these initials + included signature slot. |
-| Both | Draw Your Signature / Draw Your Initials according to selected tab | Confirm Signature and Initials | Place your signature and initials on any document. | One purchase for this signature + initials set. |
+| State          | Draw heading                                                       | Preview confirmation           | Purchase supporting line                           | Scope line                                                 |
+| -------------- | ------------------------------------------------------------------ | ------------------------------ | -------------------------------------------------- | ---------------------------------------------------------- |
+| Signature only | Draw Your Signature                                                | Confirm Signature              | Place your signature on any document.              | One purchase for this signature + included initials slot.  |
+| Initials only  | Draw Your Initials                                                 | Confirm Initials               | Place your initials on any document.               | One purchase for these initials + included signature slot. |
+| Both           | Draw Your Signature / Draw Your Initials according to selected tab | Confirm Signature and Initials | Place your signature and initials on any document. | One purchase for this signature + initials set.            |
 
 The segmented control label and selected state must always agree with the heading. “Add Initials, Included” and “Add Signature, Included” must be real buttons, not decorative copy.
 
@@ -440,26 +440,26 @@ These are acceptance scenarios, not claims that all older adults have the same n
 
 ## Product and accessibility acceptance matrix
 
-| Area | Locked acceptance criterion | Minimum evidence |
-|---|---|---|
-| Product scope | No document upload/signing/account/cloud/backend/subscription/AI signature/template flow exists. | Navigation inventory, dependency/network audit, production build inspection. |
-| Signature/initials | Either slot alone or both can complete; each persists independently. | State tests and relaunch/rotation tests. |
-| Canvas | Vector capture works with touch; assistive-tech entry/exit/state is defined. | Physical VoiceOver/Voice Control runs and canvas performance test. |
-| Clear | Clears selected slot only after “Clear this drawing?”; “Keep Drawing” is safe default. | Unit/component/E2E plus focus restoration. |
-| Preview | Exact same fixture/drawing/geometry; realistic white obstruction; adaptive accessible layout. | Pixel/golden tests and manual review. |
-| Purchase | Localized price; per-set scope; no subscription; included slot; deletion caveat; no duplicate tap. | StoreKit UI/state tests and comprehension test. |
-| Free export | Full-quality white PNG/JPEG, repeatable, visible action. | Pixel tests and independent free-flow E2E. |
-| Purchased export | Same set re-exports without purchase; independent formats; purchased slots immutable. | Persistence/state/E2E tests. |
-| Returning user | Multiple sets have text names and explicit per-set statuses. | Five-set VoiceOver walkthrough and relaunch test. |
-| Dynamic Type | Common tasks work at 200%/system maximum without overlap or severe truncation. | All-category screenshots and physical-device run. |
-| Contrast | Text and meaningful UI meet measured thresholds; glass fallback works. | Rendered contrast audit under system settings. |
-| VoiceOver | All common tasks work without sighted help. | Device-family transcript; claim withheld until pass. |
-| Voice Control | All touch controls have operable visible-name targets. | Device-family command walkthrough; claim withheld until pass. |
-| Orientation | Full task works in portrait/landscape; state and focus persist. | Rotation matrix including mid-flow and large text. |
-| Motor access | Every target ≥44x44 pt; dominant actions generally ≥56 pt; spacing prevents mis-taps. | Measured rectangles and usability sessions. |
-| Error recovery | Errors are textual, persistent, announced once, and preserve work where possible. | Error-deck component tests and manual AT test. |
-| Reduced motion | No required parallax/scale/continuous motion; system setting respected. | Device test with Reduce Motion. |
-| Keyboard/iPad | Common tasks, except inherently freehand stroke creation, are keyboard operable with visible focus; drawing limitation documented. | Hardware-keyboard walkthrough. |
+| Area               | Locked acceptance criterion                                                                                                        | Minimum evidence                                                             |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Product scope      | No document upload/signing/account/cloud/backend/subscription/AI signature/template flow exists.                                   | Navigation inventory, dependency/network audit, production build inspection. |
+| Signature/initials | Either slot alone or both can complete; each persists independently.                                                               | State tests and relaunch/rotation tests.                                     |
+| Canvas             | Vector capture works with touch; assistive-tech entry/exit/state is defined.                                                       | Physical VoiceOver/Voice Control runs and canvas performance test.           |
+| Clear              | Clears selected slot only after “Clear this drawing?”; “Keep Drawing” is safe default.                                             | Unit/component/E2E plus focus restoration.                                   |
+| Preview            | Exact same fixture/drawing/geometry; realistic white obstruction; adaptive accessible layout.                                      | Pixel/golden tests and manual review.                                        |
+| Purchase           | Localized price; per-set scope; no subscription; included slot; deletion caveat; no duplicate tap.                                 | StoreKit UI/state tests and comprehension test.                              |
+| Free export        | Full-quality white PNG/JPEG, repeatable, visible action.                                                                           | Pixel tests and independent free-flow E2E.                                   |
+| Purchased export   | Same set re-exports without purchase; independent formats; purchased slots immutable.                                              | Persistence/state/E2E tests.                                                 |
+| Returning user     | Multiple sets have text names and explicit per-set statuses.                                                                       | Five-set VoiceOver walkthrough and relaunch test.                            |
+| Dynamic Type       | Common tasks work at 200%/system maximum without overlap or severe truncation.                                                     | All-category screenshots and physical-device run.                            |
+| Contrast           | Text and meaningful UI meet measured thresholds; glass fallback works.                                                             | Rendered contrast audit under system settings.                               |
+| VoiceOver          | All common tasks work without sighted help.                                                                                        | Device-family transcript; claim withheld until pass.                         |
+| Voice Control      | All touch controls have operable visible-name targets.                                                                             | Device-family command walkthrough; claim withheld until pass.                |
+| Orientation        | Full task works in portrait/landscape; state and focus persist.                                                                    | Rotation matrix including mid-flow and large text.                           |
+| Motor access       | Every target ≥44x44 pt; dominant actions generally ≥56 pt; spacing prevents mis-taps.                                              | Measured rectangles and usability sessions.                                  |
+| Error recovery     | Errors are textual, persistent, announced once, and preserve work where possible.                                                  | Error-deck component tests and manual AT test.                               |
+| Reduced motion     | No required parallax/scale/continuous motion; system setting respected.                                                            | Device test with Reduce Motion.                                              |
+| Keyboard/iPad      | Common tasks, except inherently freehand stroke creation, are keyboard operable with visible focus; drawing limitation documented. | Hardware-keyboard walkthrough.                                               |
 
 ## Proposed locked decisions for the conference
 
@@ -476,14 +476,14 @@ These are acceptance scenarios, not claims that all older adults have the same n
 
 ## P0/P1 disposition register
 
-| Finding | Severity | Proposed disposition before implementation authority | Verification gate |
-|---|---:|---|---|
-| A-01 Canvas assistive interaction | P1 | Fix in specification; if full common-task access proves infeasible, explicitly exclude the VoiceOver/Voice Control label rather than overclaim. | Physical iPhone/iPad VoiceOver and Voice Control flows. |
-| A-02 Slot-neutral copy gap | P1 | Fix in specification with state-aware headings/actions. | Asset-state navigation/copy tests. |
-| A-03 Side-by-side/large-text conflict | P1 | Fix in specification with same-fixture vertical adaptation. | Maximum Dynamic Type and compact-window screenshots. |
-| A-04 Purchase durability clarity | P1 | Fix in specification with concise local-only/deletion disclosure and visible free action. | Comprehension study and purchase-screen assertions. |
-| A-05 Purchase recovery UX | P1 | Fix in specification with durable visible states, duplicate-action guard, and announcements. | Transaction-state E2E/VoiceOver matrix. |
-| A-06 Accessibility claim truthfulness | P1 | Release-gate all positive claims on complete common-task evidence per device family. | Dated evidence and final App Store answer review. |
+| Finding                               | Severity | Proposed disposition before implementation authority                                                                                            | Verification gate                                       |
+| ------------------------------------- | -------: | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| A-01 Canvas assistive interaction     |       P1 | Fix in specification; if full common-task access proves infeasible, explicitly exclude the VoiceOver/Voice Control label rather than overclaim. | Physical iPhone/iPad VoiceOver and Voice Control flows. |
+| A-02 Slot-neutral copy gap            |       P1 | Fix in specification with state-aware headings/actions.                                                                                         | Asset-state navigation/copy tests.                      |
+| A-03 Side-by-side/large-text conflict |       P1 | Fix in specification with same-fixture vertical adaptation.                                                                                     | Maximum Dynamic Type and compact-window screenshots.    |
+| A-04 Purchase durability clarity      |       P1 | Fix in specification with concise local-only/deletion disclosure and visible free action.                                                       | Comprehension study and purchase-screen assertions.     |
+| A-05 Purchase recovery UX             |       P1 | Fix in specification with durable visible states, duplicate-action guard, and announcements.                                                    | Transaction-state E2E/VoiceOver matrix.                 |
+| A-06 Accessibility claim truthfulness |       P1 | Release-gate all positive claims on complete common-task evidence per device family.                                                            | Dated evidence and final App Store answer review.       |
 
 ## Final Auditor A authority statement
 
