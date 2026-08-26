@@ -2,6 +2,41 @@ import type { ExpoConfig, ConfigContext } from "expo/config";
 
 const PLACEHOLDER = "REPLACE_BEFORE_RELEASE";
 
+const EU_DSA_TERRITORIES = new Set([
+  "AT",
+  "BE",
+  "BG",
+  "HR",
+  "CY",
+  "CZ",
+  "DK",
+  "EE",
+  "FI",
+  "FR",
+  "DE",
+  "GR",
+  "HU",
+  "IE",
+  "IT",
+  "LV",
+  "LT",
+  "LU",
+  "MT",
+  "NL",
+  "PL",
+  "PT",
+  "RO",
+  "SK",
+  "SI",
+  "ES",
+  "SE",
+]);
+const requiresDsaTraderStatus = (territories: string) =>
+  territories
+    .split(",")
+    .some((territory) =>
+      EU_DSA_TERRITORIES.has(territory.trim().toUpperCase()),
+    );
 export default ({ config }: ConfigContext): ExpoConfig => {
   const releaseChannel =
     process.env.EXPO_PUBLIC_RELEASE_MODE ??
@@ -9,10 +44,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     "development";
   const production = releaseChannel === "production";
   const bundleIdentifier =
-    process.env.EXPO_PUBLIC_BUNDLE_IDENTIFIER ?? "com.onlysignature.preview";
+    process.env.EXPO_PUBLIC_BUNDLE_IDENTIFIER ?? "com.duotap.onlysignature";
   const required = {
     bundleIdentifier,
-    teamId: process.env.EXPO_PUBLIC_APPLE_TEAM_ID ?? PLACEHOLDER,
+    teamId: process.env.EXPO_PUBLIC_APPLE_TEAM_ID ?? "JWXC66G9Z5",
     supportUrl:
       process.env.EXPO_PUBLIC_SUPPORT_URL ?? "https://example.invalid/support",
     privacyUrl:
@@ -25,11 +60,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       process.env.EXPO_PUBLIC_MARKETING_URL ?? "https://example.invalid",
     legalOperator: process.env.EXPO_PUBLIC_LEGAL_OPERATOR ?? PLACEHOLDER,
     legalAddress: process.env.EXPO_PUBLIC_LEGAL_ADDRESS ?? PLACEHOLDER,
-    dsaTraderStatus: process.env.EXPO_PUBLIC_DSA_TRADER_STATUS ?? "undecided",
+    dsaTraderStatus:
+      process.env.EXPO_PUBLIC_DSA_TRADER_STATUS ?? "not-applicable",
     territories: process.env.EXPO_PUBLIC_APP_STORE_TERRITORIES ?? PLACEHOLDER,
     productId:
       process.env.EXPO_PUBLIC_STOREKIT_PRODUCT_ID ??
-      "com.onlysignature.preview.transparent-set-v1",
+      "com.duotap.onlysignature.transparent-set-v1",
     easProjectId: process.env.EAS_PROJECT_ID ?? PLACEHOLDER,
   };
 
@@ -55,7 +91,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       throw new Error(
         "The StoreKit product identifier must derive from the production bundle identifier.",
       );
-    if (required.dsaTraderStatus === "undecided")
+    if (
+      requiresDsaTraderStatus(required.territories) &&
+      (required.dsaTraderStatus === "undecided" ||
+        required.dsaTraderStatus === "not-applicable")
+    )
       throw new Error("Production requires a DSA trader-status decision.");
   }
 
@@ -122,7 +162,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       },
     },
     android: {
-      package: "com.onlysignature.preview",
+      package: "com.duotap.onlysignature",
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#133A50",

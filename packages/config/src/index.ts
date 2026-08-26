@@ -14,7 +14,7 @@ export interface ReleaseConfig {
   supportEmail: string;
   legalOperator: string;
   legalAddress: string;
-  dsaTraderStatus: "trader" | "non-trader" | "undecided";
+  dsaTraderStatus: "trader" | "non-trader" | "undecided" | "not-applicable";
   territories: readonly string[];
   releaseMode: ReleaseMode;
   storeKitMode: StoreKitMode;
@@ -28,6 +28,41 @@ const unsafeTokens = [
   "todo",
   "tbd",
 ];
+
+const EU_DSA_TERRITORIES = new Set([
+  "AT",
+  "BE",
+  "BG",
+  "HR",
+  "CY",
+  "CZ",
+  "DK",
+  "EE",
+  "FI",
+  "FR",
+  "DE",
+  "GR",
+  "HU",
+  "IE",
+  "IT",
+  "LV",
+  "LT",
+  "LU",
+  "MT",
+  "NL",
+  "PL",
+  "PT",
+  "RO",
+  "SK",
+  "SI",
+  "ES",
+  "SE",
+]);
+
+export const requiresDsaTraderStatus = (territories: readonly string[]) =>
+  territories.some((territory) =>
+    EU_DSA_TERRITORIES.has(territory.toUpperCase()),
+  );
 
 function hasPlaceholder(value: string): boolean {
   return unsafeTokens.some((token) => value.toLowerCase().includes(token));
@@ -63,7 +98,11 @@ export function validateReleaseConfig(config: ReleaseConfig): string[] {
     }
     if (config.storeKitMode !== "real")
       errors.push("production requires real StoreKit mode");
-    if (config.dsaTraderStatus === "undecided")
+    if (
+      requiresDsaTraderStatus(config.territories) &&
+      (config.dsaTraderStatus === "undecided" ||
+        config.dsaTraderStatus === "not-applicable")
+    )
       errors.push("production requires a DSA trader decision");
     if (config.territories.length === 0)
       errors.push("production requires explicit territories");
@@ -81,17 +120,17 @@ export function assertReleaseConfig(config: ReleaseConfig): ReleaseConfig {
 export const developmentConfig: ReleaseConfig = {
   appDisplayName: "Only Signature",
   appSlug: "only-signature",
-  bundleIdentifier: "com.example.onlysignature",
-  appleTeamId: "PLACEHOLDER_APPLE_TEAM_ID",
-  storeKitProductId: "com.example.onlysignature.transparent-set-v1",
-  privacyUrl: "https://example.invalid/privacy/",
-  termsUrl: "https://example.invalid/terms/",
-  supportUrl: "https://example.invalid/support/",
-  marketingUrl: "https://example.invalid/",
-  supportEmail: "support@example.invalid",
-  legalOperator: "PLACEHOLDER_LEGAL_OPERATOR",
+  bundleIdentifier: "com.duotap.onlysignature",
+  appleTeamId: "JWXC66G9Z5",
+  storeKitProductId: "com.duotap.onlysignature.transparent-set-v1",
+  privacyUrl: "https://onlysignature.app/privacy/",
+  termsUrl: "https://onlysignature.app/terms/",
+  supportUrl: "https://onlysignature.app/support/",
+  marketingUrl: "https://onlysignature.app/",
+  supportEmail: "admin@onlysignature.app",
+  legalOperator: "DuoTap LLC",
   legalAddress: "PLACEHOLDER_LEGAL_ADDRESS",
-  dsaTraderStatus: "undecided",
+  dsaTraderStatus: "not-applicable",
   territories: ["US"],
   releaseMode: "development",
   storeKitMode: "mock",

@@ -2,16 +2,16 @@
 
 ## Allowlist
 
-| Activity                                                 |          Allowed | Trigger                                       | Signature content                               |
-| -------------------------------------------------------- | ---------------: | --------------------------------------------- | ----------------------------------------------- |
-| Apple StoreKit product/purchase traffic                  |              Yes | Explicit purchase/product load via system API | Never; product ID and optional random UUID only |
-| System Share, Files, AirDrop, receiving apps             |              Yes | Explicit destination choice                   | Selected export, controlled by OS/destination   |
-| Privacy, Terms, Support, marketing/App Store HTTPS links |              Yes | Explicit tap                                  | None attached                                   |
-| EAS Build source upload                                  |  Build time only | Authorized build                              | Source after ignore/secret scan; not runtime    |
-| Expo OTA/update request                                  | No in production | N/A                                           | N/A                                             |
-| Analytics, advertising, crash upload, remote logging     |               No | N/A                                           | N/A                                             |
-| Developer backend/cloud storage/account                  |               No | N/A                                           | N/A                                             |
-| Remote fonts/images/config/WebView                       |               No | N/A                                           | N/A                                             |
+| Activity                                                                     |          Allowed | Trigger                                       | Signature content                               |
+| ---------------------------------------------------------------------------- | ---------------: | --------------------------------------------- | ----------------------------------------------- |
+| Apple StoreKit product/purchase traffic                                      |              Yes | Explicit purchase/product load via system API | Never; product ID and optional random UUID only |
+| System Share, Files, AirDrop, receiving apps                                 |              Yes | Explicit destination choice                   | Selected export, controlled by OS/destination   |
+| `onlysignature.app` Privacy, Terms, Support, marketing/App Store HTTPS links |              Yes | Explicit tap                                  | None attached                                   |
+| EAS Build source upload                                                      |  Build time only | Authorized build                              | Source after ignore/secret scan; not runtime    |
+| Expo OTA/update request                                                      | No in production | N/A                                           | N/A                                             |
+| Analytics, advertising, crash upload, remote logging                         |               No | N/A                                           | N/A                                             |
+| Developer backend/cloud storage/account                                      |               No | N/A                                           | N/A                                             |
+| Remote fonts/images/config/WebView                                           |               No | N/A                                           | N/A                                             |
 
 ## Enforcement
 

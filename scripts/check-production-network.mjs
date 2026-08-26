@@ -17,7 +17,7 @@ const forbidden = [
   /XMLHttpRequest/,
 ];
 const allowedUrl =
-  /^https:\/\/(example\.invalid|apps\.apple\.com|support\.apple\.com|reportaproblem\.apple\.com)/i;
+  /^https:\/\/(example\.invalid|onlysignature\.app|apps\.apple\.com|support\.apple\.com|reportaproblem\.apple\.com)/i;
 const findings = [];
 async function walk(root) {
   try {
