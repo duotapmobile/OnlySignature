@@ -1,6 +1,6 @@
 export const PRODUCT_NAME = "Only Signature";
 export const SUPPORT_EMAIL =
-  import.meta.env.PUBLIC_SUPPORT_EMAIL || "support@onlysignature.invalid";
+  import.meta.env.PUBLIC_SUPPORT_EMAIL || "admin@onlysignature.app";
 export const APP_STORE_URL =
   import.meta.env.PUBLIC_APP_STORE_URL || "/download/";
 export const IS_APP_STORE_PLACEHOLDER = !import.meta.env.PUBLIC_APP_STORE_URL;

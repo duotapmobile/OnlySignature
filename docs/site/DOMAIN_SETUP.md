@@ -1,14 +1,12 @@
 # Domain and DNS Setup
 
 Prepared: 2026-08-25  
-Status: waiting for founder domain and hosting authorization
+Status: canonical domain confirmed as `onlysignature.app`; waiting for hosting and DNS authorization.
 
 ## Founder decisions required
 
-- final cleared product name;
-- purchased domain and registrar account owner;
 - production host;
-- canonical hostname choice, such as apex domain or `www`;
+- registrar/DNS account owner confirmation;
 - support email domain and provider;
 - legal operator name and mailing address;
 - authorization to create DNS, TLS, and deployment records.
@@ -17,7 +15,7 @@ Do not purchase, transfer, or configure a domain without that authorization. `on
 
 ## Recommended hostname model
 
-Choose one canonical HTTPS origin, for example `https://example.com`. Redirect every alternate HTTP/HTTPS or `www`/apex variant to that origin with a permanent redirect. Do not serve duplicate copies across multiple hostnames.
+The canonical HTTPS origin is `https://onlysignature.app`. Redirect every alternate HTTP/HTTPS or `www`/apex variant to that origin with a permanent redirect. Do not serve duplicate copies across multiple hostnames.
 
 Required public paths are listed in `REQUIRED_PUBLIC_URLS.md`.
 

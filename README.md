@@ -57,7 +57,7 @@ Production configuration fails closed if required founder values remain placehol
 
 ## Current authority
 
-Local implementation is authorized by the [Final Four-Role Repository Authority](docs/audits/10-final-release-authority.md). Release is not authorized until [Release Blockers](docs/RELEASE_BLOCKERS.md) and the device/archive/portal gates are closed with evidence.
+Local implementation is authorized by the [Current Final Authority](docs/audits/15-current-final-authority.md). Release is not authorized until [Release Blockers](docs/RELEASE_BLOCKERS.md) and the device/archive/portal gates are closed with evidence.
 
 External inputs are finite and listed in [Founder Inputs Required](docs/FOUNDER_INPUTS_REQUIRED.md). Missing Apple credentials or public-domain values do not block unrelated local work.
 

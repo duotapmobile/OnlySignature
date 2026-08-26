@@ -1,9 +1,9 @@
 # Required Public URLs
 
 Prepared: 2026-08-25  
-Base placeholder: `https://example.com`
+Canonical origin: `https://onlysignature.app`
 
-Replace the base only after the founder owns and authorizes the domain. All launch URLs must use HTTPS and remain available without login.
+The founder supplied this domain for the first publication. All launch URLs must use HTTPS and remain available without login. Hosting and DNS changes still require authorization.
 
 | Purpose        | Required path     | App Store use                                     | Launch requirement                                                                            |
 | -------------- | ----------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------- |
@@ -24,9 +24,9 @@ Replace the base only after the founder owns and authorizes the domain. All laun
 Use the final origins exactly:
 
 ```text
-Privacy Policy URL: https://example.com/privacy/
-Support URL:        https://example.com/support/
-Marketing URL:      https://example.com/
+Privacy Policy URL: https://onlysignature.app/privacy/
+Support URL:        https://onlysignature.app/support/
+Marketing URL:      https://onlysignature.app/
 ```
 
 The in-app Settings/About screen must open the same final privacy, Terms, support, FAQ, and accessibility pages. The URLs must also match centralized mobile release configuration owned outside this site scope.

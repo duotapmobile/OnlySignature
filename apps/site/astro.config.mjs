@@ -1,6 +1,6 @@
 import { defineConfig } from "astro/config";
 
-const site = process.env.PUBLIC_SITE_URL || "https://onlysignature.invalid";
+const site = process.env.PUBLIC_SITE_URL || "https://onlysignature.app";
 
 export default defineConfig({
   site,
