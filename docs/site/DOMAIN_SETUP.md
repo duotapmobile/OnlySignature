@@ -1,14 +1,14 @@
 # Domain and DNS Setup
 
 Prepared: 2026-08-25  
-Status: canonical domain confirmed as `onlysignature.app`; waiting for hosting and DNS authorization.
+Status: GitHub Pages is selected and prepared for `onlysignature.app`; waiting for Pages activation and the founder-entered DNS changes below.
 
 ## Founder decisions required
 
-- production host;
-- registrar/DNS account owner confirmation;
-- support email domain and provider;
-- legal operator name and mailing address;
+- production host: GitHub Pages selected;
+- registrar/DNS: Namecheap BasicDNS observed; founder retains account control;
+- support email: `admin@onlysignature.app` confirmed; preserve Namecheap email forwarding;
+- legal operator and phone are confirmed; the private Apple membership address must not be published;
 - authorization to create DNS, TLS, and deployment records.
 
 Do not purchase, transfer, or configure a domain without that authorization. `onlysignature.com` is already registered and must not be represented as owned.
@@ -18,6 +18,30 @@ Do not purchase, transfer, or configure a domain without that authorization. `on
 The canonical HTTPS origin is `https://onlysignature.app`. Redirect every alternate HTTP/HTTPS or `www`/apex variant to that origin with a permanent redirect. Do not serve duplicate copies across multiple hostnames.
 
 Required public paths are listed in `REQUIRED_PUBLIC_URLS.md`.
+
+## Selected routing: GitHub Pages through Namecheap BasicDNS
+
+Public DNS observed on 2026-08-26 uses Namecheap BasicDNS. The apex currently points to Namecheap parking at `162.255.119.176`, while `www` points to `parkingpage.namecheap.com`. The MX and SPF records support `admin@onlysignature.app` and must remain unchanged.
+
+Before changing DNS, publish `apps/site/dist` from the `gh-pages` branch, select that branch and `/ (root)` under **GitHub repository > Settings > Pages**, then set the Pages custom domain to `onlysignature.app`. GitHub recommends associating the domain with the Pages site before pointing public DNS at it.
+
+In **Namecheap > Domain List > onlysignature.app > Advanced DNS**, delete only the current parking `A` record for host `@` and the parking `CNAME` for host `www`. Add these records with TTL `Automatic`:
+
+| Type         | Host  | Value                    |
+| ------------ | ----- | ------------------------ |
+| A Record     | `@`   | `185.199.108.153`        |
+| A Record     | `@`   | `185.199.109.153`        |
+| A Record     | `@`   | `185.199.110.153`        |
+| A Record     | `@`   | `185.199.111.153`        |
+| AAAA Record  | `@`   | `2606:50c0:8000::153`    |
+| AAAA Record  | `@`   | `2606:50c0:8001::153`    |
+| AAAA Record  | `@`   | `2606:50c0:8002::153`    |
+| AAAA Record  | `@`   | `2606:50c0:8003::153`    |
+| CNAME Record | `www` | `duotapmobile.github.io` |
+
+Do not delete or edit the five `eforward*.registrar-servers.com` MX records or the `v=spf1 include:spf.efwd.registrar-servers.com ~all` TXT record. Do not add wildcard DNS. If GitHub domain verification displays a `_github-pages-challenge-duotapmobile` TXT value, add the exact generated value; it cannot be precomputed.
+
+After DNS resolves, enable **Enforce HTTPS** in GitHub Pages. With `onlysignature.app` configured as the custom domain, GitHub redirects `www.onlysignature.app` to the canonical apex.
 
 ## DNS procedure
 

@@ -12,6 +12,7 @@ describe("release config", () => {
   it("fails production closed on placeholders and mock StoreKit", () => {
     const errors = validateReleaseConfig({
       ...developmentConfig,
+      supportEmail: "PLACEHOLDER_SUPPORT_EMAIL",
       releaseMode: "production",
     });
     expect(errors.some((error) => error.includes("placeholder"))).toBe(true);
@@ -22,7 +23,6 @@ describe("release config", () => {
   it("requires a DSA decision only when an EU territory is enabled", () => {
     const errors = validateReleaseConfig({
       ...developmentConfig,
-      legalAddress: "123 Example Street",
       releaseMode: "production",
       storeKitMode: "real",
       territories: ["US", "DE"],

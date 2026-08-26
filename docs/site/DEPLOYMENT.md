@@ -29,7 +29,7 @@ For a final public release, run:
 npm run release:check
 ```
 
-The release check deliberately fails while the verified legal mailing address, governing jurisdiction, or any future placeholder remains in generated output. DuoTap LLC, `admin@onlysignature.app`, and `https://onlysignature.app` are already confirmed.
+The release check deliberately fails while the governing jurisdiction or any future placeholder remains in generated output. DuoTap LLC, `admin@onlysignature.app`, and `https://onlysignature.app` are confirmed.
 
 ## Option A — direct static upload
 

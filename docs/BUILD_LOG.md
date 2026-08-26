@@ -72,3 +72,12 @@ This file records only commands and outcomes actually observed. Signed iOS build
 - The site release check intentionally failed only on legal mailing address and governing law. The EAS production lifecycle check intentionally failed closed without external release values.
 - The dependency gate found no high/critical advisories; 12 moderate transitive Expo build-tool advisories remain documented without a breaking force fix.
 - GitHub `origin` is now founder-authorized. Signed build, StoreKit sandbox, physical-device, DNS/deployment, legal completion, and App Store submission remain explicit external gates.
+
+## 2026-08-26 - Legal contact and GitHub Pages DNS preparation
+
+- Classified DuoTap LLC's Apple membership address as private and excluded it from public artifacts; confirmed the public review phone, Team ID, U.S.-only territory decision, support email, bundle identifier, and App Store Connect app record.
+- Regenerated the shared legal-content module. The site release gate now blocks only on the governing-law choice.
+- Selected GitHub Pages behind the existing Namecheap BasicDNS configuration, added the static `CNAME` and `.nojekyll` artifacts, and documented the exact apex A/AAAA and `www` CNAME changes while preserving Namecheap MX and SPF email-forwarding records.
+- `npm run build --workspace @only-signature/site`: built 9 pages. `npm run validate --workspace @only-signature/site`: passed 11 required outputs, internal links, zero client JavaScript, and prohibited-tracking checks.
+- `npm run check`: exit 0; 27/27 root tests and 42/42 mobile tests passed, with formatting, strict TypeScript, lint, content drift, release configuration, static network policy, native autolinking, store assets, and high/critical dependency threshold passing.
+- `npm audit` reported 12 moderate transitive advisories in Expo build tooling; the offered full fix is breaking and was not forced.

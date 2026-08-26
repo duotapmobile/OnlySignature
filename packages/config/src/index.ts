@@ -13,7 +13,6 @@ export interface ReleaseConfig {
   marketingUrl: string;
   supportEmail: string;
   legalOperator: string;
-  legalAddress: string;
   dsaTraderStatus: "trader" | "non-trader" | "undecided" | "not-applicable";
   territories: readonly string[];
   releaseMode: ReleaseMode;
@@ -129,7 +128,6 @@ export const developmentConfig: ReleaseConfig = {
   marketingUrl: "https://onlysignature.app/",
   supportEmail: "admin@onlysignature.app",
   legalOperator: "DuoTap LLC",
-  legalAddress: "PLACEHOLDER_LEGAL_ADDRESS",
   dsaTraderStatus: "not-applicable",
   territories: ["US"],
   releaseMode: "development",

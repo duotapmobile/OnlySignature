@@ -61,7 +61,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     marketingUrl:
       process.env.EXPO_PUBLIC_MARKETING_URL ?? "https://onlysignature.app/",
     legalOperator: process.env.EXPO_PUBLIC_LEGAL_OPERATOR ?? "DuoTap LLC",
-    legalAddress: process.env.EXPO_PUBLIC_LEGAL_ADDRESS ?? PLACEHOLDER,
     dsaTraderStatus:
       process.env.EXPO_PUBLIC_DSA_TRADER_STATUS ?? "not-applicable",
     territories: process.env.EXPO_PUBLIC_APP_STORE_TERRITORIES ?? "US",
@@ -194,7 +193,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       supportEmail: required.supportEmail,
       marketingUrl: required.marketingUrl,
       legalOperator: required.legalOperator,
-      legalAddress: required.legalAddress,
       dsaTraderStatus: required.dsaTraderStatus,
       territories: required.territories
         .split(",")

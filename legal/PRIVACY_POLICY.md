@@ -4,7 +4,7 @@
 
 Only Signature is designed to create reusable signature and initials image assets without asking you to upload a private document. This policy explains what the app does automatically, what happens when you choose to export or contact support, what Apple processes for purchases, and what the public website may process.
 
-The legal operator is **DuoTap LLC**, with a mailing address at **[LEGAL_MAILING_ADDRESS]**. The verified legal mailing address must be completed before public release.
+The legal operator is **DuoTap LLC**. Privacy questions may be sent to **admin@onlysignature.app**.
 
 ## 1. Scope
 
@@ -118,8 +118,5 @@ Material changes will be posted on this page with a revised effective date. If a
 ## 17. Contact
 
 - **Operator:** DuoTap LLC
-- **Mailing address:** [LEGAL_MAILING_ADDRESS]
 - **Email:** admin@onlysignature.app
 - **Website:** https://onlysignature.app/
-
-The verified legal mailing address must be completed before public release.

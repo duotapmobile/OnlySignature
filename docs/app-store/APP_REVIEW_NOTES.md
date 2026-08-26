@@ -30,9 +30,7 @@ Mock StoreKit exists only in nonproduction test/fixture builds. The submitted pr
 ## Review contact and links
 
 - Contact: `admin@onlysignature.app`
-- International phone: `[FOUNDER_INPUT:APP_REVIEW_PHONE]`
+- International phone: entered privately in App Store Connect; intentionally excluded from source
 - Privacy: `https://onlysignature.app/privacy/`
 - Support: `https://onlysignature.app/support/`
 - Terms: `https://onlysignature.app/terms/`
-
-The remaining phone marker is forbidden in submitted metadata and must be replaced with the authorized international review-contact number.

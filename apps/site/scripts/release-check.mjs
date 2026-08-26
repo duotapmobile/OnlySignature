@@ -26,7 +26,6 @@ const output = (
 const blockers = [
   ["placeholder domain", /onlysignature\.invalid|example\.com/i],
   ["legal operator", /\[LEGAL_OPERATOR_NAME\]/],
-  ["legal address", /\[LEGAL_MAILING_ADDRESS\]/],
   ["support identity", /(?:\[SUPPORT_EMAIL\]|support@onlysignature\.invalid)/i],
   ["public URL", /\[PUBLIC_SITE_URL\]/],
   ["governing law", /\[GOVERNING_LAW_JURISDICTION\]/],

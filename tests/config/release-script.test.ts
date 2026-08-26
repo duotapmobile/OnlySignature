@@ -14,7 +14,6 @@ const baseProductionEnv = {
   EXPO_PUBLIC_MARKETING_URL: "https://onlysignature.app/",
   EXPO_PUBLIC_SUPPORT_EMAIL: "admin@onlysignature.app",
   EXPO_PUBLIC_LEGAL_OPERATOR: "DuoTap LLC",
-  EXPO_PUBLIC_LEGAL_ADDRESS: "1 Main Street, Dover, DE 19901",
   EXPO_PUBLIC_DSA_TRADER_STATUS: "not-applicable",
   EXPO_PUBLIC_APP_STORE_TERRITORIES: "US",
   EXPO_PUBLIC_STOREKIT_MODE: "real",
