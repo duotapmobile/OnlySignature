@@ -29,6 +29,9 @@ function SetCard({ item, onRename }: { item: SignatureSet; onRename(): void }) {
   const purchaseRecovery = Boolean(
     item.pendingPurchaseId || item.transactionFinishPending,
   );
+  const displayName = item.label || "Signature Set";
+  const includedName =
+    item.unclaimedSlot === "initials" ? "Initials" : "Signature";
   const open = () => {
     selectSet(item.id);
     router.push(
@@ -42,7 +45,7 @@ function SetCard({ item, onRename }: { item: SignatureSet; onRename(): void }) {
   const remove = () =>
     Alert.alert(
       "Delete this local set?",
-      `${item.label || "This signature set"} will be removed from Only Signature. Files you already exported are not deleted.${item.status === "purchased" ? " The consumed purchase cannot restore this artwork after deletion." : ""}`,
+      `${displayName} will be removed from Only Signature. Files you already exported are not deleted.${item.status === "purchased" ? " The consumed purchase cannot restore this artwork after deletion." : ""}`,
       [
         { text: "Keep Set", style: "cancel" },
         {
@@ -56,7 +59,7 @@ function SetCard({ item, onRename }: { item: SignatureSet; onRename(): void }) {
     <GlassCard style={styles.card}>
       <View style={styles.cardHeader}>
         <View style={styles.cardTitleGroup}>
-          <Text style={styles.title}>{item.label || "Signature Set"}</Text>
+          <Text style={styles.title}>{displayName}</Text>
           <Text style={styles.status}>
             {purchaseRecovery
               ? "Purchase pending — do not purchase again"
@@ -66,9 +69,9 @@ function SetCard({ item, onRename }: { item: SignatureSet; onRename(): void }) {
           </Text>
           {item.unclaimedSlot ? (
             <Text style={styles.included}>
-              {item.unclaimedSlot === "initials"
-                ? "Initials included — add anytime"
-                : "Signature included — add anytime"}
+              {item.transactionFinishPending
+                ? `${includedName} included — available after Apple finishes processing`
+                : `${includedName} included — add anytime`}
             </Text>
           ) : null}
         </View>
@@ -110,6 +113,7 @@ function SetCard({ item, onRename }: { item: SignatureSet; onRename(): void }) {
       <View style={styles.cardActions}>
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel={`Rename ${displayName}`}
           onPress={onRename}
           style={styles.textAction}
         >
@@ -117,7 +121,7 @@ function SetCard({ item, onRename }: { item: SignatureSet; onRename(): void }) {
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Duplicate as New Draft"
+          accessibilityLabel={`Duplicate ${displayName} as New Draft`}
           onPress={() => {
             confirmAuthorizedUse(() => {
               if (duplicateSet(item.id)) router.push("/draw");
@@ -129,6 +133,7 @@ function SetCard({ item, onRename }: { item: SignatureSet; onRename(): void }) {
         </Pressable>
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel={`Delete ${displayName} from this device`}
           onPress={remove}
           style={styles.textAction}
         >

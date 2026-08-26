@@ -49,20 +49,22 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     bundleIdentifier,
     teamId: process.env.EXPO_PUBLIC_APPLE_TEAM_ID ?? "JWXC66G9Z5",
     supportUrl:
-      process.env.EXPO_PUBLIC_SUPPORT_URL ?? "https://example.invalid/support",
+      process.env.EXPO_PUBLIC_SUPPORT_URL ??
+      "https://onlysignature.app/support/",
     privacyUrl:
-      process.env.EXPO_PUBLIC_PRIVACY_URL ?? "https://example.invalid/privacy",
+      process.env.EXPO_PUBLIC_PRIVACY_URL ??
+      "https://onlysignature.app/privacy/",
     termsUrl:
-      process.env.EXPO_PUBLIC_TERMS_URL ?? "https://example.invalid/terms",
+      process.env.EXPO_PUBLIC_TERMS_URL ?? "https://onlysignature.app/terms/",
     supportEmail:
-      process.env.EXPO_PUBLIC_SUPPORT_EMAIL ?? "support@example.invalid",
+      process.env.EXPO_PUBLIC_SUPPORT_EMAIL ?? "admin@onlysignature.app",
     marketingUrl:
-      process.env.EXPO_PUBLIC_MARKETING_URL ?? "https://example.invalid",
-    legalOperator: process.env.EXPO_PUBLIC_LEGAL_OPERATOR ?? PLACEHOLDER,
+      process.env.EXPO_PUBLIC_MARKETING_URL ?? "https://onlysignature.app/",
+    legalOperator: process.env.EXPO_PUBLIC_LEGAL_OPERATOR ?? "DuoTap LLC",
     legalAddress: process.env.EXPO_PUBLIC_LEGAL_ADDRESS ?? PLACEHOLDER,
     dsaTraderStatus:
       process.env.EXPO_PUBLIC_DSA_TRADER_STATUS ?? "not-applicable",
-    territories: process.env.EXPO_PUBLIC_APP_STORE_TERRITORIES ?? PLACEHOLDER,
+    territories: process.env.EXPO_PUBLIC_APP_STORE_TERRITORIES ?? "US",
     productId:
       process.env.EXPO_PUBLIC_STOREKIT_PRODUCT_ID ??
       "com.duotap.onlysignature.transparent-set-v1",

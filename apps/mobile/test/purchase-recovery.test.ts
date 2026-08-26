@@ -3,6 +3,8 @@ import test from "node:test";
 import { screenshotFixtureSet } from "../src/domain/fixtures";
 import type { AppStateData } from "../src/domain/models";
 import {
+  stateAfterFinishResult,
+  stateAfterRecoverySnapshot,
   stateAfterCompletedUnfinishedSnapshot,
   stateMarkingInterruptedPresentations,
 } from "../src/domain/purchaseRecovery";
@@ -83,4 +85,36 @@ test("snapshot token matching is case insensitive", () => {
     },
   ]);
   assert.equal(present.sets[0]!.purchaseIntentState, "presenting");
+});
+
+test("an active purchase presentation is never marked interrupted by its own snapshot", () => {
+  const active = stateAfterRecoverySnapshot(pendingData(), [], true);
+  assert.equal(active.sets[0]!.purchaseIntentState, "presenting");
+  const afterSession = stateAfterRecoverySnapshot(pendingData(), [], false);
+  assert.equal(afterSession.sets[0]!.purchaseIntentState, "interrupted");
+});
+
+test("finish false retains recovery until a completed snapshot proves absence", () => {
+  const finishing: AppStateData = {
+    ...pendingData(),
+    sets: [
+      {
+        ...pendingData().sets[0]!,
+        status: "purchased",
+        pendingPurchaseId: null,
+        purchaseIntentState: null,
+        transactionId: "tx-finish",
+        transactionFinishPending: true,
+      },
+    ],
+  };
+  const retained = stateAfterFinishResult(finishing, "tx-finish", false);
+  assert.equal(retained.sets[0]!.transactionFinishPending, true);
+  const cleared = stateAfterFinishResult(finishing, "tx-finish", true);
+  assert.equal(cleared.sets[0]!.transactionFinishPending, false);
+  assert.equal(
+    stateAfterCompletedUnfinishedSnapshot(retained, []).sets[0]!
+      .transactionFinishPending,
+    false,
+  );
 });

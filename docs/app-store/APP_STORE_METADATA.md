@@ -1,6 +1,6 @@
 # App Store Metadata — en-US Draft
 
-**Status:** Complete copy draft; name, URLs, operator, price, and final feature claims remain evidence/founder-gated.
+**Status:** Complete copy draft with confirmed operator and public URL values. Final name clearance, live URL deployment, localized StoreKit price, and submitted-binary feature claims remain evidence/founder-gated.
 
 ## Fields
 
@@ -11,10 +11,10 @@
 - Primary category: Utilities
 - Secondary category: Productivity
 - Age-rating recommendation: lowest general-utility rating supported by the current completed questionnaire; do not mark Made for Kids
-- Copyright: `[FOUNDER_INPUT:COPYRIGHT]`
-- Support URL: `[FOUNDER_INPUT:SUPPORT_URL]`
-- Marketing URL: `[FOUNDER_INPUT:MARKETING_URL]`
-- Privacy URL: `[FOUNDER_INPUT:PRIVACY_URL]`
+- Copyright: `© 2026 DuoTap LLC`
+- Support URL: `https://onlysignature.app/support/`
+- Marketing URL: `https://onlysignature.app/`
+- Privacy URL: `https://onlysignature.app/privacy/`
 
 The subtitle remains a candidate pending final keyword/listing evidence and name clearance. Validate the keyword field by UTF-8 bytes and remove any term already indexed or found misleading.
 

@@ -15,7 +15,7 @@ Local commands from `apps/site`:
 npm ci --workspaces=false
 npm run typecheck
 $env:PUBLIC_SITE_URL = 'https://example.com'
-$env:PUBLIC_SUPPORT_EMAIL = 'support@example.com'
+$env:PUBLIC_SUPPORT_EMAIL = 'admin@onlysignature.app'
 $env:PUBLIC_APP_STORE_URL = 'https://apps.apple.com/app/id0000000000'
 npm run build
 npm run validate
@@ -29,7 +29,7 @@ For a final public release, run:
 npm run release:check
 ```
 
-The release check deliberately fails while the legal operator, address, support email, governing jurisdiction, public URL, or `.invalid` placeholders remain in generated output.
+The release check deliberately fails while the verified legal mailing address, governing jurisdiction, or any future placeholder remains in generated output. DuoTap LLC, `admin@onlysignature.app`, and `https://onlysignature.app` are already confirmed.
 
 ## Option A — direct static upload
 

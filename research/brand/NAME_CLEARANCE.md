@@ -5,6 +5,10 @@ Working mark: **Only Signature**
 Scope: United States launch screening, with limited global web/domain observations  
 Status: **material unresolved risk; keep the working name centralized but do not treat it as legally cleared**
 
+## Founder decision after research
+
+On 2026-08-26, the founder chose to proceed under **Only Signature** without filing a trademark and accepted the preliminary risk described below. This decision does not legally clear the mark. Brand strings remain centralized so a later conflict can be handled without changing product logic, and exact App Store availability must still be rechecked before submission.
+
 > This is a preliminary product-team screening, not a legal opinion, trademark clearance, registration guarantee, or freedom-to-operate opinion. A U.S.-licensed trademark attorney should complete and document the final search before public launch or material brand spend.
 
 ## Executive finding

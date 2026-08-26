@@ -1,27 +1,16 @@
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 import { OnlySignatureStoreKit } from "../../modules/only-signature-native";
+import {
+  storeKitTransaction,
+  type StoreKitTransaction,
+} from "./storekitContract";
 
-export type PurchaseState =
-  | "purchased"
-  | "cancelled"
-  | "pending"
-  | "failed"
-  | "request-failed"
-  | "request-interrupted";
+export type { PurchaseState, StoreKitTransaction } from "./storekitContract";
 
 export interface ProductInfo {
   productId: string;
   displayPrice: string;
-}
-
-export interface StoreKitTransaction {
-  transactionId: string;
-  productId: string;
-  appAccountToken?: string;
-  state: PurchaseState;
-  verified: boolean;
-  errorCategory?: string;
 }
 
 export interface StoreKitAdapter {
@@ -36,7 +25,7 @@ const extra = Constants.expoConfig?.extra as
   | { storeKitMode?: string; storeKitProductId?: string }
   | undefined;
 const productId =
-  extra?.storeKitProductId ?? "com.onlysignature.preview.transparent-set-v1";
+  extra?.storeKitProductId ?? "com.duotap.onlysignature.transparent-set-v1";
 export const configuredStoreKitProductId = productId;
 
 const nativeModule = OnlySignatureStoreKit as {
@@ -87,12 +76,14 @@ const real: StoreKitAdapter = {
   async purchase(appAccountToken) {
     if (!nativeModule || Platform.OS !== "ios")
       throw new Error("product-unavailable");
-    return nativeModule.purchase(productId, appAccountToken);
+    return storeKitTransaction(
+      await nativeModule.purchase(productId, appAccountToken),
+    );
   },
   async unfinishedSnapshot() {
     if (!nativeModule || Platform.OS !== "ios")
       throw new Error("storekit-native-unavailable");
-    return nativeModule.unfinishedSnapshot();
+    return (await nativeModule.unfinishedSnapshot()).map(storeKitTransaction);
   },
   async finish(transactionId) {
     if (!nativeModule || Platform.OS !== "ios")
@@ -104,7 +95,7 @@ const real: StoreKitAdapter = {
       throw new Error("storekit-native-unavailable");
     const subscription = nativeModule.addListener(
       "onStoreKitTransaction",
-      listener,
+      (transaction) => listener(storeKitTransaction(transaction)),
     );
     return () => subscription.remove();
   },

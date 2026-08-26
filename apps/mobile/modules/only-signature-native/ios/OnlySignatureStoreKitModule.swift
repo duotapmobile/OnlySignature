@@ -9,6 +9,47 @@ public final class OnlySignatureStoreKitModule: Module {
     ["transactionId": String(transaction.id), "productId": transaction.productID, "appAccountToken": transaction.appAccountToken?.uuidString.lowercased() as Any, "state": state, "verified": verified]
   }
 
+  private func requestPayload(productId: String, appAccountToken: String?, state: String, errorCategory: String) -> [String: Any] {
+    var result: [String: Any] = [
+      "transactionId": "",
+      "productId": productId,
+      "state": state,
+      "verified": false,
+      "errorCategory": errorCategory
+    ]
+    if let value = appAccountToken {
+      result["appAccountToken"] = UUID(uuidString: value)?.uuidString.lowercased() ?? value.lowercased()
+    }
+    return result
+  }
+
+  private func purchaseErrorPayload(_ error: Error, productId: String, appAccountToken: String?) -> [String: Any] {
+    if error is Product.PurchaseError {
+      return requestPayload(productId: productId, appAccountToken: appAccountToken, state: "request-failed", errorCategory: "product-purchase-error")
+    }
+    if let storeKitError = error as? StoreKitError {
+      switch storeKitError {
+      case .userCancelled:
+        return requestPayload(productId: productId, appAccountToken: appAccountToken, state: "cancelled", errorCategory: "user-cancelled")
+      case .notAvailableInStorefront:
+        return requestPayload(productId: productId, appAccountToken: appAccountToken, state: "request-failed", errorCategory: "not-available-in-storefront")
+      case .notEntitled:
+        return requestPayload(productId: productId, appAccountToken: appAccountToken, state: "request-failed", errorCategory: "not-entitled")
+      case .unsupported:
+        return requestPayload(productId: productId, appAccountToken: appAccountToken, state: "request-failed", errorCategory: "unsupported")
+      case .networkError:
+        return requestPayload(productId: productId, appAccountToken: appAccountToken, state: "request-interrupted", errorCategory: "network-error")
+      case .systemError:
+        return requestPayload(productId: productId, appAccountToken: appAccountToken, state: "request-interrupted", errorCategory: "system-error")
+      case .unknown:
+        return requestPayload(productId: productId, appAccountToken: appAccountToken, state: "request-interrupted", errorCategory: "unknown-error")
+      @unknown default:
+        return requestPayload(productId: productId, appAccountToken: appAccountToken, state: "request-interrupted", errorCategory: "unrecognized-storekit-error")
+      }
+    }
+    return requestPayload(productId: productId, appAccountToken: appAccountToken, state: "request-interrupted", errorCategory: "unexpected-error")
+  }
+
   public func definition() -> ModuleDefinition {
     Name("OnlySignatureStoreKit")
     Events("onStoreKitTransaction")
@@ -29,15 +70,21 @@ public final class OnlySignatureStoreKitModule: Module {
       return ["productId": product.id, "displayPrice": product.displayPrice]
     }
     AsyncFunction("purchase") { (productId: String, appAccountToken: String?) -> [String: Any] in
-      guard let product = try await Product.products(for: [productId]).first else { throw NSError(domain: "OnlySignatureStoreKit", code: 2) }
+      let product: Product
+      do {
+        guard let availableProduct = try await Product.products(for: [productId]).first else {
+          return self.requestPayload(productId: productId, appAccountToken: appAccountToken, state: "request-failed", errorCategory: "product-not-found")
+        }
+        product = availableProduct
+      } catch {
+        return self.requestPayload(productId: productId, appAccountToken: appAccountToken, state: "request-failed", errorCategory: "product-lookup-failed")
+      }
       let result: Product.PurchaseResult
       do {
         if let value = appAccountToken, let token = UUID(uuidString: value) { result = try await product.purchase(options: [.appAccountToken(token)]) }
         else { result = try await product.purchase() }
-      } catch let error as Product.PurchaseError {
-        return ["transactionId": "", "productId": productId, "appAccountToken": appAccountToken as Any, "state": "request-failed", "verified": false, "errorCategory": String(describing: type(of: error))]
       } catch {
-        return ["transactionId": "", "productId": productId, "appAccountToken": appAccountToken as Any, "state": "request-interrupted", "verified": false, "errorCategory": String(describing: type(of: error))]
+        return self.purchaseErrorPayload(error, productId: productId, appAccountToken: appAccountToken)
       }
       switch result {
       case .success(let verification):

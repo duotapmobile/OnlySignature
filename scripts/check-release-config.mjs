@@ -20,6 +20,35 @@ const required = [
   "EXPO_PUBLIC_APP_STORE_TERRITORIES",
 ];
 const unsafe = /placeholder|example\.(invalid|com)|changeme|\btodo\b|\btbd\b/i;
+const euDsaTerritories = new Set([
+  "AT",
+  "BE",
+  "BG",
+  "HR",
+  "CY",
+  "CZ",
+  "DK",
+  "EE",
+  "FI",
+  "FR",
+  "DE",
+  "GR",
+  "HU",
+  "IE",
+  "IT",
+  "LV",
+  "LT",
+  "LU",
+  "MT",
+  "NL",
+  "PL",
+  "PT",
+  "RO",
+  "SK",
+  "SI",
+  "ES",
+  "SE",
+]);
 const errors = [];
 if (production) {
   for (const key of required) {
@@ -31,6 +60,20 @@ if (production) {
     errors.push("EXPO_PUBLIC_STOREKIT_MODE must be real");
   if (env.EXPO_PUBLIC_RELEASE_MODE !== "production")
     errors.push("EXPO_PUBLIC_RELEASE_MODE must be production");
+  const territories = (env.EXPO_PUBLIC_APP_STORE_TERRITORIES ?? "")
+    .split(",")
+    .map((territory) => territory.trim().toUpperCase())
+    .filter(Boolean);
+  const requiresDsaDecision = territories.some((territory) =>
+    euDsaTerritories.has(territory),
+  );
+  if (
+    requiresDsaDecision &&
+    ["undecided", "not-applicable"].includes(
+      (env.EXPO_PUBLIC_DSA_TRADER_STATUS ?? "").toLowerCase(),
+    )
+  )
+    errors.push("EU distribution requires a DSA trader-status decision");
   for (const key of [
     "EXPO_PUBLIC_PRIVACY_URL",
     "EXPO_PUBLIC_TERMS_URL",

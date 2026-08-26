@@ -4,7 +4,7 @@
   "description": "Owned local iOS modules for protected storage and StoreKit 2.",
   "license": "UNLICENSED",
   "author": "Only Signature",
-  "homepage": "https://example.invalid",
+  "homepage": "https://onlysignature.app/",
   "main": "index.ts",
   "private": true,
   "peerDependencies": {

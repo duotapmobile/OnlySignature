@@ -28,15 +28,17 @@ import { validateAndMigrateAppState } from "@/domain/appStateValidation";
 import {
   canBeginPurchase,
   canEditAsset,
+  canonicalPurchaseToken,
   findTransactionSet,
   hasPurchaseRecoveryInProgress,
+  purchaseRequestClearsPendingIntent,
   purchasedStateForTransaction,
   stateWithFinalizedIncludedSlot,
   stateWithPendingPurchaseCleared,
 } from "@/domain/purchaseState";
 import {
-  stateAfterCompletedUnfinishedSnapshot,
-  stateMarkingInterruptedPresentations,
+  stateAfterFinishResult,
+  stateAfterRecoverySnapshot,
 } from "@/domain/purchaseRecovery";
 import {
   screenshotFixtureSet,
@@ -341,15 +343,23 @@ export function AppStateProvider({ children }: PropsWithChildren) {
           dataRef.current = durable;
           setData(durable);
         }
-        await withTimeout(storeKit.finish(transaction.transactionId), 15_000);
-        const finished = {
-          ...dataRef.current,
-          sets: dataRef.current.sets.map((set) =>
-            set.transactionId === transaction.transactionId
-              ? { ...set, transactionFinishPending: false }
-              : set,
-          ),
-        };
+        const finishSucceeded = await withTimeout(
+          storeKit.finish(transaction.transactionId),
+          15_000,
+        );
+        if (!finishSucceeded) {
+          setData((currentData) => ({
+            ...currentData,
+            lastError:
+              "Apple purchase finishing is still being checked. This purchased set remains saved and locked until recovery completes.",
+          }));
+          return;
+        }
+        const finished = stateAfterFinishResult(
+          dataRef.current,
+          transaction.transactionId,
+          finishSucceeded,
+        );
         await persistData(finished);
         const durableFinished = await appStorage.read<AppStateData>();
         if (
@@ -379,13 +389,11 @@ export function AppStateProvider({ children }: PropsWithChildren) {
   const recoverFinishedBindings = useCallback(
     async (snapshot: StoreKitTransaction[]) => {
       const current = dataRef.current;
-      const recovered = stateAfterCompletedUnfinishedSnapshot(
+      const resolved = stateAfterRecoverySnapshot(
         current,
         snapshot,
+        purchaseSingleFlight.current,
       );
-      const resolved = purchaseSingleFlight.current
-        ? recovered
-        : stateMarkingInterruptedPresentations(recovered, snapshot);
       if (
         resolved.sets.every(
           (set, index) =>
@@ -696,7 +704,8 @@ export function AppStateProvider({ children }: PropsWithChildren) {
               throw new Error("purchase-recovery-in-progress");
             if (!canBeginPurchase(target))
               throw new Error("purchase-already-in-progress");
-            pendingId = Crypto.randomUUID().toLowerCase();
+            pendingId = canonicalPurchaseToken(Crypto.randomUUID()) ?? "";
+            if (!pendingId) throw new Error("purchase-token-generation-failed");
             const signatureHash = hasDrawing(target.signature)
               ? await Crypto.digestStringAsync(
                   Crypto.CryptoDigestAlgorithm.SHA256,
@@ -731,7 +740,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
             const durableTarget = durable?.sets.find(
               (set) =>
                 set.id === target.id &&
-                set.pendingPurchaseId?.toLowerCase() === pendingId,
+                canonicalPurchaseToken(set.pendingPurchaseId) === pendingId,
             );
             if (!durable || !durableTarget)
               throw new Error("purchase-intent-durability-check-failed");
@@ -759,8 +768,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
                 ...current,
                 sets: current.sets.map((set) =>
                   set.id === target.id &&
-                  set.pendingPurchaseId?.toLowerCase() ===
-                    pendingId.toLowerCase()
+                  canonicalPurchaseToken(set.pendingPurchaseId) === pendingId
                     ? { ...set, purchaseIntentState: "interrupted" as const }
                     : set,
                 ),
@@ -775,16 +783,23 @@ export function AppStateProvider({ children }: PropsWithChildren) {
           }
           if (transaction.state === "purchased" && transaction.verified) {
             await reconcile(transaction);
-          } else if (transaction.state === "cancelled") {
+          } else if (purchaseRequestClearsPendingIntent(transaction.state)) {
             await enqueueOperation(async () => {
               const unlocked = stateWithPendingPurchaseCleared(
                 dataRef.current,
                 target.id,
                 pendingId,
               );
-              await persistData(unlocked);
-              dataRef.current = unlocked;
-              setData({ ...unlocked, lastError: null });
+              const terminal = {
+                ...unlocked,
+                lastError:
+                  transaction.state === "cancelled"
+                    ? null
+                    : "Apple did not complete the purchase request. Your drawing is unchanged and you can try again.",
+              };
+              await persistData(terminal);
+              dataRef.current = terminal;
+              setData(terminal);
             });
           } else if (transaction.state === "failed") {
             await enqueueOperation(async () => {
@@ -818,22 +833,6 @@ export function AppStateProvider({ children }: PropsWithChildren) {
               dataRef.current = pending;
               setData(pending);
             });
-          } else if (transaction.state === "request-failed") {
-            await enqueueOperation(async () => {
-              const unlocked = stateWithPendingPurchaseCleared(
-                dataRef.current,
-                target.id,
-                pendingId,
-              );
-              const terminal = {
-                ...unlocked,
-                lastError:
-                  "Apple did not complete the purchase request. Your drawing is unchanged and you can try again.",
-              };
-              await persistData(terminal);
-              dataRef.current = terminal;
-              setData(terminal);
-            });
           } else if (transaction.state === "request-interrupted") {
             await enqueueOperation(async () => {
               const snapshot = await withTimeout(
@@ -847,8 +846,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
                 ...current,
                 sets: current.sets.map((set) =>
                   set.id === target.id &&
-                  set.pendingPurchaseId?.toLowerCase() ===
-                    pendingId.toLowerCase()
+                  canonicalPurchaseToken(set.pendingPurchaseId) === pendingId
                     ? { ...set, purchaseIntentState: "interrupted" as const }
                     : set,
                 ),

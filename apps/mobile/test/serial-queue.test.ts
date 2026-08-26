@@ -26,3 +26,36 @@ test("purchase transitions run serially and a rejection does not poison the queu
   assert.equal(await second, 2);
   assert.deepEqual(events, ["first-start", "first-end", "second"]);
 });
+
+test("snapshot, observer, and deletion transitions share deterministic queue order", async () => {
+  const queue = createSerialQueue();
+  const events: string[] = [];
+  let releaseSnapshot!: () => void;
+  const snapshotBarrier = new Promise<void>((resolve) => {
+    releaseSnapshot = resolve;
+  });
+  const processTransaction = async (source: string) => {
+    events.push(`transaction:${source}`);
+  };
+  const recovery = queue.run(async () => {
+    events.push("snapshot:start");
+    await snapshotBarrier;
+    await processTransaction("snapshot");
+    events.push("snapshot:absence");
+  });
+  const observer = queue.run(() => processTransaction("observer"));
+  const deletion = queue.run(async () => {
+    events.push("delete-all");
+  });
+  await Promise.resolve();
+  assert.deepEqual(events, ["snapshot:start"]);
+  releaseSnapshot();
+  await Promise.all([recovery, observer, deletion]);
+  assert.deepEqual(events, [
+    "snapshot:start",
+    "transaction:snapshot",
+    "snapshot:absence",
+    "transaction:observer",
+    "delete-all",
+  ]);
+});

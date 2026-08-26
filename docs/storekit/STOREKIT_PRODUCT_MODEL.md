@@ -2,7 +2,7 @@
 
 ## Product
 
-One centrally configured repeat-purchasable **consumable**, working ID `com.onlysignature.transparent-set-v1` until the final bundle/product identifiers are founder-approved.
+One centrally configured repeat-purchasable **consumable** with the confirmed identifier `com.duotap.onlysignature.transparent-set-v1`, derived from the confirmed bundle identifier `com.duotap.onlysignature`.
 
 One purchase includes transparent-export rights for one frozen local Signature Set:
 

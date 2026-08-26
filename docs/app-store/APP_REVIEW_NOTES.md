@@ -29,10 +29,10 @@ Mock StoreKit exists only in nonproduction test/fixture builds. The submitted pr
 
 ## Review contact and links
 
-- Contact: `[FOUNDER_INPUT:APP_REVIEW_CONTACT]`
+- Contact: `admin@onlysignature.app`
 - International phone: `[FOUNDER_INPUT:APP_REVIEW_PHONE]`
-- Privacy: `[FOUNDER_INPUT:PRIVACY_URL]`
-- Support: `[FOUNDER_INPUT:SUPPORT_URL]`
-- Terms: `[FOUNDER_INPUT:TERMS_URL]`
+- Privacy: `https://onlysignature.app/privacy/`
+- Support: `https://onlysignature.app/support/`
+- Terms: `https://onlysignature.app/terms/`
 
-These markers are forbidden in the submitted metadata and production bundle.
+The remaining phone marker is forbidden in submitted metadata and must be replaced with the authorized international review-contact number.

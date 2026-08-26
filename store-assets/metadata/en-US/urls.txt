@@ -1,3 +1,3 @@
-Support URL: https://[FINAL DOMAIN]/support/
-Marketing URL: https://[FINAL DOMAIN]/
-Privacy URL: https://[FINAL DOMAIN]/privacy/
+Support URL: https://onlysignature.app/support/
+Marketing URL: https://onlysignature.app/
+Privacy URL: https://onlysignature.app/privacy/

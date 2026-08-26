@@ -5,7 +5,9 @@ import type { AppStateData, SignatureSet } from "../src/domain/models";
 import {
   canBeginPurchase,
   canEditAsset,
+  canonicalPurchaseToken,
   hasPurchaseRecoveryInProgress,
+  purchaseRequestClearsPendingIntent,
   purchasedStateForTransaction,
   stateWithFinalizedIncludedSlot,
   stateWithPendingPurchaseCleared,
@@ -64,6 +66,54 @@ test("StoreKit account-token correlation is case insensitive", () => {
       .transactionId,
     "case-normalized",
   );
+});
+
+test("purchase tokens are canonical UUIDs and reject malformed correlation", () => {
+  assert.equal(
+    canonicalPurchaseToken(
+      `  ${pendingSet.pendingPurchaseId!.toUpperCase()}  `,
+    ),
+    pendingSet.pendingPurchaseId,
+  );
+  assert.equal(canonicalPurchaseToken("not-a-uuid"), null);
+});
+
+test("an unresolved intent on any saved set blocks another paid attempt", () => {
+  const active = {
+    ...screenshotFixtureSet,
+    id: "active-draft",
+    status: "draft" as const,
+    transactionId: null,
+    pendingPurchaseId: null,
+    purchaseIntentState: null,
+    transactionFinishPending: false,
+  };
+  const interrupted = {
+    ...pendingSet,
+    id: "interrupted-set",
+    purchaseIntentState: "interrupted" as const,
+  };
+  assert.equal(
+    hasPurchaseRecoveryInProgress({
+      ...data,
+      activeSetId: active.id,
+      sets: [active, interrupted],
+    }),
+    true,
+  );
+  assert.equal(canBeginPurchase(active), true);
+});
+
+test("only terminal request outcomes clear a pending purchase intent", () => {
+  assert.equal(purchaseRequestClearsPendingIntent("cancelled"), true);
+  assert.equal(purchaseRequestClearsPendingIntent("request-failed"), true);
+  assert.equal(
+    purchaseRequestClearsPendingIntent("request-interrupted"),
+    false,
+  );
+  assert.equal(purchaseRequestClearsPendingIntent("pending"), false);
+  assert.equal(purchaseRequestClearsPendingIntent("failed"), false);
+  assert.equal(purchaseRequestClearsPendingIntent("purchased"), false);
 });
 
 test("an explicit cancellation durably unlocks the draft for another attempt", () => {
@@ -211,4 +261,26 @@ test("included slot requires a nonempty hash and becomes immutable after finaliz
   assert.equal(next.sets[0]!.initials!.finalizedHash, "sha256-hash");
   assert.equal(next.sets[0]!.unclaimedSlot, null);
   assert.equal(canEditAsset(next.sets[0]!, "initials"), false);
+});
+
+test("included slot cannot finalize while transaction finishing is unresolved", () => {
+  const purchased = {
+    ...pendingSet,
+    status: "purchased" as const,
+    pendingPurchaseId: null,
+    purchaseIntentState: null,
+    transactionFinishPending: true,
+    transactionId: "42",
+    unclaimedSlot: "initials" as const,
+  };
+  assert.throws(() =>
+    stateWithFinalizedIncludedSlot(
+      { ...data, sets: [purchased] },
+      purchased.id,
+      "initials",
+      screenshotFixtureSet.initials!,
+      "sha256-hash",
+      "now",
+    ),
+  );
 });

@@ -25,3 +25,15 @@ test("semantic state validation rejects checksum-valid impossible state", () => 
   duplicate.sets.push(createDraftSet("draft", "later"));
   assert.throws(() => validateAndMigrateAppState(duplicate));
 });
+
+test("semantic state validation canonicalizes UUID purchase tokens", () => {
+  const pending = valid();
+  pending.sets[0]!.pendingPurchaseId = "ABCDEFAB-CDEF-4ABC-8DEF-ABCDEFABCDEF";
+  pending.sets[0]!.purchaseIntentState = "pending";
+  assert.equal(
+    validateAndMigrateAppState(pending).sets[0]!.pendingPurchaseId,
+    "abcdefab-cdef-4abc-8def-abcdefabcdef",
+  );
+  pending.sets[0]!.pendingPurchaseId = "invalid-token";
+  assert.throws(() => validateAndMigrateAppState(pending));
+});

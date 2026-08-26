@@ -62,3 +62,13 @@ This file records only commands and outcomes actually observed. Signed iOS build
 - The app-root production lifecycle check was run with `EXPO_PUBLIC_RELEASE_MODE=production` and correctly exited 1 because founder/legal/public/Apple release values and real StoreKit mode are absent.
 - `git diff --check`: passed. `git remote -v`: empty.
 - Final authority is local-source approval with explicit EAS/macOS compilation, StoreKit sandbox, physical-device, runtime-network, final native screenshot, founder-input, signing, and submission gates.
+
+## 2026-08-26 - Final local acceptance and authorized publication
+
+- Closed the post-council StoreKit, purchase-recovery, drawing-letterbox, large-text/VoiceOver comparison, finish-pending included-slot, partial-export cleanup, EAS-hook, shipping-identifier, public-copy, and U.S.-only release-gate findings.
+- The final hostile re-review returned APPROVE with no remaining locally fixable P0/P1.
+- `npm run check`: exit 0; 27/27 root tests and 42/42 mobile tests passed; content drift covered 128 files.
+- Site build/validation, 6/6 pixel export tests, Expo Doctor 21/21, unsigned iOS bundle export, production fixture inspection, native autolink, store assets, static network policy, SBOM generation, resolved dependency tree, and secret scan passed.
+- The site release check intentionally failed only on legal mailing address and governing law. The EAS production lifecycle check intentionally failed closed without external release values.
+- The dependency gate found no high/critical advisories; 12 moderate transitive Expo build-tool advisories remain documented without a breaking force fix.
+- GitHub `origin` is now founder-authorized. Signed build, StoreKit sandbox, physical-device, DNS/deployment, legal completion, and App Store submission remain explicit external gates.

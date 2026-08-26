@@ -1,4 +1,4 @@
-appId: com.onlysignature.preview
+appId: com.duotap.onlysignature
 ---
 - launchApp:
     clearState: true

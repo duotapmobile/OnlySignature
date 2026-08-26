@@ -20,6 +20,7 @@ import {
   shareFile,
   type GeneratedFile,
 } from "@/services/export";
+import { generateExportBatch } from "@/services/exportBatch";
 import { useAppState } from "@/state/AppStateProvider";
 import { confirmAuthorizedUse } from "@/services/authorizedUse";
 
@@ -64,25 +65,25 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
   const prepare = async () => {
     setBusy(true);
     setError(null);
-    const files: GeneratedFile[] = [];
     try {
       await cleanupGeneratedFiles(generatedRef.current);
       generatedRef.current = [];
-      if (hasDrawing(activeSet.signature))
-        files.push(
-          await generateExport(
-            activeSet.signature,
-            signatureFormat,
-            signatureRef,
-          ),
+      const producers: (() => Promise<GeneratedFile>)[] = [];
+      if (hasDrawing(activeSet.signature)) {
+        const signature = activeSet.signature;
+        producers.push(() =>
+          generateExport(signature, signatureFormat, signatureRef),
         );
-      if (hasDrawing(activeSet.initials))
-        files.push(
-          await generateExport(activeSet.initials, initialsFormat, initialsRef),
+      }
+      if (hasDrawing(activeSet.initials)) {
+        const initials = activeSet.initials;
+        producers.push(() =>
+          generateExport(initials, initialsFormat, initialsRef),
         );
+      }
+      const files = await generateExportBatch(producers, cleanupGeneratedFiles);
       setGenerated(files);
     } catch {
-      await cleanupGeneratedFiles(files).catch(() => undefined);
       setError(
         "We could not create the export file. Your saved drawing is unchanged.",
       );

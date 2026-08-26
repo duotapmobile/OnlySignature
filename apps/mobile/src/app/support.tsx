@@ -19,7 +19,7 @@ export default function SupportScreen() {
         accessibilityRole="link"
         onPress={() => {
           void Linking.openURL(
-            `mailto:${extra?.supportEmail ?? "support@example.invalid"}?subject=Only%20Signature%20Support`,
+            `mailto:${extra?.supportEmail ?? "admin@onlysignature.app"}?subject=Only%20Signature%20Support`,
           );
         }}
         style={styles.linkButton}

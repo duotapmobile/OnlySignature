@@ -12,7 +12,7 @@ const paths = [
 ];
 
 export const GET: APIRoute = ({ site }) => {
-  const base = site || new URL("https://onlysignature.invalid");
+  const base = site || new URL("https://onlysignature.app");
   const urls = paths
     .map((path) => `  <url><loc>${new URL(path, base)}</loc></url>`)
     .join("\n");

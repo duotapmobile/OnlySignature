@@ -1,4 +1,5 @@
 import type { AppStateData, DrawingAsset, SignatureSet } from "./models";
+import { canonicalPurchaseToken } from "./purchaseState";
 
 const object = (value: unknown): Record<string, unknown> => {
   if (!value || typeof value !== "object" || Array.isArray(value))
@@ -71,8 +72,14 @@ const signatureSet = (value: unknown): SignatureSet => {
     ![null, "signature", "initials"].includes(candidate.unclaimedSlot)
   )
     throw new Error("local-state-invalid");
+  const pendingPurchaseId = candidate.pendingPurchaseId
+    ? canonicalPurchaseToken(candidate.pendingPurchaseId)
+    : null;
+  if (candidate.pendingPurchaseId && !pendingPurchaseId)
+    throw new Error("local-state-invalid");
   return {
     ...candidate,
+    pendingPurchaseId,
     signature: asset(candidate.signature, "signature"),
     initials: asset(candidate.initials, "initials"),
   };

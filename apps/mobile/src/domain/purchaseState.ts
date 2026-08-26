@@ -5,7 +5,7 @@ import type {
   SignatureSet,
 } from "./models";
 import { hasDrawing } from "./models";
-import type { StoreKitTransaction } from "@/services/storekit";
+import type { PurchaseState, StoreKitTransaction } from "@/services/storekit";
 
 export const canEditAsset = (set: SignatureSet, kind: AssetKind): boolean => {
   if (set.pendingPurchaseId || set.transactionFinishPending) return false;
@@ -17,8 +17,19 @@ export const hasPurchaseRecoveryInProgress = (data: AppStateData): boolean =>
     (set) => Boolean(set.pendingPurchaseId) || set.transactionFinishPending,
   );
 
-const normalizeToken = (value: string | undefined | null): string | null =>
-  value ? value.toLowerCase() : null;
+export const purchaseRequestClearsPendingIntent = (
+  state: PurchaseState,
+): boolean => state === "cancelled" || state === "request-failed";
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+export const canonicalPurchaseToken = (
+  value: string | undefined | null,
+): string | null => {
+  const normalized = value?.trim().toLowerCase();
+  return normalized && UUID_PATTERN.test(normalized) ? normalized : null;
+};
 export const canBeginPurchase = (set: SignatureSet): boolean =>
   !set.pendingPurchaseId &&
   !set.transactionFinishPending &&
@@ -34,7 +45,8 @@ export const stateWithPendingPurchaseCleared = (
   sets: data.sets.map((set) =>
     set.id === setId &&
     (!expectedToken ||
-      normalizeToken(set.pendingPurchaseId) === normalizeToken(expectedToken))
+      canonicalPurchaseToken(set.pendingPurchaseId) ===
+        canonicalPurchaseToken(expectedToken))
       ? {
           ...set,
           pendingPurchaseId: null,
@@ -57,9 +69,9 @@ export const findTransactionSet = (
 ): SignatureSet | null => {
   const exact = data.sets.find(
     (set) =>
-      (normalizeToken(transaction.appAccountToken) &&
-        normalizeToken(set.pendingPurchaseId) ===
-          normalizeToken(transaction.appAccountToken)) ||
+      (canonicalPurchaseToken(transaction.appAccountToken) &&
+        canonicalPurchaseToken(set.pendingPurchaseId) ===
+          canonicalPurchaseToken(transaction.appAccountToken)) ||
       set.transactionId === transaction.transactionId,
   );
   if (exact) return exact;

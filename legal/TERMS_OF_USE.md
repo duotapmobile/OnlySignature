@@ -2,7 +2,7 @@
 
 **Effective date:** August 25, 2026
 
-These Terms govern your use of Only Signature. The operator is **[LEGAL_OPERATOR_NAME]**, with a mailing address at **[LEGAL_MAILING_ADDRESS]**. Those identity fields, the support address, and governing-law choice must be completed before public release.
+These Terms govern your use of Only Signature. The operator is **DuoTap LLC**, with a mailing address at **[LEGAL_MAILING_ADDRESS]**. The verified legal mailing address and governing-law choice must be completed before public release.
 
 By downloading or using the app, you agree to these Terms and Apple’s applicable App Store terms. If you do not agree, do not use the app.
 
@@ -164,9 +164,9 @@ The operator may update these Terms for legal, security, or product changes. The
 
 ## 20. Contact
 
-**Operator:** [LEGAL_OPERATOR_NAME]  
-**Mailing address:** [LEGAL_MAILING_ADDRESS]  
-**Support email:** [SUPPORT_EMAIL]  
-**Website:** [PUBLIC_SITE_URL]
+- **Operator:** DuoTap LLC
+- **Mailing address:** [LEGAL_MAILING_ADDRESS]
+- **Support email:** admin@onlysignature.app
+- **Website:** https://onlysignature.app/
 
-These genuine founder-supplied fields must be completed before public release.
+The verified legal mailing address and governing-law choice must be completed before public release.

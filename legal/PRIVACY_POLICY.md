@@ -4,7 +4,7 @@
 
 Only Signature is designed to create reusable signature and initials image assets without asking you to upload a private document. This policy explains what the app does automatically, what happens when you choose to export or contact support, what Apple processes for purchases, and what the public website may process.
 
-The legal operator is **[LEGAL_OPERATOR_NAME]**, with a mailing address at **[LEGAL_MAILING_ADDRESS]**. Before public release, these fields and the support contact must be replaced with the founder’s verified legal information.
+The legal operator is **DuoTap LLC**, with a mailing address at **[LEGAL_MAILING_ADDRESS]**. The verified legal mailing address must be completed before public release.
 
 ## 1. Scope
 
@@ -62,7 +62,7 @@ No App Tracking Transparency prompt is used because the app does not track you a
 
 If you contact support, the operator and its email provider receive the information you choose to send, such as your email address, message, and attachments. Do not attach a signature, initials image, private document, or other sensitive file unless support specifically needs it and you decide the disclosure is appropriate.
 
-Support information is used to respond, prevent abuse, maintain necessary business records, and improve the product without adding signature-content telemetry. To request deletion of a support conversation, email **[SUPPORT_EMAIL]** from the same address and identify the message. The operator will delete it when reasonably verifiable and no legal, security, accounting, or dispute-retention obligation requires continued storage.
+Support information is used to respond, prevent abuse, maintain necessary business records, and improve the product without adding signature-content telemetry. To request deletion of a support conversation, email **admin@onlysignature.app** from the same address and identify the message. The operator will delete it when reasonably verifiable and no legal, security, accounting, or dispute-retention obligation requires continued storage.
 
 ## 9. Website data
 
@@ -97,19 +97,19 @@ The app uses iOS data protection for local files, backup exclusion where technic
 
 ## 13. Children’s privacy
 
-Only Signature is a general utility and is not directed to children under 13 or marketed through child-directed imagery. The app does not ask for age and does not operate an account or behavioral tracking system. If the operator learns that a child submitted personal information through support without appropriate authorization, contact **[SUPPORT_EMAIL]** to request review and deletion.
+Only Signature is a general utility and is not directed to children under 13 or marketed through child-directed imagery. The app does not ask for age and does not operate an account or behavioral tracking system. If the operator learns that a child submitted personal information through support without appropriate authorization, contact **admin@onlysignature.app** to request review and deletion.
 
 ## 14. International users and applicable rights
 
 Privacy rights depend on where you live and whether a law applies to the operator and the processing. Depending on those facts, you may have rights to request access, correction, deletion, restriction, portability, objection, or information about disclosures. These rights are not unconditional and may not apply to purely local data the operator never receives.
 
-Send a request to **[SUPPORT_EMAIL]** with enough information to understand and verify it. Do not send a signature image as proof of identity. The operator will respond as required by applicable law.
+Send a request to **admin@onlysignature.app** with enough information to understand and verify it. Do not send a signature image as proof of identity. The operator will respond as required by applicable law.
 
 Before distribution in the European Union, European Economic Area, or United Kingdom, the operator will complete its identity, contact, lawful-basis, international-transfer, regulator, and Digital Services Act disclosures as applicable. Before distribution in other regions, the operator will complete any genuinely applicable local supplement rather than claiming rights or legal bases that do not apply.
 
 ## 15. California notice
 
-The app does not sell personal information or share it for cross-context behavioral advertising. The operator does not receive signature content through the app. If California privacy law applies to the operator, California residents may submit applicable requests through **[SUPPORT_EMAIL]**. The final legal review will determine whether statutory thresholds and detailed notice obligations apply.
+The app does not sell personal information or share it for cross-context behavioral advertising. The operator does not receive signature content through the app. If California privacy law applies to the operator, California residents may submit applicable requests through **admin@onlysignature.app**. The final legal review will determine whether statutory thresholds and detailed notice obligations apply.
 
 ## 16. Changes
 
@@ -117,9 +117,9 @@ Material changes will be posted on this page with a revised effective date. If a
 
 ## 17. Contact
 
-**Operator:** [LEGAL_OPERATOR_NAME]  
-**Mailing address:** [LEGAL_MAILING_ADDRESS]  
-**Email:** [SUPPORT_EMAIL]  
-**Website:** [PUBLIC_SITE_URL]
+- **Operator:** DuoTap LLC
+- **Mailing address:** [LEGAL_MAILING_ADDRESS]
+- **Email:** admin@onlysignature.app
+- **Website:** https://onlysignature.app/
 
-These genuine founder-supplied identity and URL fields must be completed before public release.
+The verified legal mailing address must be completed before public release.

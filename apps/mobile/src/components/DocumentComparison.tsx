@@ -1,6 +1,10 @@
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { DrawingPreview } from "./DrawingPreview";
 import type { DrawingAsset } from "@/domain/models";
+import {
+  documentComparisonAccessibilityLabel,
+  shouldStackDocumentComparison,
+} from "@/domain/documentComparison";
 import { theme } from "@/integrations/workspace";
 
 function Agreement({
@@ -37,13 +41,13 @@ function Agreement({
 
 export function DocumentComparison({ asset }: { asset: DrawingAsset }) {
   const { width, fontScale } = useWindowDimensions();
-  const stacked = width < 700 || fontScale >= 1.3;
+  const stacked = shouldStackDocumentComparison(width, fontScale);
   return (
     <View
       accessible
       accessibilityRole="image"
       style={[styles.comparison, stacked && styles.stacked]}
-      accessibilityLabel="Comparison of the same sample agreement. White Background covers part of the signature line and nearby date. Transparent Professional Export keeps the line and date visible."
+      accessibilityLabel={documentComparisonAccessibilityLabel}
     >
       <View
         accessibilityElementsHidden

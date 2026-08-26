@@ -38,7 +38,7 @@ const found = blockers
 if (found.length) {
   console.error(`Release check blocked: ${found.join(", ")}.`);
   console.error(
-    "Provide founder legal identity, support, jurisdiction, domain, and deployment values before public release.",
+    "Complete only the listed release fields before public deployment.",
   );
   process.exit(1);
 }

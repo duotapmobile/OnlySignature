@@ -74,4 +74,10 @@ test("layout rotation cannot change canonical drawing geometry or hash input", (
   assert.deepEqual(letterboxed, { x: 400, y: 210 });
   assert.equal(pointToDrawingPlane(50, 210, 1000, 420, 800, 420), null);
   assert.equal(pointToDrawingPlane(950, 210, 1000, 420, 800, 420), null);
+  assert.equal(pointToDrawingPlane(400, 50, 800, 620, 800, 420), null);
+  assert.equal(pointToDrawingPlane(400, 570, 800, 620, 800, 420), null);
+  assert.deepEqual(pointToDrawingPlane(100, 100, 1000, 420, 800, 420), {
+    x: 0,
+    y: 100,
+  });
 });

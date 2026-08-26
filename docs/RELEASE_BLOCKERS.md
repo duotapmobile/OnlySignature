@@ -2,6 +2,8 @@
 
 **Current release status:** NO-GO. Local implementation authority is granted; release authority is withheld.
 
+The App Store Connect app record and bundle identifier `com.duotap.onlysignature` are created/confirmed. Remaining portal inputs are the exact SKU and numeric Apple/ASC app ID, EAS project/submit configuration, authorized credentials, EIN/tax and banking readiness, and the consumable record.
+
 ## Apple build and purchase
 
 - Signed EAS iOS archive built with an exact stable Xcode image satisfying Apple’s current SDK requirement; logs and archive metadata retained.
@@ -27,7 +29,7 @@
 
 - Real operator/contact/domain values; live anonymous HTTPS Privacy, Terms, Support, FAQ, Contact, and Accessibility URLs; release-build links verified.
 - Final App Privacy, age rating, accessibility labels, encryption/export answer, territories, and DSA declaration completed from the exact binary and founder facts.
-- Professional legal review and final product-name/trademark clearance decision.
+- Professional legal review of the policies and Terms. The founder chose `Only Signature` without a trademark filing and accepts the documented preliminary name risk; do not claim legal clearance, and recheck exact App Store availability before submission.
 - Actual flattened iPhone/iPad screenshots and IAP screenshot match the submitted binary, current dimensions, localized fixture, and no-alpha rule.
 - App Store metadata and reviewer notes describe only implemented behavior and no legal-certification/document-signing claim.
 
