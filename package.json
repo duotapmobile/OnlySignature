@@ -17,6 +17,7 @@
     "check": "npm run format:check && npm run typecheck && npm run lint && npm run test && npm run check:content && npm run check:release && npm run verify:network && npm run verify:native-autolink && npm run verify:store-assets && npm audit --audit-level=high",
     "check:content": "node scripts/check-content-drift.mjs",
     "check:release": "node scripts/check-release-config.mjs",
+    "eas-build-pre-install": "node scripts/check-release-config.mjs --if-production",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "npm run lint --workspaces --if-present",

@@ -4,6 +4,7 @@ import {
   exportDimensions,
   drawingBounds,
   paddedViewBox,
+  pointToDrawingPlane,
   serializeSvg,
   smoothPath,
 } from "../src/domain/drawing";
@@ -63,4 +64,14 @@ test("format labels never claim JPEG transparency", () => {
   assert.equal(formatLabel["jpeg-white"], "JPEG, White Background");
   assert.equal(isTransparent("jpeg-white"), false);
   assert.equal(isTransparent("png-transparent"), true);
+});
+
+test("layout rotation cannot change canonical drawing geometry or hash input", () => {
+  const portraitPoint = pointToDrawingPlane(100, 105, 400, 210, 800, 420);
+  const landscapePoint = pointToDrawingPlane(200, 210, 800, 420, 800, 420);
+  assert.deepEqual(portraitPoint, landscapePoint);
+  const letterboxed = pointToDrawingPlane(500, 210, 1000, 420, 800, 420);
+  assert.deepEqual(letterboxed, { x: 400, y: 210 });
+  assert.equal(pointToDrawingPlane(50, 210, 1000, 420, 800, 420), null);
+  assert.equal(pointToDrawingPlane(950, 210, 1000, 420, 800, 420), null);
 });

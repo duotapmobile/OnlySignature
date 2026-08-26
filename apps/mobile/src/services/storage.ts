@@ -36,7 +36,7 @@ const digest = (value: string) =>
   Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, value);
 
 export const appStorage = {
-  async read<T>(): Promise<T | null> {
+  async read<T>(validate?: (value: unknown) => T): Promise<T | null> {
     const storage = requireProtectedStorage();
     let value: string | null;
     const readBackup = async (): Promise<string | null> => {
@@ -55,16 +55,30 @@ export const appStorage = {
     }
     if (!value) {
       const backup = await readBackup();
-      return backup
-        ? decodeStorageEnvelope<T>(backup, digest, !production)
-        : null;
+      if (!backup) return null;
+      const decoded = await decodeStorageEnvelope<unknown>(
+        backup,
+        digest,
+        !production,
+      );
+      return validate ? validate(decoded) : (decoded as T);
     }
     try {
-      return await decodeStorageEnvelope<T>(value, digest, !production);
+      const decoded = await decodeStorageEnvelope<unknown>(
+        value,
+        digest,
+        !production,
+      );
+      return validate ? validate(decoded) : (decoded as T);
     } catch {
       const backup = await readBackup();
       if (!backup) throw new Error("local-state-corrupted-no-backup");
-      return decodeStorageEnvelope<T>(backup, digest, !production);
+      const decoded = await decodeStorageEnvelope<unknown>(
+        backup,
+        digest,
+        !production,
+      );
+      return validate ? validate(decoded) : (decoded as T);
     }
   },
 

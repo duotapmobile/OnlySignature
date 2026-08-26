@@ -15,7 +15,8 @@ const pendingSet: SignatureSet = {
   ...screenshotFixtureSet,
   id: "set-1",
   initials: null,
-  pendingPurchaseId: "11111111-1111-4111-8111-111111111111",
+  pendingPurchaseId: "abcdefab-cdef-4abc-8def-abcdefabcdef",
+  purchaseIntentState: "pending",
   transactionFinishPending: false,
   status: "draft",
 };
@@ -47,6 +48,21 @@ test("immediate verified result can reconcile from the just-persisted pending sn
     purchasedStateForTransaction(data, transaction, "now")!.sets[0]!
       .transactionId,
     "instant",
+  );
+});
+
+test("StoreKit account-token correlation is case insensitive", () => {
+  const transaction = {
+    transactionId: "case-normalized",
+    productId: "product",
+    appAccountToken: pendingSet.pendingPurchaseId!.toUpperCase(),
+    state: "purchased" as const,
+    verified: true,
+  };
+  assert.equal(
+    purchasedStateForTransaction(data, transaction, "now")!.sets[0]!
+      .transactionId,
+    "case-normalized",
   );
 });
 
@@ -137,6 +153,7 @@ test("finish-pending state blocks edits, new purchase, and deletion", () => {
   const finishing = {
     ...pendingSet,
     pendingPurchaseId: null,
+    purchaseIntentState: null,
     transactionFinishPending: true,
     status: "purchased" as const,
   };

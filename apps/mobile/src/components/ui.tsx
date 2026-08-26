@@ -155,14 +155,21 @@ export function SecondaryButton({
   );
 }
 
-export function BackLink({ onPress }: { onPress(): void }) {
+export function BackLink({
+  onPress,
+  disabled = false,
+}: {
+  onPress(): void;
+  disabled?: boolean;
+}) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel="Back"
       onPress={onPress}
+      disabled={disabled}
       hitSlop={8}
-      style={styles.back}
+      style={[styles.back, disabled && styles.disabled]}
     >
       <Text allowFontScaling style={styles.backText}>
         ← Back

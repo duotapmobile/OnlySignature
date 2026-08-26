@@ -2,7 +2,13 @@ import Constants from "expo-constants";
 import { Platform } from "react-native";
 import { OnlySignatureStoreKit } from "../../modules/only-signature-native";
 
-export type PurchaseState = "purchased" | "cancelled" | "pending" | "failed";
+export type PurchaseState =
+  | "purchased"
+  | "cancelled"
+  | "pending"
+  | "failed"
+  | "request-failed"
+  | "request-interrupted";
 
 export interface ProductInfo {
   productId: string;
@@ -21,9 +27,8 @@ export interface StoreKitTransaction {
 export interface StoreKitAdapter {
   loadProduct(): Promise<ProductInfo>;
   purchase(appAccountToken?: string): Promise<StoreKitTransaction>;
-  unfinishedTransactions(): Promise<StoreKitTransaction[]>;
-  finish(transactionId: string): Promise<void>;
-  isVerifiedTransaction(transactionId: string): Promise<boolean>;
+  unfinishedSnapshot(): Promise<StoreKitTransaction[]>;
+  finish(transactionId: string): Promise<boolean>;
   observe(listener: (transaction: StoreKitTransaction) => void): () => void;
 }
 
@@ -40,12 +45,8 @@ const nativeModule = OnlySignatureStoreKit as {
     productIdValue: string,
     appAccountToken?: string,
   ): Promise<StoreKitTransaction>;
-  unfinishedTransactions(): Promise<StoreKitTransaction[]>;
-  finish(transactionId: string): Promise<void>;
-  isVerifiedTransaction(
-    transactionId: string,
-    productIdValue: string,
-  ): Promise<boolean>;
+  unfinishedSnapshot(): Promise<StoreKitTransaction[]>;
+  finish(transactionId: string): Promise<boolean>;
   addListener(
     eventName: "onStoreKitTransaction",
     listener: (transaction: StoreKitTransaction) => void,
@@ -66,13 +67,10 @@ const mock: StoreKitAdapter = {
       verified: true,
     };
   },
-  unfinishedTransactions() {
+  unfinishedSnapshot() {
     return Promise.resolve([]);
   },
   finish() {
-    return Promise.resolve();
-  },
-  isVerifiedTransaction() {
     return Promise.resolve(true);
   },
   observe() {
@@ -91,20 +89,15 @@ const real: StoreKitAdapter = {
       throw new Error("product-unavailable");
     return nativeModule.purchase(productId, appAccountToken);
   },
-  async unfinishedTransactions() {
+  async unfinishedSnapshot() {
     if (!nativeModule || Platform.OS !== "ios")
       throw new Error("storekit-native-unavailable");
-    return nativeModule.unfinishedTransactions();
+    return nativeModule.unfinishedSnapshot();
   },
   async finish(transactionId) {
     if (!nativeModule || Platform.OS !== "ios")
       throw new Error("storekit-native-unavailable");
-    await nativeModule.finish(transactionId);
-  },
-  async isVerifiedTransaction(transactionId) {
-    if (!nativeModule || Platform.OS !== "ios")
-      throw new Error("storekit-native-unavailable");
-    return nativeModule.isVerifiedTransaction(transactionId, productId);
+    return nativeModule.finish(transactionId);
   },
   observe(listener) {
     if (!nativeModule || Platform.OS !== "ios")

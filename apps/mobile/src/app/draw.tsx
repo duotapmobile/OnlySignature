@@ -37,6 +37,7 @@ export default function DrawScreen() {
   const immutable =
     fixture !== "both" &&
     (Boolean(activeSet.pendingPurchaseId) ||
+      activeSet.transactionFinishPending ||
       (activeSet.status === "purchased" &&
         activeSet.unclaimedSlot !== selected));
   const continueFlow = () => {

@@ -24,6 +24,7 @@ import type {
 } from "@/domain/models";
 import { createDraftSet, createEmptyAsset, hasDrawing } from "@/domain/models";
 import { normalizedDrawing } from "@/domain/drawing";
+import { validateAndMigrateAppState } from "@/domain/appStateValidation";
 import {
   canBeginPurchase,
   canEditAsset,
@@ -33,6 +34,10 @@ import {
   stateWithFinalizedIncludedSlot,
   stateWithPendingPurchaseCleared,
 } from "@/domain/purchaseState";
+import {
+  stateAfterCompletedUnfinishedSnapshot,
+  stateMarkingInterruptedPresentations,
+} from "@/domain/purchaseRecovery";
 import {
   screenshotFixtureSet,
   screenshotFixtureSetFor,
@@ -44,6 +49,7 @@ import {
   type ProductInfo,
   type StoreKitTransaction,
 } from "@/services/storekit";
+import { createSerialQueue } from "@/services/serialQueue";
 
 interface AppActions {
   setSelectedAsset(kind: AssetKind): void;
@@ -56,9 +62,9 @@ interface AppActions {
   ): void;
   clearAsset(kind: AssetKind): void;
   selectSet(id: string): void;
-  createNew(): void;
+  createNew(): boolean;
   renameSet(id: string, label: string): void;
-  duplicateSet(id: string): void;
+  duplicateSet(id: string): boolean;
   deleteSet(id: string): void;
   deleteAll(): Promise<void>;
   purchaseActiveSet(): Promise<StoreKitTransaction>;
@@ -92,6 +98,31 @@ const persistable = (data: AppStateData): AppStateData => ({
   hydrated: true,
 });
 
+const withTimeout = <T,>(
+  promise: Promise<T>,
+  milliseconds: number,
+): Promise<T> =>
+  new Promise((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error("storekit-operation-timeout")),
+      milliseconds,
+    );
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(
+          error instanceof Error
+            ? error
+            : new Error("storekit-operation-failed"),
+        );
+      },
+    );
+  });
+
 export function AppStateProvider({ children }: PropsWithChildren) {
   const [data, setData] = useState<AppStateData>(initialData);
   const [product, setProduct] = useState<ProductInfo>({
@@ -102,7 +133,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     "loading" | "available" | "unavailable"
   >("loading");
   const dataRef = useRef<AppStateData>(initialData);
-  const reconciliationQueue = useRef<Promise<void>>(Promise.resolve());
+  const reconciliationQueue = useRef(createSerialQueue());
   const persistenceQueue = useRef<Promise<void>>(Promise.resolve());
   const purchaseSingleFlight = useRef(false);
   const transactionInProgress = useRef(false);
@@ -126,6 +157,23 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     persistenceQueue.current = task.catch(() => undefined);
     return task;
   }, []);
+
+  const enqueueOperation = useCallback(
+    <T,>(operation: () => Promise<T>): Promise<T> => {
+      return reconciliationQueue.current.run(operation);
+    },
+    [],
+  );
+
+  const mutateData = useCallback(
+    (updater: (current: AppStateData) => AppStateData): AppStateData => {
+      const next = updater(dataRef.current);
+      dataRef.current = next;
+      setData(next);
+      return next;
+    },
+    [],
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -151,7 +199,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
       }
       try {
         await appStorage.cleanupTemporaryFiles();
-        const restored = await appStorage.read<AppStateData>();
+        const restored = await appStorage.read(validateAndMigrateAppState);
         if (!mounted) return;
         if (restored?.sets.length) {
           const migrated = {
@@ -159,6 +207,9 @@ export function AppStateProvider({ children }: PropsWithChildren) {
             hydrated: true,
             sets: restored.sets.map((set) => ({
               ...set,
+              purchaseIntentState: set.pendingPurchaseId
+                ? (set.purchaseIntentState ?? "pending")
+                : null,
               transactionFinishPending: Boolean(set.transactionFinishPending),
             })),
           };
@@ -290,7 +341,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
           dataRef.current = durable;
           setData(durable);
         }
-        await storeKit.finish(transaction.transactionId);
+        await withTimeout(storeKit.finish(transaction.transactionId), 15_000);
         const finished = {
           ...dataRef.current,
           sets: dataRef.current.sets.map((set) =>
@@ -320,62 +371,62 @@ export function AppStateProvider({ children }: PropsWithChildren) {
   );
 
   const reconcile = useCallback(
-    (transaction: StoreKitTransaction): Promise<void> => {
-      const task = reconciliationQueue.current.then(() =>
-        processTransaction(transaction),
-      );
-      reconciliationQueue.current = task.catch(() => undefined);
-      return task;
-    },
-    [processTransaction],
+    (transaction: StoreKitTransaction): Promise<void> =>
+      enqueueOperation(() => processTransaction(transaction)),
+    [enqueueOperation, processTransaction],
   );
 
-  const recoverFinishedBindings = useCallback(async () => {
-    const candidates = dataRef.current.sets.filter(
-      (set) => set.transactionFinishPending && Boolean(set.transactionId),
-    );
-    for (const candidate of candidates) {
-      const transactionId = candidate.transactionId;
-      if (!transactionId) continue;
-      if (!(await storeKit.isVerifiedTransaction(transactionId))) continue;
-      const recovered = {
-        ...dataRef.current,
-        sets: dataRef.current.sets.map((set) =>
-          set.transactionId === transactionId
-            ? { ...set, transactionFinishPending: false }
-            : set,
-        ),
-      };
-      await persistData(recovered);
-      const durable = await appStorage.read<AppStateData>();
+  const recoverFinishedBindings = useCallback(
+    async (snapshot: StoreKitTransaction[]) => {
+      const current = dataRef.current;
+      const recovered = stateAfterCompletedUnfinishedSnapshot(
+        current,
+        snapshot,
+      );
+      const resolved = purchaseSingleFlight.current
+        ? recovered
+        : stateMarkingInterruptedPresentations(recovered, snapshot);
       if (
-        !durable?.sets.some(
-          (set) =>
-            set.transactionId === transactionId &&
-            !set.transactionFinishPending,
+        resolved.sets.every(
+          (set, index) =>
+            set.transactionFinishPending ===
+              current.sets[index]?.transactionFinishPending &&
+            set.purchaseIntentState ===
+              current.sets[index]?.purchaseIntentState,
         )
       )
+        return;
+      await persistData(resolved);
+      const durable = await appStorage.read<AppStateData>();
+      if (!durable)
         throw new Error("purchase-finish-recovery-durability-check-failed");
       dataRef.current = durable;
       setData(durable);
-      finishedTransactions.current.add(transactionId);
-    }
-  }, [persistData]);
+      for (const set of durable.sets)
+        if (set.transactionId && !set.transactionFinishPending)
+          finishedTransactions.current.add(set.transactionId);
+    },
+    [persistData],
+  );
 
   useEffect(() => {
     if (!data.hydrated || screenshotFixtureMode) return;
     const recover = () =>
-      storeKit
-        .unfinishedTransactions()
-        .then((transactions) => Promise.all(transactions.map(reconcile)))
-        .then(recoverFinishedBindings)
-        .catch(() => {
-          setData((current) => ({
-            ...current,
-            lastError:
-              "A purchase is waiting for secure recovery. Keep this set saved; Only Signature will check again automatically.",
-          }));
-        });
+      enqueueOperation(async () => {
+        const transactions = await withTimeout(
+          storeKit.unfinishedSnapshot(),
+          15_000,
+        );
+        for (const transaction of transactions)
+          await processTransaction(transaction);
+        await recoverFinishedBindings(transactions);
+      }).catch(() => {
+        setData((current) => ({
+          ...current,
+          lastError:
+            "A purchase is waiting for secure recovery. Keep this set saved; Only Signature will check again automatically.",
+        }));
+      });
     let remove: () => void = () => undefined;
     try {
       remove = storeKit.observe((transaction) => {
@@ -418,6 +469,8 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     };
   }, [
     data.hydrated,
+    enqueueOperation,
+    processTransaction,
     reconcile,
     recoverFinishedBindings,
     screenshotFixtureMode,
@@ -430,18 +483,18 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 
   const updateSet = useCallback(
     (id: string, updater: (set: SignatureSet) => SignatureSet) => {
-      setData((current) => ({
+      mutateData((current) => ({
         ...current,
         sets: current.sets.map((set) => (set.id === id ? updater(set) : set)),
       }));
     },
-    [],
+    [mutateData],
   );
 
   const actions = useMemo<AppActions>(
     () => ({
       setSelectedAsset(kind) {
-        setData((current) => ({ ...current, selectedAsset: kind }));
+        mutateData((current) => ({ ...current, selectedAsset: kind }));
       },
       updateAsset(kind, strokes, width, height, orientation) {
         updateSet(data.activeSetId, (set) =>
@@ -477,25 +530,26 @@ export function AppStateProvider({ children }: PropsWithChildren) {
         );
       },
       selectSet(id) {
-        setData((current) => ({ ...current, activeSetId: id }));
+        mutateData((current) => ({ ...current, activeSetId: id }));
       },
       createNew() {
-        if (hasPurchaseRecoveryInProgress(dataRef.current)) {
-          setData((current) => ({
+        if (purchaseSingleFlight.current) {
+          mutateData((current) => ({
             ...current,
             lastError:
-              "Finish recovering the pending Apple purchase before creating another set.",
+              "Wait for the current Apple purchase request to close before creating another set.",
           }));
-          return;
+          return false;
         }
         const id = Crypto.randomUUID();
         const draft = createDraftSet(id);
-        setData((current) => ({
+        mutateData((current) => ({
           ...current,
           activeSetId: id,
           selectedAsset: "signature",
           sets: [draft, ...current.sets],
         }));
+        return true;
       },
       renameSet(id, label) {
         updateSet(id, (set) => ({
@@ -505,15 +559,16 @@ export function AppStateProvider({ children }: PropsWithChildren) {
         }));
       },
       duplicateSet(id) {
-        if (hasPurchaseRecoveryInProgress(dataRef.current)) {
-          setData((current) => ({
+        if (purchaseSingleFlight.current) {
+          mutateData((current) => ({
             ...current,
             lastError:
-              "Finish recovering the pending Apple purchase before duplicating a set.",
+              "Wait for the current Apple purchase request to close before duplicating a set.",
           }));
-          return;
+          return false;
         }
-        setData((current) => {
+        if (!dataRef.current.sets.some((set) => set.id === id)) return false;
+        mutateData((current) => {
           const source = current.sets.find((set) => set.id === id);
           if (!source) return current;
           const copy: SignatureSet = {
@@ -523,6 +578,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
             purchasedAt: null,
             transactionId: null,
             pendingPurchaseId: null,
+            purchaseIntentState: null,
             transactionFinishPending: false,
             unclaimedSlot: null,
             label: source.label ? `${source.label} copy` : "",
@@ -541,51 +597,67 @@ export function AppStateProvider({ children }: PropsWithChildren) {
             sets: [copy, ...current.sets],
           };
         });
+        return true;
       },
       deleteSet(id) {
-        setData((current) => {
+        void enqueueOperation(async () => {
+          const current = dataRef.current;
           const target = current.sets.find((set) => set.id === id);
           if (
             target?.pendingPurchaseId ||
             target?.transactionFinishPending ||
+            purchaseSingleFlight.current ||
             transactionInProgress.current
-          )
-            return {
+          ) {
+            setData({
               ...current,
               lastError:
                 "This set cannot be deleted while Apple purchase recovery is in progress.",
-            };
+            });
+            return;
+          }
           const remaining = current.sets.filter((set) => set.id !== id);
-          if (remaining.length > 0)
-            return {
-              ...current,
-              sets: remaining,
-              activeSetId:
-                current.activeSetId === id
-                  ? (remaining[0]?.id ?? "")
-                  : current.activeSetId,
-            };
-          const draft = createDraftSet(Crypto.randomUUID());
-          return { ...current, sets: [draft], activeSetId: draft.id };
+          const next =
+            remaining.length > 0
+              ? {
+                  ...current,
+                  sets: remaining,
+                  activeSetId:
+                    current.activeSetId === id
+                      ? (remaining[0]?.id ?? "")
+                      : current.activeSetId,
+                }
+              : (() => {
+                  const draft = createDraftSet(Crypto.randomUUID());
+                  return { ...current, sets: [draft], activeSetId: draft.id };
+                })();
+          await persistData(next);
+          dataRef.current = next;
+          setData(next);
         });
       },
       async deleteAll() {
-        if (
-          transactionInProgress.current ||
-          hasPurchaseRecoveryInProgress(dataRef.current)
-        )
-          throw new Error("purchase-recovery-in-progress");
-        const draft = createDraftSet(Crypto.randomUUID());
-        const clearTask = persistenceQueue.current.then(() =>
-          appStorage.clear(),
-        );
-        persistenceQueue.current = clearTask.catch(() => undefined);
-        await clearTask;
-        setData({
-          ...initialData,
-          hydrated: true,
-          activeSetId: draft.id,
-          sets: [draft],
+        await enqueueOperation(async () => {
+          if (
+            transactionInProgress.current ||
+            purchaseSingleFlight.current ||
+            hasPurchaseRecoveryInProgress(dataRef.current)
+          )
+            throw new Error("purchase-recovery-in-progress");
+          const draft = createDraftSet(Crypto.randomUUID());
+          const clearTask = persistenceQueue.current.then(() =>
+            appStorage.clear(),
+          );
+          persistenceQueue.current = clearTask.catch(() => undefined);
+          await clearTask;
+          const next = {
+            ...initialData,
+            hydrated: true,
+            activeSetId: draft.id,
+            sets: [draft],
+          };
+          dataRef.current = next;
+          setData(next);
         });
         AccessibilityInfo.announceForAccessibility(
           "All saved signatures and initials were removed from this app.",
@@ -594,88 +666,199 @@ export function AppStateProvider({ children }: PropsWithChildren) {
       async purchaseActiveSet() {
         if (purchaseSingleFlight.current)
           throw new Error("purchase-already-in-progress");
-        purchaseSingleFlight.current = true;
-        const currentData = dataRef.current;
-        const target =
-          currentData.sets.find((set) => set.id === currentData.activeSetId) ??
+        const initialData = dataRef.current;
+        const initialTarget =
+          initialData.sets.find((set) => set.id === initialData.activeSetId) ??
           activeSet;
+        if (initialTarget.status === "purchased" && initialTarget.transactionId)
+          return {
+            transactionId: initialTarget.transactionId,
+            productId: product.productId,
+            appAccountToken: initialTarget.id,
+            state: "purchased",
+            verified: true,
+          };
+        purchaseSingleFlight.current = true;
         try {
-          if (!hasDrawing(target.signature) && !hasDrawing(target.initials))
-            throw new Error("no-drawing");
-          if (productStatus !== "available" || !product.productId)
-            throw new Error("product-unavailable");
-          if (target.status === "purchased" && target.transactionId)
-            return {
-              transactionId: target.transactionId,
-              productId: product.productId,
-              appAccountToken: target.id,
-              state: "purchased",
-              verified: true,
+          let target!: SignatureSet;
+          let pendingId = "";
+          await enqueueOperation(async () => {
+            const currentData = dataRef.current;
+            target =
+              currentData.sets.find(
+                (set) => set.id === currentData.activeSetId,
+              ) ?? initialTarget;
+            if (!hasDrawing(target.signature) && !hasDrawing(target.initials))
+              throw new Error("no-drawing");
+            if (productStatus !== "available" || !product.productId)
+              throw new Error("product-unavailable");
+            if (hasPurchaseRecoveryInProgress(currentData))
+              throw new Error("purchase-recovery-in-progress");
+            if (!canBeginPurchase(target))
+              throw new Error("purchase-already-in-progress");
+            pendingId = Crypto.randomUUID().toLowerCase();
+            const signatureHash = hasDrawing(target.signature)
+              ? await Crypto.digestStringAsync(
+                  Crypto.CryptoDigestAlgorithm.SHA256,
+                  normalizedDrawing(target.signature),
+                )
+              : null;
+            const initialsHash = hasDrawing(target.initials)
+              ? await Crypto.digestStringAsync(
+                  Crypto.CryptoDigestAlgorithm.SHA256,
+                  normalizedDrawing(target.initials),
+                )
+              : null;
+            const frozen: SignatureSet = {
+              ...target,
+              pendingPurchaseId: pendingId,
+              purchaseIntentState: "presenting",
+              signature: target.signature
+                ? { ...target.signature, finalizedHash: signatureHash }
+                : null,
+              initials: target.initials
+                ? { ...target.initials, finalizedHash: initialsHash }
+                : null,
             };
-          if (!canBeginPurchase(target))
-            throw new Error("purchase-already-in-progress");
-          const pendingId = Crypto.randomUUID();
-          const signatureHash = hasDrawing(target.signature)
-            ? await Crypto.digestStringAsync(
-                Crypto.CryptoDigestAlgorithm.SHA256,
-                normalizedDrawing(target.signature),
-              )
-            : null;
-          const initialsHash = hasDrawing(target.initials)
-            ? await Crypto.digestStringAsync(
-                Crypto.CryptoDigestAlgorithm.SHA256,
-                normalizedDrawing(target.initials),
-              )
-            : null;
-          const frozen: SignatureSet = {
-            ...target,
-            pendingPurchaseId: pendingId,
-            signature: target.signature
-              ? { ...target.signature, finalizedHash: signatureHash }
-              : null,
-            initials: target.initials
-              ? { ...target.initials, finalizedHash: initialsHash }
-              : null,
-          };
-          const pendingData = {
-            ...currentData,
-            sets: currentData.sets.map((set) =>
-              set.id === frozen.id ? frozen : set,
-            ),
-          };
-          await persistData(pendingData);
-          dataRef.current = pendingData;
-          setData(pendingData);
+            const pendingData = {
+              ...currentData,
+              sets: currentData.sets.map((set) =>
+                set.id === frozen.id ? frozen : set,
+              ),
+            };
+            await persistData(pendingData);
+            const durable = await appStorage.read<AppStateData>();
+            const durableTarget = durable?.sets.find(
+              (set) =>
+                set.id === target.id &&
+                set.pendingPurchaseId?.toLowerCase() === pendingId,
+            );
+            if (!durable || !durableTarget)
+              throw new Error("purchase-intent-durability-check-failed");
+            dataRef.current = durable;
+            setData(durable);
+          });
           let transaction: StoreKitTransaction;
           try {
             transaction = await storeKit.purchase(pendingId);
           } catch (error) {
-            setData((current) => ({
-              ...current,
-              lastError:
-                "The purchase request was interrupted. This set remains locked while Only Signature checks Apple; do not purchase it again.",
-            }));
+            await enqueueOperation(async () => {
+              let snapshot: StoreKitTransaction[];
+              try {
+                snapshot = await withTimeout(
+                  storeKit.unfinishedSnapshot(),
+                  15_000,
+                );
+              } catch {
+                snapshot = [];
+              }
+              for (const candidate of snapshot)
+                await processTransaction(candidate);
+              const current = dataRef.current;
+              const interrupted = {
+                ...current,
+                sets: current.sets.map((set) =>
+                  set.id === target.id &&
+                  set.pendingPurchaseId?.toLowerCase() ===
+                    pendingId.toLowerCase()
+                    ? { ...set, purchaseIntentState: "interrupted" as const }
+                    : set,
+                ),
+                lastError:
+                  "Apple did not report a completed purchase. This frozen set stays saved while Only Signature checks again. Do not purchase again.",
+              };
+              await persistData(interrupted);
+              dataRef.current = interrupted;
+              setData(interrupted);
+            });
             throw error;
           }
           if (transaction.state === "purchased" && transaction.verified) {
             await reconcile(transaction);
           } else if (transaction.state === "cancelled") {
-            const unlocked = stateWithPendingPurchaseCleared(
-              dataRef.current,
-              target.id,
-            );
-            await persistData(unlocked);
-            dataRef.current = unlocked;
-            setData({
-              ...unlocked,
-              lastError: null,
+            await enqueueOperation(async () => {
+              const unlocked = stateWithPendingPurchaseCleared(
+                dataRef.current,
+                target.id,
+                pendingId,
+              );
+              await persistData(unlocked);
+              dataRef.current = unlocked;
+              setData({ ...unlocked, lastError: null });
             });
           } else if (transaction.state === "failed") {
-            setData((current) => ({
-              ...current,
-              lastError:
-                "Apple could not verify this purchase. This set stays locked while Only Signature checks again. Do not purchase it again.",
-            }));
+            await enqueueOperation(async () => {
+              const current = dataRef.current;
+              const failed = {
+                ...current,
+                sets: current.sets.map((set) =>
+                  set.id === target.id && set.pendingPurchaseId
+                    ? { ...set, purchaseIntentState: "interrupted" as const }
+                    : set,
+                ),
+                lastError:
+                  "Apple could not verify this purchase. This set stays locked while Only Signature checks again. Do not purchase it again.",
+              };
+              await persistData(failed);
+              dataRef.current = failed;
+              setData(failed);
+            });
+          } else if (transaction.state === "pending") {
+            await enqueueOperation(async () => {
+              const current = dataRef.current;
+              const pending = {
+                ...current,
+                sets: current.sets.map((set) =>
+                  set.id === target.id && set.pendingPurchaseId
+                    ? { ...set, purchaseIntentState: "pending" as const }
+                    : set,
+                ),
+              };
+              await persistData(pending);
+              dataRef.current = pending;
+              setData(pending);
+            });
+          } else if (transaction.state === "request-failed") {
+            await enqueueOperation(async () => {
+              const unlocked = stateWithPendingPurchaseCleared(
+                dataRef.current,
+                target.id,
+                pendingId,
+              );
+              const terminal = {
+                ...unlocked,
+                lastError:
+                  "Apple did not complete the purchase request. Your drawing is unchanged and you can try again.",
+              };
+              await persistData(terminal);
+              dataRef.current = terminal;
+              setData(terminal);
+            });
+          } else if (transaction.state === "request-interrupted") {
+            await enqueueOperation(async () => {
+              const snapshot = await withTimeout(
+                storeKit.unfinishedSnapshot(),
+                15_000,
+              );
+              for (const candidate of snapshot)
+                await processTransaction(candidate);
+              const current = dataRef.current;
+              const interrupted = {
+                ...current,
+                sets: current.sets.map((set) =>
+                  set.id === target.id &&
+                  set.pendingPurchaseId?.toLowerCase() ===
+                    pendingId.toLowerCase()
+                    ? { ...set, purchaseIntentState: "interrupted" as const }
+                    : set,
+                ),
+                lastError:
+                  "Apple did not report a completed purchase. This frozen set stays saved while Only Signature checks again. Do not purchase again.",
+              };
+              await persistData(interrupted);
+              dataRef.current = interrupted;
+              setData(interrupted);
+            });
           }
           return transaction;
         } finally {
@@ -708,16 +891,19 @@ export function AppStateProvider({ children }: PropsWithChildren) {
         }));
       },
       markReviewPrompted() {
-        setData((current) => ({ ...current, reviewPrompted: true }));
+        mutateData((current) => ({ ...current, reviewPrompted: true }));
       },
       dismissError() {
-        setData((current) => ({ ...current, lastError: null }));
+        mutateData((current) => ({ ...current, lastError: null }));
       },
     }),
     [
       activeSet,
       data.activeSetId,
+      enqueueOperation,
+      mutateData,
       persistData,
+      processTransaction,
       product.productId,
       productStatus,
       reconcile,

@@ -1,4 +1,7 @@
-const production = process.argv.includes("--production");
+const production =
+  process.argv.includes("--production") ||
+  (process.argv.includes("--if-production") &&
+    process.env.EXPO_PUBLIC_RELEASE_MODE === "production");
 const env = process.env;
 const required = [
   "EXPO_PUBLIC_APP_DISPLAY_NAME",

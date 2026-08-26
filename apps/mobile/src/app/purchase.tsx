@@ -12,11 +12,12 @@ import {
   SecondaryButton,
 } from "@/components/ui";
 import { hasDrawing } from "@/domain/models";
+import { hasPurchaseRecoveryInProgress } from "@/domain/purchaseState";
 import { sharedCopy, theme } from "@/integrations/workspace";
 import { useAppState } from "@/state/AppStateProvider";
 
 export default function PurchaseScreen() {
-  const { activeSet, product, productStatus, purchaseActiveSet } =
+  const { activeSet, data, product, productStatus, purchaseActiveSet } =
     useAppState();
   const { fixture } = useLocalSearchParams<{ fixture?: string }>();
   const [busy, setBusy] = useState(false);
@@ -33,9 +34,7 @@ export default function PurchaseScreen() {
         ? "initials"
         : "signature";
   const copy = sharedCopy.flowCopy(presence);
-  const purchasePending = Boolean(
-    activeSet.pendingPurchaseId || activeSet.transactionFinishPending,
-  );
+  const purchasePending = hasPurchaseRecoveryInProgress(data);
   useEffect(() => {
     if (
       !fixture &&
@@ -56,6 +55,10 @@ export default function PurchaseScreen() {
         );
       else if (result.state === "cancelled")
         setError("Purchase cancelled. You were not charged.");
+      else if (result.state === "request-interrupted")
+        setError(
+          "Apple did not report a completed purchase. Only Signature will keep checking this frozen set.",
+        );
       else setError("The purchase did not complete. Please try again.");
     } catch {
       setError(
@@ -128,7 +131,7 @@ export default function PurchaseScreen() {
         onPress={() => router.push("/free-export")}
         disabled={busy}
       />
-      <BackLink onPress={() => router.back()} />
+      <BackLink disabled={busy} onPress={() => router.back()} />
     </Screen>
   );
 }

@@ -15,7 +15,7 @@ import type {
   Stroke,
   StrokePoint,
 } from "@/domain/models";
-import { smoothPath } from "@/domain/drawing";
+import { pointToDrawingPlane, smoothPath } from "@/domain/drawing";
 import { theme } from "@/integrations/workspace";
 
 interface Props {
@@ -35,6 +35,10 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
     width: Math.max(300, windowWidth - 48),
     height: Math.min(360, Math.max(250, windowHeight * 0.42)),
   });
+  const [plane, setPlane] = useState({
+    width: asset.canvasWidth,
+    height: asset.canvasHeight,
+  });
   const [strokes, setStrokes] = useState<Stroke[]>(asset.strokes);
   const current = useRef<Stroke | null>(null);
   const sequence = useRef(0);
@@ -50,31 +54,45 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
       updateLocal(next);
       onChange(
         next,
-        size.width,
-        size.height,
+        plane.width,
+        plane.height,
         windowWidth > windowHeight ? "landscape" : "portrait",
       );
     },
-    [onChange, size.height, size.width, updateLocal, windowHeight, windowWidth],
+    [
+      onChange,
+      plane.height,
+      plane.width,
+      updateLocal,
+      windowHeight,
+      windowWidth,
+    ],
   );
 
   const pointFromEvent = useCallback(
-    (x: number, y: number, timestamp: number): StrokePoint => ({
-      x: Math.max(0, Math.min(size.width, x)),
-      y: Math.max(0, Math.min(size.height, y)),
-      t: timestamp,
-      pressure: null,
-    }),
-    [size.height, size.width],
+    (x: number, y: number, timestamp: number): StrokePoint | null => {
+      const point = pointToDrawingPlane(
+        x,
+        y,
+        size.width,
+        size.height,
+        plane.width,
+        plane.height,
+      );
+      return point ? { ...point, t: timestamp, pressure: null } : null;
+    },
+    [plane.height, plane.width, size.height, size.width],
   );
 
   const grant = useCallback(
     (event: GestureResponderEvent) => {
       const { locationX, locationY, timestamp } = event.nativeEvent;
+      const point = pointFromEvent(locationX, locationY, timestamp);
+      if (!point) return;
       sequence.current += 1;
       const stroke = {
         id: `stroke-${timestamp}-${sequence.current}`,
-        points: [pointFromEvent(locationX, locationY, timestamp)],
+        points: [point],
       };
       current.current = stroke;
       updateLocal([...strokesRef.current, stroke]);
@@ -87,12 +105,11 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
     (event: GestureResponderEvent) => {
       if (!current.current) return;
       const { locationX, locationY, timestamp } = event.nativeEvent;
+      const point = pointFromEvent(locationX, locationY, timestamp);
+      if (!point) return;
       const updated = {
         ...current.current,
-        points: [
-          ...current.current.points,
-          pointFromEvent(locationX, locationY, timestamp),
-        ],
+        points: [...current.current.points, point],
       };
       current.current = updated;
       updateLocal([...strokesRef.current.slice(0, -1), updated]);
@@ -131,7 +148,7 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
       accessible
       accessibilityRole="image"
       accessibilityLabel={`${kind === "signature" ? "Signature" : "Initials"} drawing area. Draw with one finger. Use the labeled Clear button below to start over.`}
-      accessibilityHint="Touch drawing requires direct finger input. The Clear button below removes only this selected drawing after confirmation."
+      accessibilityHint="With VoiceOver, double-tap and hold, then draw without lifting. The Clear button below removes only this selected drawing after confirmation."
       accessibilityValue={{
         text:
           strokes.length === 0
@@ -139,18 +156,29 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
             : `${strokes.length} ${strokes.length === 1 ? "stroke" : "strokes"}`,
       }}
       style={styles.canvas}
-      onLayout={(event) =>
-        setSize({
+      onLayout={(event) => {
+        const nextSize = {
           width: event.nativeEvent.layout.width,
           height: event.nativeEvent.layout.height,
-        })
-      }
+        };
+        setSize(nextSize);
+        if (strokesRef.current.length === 0 && !current.current) {
+          setPlane(nextSize);
+          onChange(
+            [],
+            nextSize.width,
+            nextSize.height,
+            windowWidth > windowHeight ? "landscape" : "portrait",
+          );
+        }
+      }}
       {...responder.panHandlers}
     >
       <Svg
         width="100%"
         height="100%"
-        viewBox={`0 0 ${size.width} ${size.height}`}
+        viewBox={`0 0 ${plane.width} ${plane.height}`}
+        preserveAspectRatio="xMidYMid meet"
         pointerEvents="none"
       >
         {strokes.map((stroke) => (

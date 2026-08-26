@@ -70,6 +70,7 @@ export const screenshotFixtureSet: SignatureSet = {
   purchasedAt: "2026-08-25T12:00:00.000Z",
   transactionId: "fixture-transaction",
   pendingPurchaseId: null,
+  purchaseIntentState: null,
   transactionFinishPending: false,
   unclaimedSlot: null,
   lastUsedAt: "2026-08-25T12:00:00.000Z",

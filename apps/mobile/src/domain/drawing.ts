@@ -7,6 +7,35 @@ export interface Bounds {
   maxY: number;
 }
 
+export const pointToDrawingPlane = (
+  x: number,
+  y: number,
+  layoutWidth: number,
+  layoutHeight: number,
+  planeWidth: number,
+  planeHeight: number,
+): Pick<StrokePoint, "x" | "y"> | null => {
+  const scale = Math.min(
+    Math.max(1, layoutWidth) / Math.max(1, planeWidth),
+    Math.max(1, layoutHeight) / Math.max(1, planeHeight),
+  );
+  const offsetX = (layoutWidth - planeWidth * scale) / 2;
+  const offsetY = (layoutHeight - planeHeight * scale) / 2;
+  const renderedWidth = planeWidth * scale;
+  const renderedHeight = planeHeight * scale;
+  if (
+    x < offsetX ||
+    x > offsetX + renderedWidth ||
+    y < offsetY ||
+    y > offsetY + renderedHeight
+  )
+    return null;
+  return {
+    x: Math.max(0, Math.min(planeWidth, (x - offsetX) / scale)),
+    y: Math.max(0, Math.min(planeHeight, (y - offsetY) / scale)),
+  };
+};
+
 export const smoothPath = (points: StrokePoint[]): string => {
   if (points.length === 0) return "";
   const first = points[0];

@@ -1,4 +1,4 @@
-import { useRef, useState, type ComponentRef } from "react";
+import { useEffect, useRef, useState, type ComponentRef } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { ExportSurface } from "./ExportSurface";
@@ -16,6 +16,7 @@ import { hasDrawing, type AssetKind, type ExportFormat } from "@/domain/models";
 import { theme } from "@/integrations/workspace";
 import {
   generateExport,
+  cleanupGeneratedFiles,
   shareFile,
   type GeneratedFile,
 } from "@/services/export";
@@ -39,6 +40,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
     purchased ? "png-transparent" : "png-white",
   );
   const [generated, setGenerated] = useState<GeneratedFile[]>([]);
+  const generatedRef = useRef<GeneratedFile[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [shareClosed, setShareClosed] = useState(false);
@@ -48,11 +50,24 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
     Number(hasDrawing(activeSet.signature)) +
     Number(hasDrawing(activeSet.initials));
 
+  useEffect(() => {
+    generatedRef.current = generated;
+  }, [generated]);
+
+  useEffect(
+    () => () => {
+      void cleanupGeneratedFiles(generatedRef.current);
+    },
+    [],
+  );
+
   const prepare = async () => {
     setBusy(true);
     setError(null);
+    const files: GeneratedFile[] = [];
     try {
-      const files: GeneratedFile[] = [];
+      await cleanupGeneratedFiles(generatedRef.current);
+      generatedRef.current = [];
       if (hasDrawing(activeSet.signature))
         files.push(
           await generateExport(
@@ -67,6 +82,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
         );
       setGenerated(files);
     } catch {
+      await cleanupGeneratedFiles(files).catch(() => undefined);
       setError(
         "We could not create the export file. Your saved drawing is unchanged.",
       );
@@ -77,7 +93,10 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
   const changeFormat = (kind: AssetKind, format: ExportFormat): void => {
     if (kind === "signature") setSignatureFormat(format);
     else setInitialsFormat(format);
+    const stale = generatedRef.current;
+    generatedRef.current = [];
     setGenerated([]);
+    void cleanupGeneratedFiles(stale);
     setShareClosed(false);
   };
   const completeDestination = async (file: GeneratedFile) => {
@@ -120,7 +139,9 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
             onChange={(format) => changeFormat("initials", format)}
           />
         ) : null}
-        {purchased && activeSet.unclaimedSlot ? (
+        {purchased &&
+        activeSet.unclaimedSlot &&
+        !activeSet.transactionFinishPending ? (
           <SecondaryButton
             label={`Add ${activeSet.unclaimedSlot === "initials" ? "Initials" : "Signature"}, Included`}
             onPress={() => {
@@ -195,8 +216,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
           label="Create New"
           onPress={() => {
             confirmAuthorizedUse(() => {
-              createNew();
-              router.replace("/draw");
+              if (createNew()) router.replace("/draw");
             });
           }}
           disabled={busy}

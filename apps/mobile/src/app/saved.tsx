@@ -42,7 +42,7 @@ function SetCard({ item, onRename }: { item: SignatureSet; onRename(): void }) {
   const remove = () =>
     Alert.alert(
       "Delete this local set?",
-      "Files you already exported are not deleted.",
+      `${item.label || "This signature set"} will be removed from Only Signature. Files you already exported are not deleted.${item.status === "purchased" ? " The consumed purchase cannot restore this artwork after deletion." : ""}`,
       [
         { text: "Keep Set", style: "cancel" },
         {
@@ -97,7 +97,7 @@ function SetCard({ item, onRename }: { item: SignatureSet; onRename(): void }) {
         }
         onPress={open}
       />
-      {item.unclaimedSlot ? (
+      {item.unclaimedSlot && !item.transactionFinishPending ? (
         <SecondaryButton
           label={`Fill Included ${item.unclaimedSlot === "initials" ? "Initials" : "Signature"}`}
           onPress={() => {
@@ -120,8 +120,7 @@ function SetCard({ item, onRename }: { item: SignatureSet; onRename(): void }) {
           accessibilityLabel="Duplicate as New Draft"
           onPress={() => {
             confirmAuthorizedUse(() => {
-              duplicateSet(item.id);
-              router.push("/draw");
+              if (duplicateSet(item.id)) router.push("/draw");
             });
           }}
           style={styles.textAction}
@@ -204,8 +203,7 @@ export default function SavedScreen() {
         label="Create New"
         onPress={() => {
           confirmAuthorizedUse(() => {
-            createNew();
-            router.push("/draw");
+            if (createNew()) router.push("/draw");
           });
         }}
       />

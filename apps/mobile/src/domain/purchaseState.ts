@@ -16,6 +16,9 @@ export const hasPurchaseRecoveryInProgress = (data: AppStateData): boolean =>
   data.sets.some(
     (set) => Boolean(set.pendingPurchaseId) || set.transactionFinishPending,
   );
+
+const normalizeToken = (value: string | undefined | null): string | null =>
+  value ? value.toLowerCase() : null;
 export const canBeginPurchase = (set: SignatureSet): boolean =>
   !set.pendingPurchaseId &&
   !set.transactionFinishPending &&
@@ -25,13 +28,17 @@ export const canBeginPurchase = (set: SignatureSet): boolean =>
 export const stateWithPendingPurchaseCleared = (
   data: AppStateData,
   setId: string,
+  expectedToken?: string,
 ): AppStateData => ({
   ...data,
   sets: data.sets.map((set) =>
-    set.id === setId
+    set.id === setId &&
+    (!expectedToken ||
+      normalizeToken(set.pendingPurchaseId) === normalizeToken(expectedToken))
       ? {
           ...set,
           pendingPurchaseId: null,
+          purchaseIntentState: null,
           transactionFinishPending: false,
           signature: set.signature
             ? { ...set.signature, finalizedHash: null }
@@ -50,8 +57,9 @@ export const findTransactionSet = (
 ): SignatureSet | null => {
   const exact = data.sets.find(
     (set) =>
-      (transaction.appAccountToken &&
-        set.pendingPurchaseId === transaction.appAccountToken) ||
+      (normalizeToken(transaction.appAccountToken) &&
+        normalizeToken(set.pendingPurchaseId) ===
+          normalizeToken(transaction.appAccountToken)) ||
       set.transactionId === transaction.transactionId,
   );
   if (exact) return exact;
@@ -90,6 +98,7 @@ export const purchasedStateForTransaction = (
     status: "purchased",
     transactionId: transaction.transactionId,
     pendingPurchaseId: null,
+    purchaseIntentState: null,
     transactionFinishPending: true,
     purchasedAt: matching.purchasedAt ?? now,
     unclaimedSlot:
@@ -118,6 +127,7 @@ export const stateWithFinalizedIncludedSlot = (
   if (
     !target ||
     target.status !== "purchased" ||
+    target.transactionFinishPending ||
     target.unclaimedSlot !== kind ||
     !hasDrawing(asset) ||
     !hash

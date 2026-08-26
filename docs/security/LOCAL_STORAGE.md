@@ -20,7 +20,7 @@ If protected data is unavailable, StoreKit delivery is queued/deferred and remai
 
 ## Temporary files
 
-Exports are created only when requested, in a protected randomized app-owned temp subdirectory. A cleanup journal supports deletion after safe handoff and at next launch after success, cancellation, crash, or reboot. Failed cleanup produces a coarse local diagnostic and retries without exposing paths/labels.
+Exports are created only when requested, in a protected randomized app-owned temp subdirectory. Generation failures delete their partial directory, and the export flow cleans prior files before regeneration, on format change, and on unmount. Launch cleanup remains the crash/reboot fallback. Cleanup errors never expose paths or labels.
 
 ## Deletion
 
@@ -35,4 +35,4 @@ Local domain/storage fault tests are necessary but insufficient. Native XCTest a
 
 ## Current implementation observation
 
-At the 2026-08-25 final source snapshot, production fails closed without the owned native module. The module uses app-only Application Support, `NSFileProtectionComplete`, backup exclusion, same-directory staging, and a protected prior generation. The JavaScript layer uses a versioned SHA-256 envelope, validates reads, falls back only to a checksum-valid previous generation, and keeps development-only Expo filesystem behavior out of production. Purchase writes are serialized and read back before StoreKit finish; a finish-pending binding is reconciled from verified StoreKit history if finishing succeeded before the final local write. Native fault injection, filesystem synchronization behavior, file attributes, low-disk handling, and lock/backup behavior remain physical-device/macOS release gates.
+At the 2026-08-25 corrected source snapshot, production fails closed without the owned native module. The module uses app-only Application Support, `NSFileProtectionComplete`, backup exclusion, same-directory staging, and a protected prior generation. The JavaScript layer uses a versioned SHA-256 envelope, validates both checksum and state semantics, and attempts the prior generation when the primary is corrupt or semantically impossible. Purchase transitions and destructive deletion checks are serialized and read back before StoreKit finish. A successfully completed `Transaction.unfinished` snapshot—not finished-consumable history—reconciles a finish marker when StoreKit no longer reports that transaction. Interrupted purchase artwork remains a visible saved set, not hidden storage. Native fault injection, filesystem synchronization behavior, file attributes, low-disk handling, and lock/backup behavior remain physical-device/macOS release gates.

@@ -34,6 +34,7 @@ export interface SignatureSet {
   purchasedAt: string | null;
   transactionId: string | null;
   pendingPurchaseId: string | null;
+  purchaseIntentState: "presenting" | "pending" | "interrupted" | null;
   transactionFinishPending: boolean;
   unclaimedSlot: AssetKind | null;
   lastUsedAt: string;
@@ -71,6 +72,7 @@ export const createDraftSet = (
   purchasedAt: null,
   transactionId: null,
   pendingPurchaseId: null,
+  purchaseIntentState: null,
   transactionFinishPending: false,
   unclaimedSlot: null,
   lastUsedAt: now,

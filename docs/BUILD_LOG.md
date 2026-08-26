@@ -43,3 +43,22 @@ This file records only commands and outcomes actually observed. Signed iOS build
 - Regenerated CycloneDX 1.5 SBOM with 1,145 package-version components.
 - Closed the final local audit defects: verified-history recovery for a StoreKit transaction finished before its local completion marker, protected prior-generation state recovery, fail-closed mismatched-token handling, serialized Delete All, removal of residual Copy/SVG/Photos promises, partial white-box obstruction, distinct route-aware screenshot fixtures, corrected iPad framing, and an opaque 1024×1024 IAP review screenshot.
 - Added a store-asset verification gate covering 16 exact-size opaque masters, distinct purchase fixtures, and the IAP review asset. The masters are implemented-UI web fixture captures; final native iOS captures remain explicitly gated.
+
+## 2026-08-25 - Sequential code audit, council, and tenth-man remediation
+
+- A first independent agent found three runtime P1 defects: finished-consumable crash recovery relied on history that omits finished consumables by default, thrown purchase calls could remain locked, and rotation changed stroke normalization. A second agent independently confirmed them and proposed a completed-unfinished-snapshot state machine and stable drawing plane.
+- Implemented an owned StoreKit outcome split for verified, unverified, pending, cancelled, terminal `Product.PurchaseError`, and ambiguous bridge/system interruption. UUID account tokens are lowercase at the native boundary and compared case-insensitively in TypeScript.
+- Replaced transaction-history proof with completed `Transaction.unfinished` snapshots. Observer callbacks, snapshot decisions, purchase-result transitions, individual deletion, and Delete All use one reusable serial queue; StoreKit purchase-sheet presentation remains outside it. Snapshot/finish calls are bounded, and timeout never proves absence.
+- Removed the experimental hidden abandoned-intent design after the council and tenth man showed double-charge, deletion, privacy, and tokenless-correlation risks. Ambiguous artwork remains visibly frozen; paid retry and destructive deletion are blocked while free drafts and white-background export remain available.
+- Added stable drawing-plane transforms, rejected touches in aspect-fit margins, gated included-slot drawing until transaction finishing resolves, made the comparison stack for narrow/large-text layouts with one semantic accessibility summary, and improved paid-set deletion copy.
+- Added semantic state validation with backup fallback, same-session temporary export cleanup including partial failures, and a production EAS lifecycle hook in the mobile app root.
+- Focused validation after remediation: mobile TypeScript passed, lint passed, 26/26 mobile tests passed, development app-root EAS hook ran, and a production-mode negative test rejected all missing release values as expected.
+
+## 2026-08-25 - Final corrected-source authority
+
+- The engineering auditor re-reviewed the corrected pre-sheet transaction boundary and returned APPROVE with no remaining local P0/P1 defect.
+- `npm run check`: exited 0 after all corrections. The gate passed Prettier, strict TypeScript, lint, 24 root tests, 26 mobile tests, content drift across 122 files, release configuration, static production-network policy, native autolinking, store-asset verification, and the high/critical dependency threshold.
+- `npx expo-doctor@latest apps/mobile`: 21/21 checks passed.
+- The app-root production lifecycle check was run with `EXPO_PUBLIC_RELEASE_MODE=production` and correctly exited 1 because founder/legal/public/Apple release values and real StoreKit mode are absent.
+- `git diff --check`: passed. `git remote -v`: empty.
+- Final authority is local-source approval with explicit EAS/macOS compilation, StoreKit sandbox, physical-device, runtime-network, final native screenshot, founder-input, signing, and submission gates.

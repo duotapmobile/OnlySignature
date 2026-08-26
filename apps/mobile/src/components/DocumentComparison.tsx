@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { DrawingPreview } from "./DrawingPreview";
 import type { DrawingAsset } from "@/domain/models";
 import { theme } from "@/integrations/workspace";
@@ -12,17 +12,21 @@ function Agreement({
 }) {
   return (
     <View style={styles.document}>
-      <Text style={styles.docTitle}>SERVICE AGREEMENT</Text>
-      <Text style={styles.docText}>
+      <Text allowFontScaling={false} style={styles.docTitle}>
+        SERVICE AGREEMENT
+      </Text>
+      <Text allowFontScaling={false} style={styles.docText}>
         Avery Lane agrees to the terms listed in this fictional sample.
       </Text>
       <View style={styles.rule} />
       <View style={styles.signatureArea}>
-        <Text style={styles.label}>
+        <Text allowFontScaling={false} style={styles.label}>
           {asset.kind === "initials" ? "Initials" : "Signature"}
         </Text>
         <View style={styles.signatureLine} />
-        <Text style={styles.date}>Date: 08 / 25 / 2026</Text>
+        <Text allowFontScaling={false} style={styles.date}>
+          Date: 08 / 25 / 2026
+        </Text>
         <View style={[styles.signaturePlacement, whiteBox && styles.whiteBox]}>
           <DrawingPreview asset={asset} style={styles.drawing} />
         </View>
@@ -32,17 +36,29 @@ function Agreement({
 }
 
 export function DocumentComparison({ asset }: { asset: DrawingAsset }) {
+  const { width, fontScale } = useWindowDimensions();
+  const stacked = width < 700 || fontScale >= 1.3;
   return (
     <View
-      style={styles.comparison}
-      accessibilityLabel="The same sample agreement shown with a white-background signature and a transparent signature"
+      accessible
+      accessibilityRole="image"
+      style={[styles.comparison, stacked && styles.stacked]}
+      accessibilityLabel="Comparison of the same sample agreement. White Background covers part of the signature line and nearby date. Transparent Professional Export keeps the line and date visible."
     >
-      <View style={styles.column}>
+      <View
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        style={[styles.column, stacked && styles.stackedColumn]}
+      >
         <Text style={styles.caption}>White Background</Text>
         <View style={styles.secondarySpacer} />
         <Agreement asset={asset} whiteBox />
       </View>
-      <View style={styles.column}>
+      <View
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        style={[styles.column, stacked && styles.stackedColumn]}
+      >
         <Text style={styles.caption}>Transparent</Text>
         <Text style={styles.secondary}>Professional Export</Text>
         <Agreement asset={asset} whiteBox={false} />
@@ -53,7 +69,9 @@ export function DocumentComparison({ asset }: { asset: DrawingAsset }) {
 
 const styles = StyleSheet.create({
   comparison: { flexDirection: "row", gap: 12 },
+  stacked: { flexDirection: "column" },
   column: { flex: 1, minWidth: 0, width: 0 },
+  stackedColumn: { width: "100%" },
   caption: {
     color: theme.colors.text,
     textAlign: "center",
@@ -80,17 +98,17 @@ const styles = StyleSheet.create({
   },
   docTitle: {
     color: "#2E3234",
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: "900",
     textAlign: "center",
     marginBottom: 14,
   },
-  docText: { color: "#43484A", fontSize: 8, lineHeight: 12 },
+  docText: { color: "#43484A", fontSize: 11, lineHeight: 15 },
   rule: { height: 1, backgroundColor: "#8B8D87", marginVertical: 12 },
   signatureArea: { marginTop: "auto", height: 98, justifyContent: "flex-end" },
   label: {
     color: "#394044",
-    fontSize: 9,
+    fontSize: 11,
     position: "absolute",
     left: 0,
     bottom: 39,
@@ -98,7 +116,7 @@ const styles = StyleSheet.create({
   signatureLine: { height: 1, backgroundColor: "#515658", marginBottom: 36 },
   date: {
     color: "#394044",
-    fontSize: 8,
+    fontSize: 11,
     position: "absolute",
     right: 0,
     bottom: 18,
