@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0B293A"/><stop offset="1" stop-color="#1E5974"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity=".08"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#00131f" flood-opacity=".35"/></filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1050" cy="90" r="330" fill="#7bc2dc" fill-opacity=".13"/>
+  <g transform="translate(690 82)" filter="url(#shadow)">
+    <rect width="390" height="460" rx="54" fill="url(#glass)" stroke="#fff" stroke-opacity=".34" stroke-width="2"/>
+    <rect x="45" y="55" width="300" height="350" rx="28" fill="#E4ECEE"/>
+    <g fill="#133A50" fill-opacity=".16"><rect x="80" y="105" width="220" height="10" rx="5"/><rect x="80" y="135" width="178" height="10" rx="5"/><rect x="80" y="165" width="205" height="10" rx="5"/></g>
+    <path d="M76 301h185M278 301h45" stroke="#133A50" stroke-opacity=".48" stroke-width="3"/>
+    <path d="M82 286c25-55 31 38 71-10 27-32 22 28 60 0 21-16 30 16 61-2" fill="none" stroke="#133A50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="80" y="330" fill="#133A50" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="18" font-weight="700">Signature</text>
+    <text x="278" y="330" fill="#133A50" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="18" font-weight="700">Date</text>
+  </g>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" fill="#fff">
+    <text x="90" y="128" font-size="32" font-weight="800">ONLY SIGNATURE</text>
+    <text x="90" y="230" font-size="68" font-weight="850">Your handwriting.</text>
+    <text x="90" y="310" font-size="68" font-weight="850">A clean asset.</text>
+    <text x="90" y="405" font-size="31" fill-opacity=".86">Transparent export. No document upload.</text>
+    <text x="90" y="458" font-size="31" fill-opacity=".86">No login. No subscription.</text>
+  </g>
+</svg>
