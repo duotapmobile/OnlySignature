@@ -81,3 +81,11 @@ This file records only commands and outcomes actually observed. Signed iOS build
 - `npm run build --workspace @only-signature/site`: built 9 pages. `npm run validate --workspace @only-signature/site`: passed 11 required outputs, internal links, zero client JavaScript, and prohibited-tracking checks.
 - `npm run check`: exit 0; 27/27 root tests and 42/42 mobile tests passed, with formatting, strict TypeScript, lint, content drift, release configuration, static network policy, native autolinking, store assets, and high/critical dependency threshold passing.
 - `npm audit` reported 12 moderate transitive advisories in Expo build tooling; the offered full fix is breaking and was not forced.
+
+## 2026-08-27 - Public website gate and GitHub Pages branch
+
+- Selected a Florida governing-law draft for the Florida LLC and U.S.-only launch while preserving mandatory consumer protections and small-claims remedies; professional legal review remains required before App Store release.
+- Kept the private Apple membership address and phone out of public source, generated legal content, and deployment output.
+- `npm run release:check --workspace @only-signature/site`: passed after building 9 pages and validating 11 required outputs, internal links, zero client JavaScript, and prohibited tracking/font/cookie patterns.
+- `npm run check`: exit 0; 27/27 root tests and 42/42 mobile tests passed with formatting, strict TypeScript, lint, content drift, release configuration, static network policy, native autolinking, store assets, and high/critical dependency threshold checks.
+- Published the validated static output as remote `gh-pages` root commit `e0d9c6d` with `CNAME` set to `onlysignature.app` and `.nojekyll` present. GitHub Pages activation, Namecheap DNS edits, certificate issuance, and anonymous HTTPS checks remain external control-panel steps.
