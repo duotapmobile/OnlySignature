@@ -33,7 +33,7 @@ The final tenth-man re-review returned **APPROVE** and found no remaining locall
 - Content drift: passed across 128 files.
 - Pixel export suite: 6/6 tests passed.
 - Astro site build: 9 pages built; site validation passed 11 required outputs, all internal links, zero client JavaScript, and no forbidden tracking/font/cookie patterns.
-- Site public-release gate: the private Apple membership address is excluded from public artifacts; governing law remains the only legal-content placeholder.
+- Site public-release gate: the private Apple membership address is excluded from public artifacts and the Florida governing-law draft is complete; professional legal review remains a release-risk gate.
 - `npx expo-doctor@latest apps/mobile`: 21/21 checks passed.
 - Fresh unsigned `expo export --platform ios`: completed with one iOS Hermes bundle and 23 assets; temporary duplicate verification output was removed afterward.
 - Production Expo fixture inspection: correct bundle ID, Team ID, real StoreKit mode, configured product ID, U.S. territory, OTA disabled, and `NSFileProtectionComplete`.
@@ -49,7 +49,7 @@ The tenth man initially held the build for terminal StoreKit errors that could b
 
 ## Finite external release gates
 
-1. Supply the governing-law choice after professional legal review; the private Apple membership address is excluded from public artifacts and the App Review phone is confirmed.
+1. Obtain professional review of the Florida governing-law draft and fact-specific legal policies; the private Apple membership address and App Review phone are excluded from public artifacts.
 2. Complete EIN/tax identity, Paid Applications Agreement, and banking for the consumable IAP.
 3. Supply the EAS project ID, App Store SKU, numeric ASC app ID, and authorized Apple/EAS signing credentials.
 4. Build and inspect a signed iOS archive on EAS/macOS, including Swift compilation, entitlements, privacy manifests, permissions, and upload diagnostics.

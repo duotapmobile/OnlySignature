@@ -9,7 +9,7 @@ The founder supplied this domain for the first publication. All launch URLs must
 | -------------- | ----------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | Marketing home | `/`               | Marketing URL                                     | Product name, scope, no-document-upload, pricing scope, and formats are accurate              |
 | Privacy Policy | `/privacy/`       | Required Privacy Policy URL                       | Legal identity, host logs, support address, effective date, and final code practices complete |
-| Terms of Use   | `/terms/`         | Support/legal link and possible license reference | Operator, address, governing law, Apple terms, and purchase scope complete                    |
+| Terms of Use   | `/terms/`         | Support/legal link and possible license reference | Operator, governing law, Apple terms, and purchase scope complete                             |
 | Support        | `/support/`       | Required Support URL                              | Working contact, troubleshooting, deletion/storage notice, and app version support path       |
 | Purchase FAQ   | `/faq/`           | Review/support reference                          | Localized price distinction, per-set scope, unclaimed slot, deletion, and refunds accurate    |
 | Accessibility  | `/accessibility/` | Public accessibility information                  | Claims limited to features actually tested for the released version                           |

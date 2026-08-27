@@ -29,7 +29,7 @@ For a final public release, run:
 npm run release:check
 ```
 
-The release check deliberately fails while the governing jurisdiction or any future placeholder remains in generated output. DuoTap LLC, `admin@onlysignature.app`, and `https://onlysignature.app` are confirmed.
+The release check deliberately fails if any future public placeholder appears in generated output. DuoTap LLC, Florida governing law, `admin@onlysignature.app`, and `https://onlysignature.app` are configured; the private Apple membership address and phone are excluded from public artifacts.
 
 ## Option A — direct static upload
 

@@ -2,7 +2,7 @@
 
 **Effective date:** August 25, 2026
 
-These Terms govern your use of Only Signature. The operator is **DuoTap LLC**. The governing-law choice must be completed before public release.
+These Terms govern your use of Only Signature. The operator is **DuoTap LLC**.
 
 By downloading or using the app, you agree to these Terms and Apple’s applicable App Store terms. If you do not agree, do not use the app.
 
@@ -137,7 +137,7 @@ Where liability cannot be excluded, the operator’s aggregate liability will be
 
 ## 17. Governing law and disputes
 
-These Terms are governed by the laws of **[GOVERNING_LAW_JURISDICTION]**, excluding conflict-of-law principles, subject to mandatory consumer protections that apply where you live. Venue and any required informal dispute process must be completed after legal-operator review and before release.
+These Terms are governed by the laws of the **State of Florida, United States**, without regard to conflict-of-law principles, subject to mandatory consumer protections that apply where you live. Subject to those protections and any available small-claims process, disputes may be brought in a state or federal court with jurisdiction in Florida.
 
 Nothing here prevents you from using a regulator, small-claims process, or other remedy that applicable law preserves.
 
@@ -167,5 +167,3 @@ The operator may update these Terms for legal, security, or product changes. The
 - **Operator:** DuoTap LLC
 - **Support email:** admin@onlysignature.app
 - **Website:** https://onlysignature.app/
-
-The governing-law choice must be completed before public release.
