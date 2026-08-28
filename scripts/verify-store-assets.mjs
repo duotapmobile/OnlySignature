@@ -5,6 +5,7 @@ import sharp from "sharp";
 import {
   buildScreenshotMaestroFlow,
   screenshotAppReadyTestId,
+  screenshotColdLaunchPlan,
   screenshotDeepLink,
 } from "./native-screenshot-flow.mjs";
 
@@ -78,16 +79,25 @@ for (const [index, expected] of expectedStory.entries()) {
   if (!Array.isArray(shot.assertions) || shot.assertions.length < 2)
     throw new Error(`${shot.id} does not assert its exact visible state.`);
   const flow = buildScreenshotMaestroFlow(shot);
+  const coldLaunch = screenshotColdLaunchPlan("TEST-UDID", shot.route);
   const appReady = flow.indexOf(`id: "${screenshotAppReadyTestId}"`);
-  const openLink = flow.indexOf(
-    `- openLink: ${JSON.stringify(screenshotDeepLink(shot.route))}`,
-  );
+  const confirmation = flow.indexOf('Open in \\"Only Signature\\"');
   const routeReady = flow.indexOf(
     `visible: ${JSON.stringify(shot.assertions[0])}`,
   );
-  if (appReady < 0 || openLink <= appReady || routeReady <= openLink)
+  if (
+    coldLaunch.length !== 2 ||
+    coldLaunch[0]?.args?.[1] !== "terminate" ||
+    coldLaunch[1]?.args?.[1] !== "openurl" ||
+    coldLaunch[1]?.args?.at(-1) !== screenshotDeepLink(shot.route) ||
+    confirmation < 0 ||
+    appReady <= confirmation ||
+    routeReady <= appReady ||
+    flow.includes("openLink:") ||
+    flow.includes("launchApp:")
+  )
     throw new Error(
-      `${shot.id} must prove fixture hydration before opening its deep link and prove route-ready copy before capture.`,
+      `${shot.id} must cold-launch its fixture URL, handle iOS confirmation, prove hydration, and prove route-ready copy before capture.`,
     );
 }
 if (

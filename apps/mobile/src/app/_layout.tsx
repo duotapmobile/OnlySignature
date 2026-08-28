@@ -56,6 +56,27 @@ function GlobalErrorBanner() {
   );
 }
 
+function ApplicationShell({ reduceMotion }: { reduceMotion: boolean }) {
+  const { data } = useAppState();
+  return (
+    <View
+      style={styles.application}
+      testID={data.hydrated ? "app-ready" : undefined}
+    >
+      <StatusBar style="light" />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: reduceMotion ? "none" : "slide_from_right",
+          contentStyle: { backgroundColor: theme.colors.primary },
+        }}
+      />
+      <GlobalErrorBanner />
+      <PrivacyCover />
+    </View>
+  );
+}
+
 export default function RootLayout() {
   const [reduceMotion, setReduceMotion] = useState(false);
   useEffect(() => {
@@ -69,22 +90,14 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AppStateProvider>
-        <StatusBar style="light" />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            animation: reduceMotion ? "none" : "slide_from_right",
-            contentStyle: { backgroundColor: theme.colors.primary },
-          }}
-        />
-        <GlobalErrorBanner />
-        <PrivacyCover />
+        <ApplicationShell reduceMotion={reduceMotion} />
       </AppStateProvider>
     </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
+  application: { flex: 1 },
   cover: {
     ...StyleSheet.absoluteFill,
     zIndex: 9999,

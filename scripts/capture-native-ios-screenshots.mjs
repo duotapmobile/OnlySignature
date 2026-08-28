@@ -12,7 +12,11 @@ import {
 import os from "node:os";
 import path from "node:path";
 import sharp from "sharp";
-import { buildScreenshotMaestroFlow } from "./native-screenshot-flow.mjs";
+import {
+  buildScreenshotMaestroFlow,
+  screenshotAppId,
+  screenshotColdLaunchPlan,
+} from "./native-screenshot-flow.mjs";
 
 const fail = (message) => {
   throw new Error(message);
@@ -97,6 +101,21 @@ const plistValue = (key) =>
     "-",
     path.join(appPath, "Info.plist"),
   ]);
+const urlTypes = JSON.parse(
+  output("/usr/bin/plutil", [
+    "-extract",
+    "CFBundleURLTypes",
+    "json",
+    "-o",
+    "-",
+    path.join(appPath, "Info.plist"),
+  ]),
+);
+const registeredSchemes = urlTypes.flatMap(
+  (entry) => entry.CFBundleURLSchemes ?? [],
+);
+if (!registeredSchemes.includes("onlysignature"))
+  fail("The simulator app does not register the onlysignature URL scheme.");
 if (
   plistValue("CFBundleIdentifier") !== "com.duotap.onlysignature" ||
   plistValue("OnlySignatureReleaseMode") !== "preview" ||
@@ -166,6 +185,15 @@ const udid = output("xcrun", [
 ]);
 
 const captures = [];
+const coldLaunch = (route) => {
+  for (const step of screenshotColdLaunchPlan(udid, route)) {
+    if (step.allowFailure) {
+      try {
+        run(step.command, step.args);
+      } catch {}
+    } else run(step.command, step.args);
+  }
+};
 try {
   run("xcrun", ["simctl", "boot", udid]);
   run("xcrun", ["simctl", "bootstatus", udid, "-b"]);
@@ -209,6 +237,7 @@ try {
     const flowPath = path.join(tempDir, `${shot.id}.yml`);
     const flow = buildScreenshotMaestroFlow(shot);
     await writeFile(flowPath, flow, "utf8");
+    coldLaunch(shot.route);
     run("maestro", ["--device", udid, "test", flowPath]);
 
     const rawPath = path.join(rawDir, `${shot.id}.png`);
@@ -236,12 +265,17 @@ try {
     await writeFile(
       exportFlowPath,
       [
-        "appId: com.duotap.onlysignature",
+        `appId: ${screenshotAppId}`,
         "---",
-        "- launchApp:",
-        "    clearState: true",
-        '- openLink: "onlysignature:///native-export-test?fixture=native-export"',
-        "- waitForAnimationToEnd",
+        "- runFlow:",
+        "    when:",
+        `      visible: ${JSON.stringify('Open in "Only Signature"')}`,
+        "    commands:",
+        `      - tapOn: ${JSON.stringify("Open")}`,
+        "- extendedWaitUntil:",
+        "    visible:",
+        `      id: ${JSON.stringify("app-ready")}`,
+        "    timeout: 30000",
         "- extendedWaitUntil:",
         '    visible: "Native export verification files ready"',
         "    timeout: 30000",
@@ -249,6 +283,7 @@ try {
       ].join("\n"),
       "utf8",
     );
+    coldLaunch("/native-export-test?fixture=native-export");
     run("maestro", ["--device", udid, "test", exportFlowPath]);
     const dataContainer = output("xcrun", [
       "simctl",

@@ -1,4 +1,5 @@
-export const screenshotAppReadyTestId = "saved-screen";
+export const screenshotAppReadyTestId = "app-ready";
+export const screenshotAppId = "com.duotap.onlysignature";
 
 export function screenshotDeepLink(route) {
   if (typeof route !== "string" || !route.startsWith("/"))
@@ -10,6 +11,31 @@ export function screenshotDeepLink(route) {
   return `onlysignature://${route}`;
 }
 
+export function screenshotColdLaunchPlan(udid, route) {
+  if (typeof udid !== "string" || !udid.trim())
+    throw new Error("A simulator UDID is required for cold launch.");
+  return [
+    {
+      command: "xcrun",
+      args: ["simctl", "terminate", udid, screenshotAppId],
+      allowFailure: true,
+    },
+    {
+      command: "xcrun",
+      args: ["simctl", "openurl", udid, screenshotDeepLink(route)],
+      allowFailure: false,
+    },
+  ];
+}
+
+const iosOpenConfirmation = [
+  "- runFlow:",
+  "    when:",
+  `      visible: ${JSON.stringify('Open in "Only Signature"')}`,
+  "    commands:",
+  `      - tapOn: ${JSON.stringify("Open")}`,
+];
+
 export function buildScreenshotMaestroFlow(shot) {
   if (!Array.isArray(shot.assertions) || shot.assertions.length < 2)
     throw new Error(
@@ -17,16 +43,13 @@ export function buildScreenshotMaestroFlow(shot) {
     );
   const routeReadyCopy = shot.assertions[0];
   return [
-    "appId: com.duotap.onlysignature",
+    `appId: ${screenshotAppId}`,
     "---",
-    "- launchApp:",
-    "    clearState: true",
-    "- setOrientation: PORTRAIT",
+    ...iosOpenConfirmation,
     "- extendedWaitUntil:",
     "    visible:",
     `      id: ${JSON.stringify(screenshotAppReadyTestId)}`,
     "    timeout: 30000",
-    `- openLink: ${JSON.stringify(screenshotDeepLink(shot.route))}`,
     "- extendedWaitUntil:",
     `    visible: ${JSON.stringify(routeReadyCopy)}`,
     "    timeout: 30000",
