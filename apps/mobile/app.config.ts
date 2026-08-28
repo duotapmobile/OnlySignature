@@ -72,7 +72,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   };
   const normalizedTerritories = required.territories
     .split(",")
-    .map((territory) => territory.trim().toUpperCase())
+    .map((territory: string) => territory.trim().toUpperCase())
     .filter(Boolean);
   const storeKitMode =
     process.env.EXPO_PUBLIC_STOREKIT_MODE ?? (production ? "real" : "mock");

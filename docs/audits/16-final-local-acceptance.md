@@ -72,8 +72,10 @@ The GitHub `origin` is intentional and founder-authorized after the original loc
 - Formatting, strict TypeScript, lint, content drift across 134 files, release configuration, production network policy, production Expo introspection, native autolink, composition-evidence verification, and secret scanning passed.
 - `npm audit --audit-level=high` passed with zero high/critical findings. The 12 moderate Expo/Xcode findings remain the documented non-runtime build-chain exception.
 - The static website built 9 pages and passed validation of 11 required outputs, internal links, zero client JavaScript, and prohibited tracking/font/cookie patterns.
-- The SBOM was regenerated with 1,145 components.
+- The SBOM was regenerated with 1,146 components after adding the exact optional Apple Silicon Astro compiler binding.
 - Both EAS workflows passed schema validation with exact `eas-cli@23.0.0`; authenticated project readback matched `@duotap/onlysignature` and project ID `954b1a21-89e9-41af-8021-d7c8e66d74c8`.
 - Expo GitHub base-directory readback matched `/apps/mobile`.
 
 The accepted repository may now proceed to review-branch publication and native cloud evidence. It remains a no-go for App Review submission or public release.
+
+The first EAS source-acceptance job failed before build because macOS TypeScript exposed an implicit callback parameter and npm ci could not install an Apple Silicon Astro binding absent from the Windows-authored lockfile. The callback is now explicitly typed, `@astrojs/compiler-binding-darwin-arm64@0.4.0` is an exact optional site dependency, and this complete acceptance suite passed after those corrections.

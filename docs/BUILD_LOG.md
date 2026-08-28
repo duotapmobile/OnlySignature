@@ -122,6 +122,9 @@ This file records only commands and outcomes actually observed. Signed iOS build
 - Kept exact `eas-cli@23.0.0` as an on-demand release tool rather than a product dependency. The product audit returned to zero high/critical advisories; 12 moderate Expo/Xcode build-chain findings remain governed without a breaking force fix.
 - `npm run acceptance:local`: exit 0. Prettier, strict TypeScript, lint, 34/34 root tests, 51/51 mobile tests, content drift across 134 files, release configuration, network policy, production introspection, iOS autolink, composition-evidence assets, secret scan, dependency threshold, 6/6 export pixel tests, and the static-site release check passed.
 - Site release check built 9 pages and validated 11 required outputs, resolved internal links, zero client JavaScript, and no forbidden tracking/font/cookie patterns.
-- Regenerated the CycloneDX SBOM with 1,145 components.
+- Regenerated the CycloneDX SBOM with 1,146 components after locking the exact optional Apple Silicon Astro compiler binding.
 - Exact EAS CLI readback: `duotap` / `admin@duotap.app`, project `@duotap/onlysignature`, ID `954b1a21-89e9-41af-8021-d7c8e66d74c8`; both workflows passed schema validation.
 - Coordinator live readback confirmed the existing Expo GitHub base directory is `/apps/mobile`. No workflow was dispatched as part of that mutation.
+- Published review commit `07e94d825280f53006bcdc44769a86a4a41eb5a8`; remote branch SHA matched exactly and `origin/main` remained unchanged.
+- Native screenshot workflow `01a04a04-4d70-716e-a1f1-7d6b3be9fa38` failed safely in source acceptance before simulator allocation. The exact log identified an implicit app-config callback type and npm's missing Apple Silicon Astro optional binding.
+- Added the explicit type and exact optional `@astrojs/compiler-binding-darwin-arm64@0.4.0` lock entry. Full local acceptance passed again; no production/TestFlight workflow was dispatched.
