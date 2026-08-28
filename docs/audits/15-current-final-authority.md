@@ -72,7 +72,7 @@ Fresh `npm run acceptance:local` evidence passed in full:
 - The dependency threshold passed with zero high or critical advisories. Twelve moderate Expo/Xcode build-chain findings remain governed; no force downgrade was used.
 - Export pixel verification passed 6/6.
 - The Astro site built 9 pages and passed required-output, internal-link, no-client-JavaScript, and prohibited-tracking validation.
-- The CycloneDX SBOM was regenerated with 1,146 components after locking the exact optional Apple Silicon Astro compiler binding.
+- The CycloneDX SBOM was regenerated with 1,147 components after locking the exact optional Apple Silicon Astro compiler and Satteri bindings.
 - Both EAS workflow files passed exact `eas-cli@23.0.0 workflow:validate`.
 - Expo readback is `duotap` / `admin@duotap.app`, project `@duotap/onlysignature`, ID `954b1a21-89e9-41af-8021-d7c8e66d74c8`.
 - The existing GitHub integration base directory was changed to `/apps/mobile` and verified by live readback without dispatching a workflow.
@@ -80,3 +80,5 @@ Fresh `npm run acceptance:local` evidence passed in full:
 **Renewed decision: LOCAL SOURCE APPROVED FOR THE AUTHORIZED NATIVE-SCREENSHOT AND INTERNAL-TESTFLIGHT GATES.** No signed build, native screenshot, StoreKit sandbox, physical-device, TestFlight, App Review, or public-release claim is made.
 
 The first native screenshot workflow failed safely in source acceptance before allocating a simulator build. Its macOS log exposed an implicit app-config callback type and npm's omission of Astro's Apple Silicon optional compiler binding from the Windows-authored lockfile. Both portability defects were corrected, the exact optional binding is now locked, and the complete local acceptance suite passed again. This renewal covers the corrected commit only; a successful cloud rerun is still required.
+
+The second native screenshot workflow also failed safely before allocating a simulator. It cleared the earlier defects and then exposed the separately omitted `@bruits/satteri-darwin-arm64` package during Astro's production build. The exact `0.10.5` optional binding is now locked, focused site checks and the complete local acceptance suite passed, and no production/TestFlight workflow was dispatched. Cloud-native capture evidence remains mandatory.
