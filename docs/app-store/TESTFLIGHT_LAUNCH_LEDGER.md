@@ -24,6 +24,8 @@ Authorized terminal boundary: complete App Store Connect launch record plus a ve
 | 2026-08-28 16:36-16:41  | Satteri macOS portability correction        | Exact optional `@bruits/satteri-darwin-arm64@0.10.5` binding locked; focused site checks and full local acceptance passed; SBOM now 1,147 components                                  |
 | 2026-08-28 16:50-16:58  | Native screenshot workflow attempt 3        | Workflow `01a04a23-b532-710b-b6cd-6022eebda314`; source job passed; simulator job `01a04a24-e54b-7a0a-935e-96c427da299c`; build `4addf60f-a080-4587-a3c0-de0d205c6126`; Xcode failed  |
 | 2026-08-28 17:03-17:08  | Owned Swift compiler correction             | Replaced get-only URL resource writes with FileManager protection attributes; qualified StoreKit transaction types; focused tests and complete acceptance passed with 53 mobile tests |
+| 2026-08-28 17:17-17:28  | Native screenshot workflow attempt 4        | Workflow `01a04a3b-bcbf-7c99-993a-4948bb1aa82c`; simulator build `412cb20a-4f02-4810-810f-cfad4bc1bb6a` passed; capture job failed before its first frame                             |
+| 2026-08-28 17:31-17:42  | Native route-readiness correction           | Proved the URL parser contract, then added fixture-shell readiness before deep linking and route-copy readiness before capture; focused guards and full local acceptance passed       |
 
 ## External mutations
 
@@ -33,6 +35,7 @@ Authorized terminal boundary: complete App Store Connect launch record plus a ve
 - Native screenshot workflow attempt 1 was dispatched from exact commit `07e94d825280f53006bcdc44769a86a4a41eb5a8`. Its source-acceptance job failed; simulator build and capture jobs were skipped, so no screenshot artifact was produced.
 - Native screenshot workflow attempt 2 was dispatched from exact commit `1ba067bdbd4c3f3d0cc10ddf32eb2cbb2e4459c7`. Its source-acceptance job passed types, lint, tests, audit, and export verification before Astro's production build exposed a second Windows-lockfile omission: `@bruits/satteri-darwin-arm64`. The simulator build and capture jobs were skipped, so no screenshot artifact was produced.
 - Native screenshot workflow attempt 3 was dispatched from exact commit `b3d34124a580581326e3a07a91f0b0800a098729`. Source acceptance passed and the real simulator build reached Xcode. Xcode found three writes to the get-only `URLResourceValues.fileProtection` property and an ambiguous `Transaction` type in the owned Swift modules. Capture job `01a04a2a-7a3e-733a-aaee-0ff6c9776306` was skipped and no screenshot artifact was produced.
+- Native screenshot workflow attempt 4 was dispatched from exact commit `ccff39c8e839e19c29b41a0f39fb8ae9cbbbfbee`. Source job `01a04a3b-bf96-7abb-9368-e53052fd248b` passed. Simulator job `01a04a3c-9b90-752a-bdab-e87f509f7f64` and build `412cb20a-4f02-4810-810f-cfad4bc1bb6a` finished successfully with fingerprint `7f335658981783408fa80cbd0ff51082bada11ae`. Capture job `01a04a43-a988-7f74-91fd-3cb8cb3824ad` launched the app and opened `onlysignature:///draw?fixture=both`, but the link was sent before the fixture shell/router was proven ready; Maestro could not find `Draw Your Signature`. iPad capture, composition, verification, and upload were skipped, so no screenshot artifact was produced.
 
 ## Prepared workflow
 
@@ -44,13 +47,13 @@ Authorized terminal boundary: complete App Store Connect launch record plus a ve
 
 ## Evidence still required
 
-| Gate                             | Required evidence                                                                                          | Status                                                     |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| Expo project and workflows       | Exact project readback, `/apps/mobile` base directory, and pinned schema validation                        | PASS                                                       |
-| Native screenshots               | EAS build/workflow IDs; 16 native raw/final captures; exact models/runtime/routes/hashes; native IAP image | Attempts 1-3 failed safely; corrected native rerun pending |
-| Signing archive                  | Production EAS build ID/log; downloaded archive inspection                                                 | Not run                                                    |
-| Apple upload                     | App Store Connect build ID and processing state                                                            | Not run                                                    |
-| Internal TestFlight              | Group/build visible and assigned; What to Test entered                                                     | Not run                                                    |
-| StoreKit sandbox/physical device | Explicit run evidence only                                                                                 | Withheld until actually run                                |
+| Gate                             | Required evidence                                                                                          | Status                                                                                   |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Expo project and workflows       | Exact project readback, `/apps/mobile` base directory, and pinned schema validation                        | PASS                                                                                     |
+| Native screenshots               | EAS build/workflow IDs; 16 native raw/final captures; exact models/runtime/routes/hashes; native IAP image | Attempts 1-4 failed safely; route-readiness correction passed locally; attempt 5 pending |
+| Signing archive                  | Production EAS build ID/log; downloaded archive inspection                                                 | Not run                                                                                  |
+| Apple upload                     | App Store Connect build ID and processing state                                                            | Not run                                                                                  |
+| Internal TestFlight              | Group/build visible and assigned; What to Test entered                                                     | Not run                                                                                  |
+| StoreKit sandbox/physical device | Explicit run evidence only                                                                                 | Withheld until actually run                                                              |
 
 Secrets are never recorded in this ledger.

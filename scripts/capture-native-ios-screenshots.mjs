@@ -12,6 +12,7 @@ import {
 import os from "node:os";
 import path from "node:path";
 import sharp from "sharp";
+import { buildScreenshotMaestroFlow } from "./native-screenshot-flow.mjs";
 
 const fail = (message) => {
   throw new Error(message);
@@ -205,25 +206,8 @@ try {
   run("xcrun", ["simctl", "install", udid, appPath]);
 
   for (const shot of manifest.screenshots) {
-    if (!Array.isArray(shot.assertions) || shot.assertions.length < 2)
-      fail(
-        `Screenshot ${shot.id} needs at least two visible-state assertions.`,
-      );
-    const deepLink = `onlysignature://${shot.route}`;
     const flowPath = path.join(tempDir, `${shot.id}.yml`);
-    const flow = [
-      "appId: com.duotap.onlysignature",
-      "---",
-      "- launchApp:",
-      "    clearState: true",
-      "- setOrientation: PORTRAIT",
-      `- openLink: ${JSON.stringify(deepLink)}`,
-      "- waitForAnimationToEnd",
-      ...shot.assertions.map(
-        (assertion) => `- assertVisible: ${JSON.stringify(assertion)}`,
-      ),
-      "",
-    ].join("\n");
+    const flow = buildScreenshotMaestroFlow(shot);
     await writeFile(flowPath, flow, "utf8");
     run("maestro", ["--device", udid, "test", flowPath]);
 

@@ -2,6 +2,11 @@ import { createHash } from "node:crypto";
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
+import {
+  buildScreenshotMaestroFlow,
+  screenshotAppReadyTestId,
+  screenshotDeepLink,
+} from "./native-screenshot-flow.mjs";
 
 const manifest = JSON.parse(
   await readFile("store-assets/screenshots/manifest.json", "utf8"),
@@ -72,6 +77,18 @@ for (const [index, expected] of expectedStory.entries()) {
     throw new Error(`Screenshot story drift at frame ${index + 1}.`);
   if (!Array.isArray(shot.assertions) || shot.assertions.length < 2)
     throw new Error(`${shot.id} does not assert its exact visible state.`);
+  const flow = buildScreenshotMaestroFlow(shot);
+  const appReady = flow.indexOf(`id: "${screenshotAppReadyTestId}"`);
+  const openLink = flow.indexOf(
+    `- openLink: ${JSON.stringify(screenshotDeepLink(shot.route))}`,
+  );
+  const routeReady = flow.indexOf(
+    `visible: ${JSON.stringify(shot.assertions[0])}`,
+  );
+  if (appReady < 0 || openLink <= appReady || routeReady <= openLink)
+    throw new Error(
+      `${shot.id} must prove fixture hydration before opening its deep link and prove route-ready copy before capture.`,
+    );
 }
 if (
   manifest.outputs.iphone.width !== 1290 ||
