@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import {
   mkdtemp,
   mkdir,
@@ -29,6 +29,27 @@ const run = (command, args, options = {}) =>
   execFileSync(command, args, { stdio: "inherit", ...options });
 const output = (command, args) =>
   execFileSync(command, args, { encoding: "utf8" }).trim();
+const diagnosticCommand = async (directory, name, command, args) => {
+  const result = spawnSync(command, args, {
+    encoding: "utf8",
+    maxBuffer: 16 * 1024 * 1024,
+  });
+  const record = {
+    command,
+    args,
+    status: result.status,
+    signal: result.signal,
+    error: result.error?.message ?? null,
+    stdout: result.stdout ?? "",
+    stderr: result.stderr ?? "",
+  };
+  await writeFile(
+    path.join(directory, `${name}.json`),
+    `${JSON.stringify(record, null, 2)}\n`,
+    "utf8",
+  );
+  return record;
+};
 const hashFile = async (file) =>
   createHash("sha256")
     .update(await readFile(file))
@@ -172,6 +193,29 @@ const rawDir = path.join(
 );
 await rm(rawDir, { recursive: true, force: true });
 await mkdir(rawDir, { recursive: true });
+const diagnosticsDir = path.join(
+  "artifacts",
+  "native-screenshot-diagnostics",
+  device,
+);
+await rm(diagnosticsDir, { recursive: true, force: true });
+await mkdir(diagnosticsDir, { recursive: true });
+await writeFile(
+  path.join(diagnosticsDir, "app-authority.json"),
+  `${JSON.stringify(
+    {
+      bundleIdentifier: plistValue("CFBundleIdentifier"),
+      registeredSchemes,
+      releaseMode: plistValue("OnlySignatureReleaseMode"),
+      storeKitMode: plistValue("OnlySignatureStoreKitMode"),
+      screenshotFixtureMode: plistValue("OnlySignatureScreenshotFixtureMode"),
+      sourceRevision: plistValue("OnlySignatureSourceRevision"),
+    },
+    null,
+    2,
+  )}\n`,
+  "utf8",
+);
 const tempDir = await mkdtemp(
   path.join(os.tmpdir(), "only-signature-maestro-"),
 );
@@ -185,14 +229,79 @@ const udid = output("xcrun", [
 ]);
 
 const captures = [];
-const coldLaunch = (route) => {
+const coldLaunch = async (route, diagnosticName) => {
+  const directory = path.join(diagnosticsDir, diagnosticName);
+  await mkdir(directory, { recursive: true });
+  await writeFile(
+    path.join(directory, "route.json"),
+    `${JSON.stringify(
+      {
+        route,
+        deepLink: screenshotDeepLink(route),
+        capturedAt: new Date().toISOString(),
+      },
+      null,
+      2,
+    )}\n`,
+    "utf8",
+  );
   for (const step of screenshotColdLaunchPlan(udid, route)) {
-    if (step.allowFailure) {
-      try {
-        run(step.command, step.args);
-      } catch {}
-    } else run(step.command, step.args);
+    const name = step.args[1] === "terminate" ? "terminate" : "openurl";
+    const result = await diagnosticCommand(
+      directory,
+      name,
+      step.command,
+      step.args,
+    );
+    if (!step.allowFailure && result.status !== 0)
+      fail(
+        `${step.command} ${step.args.join(" ")} failed with status ${result.status}.`,
+      );
   }
+  await diagnosticCommand(directory, "post-open-screenshot", "xcrun", [
+    "simctl",
+    "io",
+    udid,
+    "screenshot",
+    path.join(directory, "post-open.png"),
+  ]);
+  await diagnosticCommand(directory, "accessibility-hierarchy", "maestro", [
+    "--device",
+    udid,
+    "hierarchy",
+  ]);
+  await diagnosticCommand(directory, "process-state", "xcrun", [
+    "simctl",
+    "spawn",
+    udid,
+    "ps",
+    "-A",
+    "-o",
+    "pid=,comm=",
+  ]);
+  await diagnosticCommand(directory, "frontmost-application", "xcrun", [
+    "simctl",
+    "spawn",
+    udid,
+    "defaults",
+    "read",
+    "com.apple.springboard",
+    "FrontmostApplicationDisplayIdentifier",
+  ]);
+  await diagnosticCommand(directory, "launch-log", "xcrun", [
+    "simctl",
+    "spawn",
+    udid,
+    "log",
+    "show",
+    "--style",
+    "compact",
+    "--last",
+    "2m",
+    "--predicate",
+    'process == "OnlySignature" OR eventMessage CONTAINS[c] "com.duotap.onlysignature"',
+  ]);
+  return directory;
 };
 try {
   run("xcrun", ["simctl", "boot", udid]);
@@ -237,8 +346,14 @@ try {
     const flowPath = path.join(tempDir, `${shot.id}.yml`);
     const flow = buildScreenshotMaestroFlow(shot);
     await writeFile(flowPath, flow, "utf8");
-    coldLaunch(shot.route);
-    run("maestro", ["--device", udid, "test", flowPath]);
+    const diagnosticDirectory = await coldLaunch(shot.route, shot.id);
+    run("maestro", [
+      "--device",
+      udid,
+      "test",
+      `--test-output-dir=${path.join(diagnosticDirectory, "maestro")}`,
+      flowPath,
+    ]);
 
     const rawPath = path.join(rawDir, `${shot.id}.png`);
     run("xcrun", ["simctl", "io", udid, "screenshot", rawPath]);
@@ -283,8 +398,17 @@ try {
       ].join("\n"),
       "utf8",
     );
-    coldLaunch("/native-export-test?fixture=native-export");
-    run("maestro", ["--device", udid, "test", exportFlowPath]);
+    const exportDiagnosticDirectory = await coldLaunch(
+      "/native-export-test?fixture=native-export",
+      "native-export-test",
+    );
+    run("maestro", [
+      "--device",
+      udid,
+      "test",
+      `--test-output-dir=${path.join(exportDiagnosticDirectory, "maestro")}`,
+      exportFlowPath,
+    ]);
     const dataContainer = output("xcrun", [
       "simctl",
       "get_app_container",

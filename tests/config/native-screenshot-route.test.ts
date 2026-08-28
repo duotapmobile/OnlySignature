@@ -70,15 +70,17 @@ describe("native screenshot deep-link readiness", () => {
       "scripts/capture-native-ios-screenshots.mjs",
       "utf8",
     );
-    const screenshotLaunch = source.indexOf("coldLaunch(shot.route)");
+    const screenshotLaunch = source.indexOf(
+      "await coldLaunch(shot.route, shot.id)",
+    );
     const screenshotMaestro = source.indexOf(
-      'run("maestro", ["--device", udid, "test", flowPath])',
+      '`--test-output-dir=${path.join(diagnosticDirectory, "maestro")}`',
     );
     const exportLaunch = source.indexOf(
-      'coldLaunch("/native-export-test?fixture=native-export")',
+      '"/native-export-test?fixture=native-export",',
     );
     const exportMaestro = source.indexOf(
-      'run("maestro", ["--device", udid, "test", exportFlowPath])',
+      '`--test-output-dir=${path.join(exportDiagnosticDirectory, "maestro")}`',
     );
 
     expect(screenshotLaunch).toBeGreaterThan(-1);
@@ -86,5 +88,31 @@ describe("native screenshot deep-link readiness", () => {
     expect(exportLaunch).toBeGreaterThan(screenshotMaestro);
     expect(exportMaestro).toBeGreaterThan(exportLaunch);
     expect(source).toContain('registeredSchemes.includes("onlysignature")');
+  });
+
+  it("preserves post-open launch diagnostics and uploads them on failure", () => {
+    const source = readFileSync(
+      "scripts/capture-native-ios-screenshots.mjs",
+      "utf8",
+    );
+    const workflow = readFileSync(
+      "apps/mobile/.eas/workflows/native-ios-screenshots.yml",
+      "utf8",
+    );
+    const openUrl = source.indexOf("name,\n      step.command,");
+    const screenshot = source.indexOf('"post-open-screenshot"');
+    const hierarchy = source.indexOf('"accessibility-hierarchy"');
+    const processState = source.indexOf('"process-state"');
+    const frontmost = source.indexOf('"frontmost-application"');
+    const launchLog = source.indexOf('"launch-log"');
+
+    expect(openUrl).toBeGreaterThan(-1);
+    expect(screenshot).toBeGreaterThan(openUrl);
+    expect(hierarchy).toBeGreaterThan(screenshot);
+    expect(processState).toBeGreaterThan(hierarchy);
+    expect(frontmost).toBeGreaterThan(processState);
+    expect(launchLog).toBeGreaterThan(frontmost);
+    expect(workflow).toContain("if: ${{ always() }}");
+    expect(workflow).toContain("artifacts/native-screenshot-diagnostics/**/*");
   });
 });

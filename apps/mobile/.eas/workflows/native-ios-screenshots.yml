@@ -58,6 +58,7 @@ jobs:
       - name: Verify native screenshots, provenance, and IAP image
         run: npm run screenshots:verify:native
       - uses: eas/upload_artifact
+        if: ${{ always() }}
         with:
           type: other
           name: only-signature-native-store-assets
@@ -65,3 +66,4 @@ jobs:
             store-assets/screenshots/native/**/*
             store-assets/app-review/native/**/*
             artifacts/native-export-verification/**/*
+            artifacts/native-screenshot-diagnostics/**/*

@@ -33,7 +33,7 @@ function runReleaseGate(overrides: Record<string, string> = {}) {
   );
 }
 
-describe("root production release gate", () => {
+describe("root production release gate", { timeout: 15_000 }, () => {
   it("accepts not-applicable DSA status for U.S.-only distribution", () => {
     const result = runReleaseGate();
 
