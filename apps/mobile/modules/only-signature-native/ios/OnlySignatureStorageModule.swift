@@ -7,9 +7,9 @@ public final class OnlySignatureStorageModule: Module {
     let base = try fileManager.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
     let directory = base.appendingPathComponent("OnlySignature", isDirectory: true)
     try fileManager.createDirectory(at: directory, withIntermediateDirectories: true, attributes: [.protectionKey: FileProtectionType.complete])
+    try fileManager.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: directory.path)
     var values = URLResourceValues()
     values.isExcludedFromBackup = true
-    values.fileProtection = .complete
     var mutable = directory
     try mutable.setResourceValues(values)
     return directory
@@ -21,9 +21,9 @@ public final class OnlySignatureStorageModule: Module {
   private func exportDirectory() throws -> URL {
     let directory = fileManager.temporaryDirectory.appendingPathComponent("OnlySignatureExports", isDirectory: true)
     try fileManager.createDirectory(at: directory, withIntermediateDirectories: true, attributes: [.protectionKey: FileProtectionType.complete])
+    try fileManager.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: directory.path)
     var values = URLResourceValues()
     values.isExcludedFromBackup = true
-    values.fileProtection = .complete
     var mutable = directory
     try mutable.setResourceValues(values)
     return directory
@@ -51,13 +51,13 @@ public final class OnlySignatureStorageModule: Module {
         if self.fileManager.fileExists(atPath: backup.path) { try self.fileManager.removeItem(at: backup) }
         try self.fileManager.copyItem(at: url, to: backup)
         try self.fileManager.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: backup.path)
-        var backupValues = URLResourceValues(); backupValues.isExcludedFromBackup = true; backupValues.fileProtection = .complete
+        var backupValues = URLResourceValues(); backupValues.isExcludedFromBackup = true
         var mutableBackup = backup; try mutableBackup.setResourceValues(backupValues)
         try self.fileManager.removeItem(at: url)
       }
       try self.fileManager.moveItem(at: staging, to: url)
       try self.fileManager.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: url.path)
-      var values = URLResourceValues(); values.isExcludedFromBackup = true; values.fileProtection = .complete
+      var values = URLResourceValues(); values.isExcludedFromBackup = true
       var mutable = url; try mutable.setResourceValues(values)
     }
     AsyncFunction("deleteState") {
@@ -74,7 +74,7 @@ public final class OnlySignatureStorageModule: Module {
     AsyncFunction("protectTemporaryFile") { (uri: String) in
       guard let url = URL(string: uri) else { throw NSError(domain: "OnlySignatureStorage", code: 1) }
       try self.fileManager.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: url.path)
-      var values = URLResourceValues(); values.isExcludedFromBackup = true; values.fileProtection = .complete
+      var values = URLResourceValues(); values.isExcludedFromBackup = true
       var mutable = url; try mutable.setResourceValues(values)
     }
   }

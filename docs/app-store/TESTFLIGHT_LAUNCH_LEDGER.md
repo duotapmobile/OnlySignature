@@ -22,6 +22,8 @@ Authorized terminal boundary: complete App Store Connect launch record plus a ve
 | 2026-08-28 16:20-16:26  | macOS portability correction                | Explicit app-config callback type; exact optional Apple Silicon Astro binding locked; full local acceptance passed; SBOM now 1,146 components                                         |
 | 2026-08-28 16:30-16:31  | Native screenshot workflow attempt 2        | Workflow `01a04a11-4b4c-7c03-9bcb-605d3de35e51`; source job `01a04a11-4e1f-7645-84a2-3a87a7f65e0e`; environment `01a04a11-4e1f-748f-bba9-aa7aabb215a0`; failed before simulator build |
 | 2026-08-28 16:36-16:41  | Satteri macOS portability correction        | Exact optional `@bruits/satteri-darwin-arm64@0.10.5` binding locked; focused site checks and full local acceptance passed; SBOM now 1,147 components                                  |
+| 2026-08-28 16:50-16:58  | Native screenshot workflow attempt 3        | Workflow `01a04a23-b532-710b-b6cd-6022eebda314`; source job passed; simulator job `01a04a24-e54b-7a0a-935e-96c427da299c`; build `4addf60f-a080-4587-a3c0-de0d205c6126`; Xcode failed  |
+| 2026-08-28 17:03-17:08  | Owned Swift compiler correction             | Replaced get-only URL resource writes with FileManager protection attributes; qualified StoreKit transaction types; focused tests and complete acceptance passed with 53 mobile tests |
 
 ## External mutations
 
@@ -30,6 +32,7 @@ Authorized terminal boundary: complete App Store Connect launch record plus a ve
 - No Apple signing credential mutation, production archive build, upload, TestFlight group mutation, App Review submission, or public release has occurred.
 - Native screenshot workflow attempt 1 was dispatched from exact commit `07e94d825280f53006bcdc44769a86a4a41eb5a8`. Its source-acceptance job failed; simulator build and capture jobs were skipped, so no screenshot artifact was produced.
 - Native screenshot workflow attempt 2 was dispatched from exact commit `1ba067bdbd4c3f3d0cc10ddf32eb2cbb2e4459c7`. Its source-acceptance job passed types, lint, tests, audit, and export verification before Astro's production build exposed a second Windows-lockfile omission: `@bruits/satteri-darwin-arm64`. The simulator build and capture jobs were skipped, so no screenshot artifact was produced.
+- Native screenshot workflow attempt 3 was dispatched from exact commit `b3d34124a580581326e3a07a91f0b0800a098729`. Source acceptance passed and the real simulator build reached Xcode. Xcode found three writes to the get-only `URLResourceValues.fileProtection` property and an ambiguous `Transaction` type in the owned Swift modules. Capture job `01a04a2a-7a3e-733a-aaee-0ff6c9776306` was skipped and no screenshot artifact was produced.
 
 ## Prepared workflow
 
@@ -41,13 +44,13 @@ Authorized terminal boundary: complete App Store Connect launch record plus a ve
 
 ## Evidence still required
 
-| Gate                             | Required evidence                                                                                          | Status                                                    |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| Expo project and workflows       | Exact project readback, `/apps/mobile` base directory, and pinned schema validation                        | PASS                                                      |
-| Native screenshots               | EAS build/workflow IDs; 16 native raw/final captures; exact models/runtime/routes/hashes; native IAP image | Attempts 1-2 failed before build; corrected rerun pending |
-| Signing archive                  | Production EAS build ID/log; downloaded archive inspection                                                 | Not run                                                   |
-| Apple upload                     | App Store Connect build ID and processing state                                                            | Not run                                                   |
-| Internal TestFlight              | Group/build visible and assigned; What to Test entered                                                     | Not run                                                   |
-| StoreKit sandbox/physical device | Explicit run evidence only                                                                                 | Withheld until actually run                               |
+| Gate                             | Required evidence                                                                                          | Status                                                     |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Expo project and workflows       | Exact project readback, `/apps/mobile` base directory, and pinned schema validation                        | PASS                                                       |
+| Native screenshots               | EAS build/workflow IDs; 16 native raw/final captures; exact models/runtime/routes/hashes; native IAP image | Attempts 1-3 failed safely; corrected native rerun pending |
+| Signing archive                  | Production EAS build ID/log; downloaded archive inspection                                                 | Not run                                                    |
+| Apple upload                     | App Store Connect build ID and processing state                                                            | Not run                                                    |
+| Internal TestFlight              | Group/build visible and assigned; What to Test entered                                                     | Not run                                                    |
+| StoreKit sandbox/physical device | Explicit run evidence only                                                                                 | Withheld until actually run                                |
 
 Secrets are never recorded in this ledger.

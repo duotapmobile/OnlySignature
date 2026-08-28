@@ -25,6 +25,13 @@ test("native product lookup fails terminally before purchase presentation", () =
   );
 });
 
+test("native StoreKit transaction references are fully qualified", () => {
+  assert.match(swiftSource, /StoreKit\.Transaction\.updates/);
+  assert.match(swiftSource, /StoreKit\.Transaction\.unfinished/);
+  assert.match(swiftSource, /transaction: StoreKit\.Transaction/);
+  assert.doesNotMatch(swiftSource, /(?<!StoreKit\.)\bTransaction\b/);
+});
+
 test("native StoreKit errors preserve the terminal versus ambiguous contract", () => {
   assert.match(swiftSource, /case \.userCancelled:[\s\S]*?state: "cancelled"/);
   for (const terminalCase of [

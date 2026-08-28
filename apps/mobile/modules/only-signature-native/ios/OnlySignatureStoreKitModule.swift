@@ -5,7 +5,7 @@ import StoreKit
 public final class OnlySignatureStoreKitModule: Module {
   private var observer: Task<Void, Never>?
 
-  private func payload(_ transaction: Transaction, verified: Bool, state: String = "purchased") -> [String: Any] {
+  private func payload(_ transaction: StoreKit.Transaction, verified: Bool, state: String = "purchased") -> [String: Any] {
     var result: [String: Any] = [
       "transactionId": String(transaction.id),
       "productId": transaction.productID,
@@ -64,7 +64,7 @@ public final class OnlySignatureStoreKitModule: Module {
     Events("onStoreKitTransaction")
     OnCreate {
       self.observer = Task { [weak self] in
-        for await update in Transaction.updates {
+        for await update in StoreKit.Transaction.updates {
           guard let self else { return }
           switch update {
           case .verified(let transaction): self.sendEvent("onStoreKitTransaction", self.payload(transaction, verified: true))
@@ -110,7 +110,7 @@ public final class OnlySignatureStoreKitModule: Module {
     }
     AsyncFunction("unfinishedSnapshot") { () -> [[String: Any]] in
       var transactions: [[String: Any]] = []
-      for await result in Transaction.unfinished {
+      for await result in StoreKit.Transaction.unfinished {
         switch result {
         case .verified(let transaction): transactions.append(self.payload(transaction, verified: true))
         case .unverified(let transaction, _): transactions.append(self.payload(transaction, verified: false, state: "failed"))
@@ -119,7 +119,7 @@ public final class OnlySignatureStoreKitModule: Module {
       return transactions
     }
     AsyncFunction("finish") { (transactionId: String) -> Bool in
-      for await result in Transaction.unfinished {
+      for await result in StoreKit.Transaction.unfinished {
         if case .verified(let transaction) = result, String(transaction.id) == transactionId { await transaction.finish(); return true }
       }
       return false
