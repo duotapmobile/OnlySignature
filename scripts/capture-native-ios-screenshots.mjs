@@ -230,6 +230,10 @@ const udid = output("xcrun", [
 
 const captures = [];
 const coldLaunch = async (route, diagnosticName) => {
+  const coldLaunchPlan = screenshotColdLaunchPlan(udid, route);
+  const openUrlStep = coldLaunchPlan.find((step) => step.args[1] === "openurl");
+  if (!openUrlStep)
+    fail("The screenshot cold-launch plan does not contain an openurl step.");
   const directory = path.join(diagnosticsDir, diagnosticName);
   await mkdir(directory, { recursive: true });
   await writeFile(
@@ -237,7 +241,7 @@ const coldLaunch = async (route, diagnosticName) => {
     `${JSON.stringify(
       {
         route,
-        deepLink: screenshotDeepLink(route),
+        deepLink: openUrlStep.args.at(-1),
         capturedAt: new Date().toISOString(),
       },
       null,
@@ -245,7 +249,7 @@ const coldLaunch = async (route, diagnosticName) => {
     )}\n`,
     "utf8",
   );
-  for (const step of screenshotColdLaunchPlan(udid, route)) {
+  for (const step of coldLaunchPlan) {
     const name = step.args[1] === "terminate" ? "terminate" : "openurl";
     const result = await diagnosticCommand(
       directory,

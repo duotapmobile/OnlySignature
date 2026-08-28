@@ -88,6 +88,11 @@ describe("native screenshot deep-link readiness", () => {
     expect(exportLaunch).toBeGreaterThan(screenshotMaestro);
     expect(exportMaestro).toBeGreaterThan(exportLaunch);
     expect(source).toContain('registeredSchemes.includes("onlysignature")');
+    expect(source).toContain(
+      "const coldLaunchPlan = screenshotColdLaunchPlan(udid, route)",
+    );
+    expect(source).toContain("deepLink: openUrlStep.args.at(-1)");
+    expect(source).not.toContain("screenshotDeepLink(route)");
   });
 
   it("preserves post-open launch diagnostics and uploads them on failure", () => {
