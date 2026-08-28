@@ -21,7 +21,6 @@ import {
 import { hasDrawing, type SignatureSet } from "@/domain/models";
 import { theme } from "@/integrations/workspace";
 import { useAppState } from "@/state/AppStateProvider";
-import { confirmAuthorizedUse } from "@/services/authorizedUse";
 
 function SetCard({ item, onRename }: { item: SignatureSet; onRename(): void }) {
   const { selectSet, setSelectedAsset, duplicateSet, deleteSet } =
@@ -123,9 +122,7 @@ function SetCard({ item, onRename }: { item: SignatureSet; onRename(): void }) {
           accessibilityRole="button"
           accessibilityLabel={`Duplicate ${displayName} as New Draft`}
           onPress={() => {
-            confirmAuthorizedUse(() => {
-              if (duplicateSet(item.id)) router.push("/draw");
-            });
+            if (duplicateSet(item.id)) router.push("/draw");
           }}
           style={styles.textAction}
         >
@@ -207,9 +204,7 @@ export default function SavedScreen() {
       <PrimaryButton
         label="Create New"
         onPress={() => {
-          confirmAuthorizedUse(() => {
-            if (createNew()) router.push("/draw");
-          });
+          if (createNew()) router.push("/draw");
         }}
       />
       <Modal

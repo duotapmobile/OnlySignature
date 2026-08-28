@@ -15,11 +15,22 @@ import { hasDrawing } from "@/domain/models";
 import { hasPurchaseRecoveryInProgress } from "@/domain/purchaseState";
 import { sharedCopy, theme } from "@/integrations/workspace";
 import { useAppState } from "@/state/AppStateProvider";
+import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 
 export default function PurchaseScreen() {
-  const { activeSet, data, product, productStatus, purchaseActiveSet } =
-    useAppState();
+  const {
+    activeSet,
+    data,
+    product,
+    productStatus,
+    purchaseActiveSet,
+    recoverUnboundPurchase,
+  } = useAppState();
   const { fixture } = useLocalSearchParams<{ fixture?: string }>();
+  const purchaseFixture = isAuthorizedScreenshotFixture(fixture, [
+    "both",
+    "signature",
+  ]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const asset = hasDrawing(activeSet.signature)
@@ -35,14 +46,15 @@ export default function PurchaseScreen() {
         : "signature";
   const copy = sharedCopy.flowCopy(presence);
   const purchasePending = hasPurchaseRecoveryInProgress(data);
+  const unboundPurchase = data.unboundPurchases[0];
   useEffect(() => {
     if (
-      !fixture &&
+      !purchaseFixture &&
       activeSet.status === "purchased" &&
       !activeSet.transactionFinishPending
     )
       router.replace("/export");
-  }, [activeSet.status, activeSet.transactionFinishPending, fixture]);
+  }, [activeSet.status, activeSet.transactionFinishPending, purchaseFixture]);
   const purchase = async () => {
     setBusy(true);
     setError(null);
@@ -63,6 +75,20 @@ export default function PurchaseScreen() {
     } catch {
       setError(
         "Transparent export is temporarily unavailable. You can still save with a white background for free.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+  const recoverPurchase = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await recoverUnboundPurchase();
+      router.replace("/export");
+    } catch {
+      setError(
+        "The recovered Apple purchase could not be attached yet. Keep this set saved and do not purchase again.",
       );
     } finally {
       setBusy(false);
@@ -98,24 +124,35 @@ export default function PurchaseScreen() {
       ) : null}
       {purchasePending ? (
         <Text accessibilityRole="alert" style={styles.pending}>
-          {sharedCopy.errorCopy.purchasePending} Do not purchase this set again.
+          {unboundPurchase
+            ? "Apple already completed a transparent-set purchase that is not attached to local artwork. Apply it to this set without another charge."
+            : `${sharedCopy.errorCopy.purchasePending} Do not purchase this set again.`}
         </Text>
       ) : null}
       <PrimaryButton
         label={
           busy
-            ? "Opening Apple purchase…"
-            : purchasePending
-              ? "Purchase pending with Apple"
-              : productStatus === "loading"
-                ? "Loading Apple price…"
-                : productStatus === "unavailable"
-                  ? "Transparent purchase unavailable"
-                  : `Purchase for ${product.displayPrice}`
+            ? unboundPurchase
+              ? "Applying Apple purchase…"
+              : "Opening Apple purchase…"
+            : unboundPurchase
+              ? "Apply Apple Purchase to This Set"
+              : purchasePending
+                ? "Purchase pending with Apple"
+                : productStatus === "loading"
+                  ? "Loading Apple price…"
+                  : productStatus === "unavailable"
+                    ? "Transparent purchase unavailable"
+                    : `Purchase for ${product.displayPrice}`
         }
-        disabled={busy || purchasePending || productStatus !== "available"}
+        disabled={
+          busy ||
+          (!unboundPurchase &&
+            (purchasePending || productStatus !== "available"))
+        }
         onPress={() => {
-          void purchase();
+          if (unboundPurchase) void recoverPurchase();
+          else void purchase();
         }}
       />
       <Body>{copy.scope}</Body>

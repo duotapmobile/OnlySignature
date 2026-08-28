@@ -1,6 +1,6 @@
 # Final Local Acceptance Readiness
 
-Date: 2026-08-26
+Date: 2026-08-28
 
 Scope: the actual combined repository after the broken-code audit, improvement review, four-person council, tenth-man challenge, all locally fixable remediations, and final hostile re-review.
 
@@ -62,3 +62,18 @@ The tenth man initially held the build for terminal StoreKit errors that could b
 ## Source-control authority
 
 The GitHub `origin` is intentional and founder-authorized after the original local-only instruction. Publication of this acceptance commit is authorized; App Store submission and website deployment are not implied.
+
+## 2026-08-28 fresh acceptance
+
+`npm run acceptance:local` exited 0 after the current council and tenth-man corrections:
+
+- 34 root tests and 51 mobile tests passed.
+- Six export pixel tests passed.
+- Formatting, strict TypeScript, lint, content drift across 134 files, release configuration, production network policy, production Expo introspection, native autolink, composition-evidence verification, and secret scanning passed.
+- `npm audit --audit-level=high` passed with zero high/critical findings. The 12 moderate Expo/Xcode findings remain the documented non-runtime build-chain exception.
+- The static website built 9 pages and passed validation of 11 required outputs, internal links, zero client JavaScript, and prohibited tracking/font/cookie patterns.
+- The SBOM was regenerated with 1,145 components.
+- Both EAS workflows passed schema validation with exact `eas-cli@23.0.0`; authenticated project readback matched `@duotap/onlysignature` and project ID `954b1a21-89e9-41af-8021-d7c8e66d74c8`.
+- Expo GitHub base-directory readback matched `/apps/mobile`.
+
+The accepted repository may now proceed to review-branch publication and native cloud evidence. It remains a no-go for App Review submission or public release.

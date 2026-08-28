@@ -37,3 +37,27 @@ test("semantic state validation canonicalizes UUID purchase tokens", () => {
   pending.sets[0]!.pendingPurchaseId = "invalid-token";
   assert.throws(() => validateAndMigrateAppState(pending));
 });
+
+test("semantic state validation migrates and validates unbound purchase holds", () => {
+  const legacy = validateAndMigrateAppState(valid());
+  assert.deepEqual(legacy.unboundPurchases, []);
+
+  const held = {
+    ...valid(),
+    unboundPurchases: [
+      {
+        transactionId: "12345",
+        productId: "com.duotap.onlysignature.transparent_set_v1",
+        appAccountToken: "ABCDEFAB-CDEF-4ABC-8DEF-ABCDEFABCDEF",
+        detectedAt: "2026-08-28T12:00:00.000Z",
+      },
+    ],
+  };
+  assert.equal(
+    validateAndMigrateAppState(held).unboundPurchases[0]?.appAccountToken,
+    "abcdefab-cdef-4abc-8def-abcdefabcdef",
+  );
+
+  held.unboundPurchases.push({ ...held.unboundPurchases[0]! });
+  assert.throws(() => validateAndMigrateAppState(held));
+});

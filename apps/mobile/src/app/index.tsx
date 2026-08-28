@@ -12,10 +12,12 @@ import { hasDrawing } from "@/domain/models";
 import { theme } from "@/integrations/workspace";
 import { useAppState } from "@/state/AppStateProvider";
 import { confirmAuthorizedUse } from "@/services/authorizedUse";
+import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 
 export default function LandingScreen() {
   const { data } = useAppState();
   const { fixture } = useLocalSearchParams<{ fixture?: string }>();
+  const landingFixture = isAuthorizedScreenshotFixture(fixture, "landing");
   const hasSavedWork = data.sets.some(
     (set) =>
       set.status === "purchased" ||
@@ -23,9 +25,9 @@ export default function LandingScreen() {
       hasDrawing(set.initials),
   );
   useEffect(() => {
-    if (data.hydrated && hasSavedWork && fixture !== "landing")
+    if (data.hydrated && hasSavedWork && !landingFixture)
       router.replace("/saved");
-  }, [data.hydrated, fixture, hasSavedWork]);
+  }, [data.hydrated, hasSavedWork, landingFixture]);
   return (
     <Screen testID="landing-screen">
       <View style={styles.brandRow}>

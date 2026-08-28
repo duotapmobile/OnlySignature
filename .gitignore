@@ -1,6 +1,11 @@
 node_modules/
 .expo/
-.eas/
+.eas/*
+!.eas/workflows/
+!.eas/workflows/**
+apps/mobile/.eas/*
+!apps/mobile/.eas/workflows/
+!apps/mobile/.eas/workflows/**
 dist/
 out/
 coverage/

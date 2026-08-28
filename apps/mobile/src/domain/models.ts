@@ -41,11 +41,19 @@ export interface SignatureSet {
   exportCount: number;
 }
 
+export interface UnboundPurchase {
+  transactionId: string;
+  productId: string;
+  appAccountToken: string | null;
+  detectedAt: string;
+}
+
 export interface AppStateData {
   hydrated: boolean;
   activeSetId: string;
   sets: SignatureSet[];
   selectedAsset: AssetKind;
+  unboundPurchases: UnboundPurchase[];
   reviewPrompted: boolean;
   lastError: string | null;
 }

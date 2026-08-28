@@ -68,7 +68,7 @@ Support information is used to respond, prevent abuse, maintain necessary busine
 
 The website has no account, form submission, advertising cookie, analytics cookie, tracking pixel, chat widget, fingerprinting code, or behavioral analytics. It does not intentionally set non-essential cookies.
 
-The selected static website host, content-delivery network, domain registrar, and network providers may automatically process technical request data such as IP address, date and time, requested URL, user-agent string, referrer, response status, and security events. This is generally necessary to deliver and secure the site. The final host and its retention period will be named here before deployment. Until a host is selected, no specific host-retention promise is made.
+The website is published through **GitHub Pages**. GitHub, its infrastructure providers, the domain registrar, and network providers may automatically process technical request data such as IP address, date and time, requested URL, user-agent string, referrer, response status, and security events to deliver, operate, and secure the site. GitHub controls its platform logging and retention under the [GitHub Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement). DuoTap does not add website analytics or tracking and does not promise a shorter retention period for infrastructure records it does not control.
 
 ## 10. Data we do not use
 
@@ -89,7 +89,7 @@ The in-app deletion action removes drafts, purchased local assets, previews, lab
 
 Deleting the app may delete reusable sets stored inside it. Because there is no Only Signature account or signature cloud, a consumed purchase cannot reconstruct deleted strokes. Exported files remain wherever you saved them.
 
-Support messages and website infrastructure logs follow the retention practices described above. The final hosting provider and operational support-retention schedule must be completed before public launch.
+Support messages follow the support-retention process described above. GitHub Pages and other infrastructure providers retain technical records under their own published policies and operational requirements; DuoTap does not use those records for behavioral analytics or advertising.
 
 ## 12. Security
 

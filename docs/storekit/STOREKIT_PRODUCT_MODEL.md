@@ -2,7 +2,7 @@
 
 ## Product
 
-One centrally configured repeat-purchasable **consumable** with the confirmed identifier `com.duotap.onlysignature.transparent-set-v1`, derived from the confirmed bundle identifier `com.duotap.onlysignature`.
+One centrally configured repeat-purchasable **consumable** with the Apple-valid identifier `com.duotap.onlysignature.transparent_set_v1`, derived from the confirmed bundle identifier `com.duotap.onlysignature`. The originally planned hyphenated form was rejected by App Store Connect before creation because current product IDs allow underscores and periods, not hyphens.
 
 One purchase includes transparent-export rights for one frozen local Signature Set:
 

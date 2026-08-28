@@ -1,6 +1,6 @@
 # Current Final Authority
 
-Date: 2026-08-25
+Date: 2026-08-28
 
 Scope: final authority over the corrected local source after the sequential defect audit, independent improvement review, four-person council, tenth-man challenge, remediation, and hostile re-review.
 
@@ -59,3 +59,22 @@ Observed local results:
 ## Authority boundary
 
 The source may proceed to the external release gates. It may not be described as signed, sandbox-tested, device-tested, deployed, submitted, trademark-cleared, or attorney-certified until corresponding evidence exists.
+
+## 2026-08-28 authority renewal
+
+The current four-person council and subsequent tenth-man review found no P0. Every locally actionable P1 was corrected before this renewal. Corrections include screenshot-fixture authorization, per-asset export confirmation, non-repeating authorized-use prompts, finite no-second-charge recovery for an unmatched verified consumable, successful snapshot-recovery messaging, checked-in native network scanning, complete archive privacy-manifest inspection, source-SHA provenance, GitHub Pages privacy disclosure, a native runtime export harness, and post-upload TestFlight readback.
+
+Fresh `npm run acceptance:local` evidence passed in full:
+
+- Prettier, strict TypeScript, and lint passed.
+- Root Vitest passed 34/34; mobile Node tests passed 51/51.
+- Content drift, development release configuration, production network allowlist, production Expo introspection, iOS native autolink, composition-evidence asset verification, and the source secret scan passed.
+- The dependency threshold passed with zero high or critical advisories. Twelve moderate Expo/Xcode build-chain findings remain governed; no force downgrade was used.
+- Export pixel verification passed 6/6.
+- The Astro site built 9 pages and passed required-output, internal-link, no-client-JavaScript, and prohibited-tracking validation.
+- The CycloneDX SBOM was regenerated with 1,145 components.
+- Both EAS workflow files passed exact `eas-cli@23.0.0 workflow:validate`.
+- Expo readback is `duotap` / `admin@duotap.app`, project `@duotap/onlysignature`, ID `954b1a21-89e9-41af-8021-d7c8e66d74c8`.
+- The existing GitHub integration base directory was changed to `/apps/mobile` and verified by live readback without dispatching a workflow.
+
+**Renewed decision: LOCAL SOURCE APPROVED FOR THE AUTHORIZED NATIVE-SCREENSHOT AND INTERNAL-TESTFLIGHT GATES.** No signed build, native screenshot, StoreKit sandbox, physical-device, TestFlight, App Review, or public-release claim is made.

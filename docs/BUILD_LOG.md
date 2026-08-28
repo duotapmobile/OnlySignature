@@ -89,3 +89,39 @@ This file records only commands and outcomes actually observed. Signed iOS build
 - `npm run release:check --workspace @only-signature/site`: passed after building 9 pages and validating 11 required outputs, internal links, zero client JavaScript, and prohibited tracking/font/cookie patterns.
 - `npm run check`: exit 0; 27/27 root tests and 42/42 mobile tests passed with formatting, strict TypeScript, lint, content drift, release configuration, static network policy, native autolinking, store assets, and high/critical dependency threshold checks.
 - Published the validated static output as remote `gh-pages` root commit `e0d9c6d` with `CNAME` set to `onlysignature.app` and `.nojekyll` present. GitHub Pages activation, Namecheap DNS edits, certificate issuance, and anonymous HTTPS checks remain external control-panel steps.
+
+## 2026-08-28 - TestFlight readiness branch and native screenshot boundary
+
+- Verified the exact clean starting state: `main` at `759212dd6561ce19bf682e019004e7c3bb02c1f9`, origin/main at `c38ea04bc28a4432594e32587d37c92869bffb18`, exactly one local commit ahead. Created `codex/only-signature-testflight-readiness-2026-08-28` from that exact HEAD; remote main remained untouched.
+- Rechecked Apple and Expo primary documentation. Apple requires iOS/iPadOS 26 SDK or later for uploads after April 28, 2026. Expo SDK 57 maps to `macos-tahoe-26.5-xcode-26.6`. Current 6.9-inch/13-inch target sizes remain 1290×2796 and 2064×2752 within Apple’s accepted sets.
+- Ran `npm run check` on pinned Node 22.22.0/npm 10.9.4: exit 0; formatting, strict TypeScript, lint, 27 root tests, 42 mobile tests, content drift, release config, static network policy, native autolink, composition-evidence store assets, and the high/critical audit threshold passed. Twelve moderate transitive Expo build-chain advisories remain; no breaking force fix was used.
+- Pinned EAS CLI 23.0.0. Read-only identity inspection found `notebox` and `noteboxs-team`, with no DuoTap Expo organization. No project was linked and no charge was initiated.
+- Added a credentials-free screenshot-only iOS Simulator profile and an EAS macOS workflow that builds the real React Native app, proves Maestro availability, asserts every route/state, captures exact-size iPhone 15 Pro Max and iPad Pro 13-inch (M4) frames, records build/workflow/simulator/route hashes, composes opaque native-derived assets, and verifies all 16 frames plus the IAP image.
+- Moved the existing deterministic web-rendered masters under explicitly labeled `composition-evidence` paths. They remain useful layout proof but cannot satisfy the native screenshot gate.
+- Aligned Expo configuration to the verified existing project owner `duotap` and slug `onlysignature`; the app stays intentionally unlinked until the local CLI can authenticate to that owner and read the existing project UUID.
+- Added a production-only EAS workflow that builds the signed archive, downloads and inspects the exact IPA, emits a hashed inspection report, and uploads to internal TestFlight only after inspection passes. It explicitly does not request beta review or public release.
+- The founder created and secured the App Store Connect team API key outside Git. Its non-secret metadata is available for EAS setup; no private-key contents were read, printed, or committed.
+- Re-ran `npm run check` after these changes: exit 0; 28 root tests, 42 mobile tests, formatting, strict TypeScript, lint, content drift, release configuration, static network policy, native autolink, composition-evidence store assets, and the high/critical dependency threshold passed. Twelve moderate Expo build-chain advisories remain without a breaking force fix.
+
+## 2026-08-28 - Current council and tenth-man remediation
+
+- Ran independent defect and improvement agents, then three independent council roles with the executor as fourth authority, followed only afterward by an adversarial tenth man. No P0 was found; all locally actionable P1 findings were adopted.
+- Verified Expo CLI as `duotap` / `admin@duotap.app` and exact existing project `@duotap/onlysignature`, ID `954b1a21-89e9-41af-8021-d7c8e66d74c8`. No duplicate project was created.
+- Recorded the existing project ID in dynamic app config and every EAS profile; production rejects any different ID. Corrected the workflow manual trigger and passed pinned EAS 23.0.0 schema validation for both workflows.
+- Gated screenshot query parameters behind the embedded fixture capability, changed multi-asset success to require per-asset confirmation, and removed repeated authorized-use interruption from Create New and Duplicate.
+- Added explicit no-second-charge recovery that freezes and durably binds replacement artwork to a verified unmatched consumable before finishing. Snapshot reconciliation now returns recovered success instead of overwriting it with failure copy.
+- Extended the network scanner to checked-in Swift/Objective-C modules with a mutation test. Strengthened signed-archive provenance, profile expiration/application ID, every bundled privacy manifest, and required-reason values.
+- Added a fixture-gated native view-shot export harness for actual PNG/JPEG alpha, opacity, visible-stroke, padding, and hash verification on the EAS simulator.
+- Corrected the canonical privacy policy to name GitHub Pages and regenerated synchronized in-app/site legal content.
+- Added post-upload App Store Connect verification for the exact processed build, `Only Signature Internal` assignment, 1.0.0 train, and en-US What to Test.
+
+## 2026-08-28 - Local TestFlight acceptance gate
+
+- Honored the private coordination hold, recorded exact working-tree scope, and resumed only after the matching coordinator clearance. No cloud workflow was dispatched during the hold.
+- Closed the production-network drift with an exact allowlist entry for GitHub's published privacy statement, which is linked by the canonical GitHub Pages disclosure. A regression test proves unrelated GitHub URLs remain blocked.
+- Kept exact `eas-cli@23.0.0` as an on-demand release tool rather than a product dependency. The product audit returned to zero high/critical advisories; 12 moderate Expo/Xcode build-chain findings remain governed without a breaking force fix.
+- `npm run acceptance:local`: exit 0. Prettier, strict TypeScript, lint, 34/34 root tests, 51/51 mobile tests, content drift across 134 files, release configuration, network policy, production introspection, iOS autolink, composition-evidence assets, secret scan, dependency threshold, 6/6 export pixel tests, and the static-site release check passed.
+- Site release check built 9 pages and validated 11 required outputs, resolved internal links, zero client JavaScript, and no forbidden tracking/font/cookie patterns.
+- Regenerated the CycloneDX SBOM with 1,145 components.
+- Exact EAS CLI readback: `duotap` / `admin@duotap.app`, project `@duotap/onlysignature`, ID `954b1a21-89e9-41af-8021-d7c8e66d74c8`; both workflows passed schema validation.
+- Coordinator live readback confirmed the existing Expo GitHub base directory is `/apps/mobile`. No workflow was dispatched as part of that mutation.

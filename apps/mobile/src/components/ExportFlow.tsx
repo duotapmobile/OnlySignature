@@ -22,7 +22,10 @@ import {
 } from "@/services/export";
 import { generateExportBatch } from "@/services/exportBatch";
 import { useAppState } from "@/state/AppStateProvider";
-import { confirmAuthorizedUse } from "@/services/authorizedUse";
+import {
+  addConfirmedKind,
+  everyGeneratedFileConfirmed,
+} from "@/services/exportConfirmation";
 
 const paidFormats: ExportFormat[] = [
   "png-transparent",
@@ -44,7 +47,8 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
   const generatedRef = useRef<GeneratedFile[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [shareClosed, setShareClosed] = useState(false);
+  const [sharedKinds, setSharedKinds] = useState<AssetKind[]>([]);
+  const [confirmedKinds, setConfirmedKinds] = useState<AssetKind[]>([]);
   const signatureRef = useRef<ComponentRef<typeof View>>(null);
   const initialsRef = useRef<ComponentRef<typeof View>>(null);
   const assetCount =
@@ -98,14 +102,15 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
     generatedRef.current = [];
     setGenerated([]);
     void cleanupGeneratedFiles(stale);
-    setShareClosed(false);
+    setSharedKinds((current) => current.filter((item) => item !== kind));
+    setConfirmedKinds((current) => current.filter((item) => item !== kind));
   };
   const completeDestination = async (file: GeneratedFile) => {
     setBusy(true);
     setError(null);
     try {
       await shareFile(file);
-      setShareClosed(true);
+      setSharedKinds((current) => addConfirmedKind(current, file.kind));
       return;
     } catch {
       setError(
@@ -186,18 +191,35 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
                 }}
                 disabled={busy}
               />
+              {sharedKinds.includes(file.kind) &&
+              !confirmedKinds.includes(file.kind) ? (
+                <SecondaryButton
+                  label={`I Saved ${file.kind === "signature" ? "Signature" : "Initials"}`}
+                  onPress={() =>
+                    setConfirmedKinds((current) =>
+                      addConfirmedKind(current, file.kind),
+                    )
+                  }
+                />
+              ) : null}
+              {confirmedKinds.includes(file.kind) ? (
+                <Text accessibilityRole="alert" style={styles.confirmed}>
+                  {file.kind === "signature" ? "Signature" : "Initials"} save
+                  confirmed.
+                </Text>
+              ) : null}
             </View>
           ))}
         </GlassCard>
       )}
-      {shareClosed ? (
+      {everyGeneratedFileConfirmed(generated, confirmedKinds) ? (
         <GlassCard>
           <Text accessibilityRole="alert" style={styles.shareStatus}>
-            Sharing closed. If you selected a destination, check that location
-            for the file. Only Signature cannot see which action you chose.
+            You confirmed every prepared file. Only Signature cannot inspect the
+            destination you selected.
           </Text>
           <PrimaryButton
-            label="I Saved It"
+            label="Continue"
             onPress={() => {
               recordExport();
               router.replace({
@@ -216,9 +238,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
         <SecondaryButton
           label="Create New"
           onPress={() => {
-            confirmAuthorizedUse(() => {
-              if (createNew()) router.replace("/draw");
-            });
+            if (createNew()) router.replace("/draw");
           }}
           disabled={busy}
         />
@@ -257,6 +277,12 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 24,
     fontWeight: "600",
+  },
+  confirmed: {
+    color: theme.colors.success,
+    fontSize: 16,
+    lineHeight: 23,
+    fontWeight: "700",
   },
   file: {
     gap: 8,

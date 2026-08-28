@@ -1,0 +1,64 @@
+name: Verified internal TestFlight upload
+
+on:
+  workflow_dispatch: {}
+
+defaults:
+  image: macos-tahoe-26.5-xcode-26.6
+  tools:
+    node: 22.22.0
+  run:
+    working_directory: ../..
+
+jobs:
+  source_acceptance:
+    name: Verify source before spending a signed build
+    runs_on: macos-medium
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - name: Run the complete local acceptance gate
+        run: npm run acceptance:local
+
+  build_ios_production:
+    name: Build signed production archive
+    needs: [source_acceptance]
+    type: build
+    params:
+      platform: ios
+      profile: production
+
+  inspect_archive:
+    name: Fail closed on archive identity, entitlements, privacy, or secret drift
+    needs: [build_ios_production]
+    runs_on: macos-medium
+    environment: production
+    env:
+      ARCHIVE_BUILD_ID: ${{ needs.build_ios_production.outputs.build_id }}
+      ARCHIVE_WORKFLOW_ID: ${{ workflow.id }}
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - uses: eas/download_build
+        id: production_archive
+        with:
+          build_id: ${{ needs.build_ios_production.outputs.build_id }}
+          extensions: [ipa]
+      - name: Inspect the exact signed archive
+        run: node scripts/inspect-ios-archive.mjs --ipa "${{ steps.production_archive.outputs.artifact_path }}" --report artifacts/ios-archive-inspection.json
+      - uses: eas/upload_artifact
+        with:
+          type: other
+          name: only-signature-ios-archive-inspection
+          path: artifacts/ios-archive-inspection.json
+
+  upload_internal_testflight:
+    name: Upload inspected build to internal TestFlight only
+    type: testflight
+    needs: [build_ios_production, inspect_archive]
+    params:
+      build_id: ${{ needs.build_ios_production.outputs.build_id }}
+      profile: production
+      internal_groups: ["Only Signature Internal"]
+      changelog: Initial internal TestFlight validation build.
+      submit_beta_review: false

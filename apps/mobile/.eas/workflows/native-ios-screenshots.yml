@@ -1,0 +1,67 @@
+name: Native iOS App Store screenshots
+
+on:
+  workflow_dispatch: {}
+
+defaults:
+  image: macos-tahoe-26.5-xcode-26.6
+  tools:
+    node: 22.22.0
+  run:
+    working_directory: ../..
+
+jobs:
+  source_acceptance:
+    name: Verify source before spending a simulator build
+    runs_on: macos-medium
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - name: Run the complete local acceptance gate
+        run: npm run acceptance:local
+
+  build_ios_simulator:
+    name: Build fixture-only iOS Simulator app
+    needs: [source_acceptance]
+    type: build
+    params:
+      platform: ios
+      profile: screenshot
+
+  capture_and_verify:
+    name: Capture asserted 6.9-inch iPhone and 13-inch iPad frames
+    needs: [build_ios_simulator]
+    runs_on: macos-medium
+    environment: preview
+    env:
+      SCREENSHOT_BUILD_ID: ${{ needs.build_ios_simulator.outputs.build_id }}
+      SCREENSHOT_WORKFLOW_ID: ${{ workflow.id }}
+      SCREENSHOT_WORKFLOW_URL: ${{ workflow.url }}
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - uses: eas/download_build
+        id: simulator_build
+        with:
+          build_id: ${{ needs.build_ios_simulator.outputs.build_id }}
+          extensions: [app]
+      - name: Prove pinned Maestro availability
+        run: |
+          command -v maestro
+          maestro --version
+      - name: Capture eight asserted iPhone frames
+        run: node scripts/capture-native-ios-screenshots.mjs --app "${{ steps.simulator_build.outputs.artifact_path }}" --device iphone
+      - name: Capture eight asserted iPad frames
+        run: node scripts/capture-native-ios-screenshots.mjs --app "${{ steps.simulator_build.outputs.artifact_path }}" --device ipad
+      - name: Compose native-derived App Store assets
+        run: npm run screenshots:compose
+      - name: Verify native screenshots, provenance, and IAP image
+        run: npm run screenshots:verify:native
+      - uses: eas/upload_artifact
+        with:
+          type: other
+          name: only-signature-native-store-assets
+          path: |
+            store-assets/screenshots/native/**/*
+            store-assets/app-review/native/**/*
+            artifacts/native-export-verification/**/*

@@ -30,4 +30,24 @@ describe("release config", () => {
 
     expect(errors).toContain("production requires a DSA trader decision");
   });
+
+  it("rejects Apple-invalid StoreKit product identifier characters", () => {
+    const errors = validateReleaseConfig({
+      ...developmentConfig,
+      storeKitProductId: "com.duotap.onlysignature.transparent-set-v1",
+    });
+
+    expect(errors).toContain(
+      "storeKitProductId may contain only letters, numbers, underscores, and periods",
+    );
+  });
+
+  it("rejects expansion beyond the locked U.S.-only release", () => {
+    const errors = validateReleaseConfig({
+      ...developmentConfig,
+      territories: ["US", "CA"],
+    });
+
+    expect(errors).toContain("release distribution is locked to U.S. only");
+  });
 });

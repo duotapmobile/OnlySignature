@@ -20,6 +20,7 @@ import {
 import { hasDrawing } from "@/domain/models";
 import { theme } from "@/integrations/workspace";
 import { useAppState } from "@/state/AppStateProvider";
+import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 
 const tabs = [
   { value: "signature" as const, label: "Signature" },
@@ -29,13 +30,14 @@ const tabs = [
 export default function DrawScreen() {
   const { width, height } = useWindowDimensions();
   const { fixture } = useLocalSearchParams<{ fixture?: string }>();
+  const editableFixture = isAuthorizedScreenshotFixture(fixture, "both");
   const { activeSet, data, setSelectedAsset, updateAsset, clearAsset } =
     useAppState();
   const [message, setMessage] = useState<string | null>(null);
   const selected = data.selectedAsset;
   const asset = activeSet[selected];
   const immutable =
-    fixture !== "both" &&
+    !editableFixture &&
     (Boolean(activeSet.pendingPurchaseId) ||
       activeSet.transactionFinishPending ||
       (activeSet.status === "purchased" &&

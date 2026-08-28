@@ -1,5 +1,5 @@
 {
-  "cli": { "version": ">= 18.0.0", "appVersionSource": "local" },
+  "cli": { "version": "23.0.0", "appVersionSource": "local" },
   "build": {
     "development": {
       "developmentClient": true,
@@ -9,6 +9,7 @@
         "image": "macos-tahoe-26.5-xcode-26.6"
       },
       "env": {
+        "EAS_PROJECT_ID": "954b1a21-89e9-41af-8021-d7c8e66d74c8",
         "APP_VARIANT": "development",
         "EXPO_PUBLIC_RELEASE_MODE": "development"
       }
@@ -21,8 +22,26 @@
         "image": "macos-tahoe-26.5-xcode-26.6"
       },
       "env": {
+        "EAS_PROJECT_ID": "954b1a21-89e9-41af-8021-d7c8e66d74c8",
         "APP_VARIANT": "preview",
         "EXPO_PUBLIC_RELEASE_MODE": "preview"
+      }
+    },
+    "screenshot": {
+      "withoutCredentials": true,
+      "distribution": "internal",
+      "environment": "preview",
+      "ios": {
+        "simulator": true,
+        "resourceClass": "m-medium",
+        "image": "macos-tahoe-26.5-xcode-26.6"
+      },
+      "env": {
+        "EAS_PROJECT_ID": "954b1a21-89e9-41af-8021-d7c8e66d74c8",
+        "APP_VARIANT": "screenshot",
+        "EXPO_PUBLIC_RELEASE_MODE": "preview",
+        "EXPO_PUBLIC_STOREKIT_MODE": "mock",
+        "EXPO_PUBLIC_SCREENSHOT_FIXTURE_MODE": "1"
       }
     },
     "production": {
@@ -32,17 +51,31 @@
         "image": "macos-tahoe-26.5-xcode-26.6"
       },
       "env": {
+        "EAS_PROJECT_ID": "954b1a21-89e9-41af-8021-d7c8e66d74c8",
         "APP_VARIANT": "production",
         "EXPO_PUBLIC_RELEASE_MODE": "production",
-        "EXPO_PUBLIC_STOREKIT_MODE": "real"
+        "EXPO_PUBLIC_STOREKIT_MODE": "real",
+        "EXPO_PUBLIC_SCREENSHOT_FIXTURE_MODE": "0",
+        "EXPO_PUBLIC_APP_DISPLAY_NAME": "Only Signature",
+        "EXPO_PUBLIC_APP_SLUG": "onlysignature",
+        "EXPO_PUBLIC_BUNDLE_IDENTIFIER": "com.duotap.onlysignature",
+        "EXPO_PUBLIC_APPLE_TEAM_ID": "JWXC66G9Z5",
+        "EXPO_PUBLIC_STOREKIT_PRODUCT_ID": "com.duotap.onlysignature.transparent_set_v1",
+        "EXPO_PUBLIC_PRIVACY_URL": "https://onlysignature.app/privacy/",
+        "EXPO_PUBLIC_TERMS_URL": "https://onlysignature.app/terms/",
+        "EXPO_PUBLIC_SUPPORT_URL": "https://onlysignature.app/support/",
+        "EXPO_PUBLIC_MARKETING_URL": "https://onlysignature.app/",
+        "EXPO_PUBLIC_SUPPORT_EMAIL": "admin@onlysignature.app",
+        "EXPO_PUBLIC_LEGAL_OPERATOR": "DuoTap LLC",
+        "EXPO_PUBLIC_DSA_TRADER_STATUS": "not-applicable",
+        "EXPO_PUBLIC_APP_STORE_TERRITORIES": "US"
       }
     }
   },
   "submit": {
     "production": {
       "ios": {
-        "appleId": "REPLACE_BEFORE_RELEASE",
-        "ascAppId": "REPLACE_BEFORE_RELEASE",
+        "ascAppId": "6805606307",
         "appleTeamId": "JWXC66G9Z5"
       }
     }

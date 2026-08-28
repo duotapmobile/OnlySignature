@@ -3,7 +3,7 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-08-26T19:03:01.522Z",
+    "timestamp": "2026-08-28T20:02:15.040Z",
     "component": {
       "type": "application",
       "name": "only-signature",
@@ -10637,6 +10637,12 @@
             "id": "BSD-3-Clause"
           }
         }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "7Ical1vFEMr0onbVzEDIreM22I4khW+fzyQPwvAFWBp1iwdshSZRsL4jjRvPG9JP1uiqMHRto+YU6R2/CzDz5Q=="
+        }
       ]
     },
     {
@@ -16800,6 +16806,12 @@
           "license": {
             "id": "MIT"
           }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw=="
         }
       ]
     },

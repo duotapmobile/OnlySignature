@@ -1,1 +1,119 @@
-{"_internal":{"isDebug":false,"projectRoot":"C:\\Users\\mskir\\Desktop\\Only Signature Build August\\apps\\mobile","dynamicConfigPath":"C:\\Users\\mskir\\Desktop\\Only Signature Build August\\apps\\mobile\\app.config.ts","staticConfigPath":{},"packageJsonPath":"C:\\Users\\mskir\\Desktop\\Only Signature Build August\\apps\\mobile\\package.json","pluginHistory":{"expo-splash-screen":{"name":"expo-splash-screen","version":"57.0.8"},"react-native-maps":{"name":"react-native-maps","version":"UNVERSIONED"},"expo-apple-authentication":{"name":"expo-apple-authentication","version":"UNVERSIONED"},"expo-contacts":{"name":"expo-contacts","version":"UNVERSIONED"},"expo-notifications":{"name":"expo-notifications","version":"UNVERSIONED"},"expo-updates":{"name":"expo-updates","version":"UNVERSIONED"},"expo-document-picker":{"name":"expo-document-picker","version":"UNVERSIONED"},"expo-system-ui":{"name":"expo-system-ui","version":"UNVERSIONED"},"expo-file-system":{"name":"expo-file-system","version":"57.0.5"}},"autolinkedModules":["@expo/dom-webview","@expo/log-box","@expo/ui","expo","expo-asset","expo-constants","expo-crypto","expo-device","expo-file-system","expo-font","expo-glass-effect","expo-haptics","expo-keep-awake","expo-linking","expo-modules-core","expo-modules-jsi","expo-router","expo-sharing","expo-splash-screen","expo-status-bar","expo-store-review","expo-symbols","only-signature-native"],"modResults":{"ios":{"infoPlist":{"CFBundleDevelopmentRegion":"$(DEVELOPMENT_LANGUAGE)","CFBundleExecutable":"$(EXECUTABLE_NAME)","CFBundleIdentifier":"$(PRODUCT_BUNDLE_IDENTIFIER)","CFBundleName":"$(PRODUCT_NAME)","CFBundlePackageType":"$(PRODUCT_BUNDLE_PACKAGE_TYPE)","CFBundleInfoDictionaryVersion":"6.0","CFBundleSignature":"????","LSMinimumSystemVersion":"12.0","LSRequiresIPhoneOS":true,"NSAppTransportSecurity":{"NSAllowsArbitraryLoads":false,"NSAllowsLocalNetworking":false},"UILaunchStoryboardName":"SplashScreen","UIRequiredDeviceCapabilities":["armv7"],"UIViewControllerBasedStatusBarAppearance":false,"UIStatusBarStyle":"UIStatusBarStyleDefault","CADisableMinimumFrameDurationOnPhone":true,"ITSAppUsesNonExemptEncryption":false,"UIFileSharingEnabled":false,"LSSupportsOpeningDocumentsInPlace":false,"CFBundleShortVersionString":"1.0.0","CFBundleVersion":"1","RCTMetroPort":"$(RCT_METRO_PORT)","CFBundleURLTypes":[{"CFBundleURLSchemes":["onlysignature","com.acme.onlysignature"]}],"UISupportedInterfaceOrientations~ipad":["UIInterfaceOrientationPortrait","UIInterfaceOrientationPortraitUpsideDown","UIInterfaceOrientationLandscapeLeft","UIInterfaceOrientationLandscapeRight"],"UIRequiresFullScreen":false,"UISupportedInterfaceOrientations":["UIInterfaceOrientationPortrait","UIInterfaceOrientationPortraitUpsideDown","UIInterfaceOrientationLandscapeLeft","UIInterfaceOrientationLandscapeRight"],"CFBundleDisplayName":"Only Signature","UIUserInterfaceStyle":"Light","NSUserActivityTypes":["$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route"]},"entitlements":{"com.apple.developer.default-data-protection":"NSFileProtectionComplete"},"splashScreenStoryboard":{"document":{"$":{"type":"com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB","version":"3.0","toolsVersion":"32700.99.1234","targetRuntime":"iOS.CocoaTouch","propertyAccessControl":"none","useAutolayout":"YES","launchScreen":"YES","useTraitCollections":"YES","useSafeAreas":"YES","colorMatched":"YES","initialViewController":"EXPO-VIEWCONTROLLER-1"},"device":[{"$":{"id":"retina6_12","orientation":"portrait","appearance":"light"}}],"dependencies":[{"deployment":[{"$":{"identifier":"iOS"}}],"plugIn":[{"$":{"identifier":"com.apple.InterfaceBuilder.IBCocoaTouchPlugin","version":"22685"}}],"capability":[{"$":{"name":"Safe area layout guides","minToolsVersion":"9.0"}},{"$":{"name":"documents saved in the Xcode 8 format","minToolsVersion":"8.0"}}]}],"scenes":[{"scene":[{"$":{"sceneID":"EXPO-SCENE-1"},"objects":[{"viewController":[{"$":{"storyboardIdentifier":"SplashScreenViewController","id":"EXPO-VIEWCONTROLLER-1","sceneMemberID":"viewController"},"view":[{"$":{"key":"view","userInteractionEnabled":"NO","contentMode":"scaleToFill","insetsLayoutMarginsFromSafeArea":"NO","id":"EXPO-ContainerView","userLabel":"ContainerView"},"rect":[{"$":{"key":"frame","x":"0.0","y":"0.0","width":"393","height":"852"}}],"autoresizingMask":[{"$":{"key":"autoresizingMask","flexibleMaxX":"YES","flexibleMaxY":"YES"}}],"subviews":[{"imageView":[{"$":{"id":"EXPO-SplashScreen","userLabel":"SplashScreenLogo","image":"SplashScreenLogo","contentMode":"scaleAspectFit","clipsSubviews":true,"userInteractionEnabled":false,"translatesAutoresizingMaskIntoConstraints":false},"rect":[{"$":{"key":"frame","x":136.5,"y":366,"width":120,"height":120}}]}]}],"viewLayoutGuide":[{"$":{"key":"safeArea","id":"Rmq-lb-GrQ"}}],"constraints":[{"constraint":[{"$":{"firstItem":"EXPO-SplashScreen","firstAttribute":"centerX","secondItem":"EXPO-ContainerView","secondAttribute":"centerX","id":"cad2ab56f97c5429bf29decf850647a4216861d4"}},{"$":{"firstItem":"EXPO-SplashScreen","firstAttribute":"centerY","secondItem":"EXPO-ContainerView","secondAttribute":"centerY","id":"1a145271b085b6ce89b1405a310f5b1bb7656595"}}]}],"color":[{"$":{"key":"backgroundColor","name":"SplashScreenBackground"}}]}]}],"placeholder":[{"$":{"placeholderIdentifier":"IBFirstResponder","id":"EXPO-PLACEHOLDER-1","userLabel":"First Responder","sceneMemberID":"firstResponder"}}]}],"point":[{"$":{"key":"canvasLocation","x":"140.625","y":"129.4921875"}}]}]}],"resources":[{"image":[{"$":{"name":"SplashScreenLogo","width":120,"height":120}}],"namedColor":[{"$":{"name":"SplashScreenBackground"},"color":[{"$":{"alpha":"1.000","blue":"0.313725490196078","green":"0.227450980392157","red":"0.0745098039215686","customColorSpace":"sRGB","colorSpace":"custom"}}]}]}]}},"expoPlist":{"EXUpdatesEnabled":false,"EXUpdatesCheckOnLaunch":"NEVER","EXUpdatesLaunchWaitMs":0,"EXUpdatesEnableBsdiffPatchSupport":true,"EXUpdatesRuntimeVersion":"1.0.0"},"podfileProperties":{"expo.inlineModules.watchedDirectories":"[]","expo.inlineModules.xcodeProjectTargets":"{\"mainTarget\":\"OnlySignature\",\"targets\":[]}"}},"android":{"colors":{"resources":{"color":[{"$":{"name":"iconBackground"},"_":"#133A50"},{"$":{"name":"colorPrimary"},"_":"#023c69"},{"$":{"name":"splashscreen_background"},"_":"#133A50"}]}},"colorsNight":{"resources":{}},"styles":{"resources":{"$":{"xmlns:tools":"http://schemas.android.com/tools"},"style":[{"$":{"name":"AppTheme","parent":"Theme.AppCompat.Light.NoActionBar"},"item":[{"$":{"name":"colorPrimary"},"_":"@color/colorPrimary"},{"$":{"name":"android:statusBarColor"},"_":"@android:color/transparent"},{"$":{"name":"android:navigationBarColor"},"_":"@android:color/transparent"}]},{"$":{"name":"Theme.App.SplashScreen","parent":"Theme.SplashScreen"},"item":[{"$":{"name":"windowSplashScreenBackground"},"_":"@color/splashscreen_background"},{"$":{"name":"windowSplashScreenAnimatedIcon"},"_":"@drawable/splashscreen_logo"},{"$":{"name":"postSplashScreenTheme"},"_":"@style/AppTheme"},{"$":{"name":"android:windowSplashScreenBehavior"},"_":"icon_preferred"}]}]}},"strings":{"resources":{"string":[{"$":{"name":"app_name"},"_":"Only Signature"},{"$":{"name":"expo_runtime_version"},"_":"1.0.0"},{"$":{"name":"expo_splash_screen_resize_mode","translatable":"false"},"_":"contain"}]}},"manifest":{"manifest":{"$":{"xmlns:android":"http://schemas.android.com/apk/res/android","xmlns:tools":"http://schemas.android.com/tools","package":"com.onlysignature.preview"},"uses-permission":[{"$":{"android:name":"android.permission.INTERNET"}},{"$":{"android:name":"android.permission.SYSTEM_ALERT_WINDOW"}},{"$":{"android:name":"android.permission.VIBRATE"}},{"$":{"android:name":"android.permission.READ_EXTERNAL_STORAGE","android:maxSdkVersion":"32","tools:replace":"android:maxSdkVersion"}},{"$":{"android:name":"android.permission.WRITE_EXTERNAL_STORAGE","android:maxSdkVersion":"32","tools:replace":"android:maxSdkVersion"}}],"queries":[{"intent":[{"action":[{"$":{"android:name":"android.intent.action.VIEW"}}],"category":[{"$":{"android:name":"android.intent.category.BROWSABLE"}}],"data":[{"$":{"android:scheme":"https"}}]}]}],"application":[{"$":{"android:name":".MainApplication","android:label":"@string/app_name","android:icon":"@mipmap/ic_launcher","android:roundIcon":"@mipmap/ic_launcher_round","android:allowBackup":"true","android:theme":"@style/AppTheme","android:supportsRtl":"true","android:enableOnBackInvokedCallback":"false"},"activity":[{"$":{"android:name":".MainActivity","android:configChanges":"keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode|smallestScreenSize","android:launchMode":"singleTask","android:windowSoftInputMode":"adjustResize","android:theme":"@style/Theme.App.SplashScreen","android:exported":"true","android:screenOrientation":"unspecified"},"intent-filter":[{"action":[{"$":{"android:name":"android.intent.action.MAIN"}}],"category":[{"$":{"android:name":"android.intent.category.LAUNCHER"}}]},{"action":[{"$":{"android:name":"android.intent.action.VIEW"}}],"category":[{"$":{"android:name":"android.intent.category.DEFAULT"}},{"$":{"android:name":"android.intent.category.BROWSABLE"}}],"data":[{"$":{"android:scheme":"onlysignature"}}]}]}],"meta-data":[{"$":{"android:name":"expo.modules.updates.ENABLED","android:value":"false"}},{"$":{"android:name":"expo.modules.updates.EXPO_UPDATES_CHECK_ON_LAUNCH","android:value":"NEVER"}},{"$":{"android:name":"expo.modules.updates.EXPO_UPDATES_LAUNCH_WAIT_MS","android:value":"0"}},{"$":{"android:name":"expo.modules.updates.ENABLE_BSDIFF_PATCH_SUPPORT","android:value":"true"}},{"$":{"android:name":"expo.modules.updates.EXPO_RUNTIME_VERSION","android:value":"@string/expo_runtime_version"}}]}]}},"gradleProperties":[{"type":"property","key":"expo.inlineModules.watchedDirectories","value":"[]"}]}}},"name":"Only Signature","slug":"only-signature","version":"1.0.0","sdkVersion":"57.0.0","platforms":["ios","android","web"],"scheme":"onlysignature","orientation":"default","userInterfaceStyle":"light","icon":"./assets/icon.png","runtimeVersion":{"policy":"appVersion"},"updates":{"enabled":false,"checkAutomatically":"NEVER","fallbackToCacheTimeout":0},"ios":{"supportsTablet":true,"bundleIdentifier":"com.acme.onlysignature","buildNumber":"1","appleTeamId":"A1B2C3D4E5","requireFullScreen":false,"infoPlist":{"CFBundleDevelopmentRegion":"$(DEVELOPMENT_LANGUAGE)","CFBundleExecutable":"$(EXECUTABLE_NAME)","CFBundleIdentifier":"$(PRODUCT_BUNDLE_IDENTIFIER)","CFBundleName":"$(PRODUCT_NAME)","CFBundlePackageType":"$(PRODUCT_BUNDLE_PACKAGE_TYPE)","CFBundleInfoDictionaryVersion":"6.0","CFBundleSignature":"????","LSMinimumSystemVersion":"12.0","LSRequiresIPhoneOS":true,"NSAppTransportSecurity":{"NSAllowsArbitraryLoads":false,"NSAllowsLocalNetworking":false},"UILaunchStoryboardName":"SplashScreen","UIRequiredDeviceCapabilities":["armv7"],"UIViewControllerBasedStatusBarAppearance":false,"UIStatusBarStyle":"UIStatusBarStyleDefault","CADisableMinimumFrameDurationOnPhone":true,"ITSAppUsesNonExemptEncryption":false,"UIFileSharingEnabled":false,"LSSupportsOpeningDocumentsInPlace":false,"CFBundleShortVersionString":"1.0.0","CFBundleVersion":"1","RCTMetroPort":"$(RCT_METRO_PORT)","CFBundleURLTypes":[{"CFBundleURLSchemes":["onlysignature","com.acme.onlysignature"]}],"UISupportedInterfaceOrientations~ipad":["UIInterfaceOrientationPortrait","UIInterfaceOrientationPortraitUpsideDown","UIInterfaceOrientationLandscapeLeft","UIInterfaceOrientationLandscapeRight"],"UIRequiresFullScreen":false,"UISupportedInterfaceOrientations":["UIInterfaceOrientationPortrait","UIInterfaceOrientationPortraitUpsideDown","UIInterfaceOrientationLandscapeLeft","UIInterfaceOrientationLandscapeRight"],"CFBundleDisplayName":"Only Signature","UIUserInterfaceStyle":"Light","NSUserActivityTypes":["$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route"]},"entitlements":{"com.apple.developer.default-data-protection":"NSFileProtectionComplete"},"privacyManifests":{"NSPrivacyTracking":false,"NSPrivacyCollectedDataTypes":[],"NSPrivacyAccessedAPITypes":[{"NSPrivacyAccessedAPIType":"NSPrivacyAccessedAPICategoryUserDefaults","NSPrivacyAccessedAPITypeReasons":["CA92.1"]},{"NSPrivacyAccessedAPIType":"NSPrivacyAccessedAPICategoryFileTimestamp","NSPrivacyAccessedAPITypeReasons":["C617.1"]},{"NSPrivacyAccessedAPIType":"NSPrivacyAccessedAPICategoryDiskSpace","NSPrivacyAccessedAPITypeReasons":["E174.1"]},{"NSPrivacyAccessedAPIType":"NSPrivacyAccessedAPICategorySystemBootTime","NSPrivacyAccessedAPITypeReasons":["35F9.1"]}]}},"android":{"package":"com.onlysignature.preview","adaptiveIcon":{"foregroundImage":"./assets/adaptive-icon.png","backgroundColor":"#133A50"},"permissions":["android.permission.READ_EXTERNAL_STORAGE","android.permission.WRITE_EXTERNAL_STORAGE","android.permission.INTERNET"]},"web":{"output":"static","favicon":"./assets/icon.png"},"plugins":["expo-router",["./plugins/withOnlySignatureIos"],["expo-splash-screen",{"backgroundColor":"#133A50","image":"./assets/icon.png","imageWidth":120}]],"experiments":{"typedRoutes":true,"reactCompiler":true},"extra":{"releaseChannel":"production","storeKitMode":"real","supportUrl":"https://onlysignature.test/support","privacyUrl":"https://onlysignature.test/privacy","termsUrl":"https://onlysignature.test/terms","supportEmail":"support@onlysignature.test","marketingUrl":"https://onlysignature.test","legalOperator":"Example Operator LLC","legalAddress":"123 Example Street","dsaTraderStatus":"trader","territories":["US"],"storeKitProductId":"com.acme.onlysignature.transparent-set-v1","screenshotFixtureMode":false,"eas":{"projectId":"11111111-1111-4111-8111-111111111111"},"router":{}},"mods":{"ios":{},"android":{}}}
+{
+  "schemaVersion": 2,
+  "sourceCommand": "expo config --type introspect --json",
+  "identity": {
+    "owner": "duotap",
+    "slug": "onlysignature",
+    "bundleIdentifier": "com.duotap.onlysignature",
+    "teamId": "JWXC66G9Z5",
+    "projectId": "954b1a21-89e9-41af-8021-d7c8e66d74c8",
+    "productId": "com.duotap.onlysignature.transparent_set_v1"
+  },
+  "release": {
+    "mode": "production",
+    "storeKitMode": "real",
+    "screenshotFixtureMode": false,
+    "territories": [
+      "US"
+    ],
+    "updates": {
+      "enabled": false,
+      "checkAutomatically": "NEVER",
+      "fallbackToCacheTimeout": 0
+    }
+  },
+  "ios": {
+    "dataProtection": "NSFileProtectionComplete",
+    "appTransportSecurity": {
+      "NSAllowsArbitraryLoads": false,
+      "NSAllowsLocalNetworking": false
+    },
+    "releaseStamp": {
+      "mode": "production",
+      "storeKitMode": "real",
+      "screenshotFixtureMode": false,
+      "territories": "US",
+      "projectId": "954b1a21-89e9-41af-8021-d7c8e66d74c8",
+      "productId": "com.duotap.onlysignature.transparent_set_v1",
+      "sourceRevision": "759212dd6561ce19bf682e019004e7c3bb02c1f9"
+    },
+    "expoUpdates": {
+      "enabled": false,
+      "checkOnLaunch": "NEVER"
+    },
+    "privacyManifest": {
+      "NSPrivacyTracking": false,
+      "NSPrivacyCollectedDataTypes": [],
+      "NSPrivacyAccessedAPITypes": [
+        {
+          "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+          "NSPrivacyAccessedAPITypeReasons": [
+            "CA92.1"
+          ]
+        },
+        {
+          "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryFileTimestamp",
+          "NSPrivacyAccessedAPITypeReasons": [
+            "C617.1"
+          ]
+        },
+        {
+          "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryDiskSpace",
+          "NSPrivacyAccessedAPITypeReasons": [
+            "E174.1"
+          ]
+        },
+        {
+          "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategorySystemBootTime",
+          "NSPrivacyAccessedAPITypeReasons": [
+            "35F9.1"
+          ]
+        }
+      ]
+    },
+    "nativeModules": [
+      "@expo/dom-webview",
+      "@expo/log-box",
+      "@expo/ui",
+      "expo",
+      "expo-asset",
+      "expo-constants",
+      "expo-crypto",
+      "expo-device",
+      "expo-file-system",
+      "expo-font",
+      "expo-glass-effect",
+      "expo-haptics",
+      "expo-keep-awake",
+      "expo-linking",
+      "expo-modules-core",
+      "expo-modules-jsi",
+      "expo-router",
+      "expo-sharing",
+      "expo-splash-screen",
+      "expo-status-bar",
+      "expo-store-review",
+      "expo-symbols",
+      "only-signature-native"
+    ]
+  },
+  "assertions": {
+    "owner": true,
+    "slug": true,
+    "bundleIdentifier": true,
+    "teamId": true,
+    "projectId": true,
+    "productId": true,
+    "storeKitReal": true,
+    "fixtureDisabled": true,
+    "usOnly": true,
+    "otaConfigDisabled": true,
+    "otaNativeDisabled": true,
+    "otaModuleAbsent": true,
+    "arbitraryLoadsDisabled": true,
+    "completeDataProtection": true,
+    "noTracking": true,
+    "releaseStamp": true
+  },
+  "result": "PASS"
+}

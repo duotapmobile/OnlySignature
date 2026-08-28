@@ -1,6 +1,7 @@
 import type { ExpoConfig, ConfigContext } from "expo/config";
 
 const PLACEHOLDER = "REPLACE_BEFORE_RELEASE";
+const EAS_PROJECT_ID = "954b1a21-89e9-41af-8021-d7c8e66d74c8";
 
 const EU_DSA_TERRITORIES = new Set([
   "AT",
@@ -66,9 +67,21 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     territories: process.env.EXPO_PUBLIC_APP_STORE_TERRITORIES ?? "US",
     productId:
       process.env.EXPO_PUBLIC_STOREKIT_PRODUCT_ID ??
-      "com.duotap.onlysignature.transparent-set-v1",
-    easProjectId: process.env.EAS_PROJECT_ID ?? PLACEHOLDER,
+      "com.duotap.onlysignature.transparent_set_v1",
+    easProjectId: process.env.EAS_PROJECT_ID ?? EAS_PROJECT_ID,
   };
+  const normalizedTerritories = required.territories
+    .split(",")
+    .map((territory) => territory.trim().toUpperCase())
+    .filter(Boolean);
+  const storeKitMode =
+    process.env.EXPO_PUBLIC_STOREKIT_MODE ?? (production ? "real" : "mock");
+  const screenshotFixtureMode =
+    process.env.EXPO_PUBLIC_SCREENSHOT_FIXTURE_MODE === "1";
+  const sourceRevision =
+    process.env.EAS_BUILD_GIT_COMMIT_HASH ??
+    process.env.ONLY_SIGNATURE_SOURCE_REVISION ??
+    "unavailable";
 
   if (production) {
     const invalid = Object.entries(required).filter(
@@ -82,9 +95,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         `Production configuration is incomplete: ${invalid.map(([key]) => key).join(", ")}`,
       );
     }
-    if ((process.env.EXPO_PUBLIC_STOREKIT_MODE ?? "") !== "real")
+    if (storeKitMode !== "real")
       throw new Error("Production StoreKit mode must be real.");
-    if (process.env.EXPO_PUBLIC_SCREENSHOT_FIXTURE_MODE === "1")
+    if (screenshotFixtureMode)
       throw new Error(
         "Screenshot fixture mode cannot be enabled in production.",
       );
@@ -92,18 +105,35 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       throw new Error(
         "The StoreKit product identifier must derive from the production bundle identifier.",
       );
+    if (!/^[A-Za-z0-9_.]+$/.test(required.productId))
+      throw new Error(
+        "The StoreKit product identifier may contain only letters, numbers, underscores, and periods.",
+      );
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        required.easProjectId,
+      )
+    )
+      throw new Error("The EAS project identifier must be a version 4 UUID.");
+    if (required.easProjectId !== EAS_PROJECT_ID)
+      throw new Error(
+        "The EAS project identifier must match the existing DuoTap project.",
+      );
     if (
       requiresDsaTraderStatus(required.territories) &&
       (required.dsaTraderStatus === "undecided" ||
         required.dsaTraderStatus === "not-applicable")
     )
       throw new Error("Production requires a DSA trader-status decision.");
+    if (normalizedTerritories.length !== 1 || normalizedTerritories[0] !== "US")
+      throw new Error("Production distribution is locked to U.S. only.");
   }
 
   return {
     ...config,
     name: "Only Signature",
-    slug: "only-signature",
+    owner: "duotap",
+    slug: "onlysignature",
     version: "1.0.0",
     scheme: "onlysignature",
     orientation: "default",
@@ -131,6 +161,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         },
         UIFileSharingEnabled: false,
         LSSupportsOpeningDocumentsInPlace: false,
+        OnlySignatureReleaseMode: releaseChannel,
+        OnlySignatureStoreKitMode: storeKitMode,
+        OnlySignatureScreenshotFixtureMode: screenshotFixtureMode,
+        OnlySignatureTerritories: normalizedTerritories.join(","),
+        OnlySignatureEASProjectId: required.easProjectId,
+        OnlySignatureStoreKitProductId: required.productId,
+        OnlySignatureSourceRevision: sourceRevision,
       },
       entitlements: {
         "com.apple.developer.default-data-protection":
@@ -185,8 +222,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     experiments: { typedRoutes: true, reactCompiler: true },
     extra: {
       releaseChannel,
-      storeKitMode:
-        process.env.EXPO_PUBLIC_STOREKIT_MODE ?? (production ? "real" : "mock"),
+      storeKitMode,
       supportUrl: required.supportUrl,
       privacyUrl: required.privacyUrl,
       termsUrl: required.termsUrl,
@@ -194,13 +230,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       marketingUrl: required.marketingUrl,
       legalOperator: required.legalOperator,
       dsaTraderStatus: required.dsaTraderStatus,
-      territories: required.territories
-        .split(",")
-        .map((value: string) => value.trim()),
+      territories: normalizedTerritories,
       storeKitProductId: required.productId,
-      screenshotFixtureMode:
-        process.env.EXPO_PUBLIC_SCREENSHOT_FIXTURE_MODE === "1",
-      eas: { projectId: required.easProjectId },
+      screenshotFixtureMode,
+      ...(required.easProjectId === PLACEHOLDER
+        ? {}
+        : { eas: { projectId: required.easProjectId } }),
     },
   };
 };
