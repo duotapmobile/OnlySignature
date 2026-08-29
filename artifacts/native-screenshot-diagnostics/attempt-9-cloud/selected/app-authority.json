@@ -1,0 +1,11 @@
+{
+  "bundleIdentifier": "com.duotap.onlysignature",
+  "registeredSchemes": [
+    "onlysignature",
+    "com.duotap.onlysignature"
+  ],
+  "releaseMode": "preview",
+  "storeKitMode": "mock",
+  "screenshotFixtureMode": "true",
+  "sourceRevision": "c465c4274cc1879b5959d4d73cf2a9813a85d33a"
+}

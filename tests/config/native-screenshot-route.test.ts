@@ -7,6 +7,7 @@ import {
   screenshotColdLaunchPlan,
   screenshotDeepLink,
 } from "../../scripts/native-screenshot-flow.mjs";
+import { documentComparisonAccessibilityLabel } from "../../apps/mobile/src/domain/documentComparison";
 
 describe("native screenshot deep-link readiness", () => {
   const shot = {
@@ -74,6 +75,26 @@ describe("native screenshot deep-link readiness", () => {
     expect(confirmation.test("Open in \u201cOnly Signature\u201d?")).toBe(true);
     expect(confirmation.test('Open in "Only Signature"?')).toBe(true);
     expect(confirmation.test("Open in Another App?")).toBe(false);
+  });
+
+  it("asserts the document comparison through its combined VoiceOver label", () => {
+    const manifest = JSON.parse(
+      readFileSync("store-assets/screenshots/manifest.json", "utf8"),
+    );
+    const comparison = manifest.screenshots.find(
+      (candidate: { id: string }) => candidate.id === "02-remove-white-box",
+    );
+
+    expect(comparison.assertions).toEqual([
+      "Preview on Document",
+      documentComparisonAccessibilityLabel,
+    ]);
+    const flow = buildScreenshotMaestroFlow(comparison);
+    expect(flow).toContain(
+      `- assertVisible: ${JSON.stringify(documentComparisonAccessibilityLabel)}`,
+    );
+    expect(flow).not.toContain('- assertVisible: "White Background"');
+    expect(flow).not.toContain('- assertVisible: "Professional Export"');
   });
 
   it("uses the cold-launch plan before Maestro for screenshots and export", () => {

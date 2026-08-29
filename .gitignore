@@ -26,6 +26,8 @@ apps/mobile/.vscode/
 apps/mobile/assets/expo.icon/
 apps/mobile/assets/images/
 artifacts/chrome-*/
+artifacts/native-screenshot-diagnostics/attempt-9-cloud/attempt-9-artifacts.tar.gz
+artifacts/native-screenshot-diagnostics/attempt-9-cloud/extracted/
 test-results/
 playwright-report/
 .DS_Store
