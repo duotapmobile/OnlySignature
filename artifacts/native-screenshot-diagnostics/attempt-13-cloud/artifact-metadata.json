@@ -1,0 +1,42 @@
+{
+  "attempt": 13,
+  "workflowId": "01a04b5e-2c54-7e04-bc84-5b881bab9ec0",
+  "sourceJobId": "01a04b5e-2e38-7555-86ac-fed2a247aa20",
+  "simulatorJobId": "01a04b5f-0ee4-7554-a42f-9d07a3bf7c0a",
+  "simulatorBuildId": "82edd8f8-ad39-46db-83b2-0d11eaa2b616",
+  "captureJobId": "01a04b66-2eb6-7352-9455-9490e50a51d3",
+  "artifactId": "01a04b6b-b779-775e-9e0f-f952ee875a78",
+  "sourceRevision": "e968a1364ce9f605c4ad7ea5bf2914980e3f29de",
+  "fingerprint": "ea8ec203558c603dad02dc0c2df3f28a0291221f",
+  "artifactBytes": 208182515,
+  "artifactSha256": "d4254d717a921a6cbd5c0c98db4326ab3cb9e89d1252da738703deeb90828543",
+  "result": "failure-after-eight-iphone-frames-at-native-export-verification",
+  "observedFailure": "Native export verification failed",
+  "failedAssertion": "Native export verification files ready",
+  "iphoneEvidence": {
+    "count": 8,
+    "width": 1290,
+    "height": 2796,
+    "distinct": true,
+    "alphaMinimum": 255,
+    "alphaMaximum": 255
+  },
+  "ipadEvidenceCount": 0,
+  "nativeIapReviewImagePresent": false,
+  "selectedFiles": [
+    { "path": "app-authority.json", "bytes": 288, "sha256": "60cf7ce273b31804576ffff85e474861be84cf3bfd79055b3bbd8aebdf9b2573" },
+    { "path": "native-export-accessibility-hierarchy.json", "bytes": 42962, "sha256": "bf91e745fcaad533818ef3215dd444b939d46771889ff7f49dc55c3b3940042c" },
+    { "path": "native-export-maestro-commands.json", "bytes": 43365, "sha256": "82502659255cf979aaf2a37b75766cc8fb3ea740902d4a104c72fc67d33487e6" },
+    { "path": "native-export-maestro-failure.png", "bytes": 97321, "sha256": "aee62b33160ba72dd34b162d4c689cdf121bd904c6c47f9a34bedc32303c0e3f" },
+    { "path": "native-export-openurl.json", "bytes": 261, "sha256": "6325733eef66bbfd086095a1896c6beed1f38a5f43e2471b3b8fec7ee304a268" },
+    { "path": "native-export-route.json", "bytes": 178, "sha256": "8c598f337220e61a5ec5229692627f455a7937622c2c44dece244e4adaba01ce" },
+    { "path": "raw-iphone/01-signature-initials.png", "bytes": 314464, "sha256": "e955216fb6dc76c1eec4adfb1c0004d89fda6b618464fc046f87dc444c13c775" },
+    { "path": "raw-iphone/02-remove-white-box.png", "bytes": 334345, "sha256": "c192578f9f55bfe8298d67b0124a98cb6bdf0668d0449b9336d14bf42fb2d326" },
+    { "path": "raw-iphone/03-no-editing.png", "bytes": 369877, "sha256": "816f88964b8ec6a14846e915cf045cd03afcd28638ef768bfe33f315f0d2f99b" },
+    { "path": "raw-iphone/04-any-document.png", "bytes": 369321, "sha256": "33ded5d0800ebb85f25bdeaf3b87a8c0dd5645632db554e84dcaa9781dd9c329" },
+    { "path": "raw-iphone/05-no-login.png", "bytes": 300884, "sha256": "e1097046ed5202e44620da8c80d1e4f5ea17e5b6d8507f6dfb0f35551d7123d1" },
+    { "path": "raw-iphone/06-no-upload.png", "bytes": 215367, "sha256": "766b25c9beae4e097d4b723e2bb0d2159c9ea68f2abc2941e796941c16b6377f" },
+    { "path": "raw-iphone/07-formats.png", "bytes": 240983, "sha256": "20abe804e357c603b6a515bfadb62ba706b427305cd51e384a38d61a3f9ca6ee" },
+    { "path": "raw-iphone/08-one-purchase.png", "bytes": 356699, "sha256": "b69885b57125da7c0ec97690a4762d3b46a16ae3207e0eac14f716c4206a235c" }
+  ]
+}

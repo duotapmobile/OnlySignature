@@ -6,6 +6,10 @@ import { ExportSurface } from "@/components/ExportSurface";
 import { Heading, Screen } from "@/components/ui";
 import { screenshotFixtureSet } from "@/domain/fixtures";
 import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
+import {
+  nativeExportStatusForError,
+  runNativeExportStage,
+} from "@/domain/nativeExportDiagnostics";
 import { generateExport } from "@/services/export";
 import { appStorage } from "@/services/storage";
 
@@ -22,34 +26,46 @@ export default function NativeExportTestScreen() {
     const timer = setTimeout(() => {
       void (async () => {
         try {
-          const root = await appStorage.ensureTempDirectory();
-          const output = `${root.replace(/\/$/, "")}/native-export-verification/`;
-          await FileSystem.deleteAsync(output, { idempotent: true });
-          await FileSystem.makeDirectoryAsync(output, { intermediates: true });
-          const transparent = await generateExport(
-            asset,
-            "png-transparent",
-            transparentRef,
+          const root = await runNativeExportStage(
+            "prepare protected temporary directory",
+            () => appStorage.ensureTempDirectory(),
           );
-          const white = await generateExport(asset, "png-white", whiteRef);
-          const jpeg = await generateExport(asset, "jpeg-white", whiteRef);
-          await Promise.all([
-            FileSystem.copyAsync({
-              from: transparent.uri,
-              to: `${output}signature-transparent.png`,
-            }),
-            FileSystem.copyAsync({
-              from: white.uri,
-              to: `${output}signature-white.png`,
-            }),
-            FileSystem.copyAsync({
-              from: jpeg.uri,
-              to: `${output}signature-white.jpg`,
-            }),
-          ]);
+          const output = `${root.replace(/\/$/, "")}/native-export-verification/`;
+          await runNativeExportStage("reset verification directory", () =>
+            FileSystem.deleteAsync(output, { idempotent: true }),
+          );
+          await runNativeExportStage("create verification directory", () =>
+            FileSystem.makeDirectoryAsync(output, { intermediates: true }),
+          );
+          const transparent = await runNativeExportStage(
+            "render transparent PNG",
+            () => generateExport(asset, "png-transparent", transparentRef),
+          );
+          const white = await runNativeExportStage("render white PNG", () =>
+            generateExport(asset, "png-white", whiteRef),
+          );
+          const jpeg = await runNativeExportStage("render white JPEG", () =>
+            generateExport(asset, "jpeg-white", whiteRef),
+          );
+          await runNativeExportStage("copy verification files", () =>
+            Promise.all([
+              FileSystem.copyAsync({
+                from: transparent.uri,
+                to: `${output}signature-transparent.png`,
+              }),
+              FileSystem.copyAsync({
+                from: white.uri,
+                to: `${output}signature-white.png`,
+              }),
+              FileSystem.copyAsync({
+                from: jpeg.uri,
+                to: `${output}signature-white.jpg`,
+              }),
+            ]).then(() => undefined),
+          );
           setStatus("Native export verification files ready");
-        } catch {
-          setStatus("Native export verification failed");
+        } catch (error) {
+          setStatus(nativeExportStatusForError(error));
         }
       })();
     }, 750);

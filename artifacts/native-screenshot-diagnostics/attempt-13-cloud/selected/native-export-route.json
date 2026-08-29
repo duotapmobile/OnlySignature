@@ -1,0 +1,5 @@
+{
+  "route": "/native-export-test?fixture=native-export",
+  "deepLink": "onlysignature:///native-export-test?fixture=native-export",
+  "capturedAt": "2026-08-29T02:48:12.669Z"
+}

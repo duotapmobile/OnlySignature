@@ -32,6 +32,8 @@ artifacts/native-screenshot-diagnostics/attempt-10-cloud/attempt-10-artifacts.ta
 artifacts/native-screenshot-diagnostics/attempt-10-cloud/extracted/
 artifacts/native-screenshot-diagnostics/attempt-12-cloud/attempt-12-artifacts.tar.gz
 artifacts/native-screenshot-diagnostics/attempt-12-cloud/extracted/
+artifacts/native-screenshot-diagnostics/attempt-13-cloud/attempt-13-artifacts.tar.gz
+artifacts/native-screenshot-diagnostics/attempt-13-cloud/extracted/
 test-results/
 playwright-report/
 .DS_Store
