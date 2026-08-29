@@ -1,5 +1,7 @@
 export const screenshotAppReadyTestId = "app-ready";
 export const screenshotAppId = "com.duotap.onlysignature";
+export const iosOpenConfirmationPattern =
+  'Open in [\u201c"]Only Signature[\u201d"]\\?';
 
 export function screenshotDeepLink(route) {
   if (typeof route !== "string" || !route.startsWith("/"))
@@ -31,7 +33,7 @@ export function screenshotColdLaunchPlan(udid, route) {
 const iosOpenConfirmation = [
   "- runFlow:",
   "    when:",
-  `      visible: ${JSON.stringify('Open in "Only Signature"')}`,
+  `      visible: ${JSON.stringify(iosOpenConfirmationPattern)}`,
   "    commands:",
   `      - tapOn: ${JSON.stringify("Open")}`,
 ];

@@ -14,6 +14,7 @@ import path from "node:path";
 import sharp from "sharp";
 import {
   buildScreenshotMaestroFlow,
+  iosOpenConfirmationPattern,
   screenshotAppId,
   screenshotColdLaunchPlan,
 } from "./native-screenshot-flow.mjs";
@@ -388,7 +389,7 @@ try {
         "---",
         "- runFlow:",
         "    when:",
-        `      visible: ${JSON.stringify('Open in "Only Signature"')}`,
+        `      visible: ${JSON.stringify(iosOpenConfirmationPattern)}`,
         "    commands:",
         `      - tapOn: ${JSON.stringify("Open")}`,
         "- extendedWaitUntil:",

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import {
   buildScreenshotMaestroFlow,
+  iosOpenConfirmationPattern,
   screenshotAppReadyTestId,
   screenshotColdLaunchPlan,
   screenshotDeepLink,
@@ -49,7 +50,9 @@ describe("native screenshot deep-link readiness", () => {
 
   it("handles iOS confirmation before proving hydration and route copy", () => {
     const flow = buildScreenshotMaestroFlow(shot);
-    const confirmation = flow.indexOf('Open in \\"Only Signature\\"');
+    const confirmation = flow.indexOf(
+      JSON.stringify(iosOpenConfirmationPattern),
+    );
     const appReady = flow.indexOf(`id: "${screenshotAppReadyTestId}"`);
     const routeReady = flow.indexOf('visible: "Draw Your Signature"');
     const finalAssertion = flow.indexOf(
@@ -63,6 +66,14 @@ describe("native screenshot deep-link readiness", () => {
     expect(flow).not.toContain("waitForAnimationToEnd");
     expect(flow).not.toContain("openLink:");
     expect(flow).not.toContain("launchApp:");
+  });
+
+  it("matches the evidenced iOS 26 confirmation and the legacy quote form", () => {
+    const confirmation = new RegExp(iosOpenConfirmationPattern);
+
+    expect(confirmation.test("Open in \u201cOnly Signature\u201d?")).toBe(true);
+    expect(confirmation.test('Open in "Only Signature"?')).toBe(true);
+    expect(confirmation.test("Open in Another App?")).toBe(false);
   });
 
   it("uses the cold-launch plan before Maestro for screenshots and export", () => {

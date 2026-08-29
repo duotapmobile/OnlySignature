@@ -4,6 +4,7 @@ import path from "node:path";
 import sharp from "sharp";
 import {
   buildScreenshotMaestroFlow,
+  iosOpenConfirmationPattern,
   screenshotAppReadyTestId,
   screenshotColdLaunchPlan,
   screenshotDeepLink,
@@ -81,7 +82,7 @@ for (const [index, expected] of expectedStory.entries()) {
   const flow = buildScreenshotMaestroFlow(shot);
   const coldLaunch = screenshotColdLaunchPlan("TEST-UDID", shot.route);
   const appReady = flow.indexOf(`id: "${screenshotAppReadyTestId}"`);
-  const confirmation = flow.indexOf('Open in \\"Only Signature\\"');
+  const confirmation = flow.indexOf(JSON.stringify(iosOpenConfirmationPattern));
   const routeReady = flow.indexOf(
     `visible: ${JSON.stringify(shot.assertions[0])}`,
   );
