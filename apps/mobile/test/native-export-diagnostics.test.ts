@@ -99,11 +99,9 @@ test("native export fixture narrows reset and transparent-render stages without 
     "invoke captureRef",
     "validate/normalize returned source URI",
     "verify source existence/readability",
-    "prepare/remove destination",
-    "move/copy captured file to protected Caches target",
-    "apply Complete Protection",
-    "apply/verify backup exclusion",
-    "verify final target existence/readability",
+    "promote captured file through native storage",
+    "verify promoted export protection",
+    "verify promoted export readability",
   ];
   for (const stage of transparentStages) {
     const next = source.indexOf(`"${stage}"`);
@@ -113,12 +111,16 @@ test("native export fixture narrows reset and transparent-render stages without 
   assert.match(source, /captureRef\(captureTarget/);
   assert.match(source, /value\.startsWith\("file:\/\/"\)/);
   assert.match(source, /FileSystem\.getInfoAsync\(capturedSource!/);
-  assert.match(source, /FileSystem\.moveAsync\(\{/);
-  assert.match(source, /protectTemporaryFile\(transparentDestination\)/);
   assert.match(
     source,
-    /verifyTemporaryFileProtection\([\s\S]*transparentDestination/,
+    /promoteTemporaryExport\([\s\S]*capturedSource![\s\S]*"png"/,
   );
+  assert.match(
+    source,
+    /verifyTemporaryFileProtection\([\s\S]*transparentDestination!/,
+  );
+  assert.match(source, /releaseCapture\(capturedSource\)/);
+  assert.doesNotMatch(source, /FileSystem\.moveAsync\(\{/);
   assert.doesNotMatch(source, /render transparent PNG/);
 });
 

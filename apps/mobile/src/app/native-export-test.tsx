@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ComponentRef } from "react";
 import { Text, View } from "react-native";
-import { captureRef } from "react-native-view-shot";
+import { captureRef, releaseCapture } from "react-native-view-shot";
 import * as FileSystem from "expo-file-system/legacy";
 import { useLocalSearchParams } from "expo-router";
 import { ExportSurface } from "@/components/ExportSurface";
@@ -12,7 +12,7 @@ import {
   nativeExportStatusForError,
   runNativeExportStage,
 } from "@/domain/nativeExportDiagnostics";
-import { generateExport } from "@/services/export";
+import { cleanupGeneratedFiles, generateExport } from "@/services/export";
 import { appStorage } from "@/services/storage";
 
 const diagnosticCode = (code: string) => Object.assign(new Error(), { code });
@@ -82,7 +82,7 @@ export default function NativeExportTestScreen() {
             },
           );
           let capturedSource: string | null = null;
-          const transparentDestination = `${output}signature-transparent.png`;
+          let transparentDestination: string | null = null;
           try {
             const dimensions = exportDimensions(asset);
             const rawSource = await runNativeExportStage(
@@ -114,41 +114,32 @@ export default function NativeExportTestScreen() {
               },
             );
             await runNativeExportStage(
-              "prepare/remove destination",
+              "promote captured file through native storage",
               async () => {
-                const destination = await FileSystem.getInfoAsync(
-                  transparentDestination,
-                );
-                if (destination.exists)
-                  await FileSystem.deleteAsync(transparentDestination, {
-                    idempotent: false,
-                  });
+                transparentDestination =
+                  await appStorage.promoteTemporaryExport(
+                    capturedSource!,
+                    "png",
+                  );
               },
             );
-            await runNativeExportStage(
-              "move/copy captured file to protected Caches target",
-              () =>
-                FileSystem.moveAsync({
-                  from: capturedSource!,
-                  to: transparentDestination,
-                }),
-            );
             capturedSource = null;
-            await runNativeExportStage("apply Complete Protection", () =>
-              appStorage.protectTemporaryFile(transparentDestination),
-            );
-            await runNativeExportStage("apply/verify backup exclusion", () =>
-              appStorage.verifyTemporaryFileProtection(transparentDestination),
+            await runNativeExportStage(
+              "verify promoted export protection",
+              () =>
+                appStorage.verifyTemporaryFileProtection(
+                  transparentDestination!,
+                ),
             );
             await runNativeExportStage(
-              "verify final target existence/readability",
+              "verify promoted export readability",
               async () => {
                 const info = await FileSystem.getInfoAsync(
-                  transparentDestination,
+                  transparentDestination!,
                 );
                 if (!info.exists || info.isDirectory)
                   throw diagnosticCode("CAPTURE_TARGET_UNREADABLE");
-                await FileSystem.readAsStringAsync(transparentDestination, {
+                await FileSystem.readAsStringAsync(transparentDestination!, {
                   encoding: FileSystem.EncodingType.Base64,
                   position: 0,
                   length: 1,
@@ -156,10 +147,7 @@ export default function NativeExportTestScreen() {
               },
             );
           } catch (error) {
-            if (capturedSource)
-              await FileSystem.deleteAsync(capturedSource, {
-                idempotent: true,
-              }).catch(() => undefined);
+            if (capturedSource) releaseCapture(capturedSource);
             throw error;
           }
           const white = await runNativeExportStage("render white PNG", () =>
@@ -171,6 +159,10 @@ export default function NativeExportTestScreen() {
           await runNativeExportStage("copy verification files", () =>
             Promise.all([
               FileSystem.copyAsync({
+                from: transparentDestination!,
+                to: `${output}signature-transparent.png`,
+              }),
+              FileSystem.copyAsync({
                 from: white.uri,
                 to: `${output}signature-white.png`,
               }),
@@ -179,6 +171,17 @@ export default function NativeExportTestScreen() {
                 to: `${output}signature-white.jpg`,
               }),
             ]).then(() => undefined),
+          );
+          await runNativeExportStage("clean promoted verification files", () =>
+            cleanupGeneratedFiles([
+              {
+                uri: transparentDestination!,
+                format: "png-transparent",
+                kind: asset.kind,
+              },
+              white,
+              jpeg,
+            ]),
           );
           setStatus("Native export verification files ready");
         } catch (error) {

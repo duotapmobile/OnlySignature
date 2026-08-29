@@ -11,14 +11,13 @@ export type NativeExportStage =
   | "invoke captureRef"
   | "validate/normalize returned source URI"
   | "verify source existence/readability"
-  | "prepare/remove destination"
-  | "move/copy captured file to protected Caches target"
-  | "apply Complete Protection"
-  | "apply/verify backup exclusion"
-  | "verify final target existence/readability"
+  | "promote captured file through native storage"
+  | "verify promoted export protection"
+  | "verify promoted export readability"
   | "render white PNG"
   | "render white JPEG"
-  | "copy verification files";
+  | "copy verification files"
+  | "clean promoted verification files";
 
 type UnknownRecord = Record<string, unknown>;
 

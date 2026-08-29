@@ -18,6 +18,11 @@ interface ProtectedStorageModule {
   deleteState(): Promise<void>;
   cleanupTemporaryFiles(): Promise<void>;
   protectedTemporaryDirectory(): Promise<string>;
+  promoteTemporaryExport(
+    sourceUri: string,
+    fileExtension: "png" | "jpg",
+  ): Promise<string>;
+  deleteTemporaryExport(uri: string): Promise<void>;
   protectTemporaryFile(uri: string): Promise<void>;
   verifyTemporaryFileProtection(uri: string): Promise<void>;
 }
@@ -128,6 +133,21 @@ export const appStorage = {
         intermediates: true,
       });
     return TEMP_DIRECTORY;
+  },
+
+  async promoteTemporaryExport(
+    sourceUri: string,
+    fileExtension: "png" | "jpg",
+  ): Promise<string> {
+    const storage = requireProtectedStorage();
+    if (!storage) throw new Error("protected-export-promotion-unavailable");
+    return storage.promoteTemporaryExport(sourceUri, fileExtension);
+  },
+
+  async deleteTemporaryExport(uri: string): Promise<void> {
+    const storage = requireProtectedStorage();
+    if (!storage) throw new Error("protected-export-deletion-unavailable");
+    await storage.deleteTemporaryExport(uri);
   },
 
   async protectTemporaryFile(uri: string): Promise<void> {

@@ -40,6 +40,8 @@ artifacts/native-screenshot-diagnostics/attempt-15-cloud/attempt-15-artifacts.ta
 artifacts/native-screenshot-diagnostics/attempt-15-cloud/extracted/
 artifacts/native-screenshot-diagnostics/attempt-16-cloud/attempt-16-artifacts.tar.gz
 artifacts/native-screenshot-diagnostics/attempt-16-cloud/extracted/
+artifacts/native-screenshot-diagnostics/attempt-17-cloud/attempt-17-artifacts.tar.gz
+artifacts/native-screenshot-diagnostics/attempt-17-cloud/extracted/
 test-results/
 playwright-report/
 .DS_Store
