@@ -1,0 +1,14 @@
+{
+  "command": "xcrun",
+  "args": [
+    "simctl",
+    "openurl",
+    "BB303BAB-DCE5-43B7-9379-87685717AEB6",
+    "onlysignature:///native-export-test?fixture=native-export"
+  ],
+  "status": 0,
+  "signal": null,
+  "error": null,
+  "stdout": "",
+  "stderr": ""
+}

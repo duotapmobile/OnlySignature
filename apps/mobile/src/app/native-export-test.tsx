@@ -27,15 +27,39 @@ export default function NativeExportTestScreen() {
       void (async () => {
         try {
           const root = await runNativeExportStage(
-            "prepare protected temporary directory",
+            "resolve verification container",
             () => appStorage.ensureTempDirectory(),
           );
           const output = `${root.replace(/\/$/, "")}/native-export-verification/`;
-          await runNativeExportStage("reset verification directory", () =>
-            FileSystem.deleteAsync(output, { idempotent: true }),
+          const existing = await runNativeExportStage(
+            "inspect existing target",
+            () => FileSystem.getInfoAsync(output),
           );
-          await runNativeExportStage("create verification directory", () =>
+          if (existing.exists) {
+            await runNativeExportStage("remove existing target", () =>
+              FileSystem.deleteAsync(output, { idempotent: false }),
+            );
+          }
+          await runNativeExportStage("create target directory", () =>
             FileSystem.makeDirectoryAsync(output, { intermediates: true }),
+          );
+          await runNativeExportStage("apply target protection", () =>
+            appStorage.protectTemporaryFile(output),
+          );
+          await runNativeExportStage(
+            "verify target existence and writability",
+            async () => {
+              const info = await FileSystem.getInfoAsync(output);
+              if (!info.exists || !info.isDirectory) {
+                throw Object.assign(new Error(), {
+                  code: "TARGET_NOT_DIRECTORY",
+                });
+              }
+              const probe = `${output}.write-check`;
+              await FileSystem.writeAsStringAsync(probe, "ok");
+              await appStorage.protectTemporaryFile(probe);
+              await FileSystem.deleteAsync(probe, { idempotent: true });
+            },
           );
           const transparent = await runNativeExportStage(
             "render transparent PNG",
