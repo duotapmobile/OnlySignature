@@ -78,5 +78,20 @@ public final class OnlySignatureStorageModule: Module {
       var values = URLResourceValues(); values.isExcludedFromBackup = true
       var mutable = url; try mutable.setResourceValues(values)
     }
+    AsyncFunction("verifyTemporaryFileProtection") { (uri: String) in
+      guard let url = URL(string: uri), url.isFileURL else { throw NSError(domain: "OnlySignatureStorage", code: 1) }
+      let attributes = try self.fileManager.attributesOfItem(atPath: url.path)
+      guard let protection = attributes[.protectionKey] as? FileProtectionType,
+            protection == FileProtectionType.complete else {
+        throw NSError(domain: "OnlySignatureStorage", code: 2)
+      }
+      let values = try url.resourceValues(forKeys: [.isExcludedFromBackupKey])
+      guard values.isExcludedFromBackup == true else {
+        throw NSError(domain: "OnlySignatureStorage", code: 3)
+      }
+      guard self.fileManager.isReadableFile(atPath: url.path) else {
+        throw NSError(domain: "OnlySignatureStorage", code: 4)
+      }
+    }
   }
 }

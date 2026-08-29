@@ -1,0 +1,117 @@
+{
+  "attempt": 16,
+  "workflowId": "01a04be4-393d-7df6-ba83-1ff4a3172360",
+  "sourceJobId": "01a04be4-3da3-7b4b-aee9-b0ae4d133a73",
+  "simulatorJobId": "01a04be5-2246-7d66-9f93-a1c0f07f325f",
+  "simulatorBuildId": "0e9ff206-e876-48f4-aa98-1aa0ffbf117d",
+  "captureJobId": "01a04bec-6273-7112-bc1f-3a1004140ea2",
+  "artifactId": "01a04bf1-c0d4-74f8-b07d-e282d47b32bc",
+  "sourceRevision": "ab51de2f3fdda4797643ae884553768072821358",
+  "fingerprint": "33893fa675b0e1fa789b5fc2ebd603fead768308",
+  "artifactBytes": 254545019,
+  "artifactSha256": "b69ab5c8de610e39672b11487717c8eded225ac1b1fc53b2e3b2d0c18e810fed",
+  "archiveEntryCount": 1018,
+  "unsafeArchiveEntryCount": 0,
+  "result": "failure-after-eight-iphone-frames-at-native-export-verification",
+  "diagnosticStage": "render transparent PNG",
+  "diagnosticCode": "ERR_FILE_NOT_WRITABLE",
+  "underlyingCauseEstablished": false,
+  "iphoneEvidence": {
+    "count": 8,
+    "width": 1290,
+    "height": 2796,
+    "distinct": true,
+    "alphaMinimum": 255,
+    "alphaMaximum": 255,
+    "visuallyInspectedByExactHashMatchToAttempt15": true
+  },
+  "ipadEvidenceCount": 0,
+  "nativeIapReviewImagePresent": false,
+  "selectedFiles": [
+    {
+      "path": "app-authority.json",
+      "bytes": 288,
+      "sha256": "dbbbe8c9b61c33ac40655f4173f11c88fc8566249583cbe077d0d1791201bfa9"
+    },
+    {
+      "path": "native-export-accessibility-hierarchy.json",
+      "bytes": 43069,
+      "sha256": "702dfc84463c877fcc06b165c7e6f50f920c41c3e0b54e916359dcd0fb5ed918"
+    },
+    {
+      "path": "native-export-frontmost-application.json",
+      "bytes": 449,
+      "sha256": "446d879442eb96d70147ba368f521b942d7cb3896fa6cfadf700a556ddde467b"
+    },
+    {
+      "path": "native-export-maestro-failure.png",
+      "bytes": 105413,
+      "sha256": "49ed27d642c68cf70ad11898e078028a26841607e5dbf53c66f1c58ce28719a1"
+    },
+    {
+      "path": "native-export-openurl.json",
+      "bytes": 261,
+      "sha256": "0373c5fb075bb91a9bc16d51d19c3a2e89c142efc6f09a1bfaec991765a2f8f5"
+    },
+    {
+      "path": "native-export-post-open.png",
+      "bytes": 1558027,
+      "sha256": "54751ef41fcd8a564a90c0193ae956ae55cc01561a756786b8b16ba846a08865"
+    },
+    {
+      "path": "native-export-process-state.json",
+      "bytes": 421,
+      "sha256": "0552cb03e9db67af16227671c4ffb1d02ed34bca4e438449885f37ae375ffb94"
+    },
+    {
+      "path": "native-export-route.json",
+      "bytes": 178,
+      "sha256": "5d559aaddf36f13afab90dcd331b077d8827833a8558baebc4458303f5aa9bb2"
+    },
+    {
+      "path": "native-export-terminate.json",
+      "bytes": 230,
+      "sha256": "f69f51dbeca2ba0390bbde878f97bc1abd8b8a99c2a41c8eeb1b82b02a67b202"
+    },
+    {
+      "path": "raw-iphone/01-signature-initials.png",
+      "bytes": 314464,
+      "sha256": "e955216fb6dc76c1eec4adfb1c0004d89fda6b618464fc046f87dc444c13c775"
+    },
+    {
+      "path": "raw-iphone/02-remove-white-box.png",
+      "bytes": 334345,
+      "sha256": "c192578f9f55bfe8298d67b0124a98cb6bdf0668d0449b9336d14bf42fb2d326"
+    },
+    {
+      "path": "raw-iphone/03-no-editing.png",
+      "bytes": 369877,
+      "sha256": "816f88964b8ec6a14846e915cf045cd03afcd28638ef768bfe33f315f0d2f99b"
+    },
+    {
+      "path": "raw-iphone/04-any-document.png",
+      "bytes": 369321,
+      "sha256": "33ded5d0800ebb85f25bdeaf3b87a8c0dd5645632db554e84dcaa9781dd9c329"
+    },
+    {
+      "path": "raw-iphone/05-no-login.png",
+      "bytes": 300884,
+      "sha256": "e1097046ed5202e44620da8c80d1e4f5ea17e5b6d8507f6dfb0f35551d7123d1"
+    },
+    {
+      "path": "raw-iphone/06-no-upload.png",
+      "bytes": 215367,
+      "sha256": "766b25c9beae4e097d4b723e2bb0d2159c9ea68f2abc2941e796941c16b6377f"
+    },
+    {
+      "path": "raw-iphone/07-formats.png",
+      "bytes": 240983,
+      "sha256": "20abe804e357c603b6a515bfadb62ba706b427305cd51e384a38d61a3f9ca6ee"
+    },
+    {
+      "path": "raw-iphone/08-one-purchase.png",
+      "bytes": 356699,
+      "sha256": "b69885b57125da7c0ec97690a4762d3b46a16ae3207e0eac14f716c4206a235c"
+    }
+  ]
+}

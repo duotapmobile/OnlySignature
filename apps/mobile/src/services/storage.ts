@@ -19,6 +19,7 @@ interface ProtectedStorageModule {
   cleanupTemporaryFiles(): Promise<void>;
   protectedTemporaryDirectory(): Promise<string>;
   protectTemporaryFile(uri: string): Promise<void>;
+  verifyTemporaryFileProtection(uri: string): Promise<void>;
 }
 
 const nativeStorage = OnlySignatureStorage as ProtectedStorageModule | null;
@@ -132,5 +133,10 @@ export const appStorage = {
   async protectTemporaryFile(uri: string): Promise<void> {
     const storage = requireProtectedStorage();
     if (storage) await storage.protectTemporaryFile(uri);
+  },
+
+  async verifyTemporaryFileProtection(uri: string): Promise<void> {
+    const storage = requireProtectedStorage();
+    if (storage) await storage.verifyTemporaryFileProtection(uri);
   },
 };

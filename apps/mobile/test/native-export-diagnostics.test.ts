@@ -12,20 +12,23 @@ test("native export diagnostics identify the failed operation without leaking th
   let observed: unknown;
 
   try {
-    await runNativeExportStage("render transparent PNG", async () => {
-      throw {
-        domain: "NSCocoaErrorDomain",
-        code: 4,
-        message: sensitiveCause,
-        userInfo: {
-          NSUnderlyingError: {
-            domain: "NSPOSIXErrorDomain",
-            code: 2,
-            message: sensitiveCause,
+    await runNativeExportStage(
+      "move/copy captured file to protected Caches target",
+      async () => {
+        throw {
+          domain: "NSCocoaErrorDomain",
+          code: 4,
+          message: sensitiveCause,
+          userInfo: {
+            NSUnderlyingError: {
+              domain: "NSPOSIXErrorDomain",
+              code: 2,
+              message: sensitiveCause,
+            },
           },
-        },
-      };
-    });
+        };
+      },
+    );
   } catch (error) {
     observed = error;
   }
@@ -33,7 +36,7 @@ test("native export diagnostics identify the failed operation without leaking th
   const status = nativeExportStatusForError(observed);
   assert.equal(
     status,
-    `${nativeExportFailurePrefix}: render transparent PNG [domain=NSCocoaErrorDomain code=4 posix=2]`,
+    `${nativeExportFailurePrefix}: move/copy captured file to protected Caches target [domain=NSCocoaErrorDomain code=4 posix=2]`,
   );
   assert.doesNotMatch(status, new RegExp(sensitiveCause));
 });
@@ -63,7 +66,7 @@ test("native export diagnostics fail closed on unclassified errors", () => {
   );
 });
 
-test("native export fixture narrows reset stages without changing production export services", () => {
+test("native export fixture narrows reset and transparent-render stages without changing production behavior", () => {
   const source = readFileSync(
     new URL("../src/app/native-export-test.tsx", import.meta.url),
     "utf8",
@@ -90,4 +93,61 @@ test("native export fixture narrows reset stages without changing production exp
   assert.match(source, /protectTemporaryFile\(output\)/);
   assert.match(source, /writeAsStringAsync\(probe, "ok"\)/);
   assert.doesNotMatch(source, /reset verification directory/);
+
+  const transparentStages = [
+    "resolve/capture view reference",
+    "invoke captureRef",
+    "validate/normalize returned source URI",
+    "verify source existence/readability",
+    "prepare/remove destination",
+    "move/copy captured file to protected Caches target",
+    "apply Complete Protection",
+    "apply/verify backup exclusion",
+    "verify final target existence/readability",
+  ];
+  for (const stage of transparentStages) {
+    const next = source.indexOf(`"${stage}"`);
+    assert.ok(next > offset, `${stage} must follow the preceding stage`);
+    offset = next;
+  }
+  assert.match(source, /captureRef\(captureTarget/);
+  assert.match(source, /value\.startsWith\("file:\/\/"\)/);
+  assert.match(source, /FileSystem\.getInfoAsync\(capturedSource!/);
+  assert.match(source, /FileSystem\.moveAsync\(\{/);
+  assert.match(source, /protectTemporaryFile\(transparentDestination\)/);
+  assert.match(
+    source,
+    /verifyTemporaryFileProtection\([\s\S]*transparentDestination/,
+  );
+  assert.doesNotMatch(source, /render transparent PNG/);
+});
+
+test("fixture-only protection verifier reads back Complete Protection and backup exclusion", () => {
+  const nativeSource = readFileSync(
+    new URL(
+      "../modules/only-signature-native/ios/OnlySignatureStorageModule.swift",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  const storageSource = readFileSync(
+    new URL("../src/services/storage.ts", import.meta.url),
+    "utf8",
+  );
+  assert.match(
+    nativeSource,
+    /AsyncFunction\("verifyTemporaryFileProtection"\)/,
+  );
+  assert.match(nativeSource, /attributesOfItem\(atPath: url\.path\)/);
+  assert.match(nativeSource, /FileProtectionType\.complete/);
+  assert.match(
+    nativeSource,
+    /resourceValues\(forKeys: \[\.isExcludedFromBackupKey\]\)/,
+  );
+  assert.match(nativeSource, /values\.isExcludedFromBackup == true/);
+  assert.match(nativeSource, /isReadableFile\(atPath: url\.path\)/);
+  assert.match(
+    storageSource,
+    /async verifyTemporaryFileProtection\(uri: string\): Promise<void>/,
+  );
 });
