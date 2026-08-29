@@ -98,3 +98,8 @@ export const formatLabel: Record<ExportFormat, string> = {
   "png-white": "PNG, White Background",
   "jpeg-white": "JPEG, White Background",
 };
+
+export const formatControlAccessibilityLabel = (
+  label: string,
+  format: ExportFormat,
+): string => `${label} format. ${formatLabel[format]}`;

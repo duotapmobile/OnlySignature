@@ -8,6 +8,7 @@ import {
   screenshotDeepLink,
 } from "../../scripts/native-screenshot-flow.mjs";
 import { documentComparisonAccessibilityLabel } from "../../apps/mobile/src/domain/documentComparison";
+import { formatControlAccessibilityLabel } from "../../apps/mobile/src/domain/models";
 import { privacyFixtureCopy } from "../../packages/content/src/copy/index";
 
 describe("native screenshot deep-link readiness", () => {
@@ -113,6 +114,36 @@ describe("native screenshot deep-link readiness", () => {
     expect(buildScreenshotMaestroFlow(privacy)).toContain(
       `- assertVisible: ${JSON.stringify(privacyFixtureCopy.operatorStatement)}`,
     );
+  });
+
+  it("asserts purchased formats through the combined accessible control labels", () => {
+    const manifest = JSON.parse(
+      readFileSync("store-assets/screenshots/manifest.json", "utf8"),
+    );
+    const formats = manifest.screenshots.find(
+      (candidate: { id: string }) => candidate.id === "07-formats",
+    );
+    const signatureLabel = formatControlAccessibilityLabel(
+      "Signature",
+      "png-transparent",
+    );
+    const initialsLabel = formatControlAccessibilityLabel(
+      "Initials",
+      "png-transparent",
+    );
+
+    expect(formats.assertions).toEqual([
+      "Thanks for your purchase",
+      "Choose your export format.",
+      signatureLabel,
+      initialsLabel,
+    ]);
+    const flow = buildScreenshotMaestroFlow(formats);
+    expect(flow).toContain(
+      `- assertVisible: ${JSON.stringify(signatureLabel)}`,
+    );
+    expect(flow).toContain(`- assertVisible: ${JSON.stringify(initialsLabel)}`);
+    expect(flow).not.toContain('- assertVisible: "PNG, Transparent"');
   });
 
   it("uses the cold-launch plan before Maestro for screenshots and export", () => {

@@ -1,0 +1,14 @@
+{
+  "command": "xcrun",
+  "args": [
+    "simctl",
+    "openurl",
+    "F6984752-8756-4671-8F4D-754F959F4BE8",
+    "onlysignature:///export?fixture=purchased"
+  ],
+  "status": 0,
+  "signal": null,
+  "error": null,
+  "stdout": "",
+  "stderr": ""
+}
