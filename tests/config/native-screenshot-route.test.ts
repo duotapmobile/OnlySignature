@@ -8,6 +8,7 @@ import {
   screenshotDeepLink,
 } from "../../scripts/native-screenshot-flow.mjs";
 import { documentComparisonAccessibilityLabel } from "../../apps/mobile/src/domain/documentComparison";
+import { privacyFixtureCopy } from "../../packages/content/src/copy/index";
 
 describe("native screenshot deep-link readiness", () => {
   const shot = {
@@ -95,6 +96,23 @@ describe("native screenshot deep-link readiness", () => {
     );
     expect(flow).not.toContain('- assertVisible: "White Background"');
     expect(flow).not.toContain('- assertVisible: "Professional Export"');
+  });
+
+  it("asserts the exact centralized privacy sentence including punctuation", () => {
+    const manifest = JSON.parse(
+      readFileSync("store-assets/screenshots/manifest.json", "utf8"),
+    );
+    const privacy = manifest.screenshots.find(
+      (candidate: { id: string }) => candidate.id === "06-no-upload",
+    );
+
+    expect(privacy.assertions).toEqual([
+      "Privacy Policy",
+      privacyFixtureCopy.operatorStatement,
+    ]);
+    expect(buildScreenshotMaestroFlow(privacy)).toContain(
+      `- assertVisible: ${JSON.stringify(privacyFixtureCopy.operatorStatement)}`,
+    );
   });
 
   it("uses the cold-launch plan before Maestro for screenshots and export", () => {

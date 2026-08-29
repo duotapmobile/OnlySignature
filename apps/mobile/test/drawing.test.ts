@@ -20,6 +20,24 @@ test("smooth path retains stroke endpoints and uses vector curves", () => {
   assert.match(path, / L /);
 });
 
+test("marketing fixtures use multi-stroke fictional handwriting rather than abstract marks", () => {
+  const initials = screenshotFixtureSet.initials!;
+  assert.ok(asset.strokes.length >= 3);
+  assert.ok(initials.strokes.length >= 3);
+  assert.ok(asset.strokes[0]!.points.length >= 20);
+  assert.match(asset.finalizedHash!, /cursive-v2$/);
+  assert.match(initials.finalizedHash!, /cursive-v2$/);
+  for (const stroke of [...asset.strokes, ...initials.strokes]) {
+    if (stroke.points.length !== 2) continue;
+    const [start, end] = stroke.points;
+    assert.ok(
+      Math.abs(end!.x - start!.x) < asset.canvasWidth * 0.6 ||
+        Math.abs(end!.y - start!.y) > 10,
+      "fixture must not contain a long straight underline",
+    );
+  }
+});
+
 test("export bounds are tight with proportional padding", () => {
   const bounds = drawingBounds(asset)!;
   const [x, y, width, height] = paddedViewBox(asset).split(" ").map(Number);

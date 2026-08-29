@@ -15,13 +15,14 @@ export default function PrivacyScreen() {
     return (
       <InfoPage title="Privacy Policy">
         <View style={styles.fixtureCard}>
-          <Text style={styles.fixtureHeading}>Created on your device</Text>
+          <Text style={styles.fixtureHeading}>
+            {sharedCopy.privacyFixtureCopy.heading}
+          </Text>
           <Text style={styles.fixtureStatement}>
-            The operator does not receive your signature or initials content.
+            {sharedCopy.privacyFixtureCopy.operatorStatement}
           </Text>
           <Text style={styles.fixtureDetail}>
-            Only Signature does not ask you to upload a document, create an
-            account, or send your drawing to a developer-controlled server.
+            {sharedCopy.privacyFixtureCopy.detail}
           </Text>
         </View>
       </InfoPage>

@@ -28,6 +28,8 @@ apps/mobile/assets/images/
 artifacts/chrome-*/
 artifacts/native-screenshot-diagnostics/attempt-9-cloud/attempt-9-artifacts.tar.gz
 artifacts/native-screenshot-diagnostics/attempt-9-cloud/extracted/
+artifacts/native-screenshot-diagnostics/attempt-10-cloud/attempt-10-artifacts.tar.gz
+artifacts/native-screenshot-diagnostics/attempt-10-cloud/extracted/
 test-results/
 playwright-report/
 .DS_Store

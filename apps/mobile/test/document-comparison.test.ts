@@ -6,9 +6,10 @@ import {
 } from "../src/domain/documentComparison";
 
 test("document comparison stacks for narrow windows and large Dynamic Type", () => {
-  assert.equal(shouldStackDocumentComparison(699, 1), true);
-  assert.equal(shouldStackDocumentComparison(900, 1.3), true);
-  assert.equal(shouldStackDocumentComparison(900, 1), false);
+  assert.equal(shouldStackDocumentComparison(430, 1), false);
+  assert.equal(shouldStackDocumentComparison(320, 1), true);
+  assert.equal(shouldStackDocumentComparison(430, 1.3), true);
+  assert.equal(shouldStackDocumentComparison(1024, 1), false);
 });
 
 test("document comparison semantics describe one fixture and both treatments", () => {

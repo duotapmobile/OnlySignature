@@ -127,12 +127,12 @@ const styles = StyleSheet.create({
   },
   signaturePlacement: {
     position: "absolute",
-    left: 16,
-    right: 9,
-    bottom: 20,
-    height: 72,
+    left: 10,
+    right: 5,
+    bottom: 18,
+    height: 48,
     zIndex: 2,
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
   },
   whiteBox: {
     backgroundColor: "#FFFFFF",
@@ -140,5 +140,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 2,
   },
-  drawing: { height: "100%" },
+  drawing: { height: "100%", minHeight: 0, minWidth: 0 },
 });

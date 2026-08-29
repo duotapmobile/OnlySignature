@@ -20,7 +20,7 @@ appId: com.duotap.onlysignature
 - assertVisible: "No login. No subscription."
 - takeScreenshot: "05-no-login"
 - openLink: "onlysignature:///privacy?fixture=privacy"
-- assertVisible: "The operator does not receive your signature or initials content"
+- assertVisible: "The operator does not receive your signature or initials content."
 - takeScreenshot: "06-no-upload"
 - openLink: "onlysignature:///export?fixture=purchased"
 - assertVisible: "Choose your export format."

@@ -1,0 +1,59 @@
+{
+  "workflowId": "01a04afb-04f5-76b0-93dc-5306be58f02b",
+  "sourceRevision": "0d96fe0b23c24148d9f6e76a1164c581d36d92f2",
+  "sourceJobId": "01a04afb-089f-7a6f-93b7-af1ae330fd39",
+  "simulatorJobId": "01a04afb-f11b-7dd7-bb01-7e0e11d1d80a",
+  "simulatorBuildId": "ab472c58-5ee2-40e4-8bc2-111a79c1aea4",
+  "simulatorFingerprint": "be333d6aba4fc064650c5ae614d4fc36dc78606f",
+  "captureJobId": "01a04b02-eef3-7ab6-9d03-854908a817e9",
+  "artifactId": "01a04b06-df9a-7219-ad10-ddd575369690",
+  "artifactSizeBytes": 174552662,
+  "artifactSha256": "e3b57a16ec97de845cb1f167e55c42de4e3cf47dd3ef187e68b9c32c737d8f0d",
+  "result": "failure-after-five-iphone-frames",
+  "demonstratedCause": "The Privacy Policy fixture rendered correctly, but Maestro asserted the operator statement without its final period while the implemented centralized copy includes that period.",
+  "nativeVisualAudit": {
+    "framesReviewed": [
+      "01-signature-initials",
+      "02-remove-white-box",
+      "03-no-editing",
+      "04-any-document",
+      "05-no-login"
+    ],
+    "blockingCorrections": [
+      "Show both complete white-background and transparent documents at equal scale above the fold on a standard 430-point iPhone.",
+      "Replace the abstract wave-and-underline fixture with original fictional cursive handwriting and recognizable initials."
+    ],
+    "disposition": "Both corrections are implemented locally and must pass the next native capture before production is considered."
+  },
+  "productionTestFlightDispatched": false,
+  "originalArchiveTracked": false,
+  "originalArchiveRetention": "Preserved locally at attempt-10-artifacts.tar.gz; excluded from Git because it is 174,552,662 bytes.",
+  "selectedEvidence": [
+    "selected/app-authority.json",
+    "selected/privacy-accessibility-hierarchy.json",
+    "selected/privacy-maestro-commands.json",
+    "selected/privacy-maestro-failure.png",
+    "selected/privacy-openurl.json",
+    "selected/privacy-post-open.png",
+    "selected/privacy-route.json",
+    "selected/raw-iphone/01-signature-initials.png",
+    "selected/raw-iphone/02-remove-white-box.png",
+    "selected/raw-iphone/03-no-editing.png",
+    "selected/raw-iphone/04-any-document.png",
+    "selected/raw-iphone/05-no-login.png"
+  ],
+  "selectedEvidenceSha256": {
+    "selected/app-authority.json": "65cc821b00b245781e5f1c8408d61d056be06229c68a341d3f56b1b3d70e11ca",
+    "selected/privacy-accessibility-hierarchy.json": "f24413094cac21a024a248e6ad021b666e0c60509ae442df0d0f55c619808559",
+    "selected/privacy-maestro-commands.json": "453c537c1d86fabfaf9ad5e3424f9409ffeda412586646b4f29ec73ca84806c0",
+    "selected/privacy-maestro-failure.png": "32f605ad7c4cca3bdb32e8da15beeb6870d5d61d621fd7e1a23a28cabf493335",
+    "selected/privacy-openurl.json": "3a23d3dcb7f0fb77b4fdf06c27d290b7c1d674b0ebd5e00037939d00eeb4912a",
+    "selected/privacy-post-open.png": "9f1f1fa2c7b6ae3e5c7755910cbb12718d0702480b020bb888088dc7063486fe",
+    "selected/privacy-route.json": "0a91bef965ec467c46795e0402da6464e9cd47b1216ab1d25c511e800acb02a4",
+    "selected/raw-iphone/01-signature-initials.png": "237a452a6dfd07c1d4d96c827b431f665fd25d0d316490d14d8e6a23a0f6db38",
+    "selected/raw-iphone/02-remove-white-box.png": "fca70da242e7cb00ef625125da2fabbd32e38694f0c45780d15ded8d82d52903",
+    "selected/raw-iphone/03-no-editing.png": "7f36a81d337d0ab6a173d0edbdb300b20fd7fefe6437d7c109ccab6f6041c015",
+    "selected/raw-iphone/04-any-document.png": "554be8bdd86ea83e9bca66ac879461b1b5ebf7085fe55b20aad8b67702e36920",
+    "selected/raw-iphone/05-no-login.png": "e1097046ed5202e44620da8c80d1e4f5ea17e5b6d8507f6dfb0f35551d7123d1"
+  }
+}

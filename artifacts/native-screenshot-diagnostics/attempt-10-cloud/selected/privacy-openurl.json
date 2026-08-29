@@ -1,0 +1,14 @@
+{
+  "command": "xcrun",
+  "args": [
+    "simctl",
+    "openurl",
+    "89330F82-D91F-44F4-90C2-2799E0FAE20A",
+    "onlysignature:///privacy?fixture=privacy"
+  ],
+  "status": 0,
+  "signal": null,
+  "error": null,
+  "stdout": "",
+  "stderr": ""
+}
