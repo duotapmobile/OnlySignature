@@ -19,7 +19,8 @@ public final class OnlySignatureStorageModule: Module {
   private func backupStateURL() throws -> URL { try appSupportDirectory().appendingPathComponent("state.previous.json") }
 
   private func exportDirectory() throws -> URL {
-    let directory = fileManager.temporaryDirectory.appendingPathComponent("OnlySignatureExports", isDirectory: true)
+    let base = try fileManager.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+    let directory = base.appendingPathComponent("OnlySignatureExports", isDirectory: true)
     try fileManager.createDirectory(at: directory, withIntermediateDirectories: true, attributes: [.protectionKey: FileProtectionType.complete])
     try fileManager.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: directory.path)
     var values = URLResourceValues()
