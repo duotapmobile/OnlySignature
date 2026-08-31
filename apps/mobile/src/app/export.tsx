@@ -4,6 +4,7 @@ import { useAppState } from "@/state/AppStateProvider";
 
 export default function PaidExportScreen() {
   const { activeSet } = useAppState();
-  if (activeSet.status !== "purchased") return <Redirect href="/purchase" />;
+  if (activeSet.status !== "purchased" || activeSet.transactionFinishPending)
+    return <Redirect href="/purchase" />;
   return <ExportFlow purchased />;
 }

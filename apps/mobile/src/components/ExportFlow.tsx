@@ -4,16 +4,15 @@ import { router } from "expo-router";
 import { ExportSurface } from "./ExportSurface";
 import { FormatDropdown } from "./FormatDropdown";
 import {
-  BackLink,
-  Body,
-  GlassCard,
-  Heading,
-  PrimaryButton,
-  Screen,
-  SecondaryButton,
-} from "./ui";
+  FlowBackButton,
+  FlowBody,
+  FlowHeading,
+  FlowPrimaryButton,
+  FlowScreen,
+  FlowTextButton,
+  flowColors,
+} from "./flow-ui";
 import { hasDrawing, type AssetKind, type ExportFormat } from "@/domain/models";
-import { theme } from "@/integrations/workspace";
 import {
   generateExport,
   cleanupGeneratedFiles,
@@ -123,12 +122,18 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
 
   const formats = purchased ? paidFormats : freeFormats;
   return (
-    <Screen testID={purchased ? "paid-export-screen" : "free-export-screen"}>
-      <Heading>
-        {purchased ? "Thanks for your purchase" : "White Background Export"}
-      </Heading>
-      <Body>Choose your export format.</Body>
-      <GlassCard style={styles.controls}>
+    <FlowScreen
+      contentStyle={styles.content}
+      testID={purchased ? "paid-export-screen" : "free-export-screen"}
+    >
+      <View style={styles.back}>
+        <FlowBackButton onPress={() => router.back()} />
+      </View>
+      <FlowHeading>
+        {purchased ? "Export Transparent Set" : "White Background Export"}
+      </FlowHeading>
+      <FlowBody style={styles.intro}>Choose your export format.</FlowBody>
+      <View style={[styles.card, styles.controls]}>
         {hasDrawing(activeSet.signature) ? (
           <FormatDropdown
             label="Signature"
@@ -148,22 +153,25 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
         {purchased &&
         activeSet.unclaimedSlot &&
         !activeSet.transactionFinishPending ? (
-          <SecondaryButton
+          <FlowTextButton
             label={`Add ${activeSet.unclaimedSlot === "initials" ? "Initials" : "Signature"}, Included`}
             onPress={() => {
               setSelectedAsset(activeSet.unclaimedSlot!);
-              router.push("/draw");
+              router.push({
+                pathname: "/draw",
+                params: { returnTo: "export" },
+              });
             }}
           />
         ) : null}
-      </GlassCard>
+      </View>
       {error ? (
         <Text accessibilityRole="alert" style={styles.error}>
           {error}
         </Text>
       ) : null}
       {generated.length === 0 ? (
-        <PrimaryButton
+        <FlowPrimaryButton
           label={busy ? "Preparing…" : "Export"}
           disabled={busy || assetCount === 0}
           onPress={() => {
@@ -171,7 +179,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
           }}
         />
       ) : (
-        <GlassCard style={styles.destinations}>
+        <View style={[styles.card, styles.destinations]}>
           <Text accessibilityRole="header" style={styles.destinationTitle}>
             Choose where to save
           </Text>
@@ -184,7 +192,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
               <Text style={styles.fileTitle}>
                 {file.kind === "signature" ? "Signature" : "Initials"}
               </Text>
-              <PrimaryButton
+              <FlowPrimaryButton
                 label="Share / Save to Files"
                 onPress={() => {
                   void completeDestination(file);
@@ -193,7 +201,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
               />
               {sharedKinds.includes(file.kind) &&
               !confirmedKinds.includes(file.kind) ? (
-                <SecondaryButton
+                <FlowTextButton
                   label={`I Saved ${file.kind === "signature" ? "Signature" : "Initials"}`}
                   onPress={() =>
                     setConfirmedKinds((current) =>
@@ -210,15 +218,15 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
               ) : null}
             </View>
           ))}
-        </GlassCard>
+        </View>
       )}
       {everyGeneratedFileConfirmed(generated, confirmedKinds) ? (
-        <GlassCard>
+        <View style={[styles.card, styles.completion]}>
           <Text accessibilityRole="alert" style={styles.shareStatus}>
             You confirmed every prepared file. Only Signature cannot inspect the
             destination you selected.
           </Text>
-          <PrimaryButton
+          <FlowPrimaryButton
             label="Continue"
             onPress={() => {
               recordExport();
@@ -228,14 +236,17 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
               });
             }}
           />
-          <SecondaryButton
+          <FlowTextButton
             label="Done"
-            onPress={() => router.replace("/saved")}
+            onPress={() => {
+              recordExport();
+              router.replace("/saved");
+            }}
           />
-        </GlassCard>
+        </View>
       ) : null}
       {purchased ? (
-        <SecondaryButton
+        <FlowTextButton
           label="Create New"
           onPress={() => {
             if (createNew()) router.replace("/draw");
@@ -243,7 +254,6 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
           disabled={busy}
         />
       ) : null}
-      <BackLink onPress={() => router.back()} />
       {hasDrawing(activeSet.signature) ? (
         <ExportSurface
           ref={signatureRef}
@@ -258,30 +268,51 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
           white={initialsFormat !== "png-transparent"}
         />
       ) : null}
-    </Screen>
+    </FlowScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  controls: { gap: 22 },
-  error: { color: "#FFE0DB", fontSize: 17, lineHeight: 24, fontWeight: "700" },
+  content: { paddingTop: 28, gap: 16 },
+  back: { height: 32, alignSelf: "flex-start" },
+  intro: { marginTop: -8 },
+  card: {
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#D6E0E3",
+    backgroundColor: flowColors.card,
+    padding: 16,
+  },
+  controls: { gap: 18 },
+  error: {
+    color: "#FFD8D2",
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: "700",
+  },
   destinations: { gap: 14 },
+  completion: { gap: 12 },
   destinationTitle: {
-    color: theme.colors.text,
-    fontSize: 23,
+    color: flowColors.cardText,
+    fontSize: 20,
+    lineHeight: 25,
     fontWeight: "800",
   },
-  destinationHint: { color: theme.colors.muted, fontSize: 16, lineHeight: 23 },
+  destinationHint: {
+    color: flowColors.cardMuted,
+    fontSize: 14,
+    lineHeight: 20,
+  },
   shareStatus: {
-    color: theme.colors.text,
-    fontSize: 17,
-    lineHeight: 24,
+    color: flowColors.cardText,
+    fontSize: 14,
+    lineHeight: 20,
     fontWeight: "600",
   },
   confirmed: {
-    color: theme.colors.success,
-    fontSize: 16,
-    lineHeight: 23,
+    color: flowColors.accessibleLink,
+    fontSize: 14,
+    lineHeight: 20,
     fontWeight: "700",
   },
   file: {
@@ -290,5 +321,5 @@ const styles = StyleSheet.create({
     borderTopColor: "#D6E0E3",
     paddingTop: 14,
   },
-  fileTitle: { color: theme.colors.text, fontSize: 19, fontWeight: "800" },
+  fileTitle: { color: flowColors.cardText, fontSize: 16, fontWeight: "800" },
 });

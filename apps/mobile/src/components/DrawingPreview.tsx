@@ -7,17 +7,22 @@ import { theme } from "@/integrations/workspace";
 export function DrawingPreview({
   asset,
   color = "#102733",
+  accessibilityLabel,
   style,
 }: {
   asset: DrawingAsset;
   color?: string;
+  accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
 }) {
   return (
     <View
       accessible
       accessibilityRole="image"
-      accessibilityLabel={`${asset.kind === "signature" ? "Signature" : "Initials"} preview`}
+      accessibilityLabel={
+        accessibilityLabel ??
+        `${asset.kind === "signature" ? "Signature" : "Initials"} preview`
+      }
       style={[styles.container, style]}
     >
       <Svg

@@ -47,7 +47,7 @@ export function FormatDropdown({
               <Pressable
                 key={format}
                 accessibilityRole="radio"
-                accessibilityState={{ selected: format === value }}
+                accessibilityState={{ checked: format === value }}
                 onPress={() => {
                   onChange(format);
                   setOpen(false);

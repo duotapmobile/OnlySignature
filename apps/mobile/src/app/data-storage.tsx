@@ -1,7 +1,7 @@
 import { Alert } from "react-native";
 import { router } from "expo-router";
 import { InfoPage, Section } from "@/components/InfoPage";
-import { SecondaryButton } from "@/components/ui";
+import { FlowTextButton } from "@/components/flow-ui";
 import { useAppState } from "@/state/AppStateProvider";
 
 export default function DataStorageScreen() {
@@ -48,11 +48,7 @@ export default function DataStorageScreen() {
         The app removes its local files, but does not claim secure erasure from
         flash storage.
       </Section>
-      <SecondaryButton
-        label="Delete All Saved Signatures"
-        destructive
-        onPress={remove}
-      />
+      <FlowTextButton label="Delete All Saved Signatures" onPress={remove} />
     </InfoPage>
   );
 }

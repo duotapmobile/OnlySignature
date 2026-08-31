@@ -265,6 +265,10 @@ export function AppStateProvider({ children }: PropsWithChildren) {
         ...initialData,
         hydrated: true,
         activeSetId: set.id,
+        selectedAsset:
+          fixture === "initials"
+            ? ("initials" as const)
+            : ("signature" as const),
         sets: [set],
       };
       dataRef.current = next;

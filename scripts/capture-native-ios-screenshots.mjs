@@ -152,9 +152,17 @@ if (
 )
   fail("The simulator app release-authority stamp is invalid.");
 
-const manifest = JSON.parse(
-  await readFile("store-assets/screenshots/manifest.json", "utf8"),
-);
+const manifestPath =
+  process.env.SCREENSHOT_MANIFEST_PATH ??
+  "store-assets/screenshots/manifest.json";
+if (
+  ![
+    "store-assets/screenshots/manifest.json",
+    "apps/mobile/e2e/native-actual-flow-manifest.json",
+  ].includes(manifestPath)
+)
+  fail("The screenshot manifest path is not allowlisted.");
+const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
 const expected = manifest.outputs[device];
 const requestedModel =
   device === "iphone" ? "iPhone 15 Pro Max" : "iPad Pro 13-inch (M4)";

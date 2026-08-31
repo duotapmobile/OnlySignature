@@ -1,162 +1,127 @@
-import { useEffect, useState } from "react";
-import {
-  Alert,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { useEffect } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import * as StoreReview from "expo-store-review";
 import { DrawingPreview } from "@/components/DrawingPreview";
 import {
-  GlassCard,
-  Heading,
-  PrimaryButton,
-  Screen,
-  SecondaryButton,
-} from "@/components/ui";
+  FlowHeading,
+  FlowPrimaryButton,
+  FlowScreen,
+  flowColors,
+} from "@/components/flow-ui";
 import { hasDrawing, type SignatureSet } from "@/domain/models";
-import { theme } from "@/integrations/workspace";
 import { useAppState } from "@/state/AppStateProvider";
 
-function SetCard({ item, onRename }: { item: SignatureSet; onRename(): void }) {
-  const { selectSet, setSelectedAsset, duplicateSet, deleteSet } =
-    useAppState();
-  const purchaseRecovery = Boolean(
-    item.pendingPurchaseId || item.transactionFinishPending,
-  );
-  const displayName = item.label || "Signature Set";
-  const includedName =
-    item.unclaimedSlot === "initials" ? "Initials" : "Signature";
-  const open = () => {
-    selectSet(item.id);
-    router.push(
-      purchaseRecovery
-        ? "/purchase"
-        : item.status === "purchased"
-          ? "/export"
-          : "/draw",
-    );
-  };
-  const remove = () =>
-    Alert.alert(
-      "Delete this local set?",
-      `${displayName} will be removed from Only Signature. Files you already exported are not deleted.${item.status === "purchased" ? " The consumed purchase cannot restore this artwork after deletion." : ""}`,
-      [
-        { text: "Keep Set", style: "cancel" },
-        {
-          text: "Delete Local Set",
-          style: "destructive",
-          onPress: () => deleteSet(item.id),
-        },
-      ],
-    );
+function MiniButton({ label, onPress }: { label: string; onPress(): void }) {
   return (
-    <GlassCard style={styles.card}>
-      <View style={styles.cardHeader}>
-        <View style={styles.cardTitleGroup}>
-          <Text style={styles.title}>{displayName}</Text>
-          <Text style={styles.status}>
-            {purchaseRecovery
-              ? "Purchase pending — do not purchase again"
-              : item.status === "purchased"
-                ? "Transparent export purchased"
-                : "Draft"}
-          </Text>
-          {item.unclaimedSlot ? (
-            <Text style={styles.included}>
-              {item.transactionFinishPending
-                ? `${includedName} included — available after Apple finishes processing`
-                : `${includedName} included — add anytime`}
-            </Text>
-          ) : null}
-        </View>
-      </View>
-      <View style={styles.thumbnails}>
-        {hasDrawing(item.signature) ? (
-          <View style={styles.thumb}>
-            <Text style={styles.thumbLabel}>Signature</Text>
-            <DrawingPreview asset={item.signature} />
-          </View>
-        ) : null}
-        {hasDrawing(item.initials) ? (
-          <View style={styles.thumb}>
-            <Text style={styles.thumbLabel}>Initials</Text>
-            <DrawingPreview asset={item.initials} />
-          </View>
-        ) : null}
-      </View>
-      <PrimaryButton
-        label={
-          purchaseRecovery
-            ? "View Purchase Status"
-            : item.status === "purchased"
-              ? "Export"
-              : "Continue Drawing"
-        }
-        onPress={open}
-      />
-      {item.unclaimedSlot && !item.transactionFinishPending ? (
-        <SecondaryButton
-          label={`Fill Included ${item.unclaimedSlot === "initials" ? "Initials" : "Signature"}`}
-          onPress={() => {
-            selectSet(item.id);
-            setSelectedAsset(item.unclaimedSlot!);
-            router.push("/draw");
-          }}
-        />
-      ) : null}
-      <View style={styles.cardActions}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Rename ${displayName}`}
-          onPress={onRename}
-          style={styles.textAction}
-        >
-          <Text style={styles.textActionLabel}>Rename</Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Duplicate ${displayName} as New Draft`}
-          onPress={() => {
-            if (duplicateSet(item.id)) router.push("/draw");
-          }}
-          style={styles.textAction}
-        >
-          <Text style={styles.textActionLabel}>Duplicate as New Draft</Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Delete ${displayName} from this device`}
-          onPress={remove}
-          style={styles.textAction}
-        >
-          <Text style={styles.deleteLabel}>Delete Local Set</Text>
-        </Pressable>
-      </View>
-      {item.status === "purchased" ? (
-        <Text style={styles.explain}>
-          Your original stays saved. Transparent export of a changed duplicate
-          requires a new purchase.
-        </Text>
-      ) : null}
-    </GlassCard>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      style={({ pressed }) => [styles.miniButton, pressed && styles.pressed]}
+    >
+      <Text style={styles.miniButtonText}>{label}</Text>
+    </Pressable>
   );
 }
 
-export default function SavedScreen() {
-  const { data, createNew, renameSet, markReviewPrompted } = useAppState();
-  const [renaming, setRenaming] = useState<SignatureSet | null>(null);
-  const [label, setLabel] = useState("");
+function SigningSetCard({ item }: { item: SignatureSet }) {
+  const { selectSet, setSelectedAsset } = useAppState();
+  const signatureExists = hasDrawing(item.signature);
+  const initialsExists = hasDrawing(item.initials);
+  const purchaseLocked =
+    Boolean(item.pendingPurchaseId) || item.transactionFinishPending;
+  const transparent = item.status === "purchased" && !purchaseLocked;
+  const title = item.label.trim() || "Signing Set";
+
+  const select = () => selectSet(item.id);
+
+  return (
+    <View style={styles.card}>
+      <View style={styles.cardTop}>
+        <View style={styles.signatureSlot}>
+          {signatureExists && item.signature ? (
+            <DrawingPreview asset={item.signature} style={styles.signature} />
+          ) : (
+            <Text style={styles.empty}>—</Text>
+          )}
+        </View>
+        <View style={styles.initialsSlot}>
+          {initialsExists && item.initials ? (
+            <DrawingPreview asset={item.initials} style={styles.initials} />
+          ) : (
+            <Text style={styles.empty}>—</Text>
+          )}
+        </View>
+      </View>
+      <View style={styles.cardMeta}>
+        <View
+          accessible
+          accessibilityLabel={`${title}. ${purchaseLocked ? "Apple purchase finishing" : transparent ? "Transparent" : "White Background"}${initialsExists ? "" : ". Initials not added"}`}
+          style={styles.metaCopy}
+        >
+          <Text selectable numberOfLines={1} style={styles.setName}>
+            {title}
+          </Text>
+          <Text selectable numberOfLines={1} style={styles.setStatus}>
+            {purchaseLocked
+              ? "Apple purchase finishing"
+              : transparent
+                ? "Transparent"
+                : "White Background"}
+            {initialsExists ? "" : " · Initials not added"}
+          </Text>
+        </View>
+        <View style={styles.cardActions}>
+          {!initialsExists && !purchaseLocked ? (
+            <MiniButton
+              label="Add Initials"
+              onPress={() => {
+                select();
+                setSelectedAsset("initials");
+                router.push({
+                  pathname: "/draw",
+                  params: { returnTo: "saved" },
+                });
+              }}
+            />
+          ) : null}
+          {(signatureExists || initialsExists) && !purchaseLocked ? (
+            <MiniButton
+              label="Export"
+              onPress={() => {
+                select();
+                router.push(
+                  (transparent ? "/export" : "/white-export") as never,
+                );
+              }}
+            />
+          ) : null}
+          {item.status === "draft" && !purchaseLocked && signatureExists ? (
+            <MiniButton
+              label="Unlock"
+              onPress={() => {
+                select();
+                router.push("/purchase");
+              }}
+            />
+          ) : null}
+        </View>
+      </View>
+    </View>
+  );
+}
+
+export default function SavedSetsScreen() {
+  const { data, createNew, setSelectedAsset, markReviewPrompted } =
+    useAppState();
   const visible = data.sets.filter(
     (set) =>
       hasDrawing(set.signature) ||
       hasDrawing(set.initials) ||
       set.status === "purchased",
   );
+
   useEffect(() => {
     if (data.reviewPrompted || !data.sets.some((set) => set.exportCount >= 2))
       return;
@@ -169,165 +134,136 @@ export default function SavedScreen() {
     }, 1500);
     return () => clearTimeout(timer);
   }, [data.reviewPrompted, data.sets, markReviewPrompted]);
+
   return (
-    <Screen testID="saved-screen">
-      <View style={styles.top}>
-        <Heading>Saved</Heading>
+    <FlowScreen contentStyle={styles.content} testID="saved-sets-screen">
+      <View style={styles.header}>
+        <FlowHeading>My Signing Sets</FlowHeading>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Settings and About"
+          accessibilityLabel="Open settings"
           onPress={() => router.push("/settings")}
-          style={styles.settings}
+          style={({ pressed }) => [styles.settings, pressed && styles.pressed]}
         >
-          <Text style={styles.settingsText}>Settings</Text>
+          <Text style={styles.settingsIcon}>⚙</Text>
         </Pressable>
       </View>
-      {visible.length === 0 ? (
-        <GlassCard>
-          <Text style={styles.emptyTitle}>No saved signatures yet</Text>
-          <Text style={styles.emptyBody}>
-            Create a signature or initials when you are ready.
-          </Text>
-        </GlassCard>
-      ) : (
-        visible.map((item) => (
-          <SetCard
-            key={item.id}
-            item={item}
-            onRename={() => {
-              setRenaming(item);
-              setLabel(item.label);
-            }}
-          />
-        ))
-      )}
-      <PrimaryButton
-        label="Create New"
-        onPress={() => {
-          if (createNew()) router.push("/draw");
-        }}
-      />
-      <Modal
-        visible={Boolean(renaming)}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setRenaming(null)}
-      >
-        <View style={styles.modalBackdrop}>
-          <View accessibilityViewIsModal style={styles.modal}>
-            <Text accessibilityRole="header" style={styles.modalTitle}>
-              Rename local set
+      <View style={styles.list}>
+        {visible.length ? (
+          visible.map((item) => <SigningSetCard key={item.id} item={item} />)
+        ) : (
+          <View style={styles.emptyCard}>
+            <Text selectable style={styles.emptyTitle}>
+              No saved signing sets yet
             </Text>
-            <Text style={styles.modalBody}>
-              This label stays on your device.
+            <Text selectable style={styles.emptyBody}>
+              Create a reusable signature when you are ready.
             </Text>
-            <TextInput
-              accessibilityLabel="Local set label"
-              autoFocus
-              value={label}
-              maxLength={60}
-              onChangeText={setLabel}
-              placeholder="Example: My Signature"
-              style={styles.input}
-            />
-            <PrimaryButton
-              label="Save Name"
-              onPress={() => {
-                if (renaming) renameSet(renaming.id, label);
-                setRenaming(null);
-              }}
-            />
-            <SecondaryButton label="Cancel" onPress={() => setRenaming(null)} />
           </View>
-        </View>
-      </Modal>
-    </Screen>
+        )}
+      </View>
+      <View style={styles.create}>
+        <FlowPrimaryButton
+          label="Create New Signing Set"
+          onPress={() => {
+            if (!createNew()) return;
+            setSelectedAsset("signature");
+            router.push("/draw");
+          }}
+        />
+      </View>
+    </FlowScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  top: {
+  content: { paddingTop: 28 },
+  header: {
+    minHeight: 44,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  settings: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  settingsIcon: { color: flowColors.white, fontSize: 22, lineHeight: 26 },
+  list: { gap: 12 },
+  card: {
+    minHeight: 112,
+    borderRadius: 16,
+    backgroundColor: "#FAFAFA",
+    paddingHorizontal: 10,
+    paddingTop: 9,
+    paddingBottom: 7,
+    overflow: "hidden",
+  },
+  cardTop: { height: 48, flexDirection: "row", alignItems: "center" },
+  signatureSlot: { flex: 1, height: 45 },
+  initialsSlot: {
+    width: 72,
+    height: 46,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  signature: { width: "100%", height: 45 },
+  initials: { width: 64, height: 46 },
+  empty: { color: flowColors.cardText, fontSize: 20, textAlign: "center" },
+  cardMeta: {
+    minHeight: 44,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
+    gap: 6,
   },
-  settings: { minHeight: 48, paddingHorizontal: 10, justifyContent: "center" },
-  settingsText: {
-    color: theme.colors.white,
-    fontSize: 17,
+  metaCopy: { flex: 1, minWidth: 0 },
+  setName: {
+    color: flowColors.cardText,
+    fontSize: 11,
+    lineHeight: 14,
     fontWeight: "700",
-    textDecorationLine: "underline",
   },
-  card: { gap: 14 },
-  cardHeader: { flexDirection: "row" },
-  cardTitleGroup: { flex: 1 },
-  title: { color: theme.colors.text, fontSize: 23, fontWeight: "800" },
-  status: { color: theme.colors.muted, fontSize: 16, marginTop: 3 },
-  included: {
-    color: theme.colors.success,
-    fontSize: 16,
-    lineHeight: 22,
+  setStatus: {
+    color: flowColors.accessibleLink,
+    fontSize: 10,
+    lineHeight: 13,
+    marginTop: 2,
+  },
+  cardActions: { flexDirection: "row", gap: 6 },
+  miniButton: {
+    minWidth: 76,
+    height: 44,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "#007C96",
+    borderRadius: 22,
+    backgroundColor: "#FFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  miniButtonText: {
+    color: flowColors.accessibleLink,
+    fontSize: 11,
+    lineHeight: 14,
     fontWeight: "700",
+  },
+  pressed: { opacity: 0.72 },
+  emptyCard: { borderRadius: 16, backgroundColor: "#FAFAFA", padding: 18 },
+  emptyTitle: {
+    color: flowColors.cardText,
+    fontSize: 18,
+    lineHeight: 23,
+    fontWeight: "800",
+  },
+  emptyBody: {
+    color: flowColors.cardMuted,
+    fontSize: 14,
+    lineHeight: 20,
     marginTop: 5,
   },
-  thumbnails: { flexDirection: "row", gap: 10, flexWrap: "wrap" },
-  thumb: {
-    flex: 1,
-    minWidth: 130,
-    borderWidth: 1,
-    borderColor: "#D3DEE2",
-    borderRadius: theme.radii.sm,
-    padding: 8,
-    height: 112,
-  },
-  thumbLabel: { color: theme.colors.muted, fontSize: 13, fontWeight: "700" },
-  cardActions: { gap: 2 },
-  textAction: { minHeight: 48, justifyContent: "center" },
-  textActionLabel: {
-    color: theme.colors.primary,
-    fontSize: 17,
-    fontWeight: "700",
-    textDecorationLine: "underline",
-  },
-  deleteLabel: {
-    color: theme.colors.destructive,
-    fontSize: 17,
-    fontWeight: "700",
-    textDecorationLine: "underline",
-  },
-  explain: { color: theme.colors.muted, fontSize: 15, lineHeight: 21 },
-  emptyTitle: { color: theme.colors.text, fontSize: 22, fontWeight: "800" },
-  emptyBody: {
-    color: theme.colors.muted,
-    fontSize: 17,
-    lineHeight: 24,
-    marginTop: 6,
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: "rgba(2,17,24,0.66)",
-    justifyContent: "center",
-    padding: 24,
-  },
-  modal: {
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.radii.lg,
-    padding: 22,
-    gap: 12,
-    width: "100%",
-    maxWidth: 520,
-    alignSelf: "center",
-  },
-  modalTitle: { color: theme.colors.text, fontSize: 25, fontWeight: "800" },
-  modalBody: { color: theme.colors.muted, fontSize: 17 },
-  input: {
-    minHeight: 56,
-    borderWidth: 2,
-    borderColor: "#9BB2BD",
-    borderRadius: theme.radii.md,
-    paddingHorizontal: 14,
-    fontSize: 18,
-    color: theme.colors.text,
-  },
+  create: { marginTop: "auto", paddingTop: 16 },
 });

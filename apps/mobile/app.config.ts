@@ -137,7 +137,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     version: "1.0.0",
     scheme: "onlysignature",
     orientation: "default",
-    userInterfaceStyle: "light",
+    userInterfaceStyle: "dark",
     icon: "./assets/icon.png",
     runtimeVersion: { policy: "appVersion" },
     updates: {
@@ -213,9 +213,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       [
         "expo-splash-screen",
         {
-          backgroundColor: "#133A50",
-          image: "./assets/icon.png",
-          imageWidth: 120,
+          backgroundColor: "#020B12",
+          image: "./assets/brand/only-signature-wordmark.png",
+          imageWidth: 228,
         },
       ],
     ],

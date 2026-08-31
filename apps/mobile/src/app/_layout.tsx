@@ -41,7 +41,7 @@ function GlobalErrorBanner() {
   if (!data.lastError) return null;
   return (
     <View accessibilityLiveRegion="assertive" style={styles.errorBanner}>
-      <Text accessibilityRole="alert" style={styles.errorText}>
+      <Text accessibilityRole="alert" selectable style={styles.errorText}>
         {data.lastError}
       </Text>
       <Pressable
@@ -68,7 +68,7 @@ function ApplicationShell({ reduceMotion }: { reduceMotion: boolean }) {
         screenOptions={{
           headerShown: false,
           animation: reduceMotion ? "none" : "slide_from_right",
-          contentStyle: { backgroundColor: theme.colors.primary },
+          contentStyle: { backgroundColor: "#020B12" },
         }}
       />
       <GlobalErrorBanner />
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   cover: {
     ...StyleSheet.absoluteFill,
     zIndex: 9999,
-    backgroundColor: theme.colors.primary,
+    backgroundColor: "#020B12",
     justifyContent: "center",
     alignItems: "center",
     padding: 28,
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 16,
     right: 16,
-    top: 56,
+    top: 24,
     zIndex: 9000,
     backgroundColor: "#FFF4D6",
     borderColor: theme.colors.warning,
@@ -131,9 +131,9 @@ const styles = StyleSheet.create({
     width: 250,
     height: 250,
     borderRadius: 125,
-    backgroundColor: theme.colors.glassFill,
-    borderColor: theme.colors.glassBorder,
-    borderWidth: 2,
+    backgroundColor: "#061722",
+    borderColor: "#71838D",
+    borderWidth: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 24,
