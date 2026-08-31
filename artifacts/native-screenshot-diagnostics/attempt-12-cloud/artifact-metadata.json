@@ -1,0 +1,64 @@
+{
+  "workflowId": "01a04b3a-a1c5-7da9-a190-6793137320cc",
+  "sourceRevision": "a0e1a30b245a1ac8aaeaf1a0ebb19d12e1bdf5de",
+  "sourceJobId": "01a04b3a-a463-78fd-a7f9-b7f27f1aea81",
+  "simulatorJobId": "01a04b3b-72b3-7404-85c6-8db103347580",
+  "simulatorBuildId": "6eb2e175-2200-4026-b625-0c6de922db69",
+  "simulatorFingerprint": "fd9e4e80ac5818ea950b8ca4246d955bbdf65f4c",
+  "captureJobId": "01a04b42-67d5-7a57-85de-01f26b6ac321",
+  "artifactId": "01a04b46-f335-7bb5-a523-a8a1048efaf8",
+  "artifactSizeBytes": 191906852,
+  "artifactSha256": "de9992b6bcac01e4f5b36a90936a3e189f873a0351a07eaaa196bc5d0457c5da",
+  "result": "failure-after-six-iphone-frames",
+  "demonstratedCause": "The purchased export screen rendered the correct format choices. Maestro asserted standalone PNG, Transparent while each native control intentionally exposes a combined accessibility label: Signature format. PNG, Transparent or Initials format. PNG, Transparent.",
+  "nativeVisualAudit": {
+    "framesReviewed": [
+      "01-signature-initials",
+      "02-remove-white-box",
+      "03-no-editing",
+      "04-any-document",
+      "05-no-login",
+      "06-no-upload"
+    ],
+    "failureScreenReviewed": "07-formats",
+    "observations": [
+      "The original fictional cursive signature and recognizable initials render through the real native vector path.",
+      "The white-background and transparent comparison documents are both visible at equal scale above the fold.",
+      "The purchased format screen visibly shows independent PNG, Transparent choices for signature and initials."
+    ],
+    "disposition": "No product-state or visual correction is indicated by this failure. The capture assertion is tied to the same combined accessibility-label generator used by the native control."
+  },
+  "productionTestFlightDispatched": false,
+  "originalArchiveTracked": false,
+  "originalArchiveRetention": "Preserved locally at attempt-12-artifacts.tar.gz; excluded from Git because it is 191,906,852 bytes.",
+  "selectedEvidence": [
+    "selected/app-authority.json",
+    "selected/formats-accessibility-hierarchy.json",
+    "selected/formats-maestro-commands.json",
+    "selected/formats-maestro-failure.png",
+    "selected/formats-openurl.json",
+    "selected/formats-post-open.png",
+    "selected/formats-route.json",
+    "selected/raw-iphone/01-signature-initials.png",
+    "selected/raw-iphone/02-remove-white-box.png",
+    "selected/raw-iphone/03-no-editing.png",
+    "selected/raw-iphone/04-any-document.png",
+    "selected/raw-iphone/05-no-login.png",
+    "selected/raw-iphone/06-no-upload.png"
+  ],
+  "selectedEvidenceSha256": {
+    "selected/app-authority.json": "704583ad0e75b73dd51711934377ac6fb45c5c8b7b1b29f50e042f864cdc3068",
+    "selected/formats-accessibility-hierarchy.json": "4969ae882880ea5f40c60bc84446cb3b0b263491c0268786893a6e74824f8338",
+    "selected/formats-maestro-commands.json": "0c79ca845671345f5c259f1dc672bf5521d390a46902d5dff1c583afb3dc7f19",
+    "selected/formats-maestro-failure.png": "db1f89188a44b7bda8e88137e50ef213229a19eb03793115d0109c6b321d73ab",
+    "selected/formats-openurl.json": "7fe7cb5ec3670fd4922dc0770553e1a27af6aca3a60365b93ba39a0d04ec9ad7",
+    "selected/formats-post-open.png": "78aecbbcabec308269c58c8a6c3328e9ab9e43fdba9410d87d1acb5a81ab163c",
+    "selected/formats-route.json": "c2235b745648f1de66d143e003e1e392eeb8aac6aaaa53e5720f9846f2a399bd",
+    "selected/raw-iphone/01-signature-initials.png": "e955216fb6dc76c1eec4adfb1c0004d89fda6b618464fc046f87dc444c13c775",
+    "selected/raw-iphone/02-remove-white-box.png": "c192578f9f55bfe8298d67b0124a98cb6bdf0668d0449b9336d14bf42fb2d326",
+    "selected/raw-iphone/03-no-editing.png": "816f88964b8ec6a14846e915cf045cd03afcd28638ef768bfe33f315f0d2f99b",
+    "selected/raw-iphone/04-any-document.png": "33ded5d0800ebb85f25bdeaf3b87a8c0dd5645632db554e84dcaa9781dd9c329",
+    "selected/raw-iphone/05-no-login.png": "e1097046ed5202e44620da8c80d1e4f5ea17e5b6d8507f6dfb0f35551d7123d1",
+    "selected/raw-iphone/06-no-upload.png": "766b25c9beae4e097d4b723e2bb0d2159c9ea68f2abc2941e796941c16b6377f"
+  }
+}

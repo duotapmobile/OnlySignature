@@ -15,17 +15,22 @@ export interface ProductInfo {
 
 export interface StoreKitAdapter {
   loadProduct(): Promise<ProductInfo>;
-  purchase(appAccountToken?: string): Promise<StoreKitTransaction>;
+  purchase(appAccountToken: string): Promise<StoreKitTransaction>;
   unfinishedSnapshot(): Promise<StoreKitTransaction[]>;
   finish(transactionId: string): Promise<boolean>;
   observe(listener: (transaction: StoreKitTransaction) => void): () => void;
 }
 
 const extra = Constants.expoConfig?.extra as
-  | { storeKitMode?: string; storeKitProductId?: string }
+  | {
+      releaseChannel?: string;
+      screenshotFixtureMode?: boolean;
+      storeKitMode?: string;
+      storeKitProductId?: string;
+    }
   | undefined;
 const productId =
-  extra?.storeKitProductId ?? "com.duotap.onlysignature.transparent-set-v1";
+  extra?.storeKitProductId ?? "com.duotap.onlysignature.transparent_set_v1";
 export const configuredStoreKitProductId = productId;
 
 const nativeModule = OnlySignatureStoreKit as {
@@ -76,6 +81,12 @@ const real: StoreKitAdapter = {
   async purchase(appAccountToken) {
     if (!nativeModule || Platform.OS !== "ios")
       throw new Error("product-unavailable");
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        appAccountToken,
+      )
+    )
+      throw new Error("storekit-invalid-app-account-token");
     return storeKitTransaction(
       await nativeModule.purchase(productId, appAccountToken),
     );
@@ -101,6 +112,20 @@ const real: StoreKitAdapter = {
   },
 };
 
+const disabled: StoreKitAdapter = {
+  loadProduct: () => Promise.reject(new Error("storekit-mode-disabled")),
+  purchase: () => Promise.reject(new Error("storekit-mode-disabled")),
+  unfinishedSnapshot: () => Promise.reject(new Error("storekit-mode-disabled")),
+  finish: () => Promise.reject(new Error("storekit-mode-disabled")),
+  observe: () => {
+    throw new Error("storekit-mode-disabled");
+  },
+};
+const mockAllowed =
+  extra?.storeKitMode === "mock" &&
+  (extra.releaseChannel === "development" ||
+    extra.releaseChannel === "preview" ||
+    extra.screenshotFixtureMode === true);
 export const storeKit: StoreKitAdapter =
-  extra?.storeKitMode === "real" ? real : mock;
+  extra?.storeKitMode === "real" ? real : mockAllowed ? mock : disabled;
 export const isMockStoreKit = storeKit === mock;

@@ -3,7 +3,7 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-08-26T19:03:01.522Z",
+    "timestamp": "2026-08-28T20:41:11.680Z",
     "component": {
       "type": "application",
       "name": "only-signature",
@@ -30,6 +30,25 @@
           "license": {
             "id": "MIT"
           }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@astrojs/compiler-binding-darwin-arm64",
+      "version": "0.4.0",
+      "purl": "pkg:npm/%40astrojs%2Fcompiler-binding-darwin-arm64@0.4.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "ZVUwHundaQyFNjE6uoa0usaC0WOCitDCLS/4mdb4rOiJXwVUuKJBMxI5WMzXLWmamsXtK/Z//ifLXvV5Yeh4Hw=="
         }
       ]
     },
@@ -1547,6 +1566,25 @@
         {
           "alg": "SHA-512",
           "content": "6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA=="
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@bruits/satteri-darwin-arm64",
+      "version": "0.10.5",
+      "purl": "pkg:npm/%40bruits%2Fsatteri-darwin-arm64@0.10.5",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "27KTVl4TJkVahMy/ohyA7qd4938G5UNneFUz/PsScYfpIhj0IVAS23mpcJXdPF44sa6nva198lmV/cKIb2YPyA=="
         }
       ]
     },
@@ -10637,6 +10675,12 @@
             "id": "BSD-3-Clause"
           }
         }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "7Ical1vFEMr0onbVzEDIreM22I4khW+fzyQPwvAFWBp1iwdshSZRsL4jjRvPG9JP1uiqMHRto+YU6R2/CzDz5Q=="
+        }
       ]
     },
     {
@@ -16800,6 +16844,12 @@
           "license": {
             "id": "MIT"
           }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw=="
         }
       ]
     },

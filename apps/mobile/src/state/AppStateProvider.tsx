@@ -33,6 +33,7 @@ import {
   hasPurchaseRecoveryInProgress,
   purchaseRequestClearsPendingIntent,
   purchasedStateForTransaction,
+  statePreparedForUnboundPurchaseRecovery,
   stateWithFinalizedIncludedSlot,
   stateWithPendingPurchaseCleared,
 } from "@/domain/purchaseState";
@@ -70,6 +71,7 @@ interface AppActions {
   deleteSet(id: string): void;
   deleteAll(): Promise<void>;
   purchaseActiveSet(): Promise<StoreKitTransaction>;
+  recoverUnboundPurchase(): Promise<StoreKitTransaction>;
   fillIncludedSlot(kind: AssetKind, asset: DrawingAsset): Promise<void>;
   recordExport(): void;
   markReviewPrompted(): void;
@@ -89,6 +91,7 @@ const initialData: AppStateData = {
   activeSetId: initialDraft.id,
   sets: [initialDraft],
   selectedAsset: "signature",
+  unboundPurchases: [],
   reviewPrompted: false,
   lastError: null,
 };
@@ -262,6 +265,10 @@ export function AppStateProvider({ children }: PropsWithChildren) {
         ...initialData,
         hydrated: true,
         activeSetId: set.id,
+        selectedAsset:
+          fixture === "initials"
+            ? ("initials" as const)
+            : ("signature" as const),
         sets: [set],
       };
       dataRef.current = next;
@@ -313,19 +320,53 @@ export function AppStateProvider({ children }: PropsWithChildren) {
         const current = dataRef.current;
         const matching = findTransactionSet(current, transaction);
         if (!matching) {
-          setData((value) => ({
-            ...value,
+          const held = {
+            ...current,
+            unboundPurchases: current.unboundPurchases.some(
+              (purchase) =>
+                purchase.transactionId === transaction.transactionId,
+            )
+              ? current.unboundPurchases
+              : [
+                  ...current.unboundPurchases,
+                  {
+                    transactionId: transaction.transactionId,
+                    productId: transaction.productId,
+                    appAccountToken: transaction.appAccountToken ?? null,
+                    detectedAt: new Date().toISOString(),
+                  },
+                ],
             lastError:
               "A verified Apple purchase needs recovery before it can be attached to a saved set. Do not purchase again.",
-          }));
+          };
+          await persistData(held);
+          const durableHeld = await appStorage.read<AppStateData>();
+          if (
+            !durableHeld?.unboundPurchases.some(
+              (purchase) =>
+                purchase.transactionId === transaction.transactionId,
+            )
+          )
+            throw new Error("unbound-purchase-durability-check-failed");
+          dataRef.current = durableHeld;
+          setData(durableHeld);
           return;
         }
-        const next = purchasedStateForTransaction(
+        const purchased = purchasedStateForTransaction(
           current,
           transaction,
           new Date().toISOString(),
           configuredStoreKitProductId,
         );
+        const next = purchased
+          ? {
+              ...purchased,
+              unboundPurchases: purchased.unboundPurchases.filter(
+                (purchase) =>
+                  purchase.transactionId !== transaction.transactionId,
+              ),
+            }
+          : null;
         if (!next) return;
         if (next !== current) {
           await persistData(next);
@@ -614,6 +655,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
           if (
             target?.pendingPurchaseId ||
             target?.transactionFinishPending ||
+            current.unboundPurchases.length > 0 ||
             purchaseSingleFlight.current ||
             transactionInProgress.current
           ) {
@@ -751,7 +793,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
           try {
             transaction = await storeKit.purchase(pendingId);
           } catch (error) {
-            await enqueueOperation(async () => {
+            const recovered = await enqueueOperation(async () => {
               let snapshot: StoreKitTransaction[];
               try {
                 snapshot = await withTimeout(
@@ -764,6 +806,20 @@ export function AppStateProvider({ children }: PropsWithChildren) {
               for (const candidate of snapshot)
                 await processTransaction(candidate);
               const current = dataRef.current;
+              const recoveredSet = current.sets.find(
+                (set) =>
+                  set.id === target.id &&
+                  set.status === "purchased" &&
+                  Boolean(set.transactionId),
+              );
+              if (recoveredSet?.transactionId)
+                return {
+                  transactionId: recoveredSet.transactionId,
+                  productId: configuredStoreKitProductId,
+                  appAccountToken: pendingId,
+                  state: "purchased" as const,
+                  verified: true,
+                };
               const interrupted = {
                 ...current,
                 sets: current.sets.map((set) =>
@@ -778,7 +834,9 @@ export function AppStateProvider({ children }: PropsWithChildren) {
               await persistData(interrupted);
               dataRef.current = interrupted;
               setData(interrupted);
+              return null;
             });
+            if (recovered) return recovered;
             throw error;
           }
           if (transaction.state === "purchased" && transaction.verified) {
@@ -834,7 +892,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
               setData(pending);
             });
           } else if (transaction.state === "request-interrupted") {
-            await enqueueOperation(async () => {
+            const recovered = await enqueueOperation(async () => {
               const snapshot = await withTimeout(
                 storeKit.unfinishedSnapshot(),
                 15_000,
@@ -842,6 +900,20 @@ export function AppStateProvider({ children }: PropsWithChildren) {
               for (const candidate of snapshot)
                 await processTransaction(candidate);
               const current = dataRef.current;
+              const recoveredSet = current.sets.find(
+                (set) =>
+                  set.id === target.id &&
+                  set.status === "purchased" &&
+                  Boolean(set.transactionId),
+              );
+              if (recoveredSet?.transactionId)
+                return {
+                  transactionId: recoveredSet.transactionId,
+                  productId: configuredStoreKitProductId,
+                  appAccountToken: pendingId,
+                  state: "purchased" as const,
+                  verified: true,
+                };
               const interrupted = {
                 ...current,
                 sets: current.sets.map((set) =>
@@ -856,12 +928,77 @@ export function AppStateProvider({ children }: PropsWithChildren) {
               await persistData(interrupted);
               dataRef.current = interrupted;
               setData(interrupted);
+              return null;
             });
+            if (recovered) return recovered;
           }
           return transaction;
         } finally {
           purchaseSingleFlight.current = false;
         }
+      },
+      async recoverUnboundPurchase() {
+        return enqueueOperation(async () => {
+          const current = dataRef.current;
+          const hold = current.unboundPurchases[0];
+          const target = current.sets.find(
+            (set) => set.id === current.activeSetId,
+          );
+          if (!hold || !target)
+            throw new Error("unbound-purchase-recovery-unavailable");
+          const signatureHash = hasDrawing(target.signature)
+            ? await Crypto.digestStringAsync(
+                Crypto.CryptoDigestAlgorithm.SHA256,
+                normalizedDrawing(target.signature),
+              )
+            : null;
+          const initialsHash = hasDrawing(target.initials)
+            ? await Crypto.digestStringAsync(
+                Crypto.CryptoDigestAlgorithm.SHA256,
+                normalizedDrawing(target.initials),
+              )
+            : null;
+          const fallbackToken =
+            canonicalPurchaseToken(Crypto.randomUUID()) ?? "";
+          const prepared = statePreparedForUnboundPurchaseRecovery(
+            current,
+            target.id,
+            hold.transactionId,
+            fallbackToken,
+            signatureHash,
+            initialsHash,
+          );
+          await persistData(prepared);
+          const durable = await appStorage.read<AppStateData>();
+          const durableTarget = durable?.sets.find(
+            (set) =>
+              set.id === target.id &&
+              Boolean(canonicalPurchaseToken(set.pendingPurchaseId)),
+          );
+          if (!durable || !durableTarget)
+            throw new Error("unbound-recovery-durability-check-failed");
+          dataRef.current = durable;
+          setData(durable);
+          const transaction: StoreKitTransaction = {
+            transactionId: hold.transactionId,
+            productId: hold.productId,
+            ...(hold.appAccountToken
+              ? { appAccountToken: hold.appAccountToken }
+              : {}),
+            state: "purchased",
+            verified: true,
+          };
+          await processTransaction(transaction);
+          const recovered = dataRef.current.sets.find(
+            (set) =>
+              set.id === target.id &&
+              set.status === "purchased" &&
+              set.transactionId === hold.transactionId,
+          );
+          if (!recovered)
+            throw new Error("unbound-purchase-recovery-incomplete");
+          return transaction;
+        });
       },
       async fillIncludedSlot(kind, asset) {
         const hash = await Crypto.digestStringAsync(

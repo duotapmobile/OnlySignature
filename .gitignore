@@ -1,6 +1,11 @@
 node_modules/
 .expo/
-.eas/
+.eas/*
+!.eas/workflows/
+!.eas/workflows/**
+apps/mobile/.eas/*
+!apps/mobile/.eas/workflows/
+!apps/mobile/.eas/workflows/**
 dist/
 out/
 coverage/
@@ -21,7 +26,29 @@ apps/mobile/.vscode/
 apps/mobile/assets/expo.icon/
 apps/mobile/assets/images/
 artifacts/chrome-*/
+artifacts/native-screenshot-diagnostics/attempt-9-cloud/attempt-9-artifacts.tar.gz
+artifacts/native-screenshot-diagnostics/attempt-9-cloud/extracted/
+artifacts/native-screenshot-diagnostics/attempt-10-cloud/attempt-10-artifacts.tar.gz
+artifacts/native-screenshot-diagnostics/attempt-10-cloud/extracted/
+artifacts/native-screenshot-diagnostics/attempt-12-cloud/attempt-12-artifacts.tar.gz
+artifacts/native-screenshot-diagnostics/attempt-12-cloud/extracted/
+artifacts/native-screenshot-diagnostics/attempt-13-cloud/attempt-13-artifacts.tar.gz
+artifacts/native-screenshot-diagnostics/attempt-13-cloud/extracted/
+artifacts/native-screenshot-diagnostics/attempt-14-cloud/attempt-14-artifacts.tar.gz
+artifacts/native-screenshot-diagnostics/attempt-14-cloud/extracted/
+artifacts/native-screenshot-diagnostics/attempt-15-cloud/attempt-15-artifacts.tar.gz
+artifacts/native-screenshot-diagnostics/attempt-15-cloud/extracted/
+artifacts/native-screenshot-diagnostics/attempt-16-cloud/attempt-16-artifacts.tar.gz
+artifacts/native-screenshot-diagnostics/attempt-16-cloud/extracted/
+artifacts/native-screenshot-diagnostics/attempt-17-cloud/attempt-17-artifacts.tar.gz
+artifacts/native-screenshot-diagnostics/attempt-17-cloud/extracted/
 test-results/
 playwright-report/
 .DS_Store
 Thumbs.db
+# Protected local configuration and generated handoff packages.
+# These stay in the workspace but are not source-controlled.
+/app.json
+/Only-Signature-Actual-Flow-Screens.zip
+/Only-Signature-App-Store-Screenshots-v1.zip
+/artifacts/aso-before-click-reference/

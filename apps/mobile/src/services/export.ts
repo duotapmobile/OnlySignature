@@ -1,7 +1,6 @@
 import type { ComponentRef, RefObject } from "react";
 import { AccessibilityInfo, View } from "react-native";
-import { captureRef } from "react-native-view-shot";
-import * as FileSystem from "expo-file-system/legacy";
+import { captureRef, releaseCapture } from "react-native-view-shot";
 import * as Sharing from "expo-sharing";
 import type { AssetKind, DrawingAsset, ExportFormat } from "@/domain/models";
 import { exportDimensions } from "@/domain/drawing";
@@ -21,10 +20,6 @@ export async function generateExport(
   format: ExportFormat,
   surfaceRef: RefObject<ComponentRef<typeof View> | null>,
 ): Promise<GeneratedFile> {
-  const root = await appStorage.ensureTempDirectory();
-  const directory = `${root.replace(/\/$/, "")}/${Math.random().toString(36).slice(2)}-${Date.now()}/`;
-  await FileSystem.makeDirectoryAsync(directory, { intermediates: true });
-  const destination = `${directory}${asset.kind}.${extensionFor(format)}`;
   let temporary: string | null = null;
   try {
     if (!surfaceRef.current) throw new Error("export-surface-unavailable");
@@ -36,18 +31,14 @@ export async function generateExport(
       width: dimensions.width,
       height: dimensions.height,
     });
-    await FileSystem.moveAsync({ from: temporary, to: destination });
+    const destination = await appStorage.promoteTemporaryExport(
+      temporary,
+      extensionFor(format),
+    );
     temporary = null;
-    await appStorage.protectTemporaryFile(destination);
     return { uri: destination, format, kind: asset.kind };
   } catch (error) {
-    if (temporary)
-      await FileSystem.deleteAsync(temporary, { idempotent: true }).catch(
-        () => undefined,
-      );
-    await FileSystem.deleteAsync(directory, { idempotent: true }).catch(
-      () => undefined,
-    );
+    if (temporary) releaseCapture(temporary);
     throw error;
   }
 }
@@ -65,12 +56,8 @@ export async function shareFile(file: GeneratedFile): Promise<void> {
 export async function cleanupGeneratedFiles(
   files: GeneratedFile[],
 ): Promise<void> {
-  const directories = new Set(
-    files.map((file) => file.uri.slice(0, file.uri.lastIndexOf("/") + 1)),
-  );
+  const uris = new Set(files.map((file) => file.uri));
   await Promise.all(
-    [...directories].map((directory) =>
-      FileSystem.deleteAsync(directory, { idempotent: true }),
-    ),
+    [...uris].map((uri) => appStorage.deleteTemporaryExport(uri)),
   );
 }

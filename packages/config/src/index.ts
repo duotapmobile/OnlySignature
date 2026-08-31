@@ -69,6 +69,9 @@ function hasPlaceholder(value: string): boolean {
 
 export function validateReleaseConfig(config: ReleaseConfig): string[] {
   const errors: string[] = [];
+  const normalizedTerritories = config.territories
+    .map((territory) => territory.trim().toUpperCase())
+    .filter(Boolean);
   const required: Array<[keyof ReleaseConfig, string | readonly string[]]> =
     Object.entries(config) as Array<
       [keyof ReleaseConfig, string | readonly string[]]
@@ -81,6 +84,12 @@ export function validateReleaseConfig(config: ReleaseConfig): string[] {
     errors.push("bundleIdentifier must be reverse-DNS format");
   if (!config.storeKitProductId.startsWith(`${config.bundleIdentifier}.`))
     errors.push("storeKitProductId must derive from bundleIdentifier");
+  if (!/^[A-Za-z0-9_.]+$/.test(config.storeKitProductId))
+    errors.push(
+      "storeKitProductId may contain only letters, numbers, underscores, and periods",
+    );
+  if (normalizedTerritories.length !== 1 || normalizedTerritories[0] !== "US")
+    errors.push("release distribution is locked to U.S. only");
   for (const [key, url] of [
     ["privacyUrl", config.privacyUrl],
     ["termsUrl", config.termsUrl],
@@ -98,7 +107,7 @@ export function validateReleaseConfig(config: ReleaseConfig): string[] {
     if (config.storeKitMode !== "real")
       errors.push("production requires real StoreKit mode");
     if (
-      requiresDsaTraderStatus(config.territories) &&
+      requiresDsaTraderStatus(normalizedTerritories) &&
       (config.dsaTraderStatus === "undecided" ||
         config.dsaTraderStatus === "not-applicable")
     )
@@ -118,10 +127,10 @@ export function assertReleaseConfig(config: ReleaseConfig): ReleaseConfig {
 
 export const developmentConfig: ReleaseConfig = {
   appDisplayName: "Only Signature",
-  appSlug: "only-signature",
+  appSlug: "onlysignature",
   bundleIdentifier: "com.duotap.onlysignature",
   appleTeamId: "JWXC66G9Z5",
-  storeKitProductId: "com.duotap.onlysignature.transparent-set-v1",
+  storeKitProductId: "com.duotap.onlysignature.transparent_set_v1",
   privacyUrl: "https://onlysignature.app/privacy/",
   termsUrl: "https://onlysignature.app/terms/",
   supportUrl: "https://onlysignature.app/support/",

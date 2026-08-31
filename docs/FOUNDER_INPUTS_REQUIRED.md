@@ -1,29 +1,30 @@
 # Founder Inputs Required
 
-Local work continues without these values. Production configuration and external actions fail closed at the exact boundary.
+Only genuinely external founder-controlled inputs remain here. Coding, metadata drafting, EAS configuration, screenshot automation, App Store API verification, and local tests are executor work and are not founder inputs.
 
-| Input                                                                                 | Required for                                              | Safe local substitute                                                                             |
-| ------------------------------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Final legal operator/entity name                                                      | Public policy, Terms, store seller disclosures            | `DuoTap LLC` confirmed                                                                            |
-| Apple membership mailing address and public App Review phone                          | Private Apple records and App Review contact              | Address and phone confirmed privately and excluded from public artifacts                          |
-| Support email and authorized contact details                                          | App/site/store support                                    | `admin@onlysignature.app` confirmed; mailbox operation remains founder-owned                      |
-| Hosting/deployment authorization for `onlysignature.app`                              | Publishing the prepared public site                       | Local static site and relative links                                                              |
-| Final product-name decision                                                           | App record, icon/brand, legal/store lock                  | `Only Signature` confirmed; founder accepts preliminary risk and does not plan a trademark filing |
-| Final copyright holder/year                                                           | App Store copyright field                                 | `© 2026 DuoTap LLC` confirmed                                                                    |
-| Apple Team ID                                                                         | Signing/native configuration                              | `JWXC66G9Z5` confirmed                                                                            |
-| Final bundle identifier and App Store record                                          | Signing and product alignment                             | `com.duotap.onlysignature` confirmed; App Store Connect app record created                        |
-| App Store SKU and numeric Apple/ASC app ID                                            | EAS Submit, metadata automation, public URL               | Required from the created app record                                                              |
-| App Store Connect role/credential or approved API key                                 | Build, TestFlight, metadata, submission                   | No portal mutation                                                                                |
-| EAS project ID and Apple signing/EAS credential authorization                         | Signed iOS builds                                         | Required; prebuild/config only                                                                    |
-| EIN/tax identity, Paid Applications Agreement, and banking status                     | IAP sale                                                  | Required before paid availability                                                                 |
-| Final StoreKit product identifier                                                     | App/IAP record alignment                                  | `com.duotap.onlysignature.transparent-set-v1` reserved in configuration                           |
-| Approval of planned U.S. $1.99 per-set model                                          | Price schedule and paywall fixture                        | StoreKit localized mock fixture                                                                   |
-| Final territory selection                                                             | Availability and regional obligations                     | U.S.-only confirmed; no EU distribution                                                           |
-| DSA trader/non-trader decision and verification materials                             | EU distribution                                           | Not applicable while distribution remains U.S.-only                                               |
-| Professional review of Privacy Policy, Terms, authorized-use and regional disclosures | Release legal readiness                                   | Clearly labeled legal-preparation drafts                                                          |
-| Final export-compliance determination/specialist input if required                    | TestFlight/App Store compliance                           | Unanswered release gate                                                                           |
-| Physical iPhone and iPad access plus sandbox/TestFlight authorization                 | Native behavior, purchase, export, accessibility evidence | Deterministic mocks and test plans                                                                |
-| Website deployment authorization                                                      | Public URLs                                               | Local build only                                                                                  |
-| TestFlight, App Review, submission, and release authorization                         | External publication                                      | No external action                                                                                |
+## Required for internal TestFlight
 
-Coding, tests, copy drafts, fixture documents, screenshot composition, StoreKit mock logic, and documentation are not founder inputs.
+- Complete Apple/EAS signing login or 2FA only if the EAS credential flow requests it for Team `JWXC66G9Z5`.
+- Confirm or authorize any Apple agreement, tax, or banking step that blocks the consumable or TestFlight processing. Tax and banking are still founder-owned.
+- Provide physical iPhone/iPad access if the internal build must be manually validated on hardware during this run.
+
+## Required before App Review or public release
+
+- Professional legal review of the Privacy Policy, Terms, authorized-use language, and Florida/U.S. disclosures.
+- Final authorization to submit the app and IAP for App Review.
+- Final authorization to release publicly. This execution is not authorized to submit for review or release.
+
+## Already confirmed and not requested again
+
+- Legal entity: DuoTap LLC.
+- Support: `admin@onlysignature.app`.
+- Domain: `onlysignature.app`.
+- Apple Team ID: `JWXC66G9Z5`.
+- Bundle: `com.duotap.onlysignature`.
+- App Store Connect app ID: `6805606307`.
+- SKU: `DUOTAP-ONLYSIGNATURE-IOS-001`.
+- Existing EAS project: `@duotap/onlysignature`, ID `954b1a21-89e9-41af-8021-d7c8e66d74c8`.
+- Consumable: `com.duotap.onlysignature.transparent_set_v1`.
+- Planned U.S. price: $1.99.
+- Territory: United States only.
+- App Store Connect API access: verified with the private key retained outside Git.

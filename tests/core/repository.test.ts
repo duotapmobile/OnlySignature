@@ -68,7 +68,7 @@ describe("protected repository", () => {
     const intent = preparePurchase(
       set,
       "intent",
-      "com.example.onlysignature.transparent-set-v1",
+      "com.example.onlysignature.transparent_set_v1",
       "now",
     );
     const state = {

@@ -9,6 +9,7 @@ import {
   hasPurchaseRecoveryInProgress,
   purchaseRequestClearsPendingIntent,
   purchasedStateForTransaction,
+  statePreparedForUnboundPurchaseRecovery,
   stateWithFinalizedIncludedSlot,
   stateWithPendingPurchaseCleared,
 } from "../src/domain/purchaseState";
@@ -27,6 +28,7 @@ const data: AppStateData = {
   activeSetId: pendingSet.id,
   sets: [pendingSet],
   selectedAsset: "signature",
+  unboundPurchases: [],
   reviewPrompted: false,
   lastError: null,
 };
@@ -102,6 +104,88 @@ test("an unresolved intent on any saved set blocks another paid attempt", () => 
     true,
   );
   assert.equal(canBeginPurchase(active), true);
+});
+
+test("an unmatched verified transaction hold blocks every new paid attempt", () => {
+  const held: AppStateData = {
+    ...data,
+    sets: [
+      {
+        ...pendingSet,
+        pendingPurchaseId: null,
+        purchaseIntentState: null,
+        transactionId: null,
+      },
+    ],
+    unboundPurchases: [
+      {
+        transactionId: "unmatched-transaction",
+        productId: "product",
+        appAccountToken: null,
+        detectedAt: "now",
+      },
+    ],
+  };
+
+  assert.equal(hasPurchaseRecoveryInProgress(held), true);
+
+  const prepared = statePreparedForUnboundPurchaseRecovery(
+    held,
+    held.activeSetId,
+    "unmatched-transaction",
+    "11111111-1111-4111-8111-111111111111",
+    "signature-hash",
+    null,
+  );
+  assert.equal(
+    prepared.sets[0]!.pendingPurchaseId,
+    "11111111-1111-4111-8111-111111111111",
+  );
+  assert.equal(prepared.sets[0]!.signature!.finalizedHash, "signature-hash");
+});
+
+test("unbound recovery refuses empty or already-purchased target sets", () => {
+  const held: AppStateData = {
+    ...data,
+    unboundPurchases: [
+      {
+        transactionId: "unmatched-transaction",
+        productId: "product",
+        appAccountToken: null,
+        detectedAt: "now",
+      },
+    ],
+  };
+  assert.throws(() =>
+    statePreparedForUnboundPurchaseRecovery(
+      { ...held, sets: [{ ...pendingSet, signature: null }] },
+      pendingSet.id,
+      "unmatched-transaction",
+      "11111111-1111-4111-8111-111111111111",
+      null,
+      null,
+    ),
+  );
+  assert.throws(() =>
+    statePreparedForUnboundPurchaseRecovery(
+      {
+        ...held,
+        sets: [
+          {
+            ...pendingSet,
+            pendingPurchaseId: null,
+            status: "purchased",
+            transactionId: "old",
+          },
+        ],
+      },
+      pendingSet.id,
+      "unmatched-transaction",
+      "11111111-1111-4111-8111-111111111111",
+      "hash",
+      null,
+    ),
+  );
 });
 
 test("only terminal request outcomes clear a pending purchase intent", () => {

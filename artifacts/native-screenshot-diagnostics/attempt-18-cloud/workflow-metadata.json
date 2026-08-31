@@ -1,0 +1,22 @@
+{
+  "attempt": 18,
+  "workflowRunId": "01a04c51-8c5c-735d-b10d-66907217b65c",
+  "workflowDefinitionId": "b3b8b800-3a5f-4cf7-80f9-fa6fdc223f30",
+  "sourceJobId": "01a04c51-8f6b-72d1-a7cf-08a5c2e647bc",
+  "sourceRevision": "73103e96f3206befb998e4d42f1a6cf2a0a01883",
+  "requestedGitRef": "73103e96f3206befb998e4d42f1a6cf2a0a01883",
+  "actor": "duotap",
+  "projectId": "954b1a21-89e9-41af-8021-d7c8e66d74c8",
+  "status": "FAILURE",
+  "startedAt": "2026-08-29T07:00:07.900Z",
+  "finishedAt": "2026-08-29T07:00:08.683Z",
+  "failureStage": "source job allocation",
+  "failureTitle": "Failed to start job",
+  "failureCategory": "EAS CI/CD quota exhausted",
+  "failureMessage": "Free plan CI/CD 60 minute limit reached. CI/CD minutes reset on September 1, 2026 at 12:00:00 AM UTC.",
+  "simulatorBuildAllocated": false,
+  "captureJobAllocated": false,
+  "artifactProduced": false,
+  "productionOrTestFlightDispatched": false,
+  "blindRetryAuthorized": false
+}

@@ -1,0 +1,15 @@
+{
+  "command": "xcrun",
+  "args": [
+    "simctl",
+    "io",
+    "71448586-815B-4DEF-940B-D07D724542F6",
+    "screenshot",
+    "artifacts/native-screenshot-diagnostics/iphone/01-signature-initials/post-open.png"
+  ],
+  "status": 0,
+  "signal": null,
+  "error": null,
+  "stdout": "",
+  "stderr": "Detected file type from extension: PNG\nNote: No display specified. Defaulting to display: D7E60F2D-E0A7-4C84-85E6-97772B169CEC (screenID: 1, name: LCD)\nWrote screenshot to: /Users/expo/workingdir/build/artifacts/native-screenshot-diagnostics/iphone/01-signature-initials/post-open.png\n"
+}

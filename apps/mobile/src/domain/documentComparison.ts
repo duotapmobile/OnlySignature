@@ -4,4 +4,4 @@ export const documentComparisonAccessibilityLabel =
 export const shouldStackDocumentComparison = (
   width: number,
   fontScale: number,
-): boolean => width < 700 || fontScale >= 1.3;
+): boolean => width < 360 || fontScale >= 1.3;

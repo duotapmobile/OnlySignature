@@ -25,6 +25,13 @@ test("native product lookup fails terminally before purchase presentation", () =
   );
 });
 
+test("native StoreKit transaction references are fully qualified", () => {
+  assert.match(swiftSource, /StoreKit\.Transaction\.updates/);
+  assert.match(swiftSource, /StoreKit\.Transaction\.unfinished/);
+  assert.match(swiftSource, /transaction: StoreKit\.Transaction/);
+  assert.doesNotMatch(swiftSource, /(?<!StoreKit\.)\bTransaction\b/);
+});
+
 test("native StoreKit errors preserve the terminal versus ambiguous contract", () => {
   assert.match(swiftSource, /case \.userCancelled:[\s\S]*?state: "cancelled"/);
   for (const terminalCase of [
@@ -87,5 +94,50 @@ test("adapter validates and normalizes native classification payloads", () => {
       state: "purchased",
       verified: false,
     }),
+  );
+});
+
+test("verified recovery accepts a transaction without an app account token", () => {
+  assert.deepEqual(
+    storeKitTransaction({
+      transactionId: "12345",
+      productId: "product",
+      state: "purchased",
+      verified: true,
+    }),
+    {
+      transactionId: "12345",
+      productId: "product",
+      state: "purchased",
+      verified: true,
+    },
+  );
+  assert.match(
+    swiftSource,
+    /if let appAccountToken = transaction\.appAccountToken \{[\s\S]*?result\["appAccountToken"\]/,
+  );
+  assert.doesNotMatch(
+    swiftSource,
+    /"appAccountToken": transaction\.appAccountToken\?/,
+  );
+});
+
+test("native purchase rejects a missing or malformed correlation token before lookup", () => {
+  const invalidTokenGuard = swiftSource.indexOf(
+    'errorCategory: "invalid-app-account-token"',
+  );
+  const productLookup = swiftSource.indexOf(
+    "Product.products(for: [productId])",
+    invalidTokenGuard,
+  );
+  assert.ok(invalidTokenGuard > 0);
+  assert.ok(productLookup > invalidTokenGuard);
+  assert.match(
+    swiftSource,
+    /product\.purchase\(options: \[\.appAccountToken\(token\)\]\)/,
+  );
+  assert.doesNotMatch(
+    swiftSource,
+    /else \{ result = try await product\.purchase\(\) \}/,
   );
 });

@@ -1,0 +1,17 @@
+{
+  "command": "xcrun",
+  "args": [
+    "simctl",
+    "spawn",
+    "BBC13B0A-7196-47CC-8BB1-1B14BD81B068",
+    "defaults",
+    "read",
+    "com.apple.springboard",
+    "FrontmostApplicationDisplayIdentifier"
+  ],
+  "status": 1,
+  "signal": null,
+  "error": null,
+  "stdout": "",
+  "stderr": "2026-08-28 22:14:44.152 defaults[5855:32197] \nThe domain/default pair of (com.apple.springboard, FrontmostApplicationDisplayIdentifier) does not exist\n"
+}

@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "purpose": "App Store screenshot design preview using actual locally captured app screens",
+  "caveat": "Source screens are local Expo-rendered product-flow captures. Replace them with native iOS captures through the governed native screenshot workflow before submission evidence is finalized.",
+  "appleSpecifications": {
+    "iphone": "1320 x 2868 portrait, accepted 6.9-inch display size",
+    "ipad": "2064 x 2752 portrait, accepted 13-inch display size",
+    "alphaChannel": false
+  },
+  "source": "artifacts/actual-flow-preview",
+  "generatedAt": "2026-08-31T09:17:51.281Z",
+  "devices": {
+    "iphone": {
+      "sourceHashes": {
+        "01-entry.png": "2dcceb4754735a12528e8b019c373927c1ca696609a42a986cf68024fcb4d343",
+        "02-signature-capture.png": "120946df4f0fad29d161c3df623de1e72a01cb51f753bb981b5b6ca02af99d3c",
+        "03-initials-capture.png": "491d431c26c8e462745f280b4e6e825e4db768da26efad8a96d01273304ebe57",
+        "04-review.png": "cc3ba1b25e584d95a7ad11d6796411b867c0b35c70235f3b25eea9e949680c24",
+        "05-background.png": "18f3cdee88bb55d62d8996aeab9d95e4a934b31da3274e77d429511e68051d70",
+        "06-diy-warning.png": "86c7251b3f12c6dec2a149f2e916adc9e2c1ce086942313793ce3fc5460f1600",
+        "07-transparent-unlocked.png": "02ebcb3a0e903fe36b8cb1799f52839959e124c321ee0a8730da6409e4de9628",
+        "08-saved-sets.png": "6587c55b5b98912f221f325f368da61fb98bce8b23492bdf51a05034ac70050c"
+      },
+      "outputs": [
+        {
+          "id": "01-ready",
+          "headline": "Your signature. Ready when you are.",
+          "sourceScreens": [
+            "01-entry.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/iphone-6.9/en-US/01-ready.png",
+          "width": 1320,
+          "height": 2868,
+          "hasAlpha": false,
+          "sha256": "899b79ab47a3f4079ea0bc7b2873066f30b16b893de4091a7d7ab01cc0ee4ca6"
+        },
+        {
+          "id": "02-draw-once",
+          "headline": "Draw it once.",
+          "sourceScreens": [
+            "02-signature-capture.png",
+            "03-initials-capture.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/iphone-6.9/en-US/02-draw-once.png",
+          "width": 1320,
+          "height": 2868,
+          "hasAlpha": false,
+          "sha256": "c14eaf7c0f7cd956f8d61f159244abcfad37c96bc1efb0380608f16a16e450bf"
+        },
+        {
+          "id": "03-private",
+          "headline": "Private by design.",
+          "sourceScreens": [
+            "01-entry.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/iphone-6.9/en-US/03-private.png",
+          "width": 1320,
+          "height": 2868,
+          "hasAlpha": false,
+          "sha256": "2c873e350ba04933164cd2f58899e882f97ecbb9c44cc93956d8fc080b93bd57"
+        },
+        {
+          "id": "04-review",
+          "headline": "Review the whole set.",
+          "sourceScreens": [
+            "04-review.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/iphone-6.9/en-US/04-review.png",
+          "width": 1320,
+          "height": 2868,
+          "hasAlpha": false,
+          "sha256": "ea84a339510a1b66acde20f0a9e85b29a6cfbd604653696a8fd317a3104ddafd"
+        },
+        {
+          "id": "05-background",
+          "headline": "Choose clear or white.",
+          "sourceScreens": [
+            "05-background.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/iphone-6.9/en-US/05-background.png",
+          "width": 1320,
+          "height": 2868,
+          "hasAlpha": false,
+          "sha256": "6c9d64aee63c47e5c1b879c910506ce6ff224bed964aa4c5343bdd2f9a22fadc"
+        },
+        {
+          "id": "06-fine-strokes",
+          "headline": "Keep every fine stroke.",
+          "sourceScreens": [
+            "06-diy-warning.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/iphone-6.9/en-US/06-fine-strokes.png",
+          "width": 1320,
+          "height": 2868,
+          "hasAlpha": false,
+          "sha256": "c368f88eb179fcb82be70bf10ef5ddfbca730734e525a202217e6859f8e98764"
+        },
+        {
+          "id": "07-one-time",
+          "headline": "$1.99 once. No subscription.",
+          "sourceScreens": [
+            "07-transparent-unlocked.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/iphone-6.9/en-US/07-one-time.png",
+          "width": 1320,
+          "height": 2868,
+          "hasAlpha": false,
+          "sha256": "3f06623ecc5bc5be6b307fc8a4087d10737dddbfa09c9b3e8f0f16b4e91bb541"
+        },
+        {
+          "id": "08-save-anytime",
+          "headline": "Save once. Sign anytime.",
+          "sourceScreens": [
+            "08-saved-sets.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/iphone-6.9/en-US/08-save-anytime.png",
+          "width": 1320,
+          "height": 2868,
+          "hasAlpha": false,
+          "sha256": "e7f64ec7331243cba1f49139b1133f44733d9b658e89afc019c815bf84719d30"
+        }
+      ],
+      "contactSheet": "artifacts/app-store-screenshots-v1/iphone-contact-sheet.png"
+    },
+    "ipad": {
+      "sourceHashes": {
+        "01-entry.png": "dcef46a1f4cc3e2db1625823e0c89d9f1ffad6d5937430042685cf94ccf6b258",
+        "02-signature-capture.png": "411e71b3b4c156d29bc4436325fd989c0aa5951f419417a375bec9f2818442ae",
+        "03-initials-capture.png": "0c16b7bbe3b860777f06205415cba92b08fd7dfcea09a9f602b233fc70474d30",
+        "04-review.png": "f92e549c5c8c1213a316597ca7f34f11e9da6c564cbabf14798c0e57c7f3f964",
+        "05-background.png": "772fa67dd482ce7690bf98d065a8b18a550aabb79795c78efc30b29a4566e8b6",
+        "06-diy-warning.png": "39ff15173a58912d42d3969d57a4a6c17efea4e3e4db027c1c06d2f77dc8e702",
+        "07-transparent-unlocked.png": "7547456149d9fd23d246b382756ae35e35d16916612dc7633fc2e639ef981328",
+        "08-saved-sets.png": "c44696bbcbc6f2e3a278ce32e6d59a482ec2650e6b8df426acff47e849dc64e7"
+      },
+      "outputs": [
+        {
+          "id": "01-ready",
+          "headline": "Your signature. Ready when you are.",
+          "sourceScreens": [
+            "01-entry.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/ipad-13/en-US/01-ready.png",
+          "width": 2064,
+          "height": 2752,
+          "hasAlpha": false,
+          "sha256": "da3a70c90816121f6c008ab07db7155b5e144cc8995012d4a65a18e5eb8ff5dc"
+        },
+        {
+          "id": "02-draw-once",
+          "headline": "Draw it once.",
+          "sourceScreens": [
+            "02-signature-capture.png",
+            "03-initials-capture.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/ipad-13/en-US/02-draw-once.png",
+          "width": 2064,
+          "height": 2752,
+          "hasAlpha": false,
+          "sha256": "f9d960754ff6b48b2d5261625d68198606d19a62f2fc34812f22c5ca8610f4f0"
+        },
+        {
+          "id": "03-private",
+          "headline": "Private by design.",
+          "sourceScreens": [
+            "01-entry.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/ipad-13/en-US/03-private.png",
+          "width": 2064,
+          "height": 2752,
+          "hasAlpha": false,
+          "sha256": "acd3e6f82748c6bd6847a8c7df839d70ce4e33ce9f1404d9beb4a25da3b0141c"
+        },
+        {
+          "id": "04-review",
+          "headline": "Review the whole set.",
+          "sourceScreens": [
+            "04-review.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/ipad-13/en-US/04-review.png",
+          "width": 2064,
+          "height": 2752,
+          "hasAlpha": false,
+          "sha256": "7a6f52c15aa62dc3c1b382fbcd8a722a84387890fa488d736b47cd11527bd61d"
+        },
+        {
+          "id": "05-background",
+          "headline": "Choose clear or white.",
+          "sourceScreens": [
+            "05-background.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/ipad-13/en-US/05-background.png",
+          "width": 2064,
+          "height": 2752,
+          "hasAlpha": false,
+          "sha256": "17a3e4367b22ff970680321c8b2fbfc17290e7e7fa64a8ac8a049452d51a88ca"
+        },
+        {
+          "id": "06-fine-strokes",
+          "headline": "Keep every fine stroke.",
+          "sourceScreens": [
+            "06-diy-warning.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/ipad-13/en-US/06-fine-strokes.png",
+          "width": 2064,
+          "height": 2752,
+          "hasAlpha": false,
+          "sha256": "b5c4c1b0b5733b705c794049080e841af38cccc2ed024b16a581721f0305aeb6"
+        },
+        {
+          "id": "07-one-time",
+          "headline": "$1.99 once. No subscription.",
+          "sourceScreens": [
+            "07-transparent-unlocked.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/ipad-13/en-US/07-one-time.png",
+          "width": 2064,
+          "height": 2752,
+          "hasAlpha": false,
+          "sha256": "355d184d61e82a2656fffd0ec088ce8e7dc0e6c430aad12d130749cdf171bde8"
+        },
+        {
+          "id": "08-save-anytime",
+          "headline": "Save once. Sign anytime.",
+          "sourceScreens": [
+            "08-saved-sets.png"
+          ],
+          "outputPath": "artifacts/app-store-screenshots-v1/ipad-13/en-US/08-save-anytime.png",
+          "width": 2064,
+          "height": 2752,
+          "hasAlpha": false,
+          "sha256": "ccf60adfceb2422fb5aad8389151ac70b864adf6cc77b72377ba67935d76adc0"
+        }
+      ],
+      "contactSheet": "artifacts/app-store-screenshots-v1/ipad-contact-sheet.png"
+    }
+  },
+  "wordmarkSha256": "7a07b6e59584b6e3b7ff285ab6767448dce11a4bc73fff5fcaeaba32bb754565"
+}

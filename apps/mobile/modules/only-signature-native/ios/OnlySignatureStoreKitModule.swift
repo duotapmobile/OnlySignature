@@ -5,8 +5,17 @@ import StoreKit
 public final class OnlySignatureStoreKitModule: Module {
   private var observer: Task<Void, Never>?
 
-  private func payload(_ transaction: Transaction, verified: Bool, state: String = "purchased") -> [String: Any] {
-    ["transactionId": String(transaction.id), "productId": transaction.productID, "appAccountToken": transaction.appAccountToken?.uuidString.lowercased() as Any, "state": state, "verified": verified]
+  private func payload(_ transaction: StoreKit.Transaction, verified: Bool, state: String = "purchased") -> [String: Any] {
+    var result: [String: Any] = [
+      "transactionId": String(transaction.id),
+      "productId": transaction.productID,
+      "state": state,
+      "verified": verified
+    ]
+    if let appAccountToken = transaction.appAccountToken {
+      result["appAccountToken"] = appAccountToken.uuidString.lowercased()
+    }
+    return result
   }
 
   private func requestPayload(productId: String, appAccountToken: String?, state: String, errorCategory: String) -> [String: Any] {
@@ -55,7 +64,7 @@ public final class OnlySignatureStoreKitModule: Module {
     Events("onStoreKitTransaction")
     OnCreate {
       self.observer = Task { [weak self] in
-        for await update in Transaction.updates {
+        for await update in StoreKit.Transaction.updates {
           guard let self else { return }
           switch update {
           case .verified(let transaction): self.sendEvent("onStoreKitTransaction", self.payload(transaction, verified: true))
@@ -70,6 +79,9 @@ public final class OnlySignatureStoreKitModule: Module {
       return ["productId": product.id, "displayPrice": product.displayPrice]
     }
     AsyncFunction("purchase") { (productId: String, appAccountToken: String?) -> [String: Any] in
+      guard let tokenValue = appAccountToken, let token = UUID(uuidString: tokenValue) else {
+        return self.requestPayload(productId: productId, appAccountToken: appAccountToken, state: "request-failed", errorCategory: "invalid-app-account-token")
+      }
       let product: Product
       do {
         guard let availableProduct = try await Product.products(for: [productId]).first else {
@@ -81,8 +93,7 @@ public final class OnlySignatureStoreKitModule: Module {
       }
       let result: Product.PurchaseResult
       do {
-        if let value = appAccountToken, let token = UUID(uuidString: value) { result = try await product.purchase(options: [.appAccountToken(token)]) }
-        else { result = try await product.purchase() }
+        result = try await product.purchase(options: [.appAccountToken(token)])
       } catch {
         return self.purchaseErrorPayload(error, productId: productId, appAccountToken: appAccountToken)
       }
@@ -99,7 +110,7 @@ public final class OnlySignatureStoreKitModule: Module {
     }
     AsyncFunction("unfinishedSnapshot") { () -> [[String: Any]] in
       var transactions: [[String: Any]] = []
-      for await result in Transaction.unfinished {
+      for await result in StoreKit.Transaction.unfinished {
         switch result {
         case .verified(let transaction): transactions.append(self.payload(transaction, verified: true))
         case .unverified(let transaction, _): transactions.append(self.payload(transaction, verified: false, state: "failed"))
@@ -108,7 +119,7 @@ public final class OnlySignatureStoreKitModule: Module {
       return transactions
     }
     AsyncFunction("finish") { (transactionId: String) -> Bool in
-      for await result in Transaction.unfinished {
+      for await result in StoreKit.Transaction.unfinished {
         if case .verified(let transaction) = result, String(transaction.id) == transactionId { await transaction.finish(); return true }
       }
       return false

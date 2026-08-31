@@ -1,70 +1,89 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import {
-  GlassCard,
-  Heading,
-  PrimaryButton,
-  Screen,
-  SecondaryButton,
-} from "@/components/ui";
-import { hasDrawing } from "@/domain/models";
-import { theme } from "@/integrations/workspace";
-import { useAppState } from "@/state/AppStateProvider";
+  CheckMark,
+  EntryBackdrop,
+  FlowBody,
+  FlowHeading,
+  FlowPrimaryButton,
+  FlowScreen,
+  FlowSheet,
+  FlowTextButton,
+} from "@/components/flow-ui";
 
-export default function SuccessScreen() {
+export default function ConfirmationScreen() {
   const { mode } = useLocalSearchParams<{ mode?: string }>();
-  const { activeSet, product, productStatus } = useAppState();
-  const both =
-    hasDrawing(activeSet.signature) && hasDrawing(activeSet.initials);
-  const onlySignature = hasDrawing(activeSet.signature);
-  const line = both
-    ? "Your signature and initials are saved."
-    : onlySignature
-      ? "Your signature is saved."
-      : "Your initials are saved.";
+  const transparent = mode === "transparent" || mode === "purchased";
+  const finishFlow = () => {
+    router.dismissAll();
+    router.replace("/saved");
+  };
+
   return (
-    <Screen>
-      <View
-        accessible
-        accessibilityLabel="Saved successfully"
-        style={styles.check}
+    <FlowScreen
+      contentStyle={styles.content}
+      testID={
+        transparent
+          ? "transparent-confirmation-screen"
+          : "white-confirmation-screen"
+      }
+    >
+      <EntryBackdrop />
+      <View accessibilityElementsHidden style={styles.shade} />
+      <FlowSheet
+        label={
+          transparent
+            ? "Transparent Set Unlocked"
+            : "White Background Set Saved"
+        }
+        style={styles.sheet}
       >
-        <Text style={styles.checkText}>✓</Text>
-      </View>
-      <Heading>Saved Successfully!</Heading>
-      <GlassCard>
-        <Text style={styles.line}>{line}</Text>
-      </GlassCard>
-      <PrimaryButton label="Done" onPress={() => router.replace("/saved")} />
-      {mode === "free" &&
-      activeSet.status !== "purchased" &&
-      productStatus === "available" &&
-      product.displayPrice ? (
-        <SecondaryButton
-          label={`Export Transparent for ${product.displayPrice}`}
-          onPress={() => router.replace("/purchase")}
-        />
-      ) : null}
-    </Screen>
+        <View style={styles.success}>
+          <CheckMark />
+          <View style={styles.title}>
+            <FlowHeading>
+              {transparent
+                ? "Transparent Set Unlocked"
+                : "White Background Set Saved"}
+            </FlowHeading>
+          </View>
+          <FlowBody style={styles.copy}>
+            {transparent
+              ? "This signing set is unlocked and can be exported again anytime."
+              : "Your signing set is saved privately on this device."}
+          </FlowBody>
+        </View>
+        <View style={styles.actions}>
+          {transparent ? (
+            <FlowPrimaryButton
+              label="Export Files"
+              onPress={() => router.push("/export")}
+            />
+          ) : (
+            <FlowPrimaryButton label="Done" onPress={finishFlow} />
+          )}
+          {transparent ? (
+            <FlowTextButton label="Done" onPress={finishFlow} />
+          ) : null}
+        </View>
+      </FlowSheet>
+    </FlowScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  check: {
-    width: 104,
-    height: 104,
-    borderRadius: 52,
-    alignSelf: "center",
-    backgroundColor: theme.colors.success,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  checkText: { color: theme.colors.white, fontSize: 62, fontWeight: "900" },
-  line: {
-    color: theme.colors.text,
-    fontSize: 21,
-    lineHeight: 29,
-    fontWeight: "700",
+  content: { padding: 0 },
+  shade: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(0,0,0,0.62)" },
+  sheet: { top: 132 },
+  success: { alignItems: "center", paddingTop: 28 },
+  title: { marginTop: 18 },
+  copy: {
+    color: "#E3EAED",
+    fontSize: 14,
+    lineHeight: 20,
     textAlign: "center",
+    marginTop: 14,
+    paddingHorizontal: 10,
   },
+  actions: { marginTop: "auto" },
 });

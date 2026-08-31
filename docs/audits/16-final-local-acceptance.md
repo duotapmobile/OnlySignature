@@ -1,6 +1,6 @@
 # Final Local Acceptance Readiness
 
-Date: 2026-08-26
+Date: 2026-08-28
 
 Scope: the actual combined repository after the broken-code audit, improvement review, four-person council, tenth-man challenge, all locally fixable remediations, and final hostile re-review.
 
@@ -62,3 +62,28 @@ The tenth man initially held the build for terminal StoreKit errors that could b
 ## Source-control authority
 
 The GitHub `origin` is intentional and founder-authorized after the original local-only instruction. Publication of this acceptance commit is authorized; App Store submission and website deployment are not implied.
+
+## 2026-08-28 fresh acceptance
+
+`npm run acceptance:local` exited 0 after the current council and tenth-man corrections:
+
+- 34 root tests and 51 mobile tests passed.
+- Six export pixel tests passed.
+- Formatting, strict TypeScript, lint, content drift across 134 files, release configuration, production network policy, production Expo introspection, native autolink, composition-evidence verification, and secret scanning passed.
+- `npm audit --audit-level=high` passed with zero high/critical findings. The 12 moderate Expo/Xcode findings remain the documented non-runtime build-chain exception.
+- The static website built 9 pages and passed validation of 11 required outputs, internal links, zero client JavaScript, and prohibited tracking/font/cookie patterns.
+- The SBOM was regenerated with 1,147 components after adding the exact optional Apple Silicon Astro compiler and Satteri bindings.
+- Both EAS workflows passed schema validation with exact `eas-cli@23.0.0`; authenticated project readback matched `@duotap/onlysignature` and project ID `954b1a21-89e9-41af-8021-d7c8e66d74c8`.
+- Expo GitHub base-directory readback matched `/apps/mobile`.
+
+The accepted repository may now proceed to review-branch publication and native cloud evidence. It remains a no-go for App Review submission or public release.
+
+The first EAS source-acceptance job failed before build because macOS TypeScript exposed an implicit callback parameter and npm ci could not install an Apple Silicon Astro binding absent from the Windows-authored lockfile. The callback is now explicitly typed, `@astrojs/compiler-binding-darwin-arm64@0.4.0` is an exact optional site dependency, and this complete acceptance suite passed after those corrections.
+
+The second EAS source-acceptance job cleared those defects, then failed before simulator allocation when Astro's production build could not load `@bruits/satteri-darwin-arm64`. Exact optional version `0.10.5` is now present in the package declaration and lockfile. Focused Astro type/build checks and this complete acceptance suite passed after the correction; a successful cloud rerun is still required.
+
+The third EAS workflow passed source acceptance and reached the real Xcode simulator build. Xcode exposed get-only `URLResourceValues.fileProtection` writes and an ambiguous StoreKit `Transaction` type in the owned Swift modules. The correction preserves FileManager data protection and backup exclusion, removes the invalid property assignments, qualifies every `StoreKit.Transaction`, and adds source regression tests. Focused mobile tests passed 53/53 and the complete local acceptance suite passed after the correction. Native capture evidence is still required.
+
+The fourth EAS workflow proved the owned Swift and complete iOS Simulator app now compile. The capture job then exposed a deterministic automation race: it opened the fixture deep link immediately after process launch without proving that the hydrated fixture shell and Router listener were ready. The exact triple-slash URL was independently parsed to `draw?fixture=both`, and the built Hermes bundle contains the expected route and `Draw Your Signature` copy. The correction waits for the fixture-backed Saved screen before linking, then waits for each requested route's unique visible copy before its final assertions and screenshot. A focused regression test and the store-asset verifier enforce that order. The full local acceptance suite passed with 36 root tests, 53 mobile tests, and 6 export tests. Native capture evidence remains required; production/TestFlight remain undispatched.
+
+The fifth EAS workflow passed source acceptance and the real iOS Simulator build, then repeated the first-route failure even after the hydrated Saved screen was proven visible. That result disproved a simple readiness delay. Current Expo linking documentation confirms custom-scheme cold launches and current Maestro documentation identifies a one-time iOS deep-link security confirmation. The harness now stops the app, invokes the exact fixture URL through `xcrun simctl openurl`, conditionally taps the documented `Open` confirmation, and only then accepts the hydrated global app marker, route-unique copy, and final state assertions. It verifies the downloaded bundle registers `onlysignature` and applies the same cold-launch path to runtime export verification. Focused tests passed 4/4 and complete local acceptance passed with 38 root tests, 53 mobile tests, and 6 export tests. A sixth native workflow remains required; production/TestFlight remain undispatched.

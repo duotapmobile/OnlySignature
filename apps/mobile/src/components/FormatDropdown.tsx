@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
-import { formatLabel, type ExportFormat } from "@/domain/models";
+import {
+  formatControlAccessibilityLabel,
+  formatLabel,
+  type ExportFormat,
+} from "@/domain/models";
 import { theme } from "@/integrations/workspace";
 
 export function FormatDropdown({
@@ -20,7 +24,7 @@ export function FormatDropdown({
       <Text style={styles.label}>{label}</Text>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${label} format. ${formatLabel[value]}`}
+        accessibilityLabel={formatControlAccessibilityLabel(label, value)}
         accessibilityHint="Opens the format choices"
         onPress={() => setOpen(true)}
         style={styles.trigger}
@@ -43,7 +47,7 @@ export function FormatDropdown({
               <Pressable
                 key={format}
                 accessibilityRole="radio"
-                accessibilityState={{ selected: format === value }}
+                accessibilityState={{ checked: format === value }}
                 onPress={() => {
                   onChange(format);
                   setOpen(false);

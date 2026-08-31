@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "workflowId": "01a04aa5-4cba-7eb5-8314-aa38c40d69a5",
+  "captureJobId": "01a04aad-3b41-7992-a5aa-db031030fd35",
+  "simulatorBuildId": "a7d91492-45c7-4e41-b541-e80aa1e46a92",
+  "sourceRevision": "474e4cbdab8b8920d0fb1729c9368ebc9123071d",
+  "artifactId": "01a04aae-a3c8-7efa-a701-637045d6a48e",
+  "artifactName": "only-signature-native-store-assets",
+  "artifactSizeBytes": 483,
+  "archiveSha256": "5c26e0753c2c9289bab46a2e7c657ed76cbeed15673782b2b3a8f9c9328337e9",
+  "result": "CAPTURE_FAILED_BEFORE_OPENURL",
+  "failure": "ReferenceError: screenshotDeepLink is not defined",
+  "containsSecrets": false
+}

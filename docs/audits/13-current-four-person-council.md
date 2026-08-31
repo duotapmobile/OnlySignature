@@ -1,43 +1,48 @@
 # Current Four-Person Council
 
-Date: 2026-08-25
+Date: 2026-08-28
+
+Endpoint reviewed: a complete launch record and one internal TestFlight build. App Review submission and public release remain outside authority.
 
 Participants:
 
-- Product, UX, and Accessibility
-- Engineering, StoreKit, Storage, and Security
-- App Store, Privacy, Legal Preparation, and Release Configuration
+- Product, UX, Accessibility, and Purchase Fairness
+- Engineering, StoreKit, Persistence, Security, and Privacy
+- App Store Connect, EAS, Screenshots, and Release Evidence
 - Final Authority
 
-Reviewed state: the corrective worktree diff after the two sequential agent reviews. The complete local repository gate passed with 24 root tests and 25 mobile tests.
+Reviewed state: the actual working tree on `codex/only-signature-testflight-readiness-2026-08-28`, after the independent defect and improvement reviews. The council did not rely on the August 25 audit as current evidence.
 
-## Council decision
+## Consensus
 
-HOLD before release authority. No P0 was found. The council reached consensus on these locally fixable P1 corrections:
+No P0 defect was found. The following local P1 corrections are mandatory:
 
-1. An ambiguous purchase journal must block another paid attempt and destructive deletion until it is resolved. Free white-background export may remain available.
-2. Copy must not say the customer was not charged while a late verified transaction is still considered possible.
-3. A tokenless verified callback must be able to bind the sole unresolved frozen intent; an app-account token improves correlation but cannot be required for correctness.
-4. Snapshot processing, observer callbacks, absence decisions, and request-failure reconciliation must share one serialized queue.
-5. Same-session purchase presentation must not be abandoned merely because the app becomes active while StoreKit is still returning control.
-6. The EAS release hook must live in `apps/mobile/package.json`, the EAS project root.
-7. Touches in aspect-fit letterbox margins must not be clamped into remote drawing edges.
-8. Included-slot actions must remain unavailable while transaction finishing is unresolved; the UI must not present an editable canvas whose state writes are rejected.
-9. The purchase comparison needs an adaptive, semantically described large-text layout.
+1. Screenshot fixture query parameters must affect navigation or purchase presentation only when the embedded screenshot-fixture capability is enabled and the fixture name is recognized.
+2. A two-asset export must track confirmation per asset and must not claim that both files were saved after only one share flow.
+3. The authorized-use alert must be a first-entry acknowledgment, not a repeated interruption before Create New or Duplicate as New Draft.
+4. A verified consumable transaction that cannot match retained local state must have a finite, no-second-charge recovery path. It may be attached only to an explicitly frozen replacement set, persisted before finishing, and never silently consumed.
+5. Successful snapshot reconciliation must return a recovered-purchase result and must not be overwritten by interruption or failure copy.
+6. The production network scan must inspect checked-in native modules and skip only generated native output.
+7. Archive inspection must reconcile every bundled privacy manifest, its collected-data declarations, tracking declarations, and required-reason values.
+8. Both EAS workflow files must pass the pinned workflow schema validator. The current null `workflow_dispatch` value is invalid and must be an object.
 
-## P2 consensus
+## Closed during council
 
-- Clean partial multi-asset exports on failure.
-- Extend semantic state invariants.
-- Update local-storage and data-flow documentation for unfinished-snapshot recovery and any retained frozen purchase intent.
-- Keep Provider/native bridge race tests and physical-device checks explicit release gates when Windows cannot execute them.
+- Expo CLI identity is `duotap` / `admin@duotap.app`.
+- The local dynamic Expo configuration is bound only to existing project `@duotap/onlysignature`, ID `954b1a21-89e9-41af-8021-d7c8e66d74c8`.
+- Production configuration now refuses any different EAS project ID.
+- The exact live consumable remains `com.duotap.onlysignature.transparent_set_v1`; app and IAP availability are exactly U.S.-only.
+- The mobile recovery suite passed 46 tests after the pre-council corrections.
 
-## Disagreements resolved
+## External evidence gates
 
-- `finish(false)` is not itself a failure. A successfully completed `Transaction.unfinished` enumeration that does not contain the durably bound transaction is authoritative absence; no `Transaction.all` fallback is needed.
-- Local abandoned-intent storage does not change the App Privacy label, but its retention and deletion behavior must be accurately disclosed.
-- The per-set repeatable product remains a consumable; no Restore Purchase control is added.
+- Set the Expo GitHub base directory to `/apps/mobile` before workflow dispatch.
+- Run and retrieve the native screenshot workflow; verify all 16 native images and the native-derived IAP review crop locally.
+- Complete the IAP review image and re-read its live metadata state.
+- Compile and inspect the signed archive on EAS/macOS.
+- Prove the processed build is visible in and assigned only to `Only Signature Internal`.
+- Retain physical-device accessibility, StoreKit sandbox, export-destination, file-protection, and runtime-network evidence without claiming it passed prematurely.
 
-## Decision for adversarial review
+## Fourth-authority decision
 
-The council consensus is now fixed for a tenth-man challenge. No council P1 may be waived merely because the existing automated gates are green.
+The repository remains HOLD for internal TestFlight until the local P1 corrections pass fresh tests and the tenth man has challenged this consensus. External gates are not waived, and no public-release authority is granted.

@@ -1,4 +1,5 @@
-import { mkdir, readFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 
@@ -14,29 +15,41 @@ const escapeXml = (value) =>
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
-const selectedScreenshots = process.env.SHOT_ID
-  ? manifest.screenshots.filter((shot) => shot.id === process.env.SHOT_ID)
-  : manifest.screenshots;
-if (selectedScreenshots.length === 0)
-  throw new Error(`Unknown screenshot id: ${process.env.SHOT_ID}`);
-for (const device of ["iphone", "ipad"]) {
+const hashFile = async (file) =>
+  createHash("sha256")
+    .update(await readFile(file))
+    .digest("hex");
+const devices = process.env.DEVICE ? [process.env.DEVICE] : ["iphone", "ipad"];
+if (devices.some((device) => !["iphone", "ipad"].includes(device)))
+  throw new Error("DEVICE must be iphone or ipad.");
+
+for (const device of devices) {
   const output = manifest.outputs[device];
-  const rawDir = path.join("store-assets", "screenshots", "raw", device);
+  const rawDir = path.join(
+    "store-assets",
+    "screenshots",
+    "native",
+    "raw",
+    device,
+  );
   const finalDir = path.join(
     "store-assets",
     "screenshots",
+    "native",
     "final",
     device,
     "en-US",
   );
+  const rawProvenance = JSON.parse(
+    await readFile(path.join(rawDir, "capture-provenance.json"), "utf8"),
+  );
+  if (rawProvenance.source !== "native-react-native-ios-simulator")
+    throw new Error(`Invalid native source provenance for ${device}.`);
   await mkdir(finalDir, { recursive: true });
-  for (const shot of selectedScreenshots) {
+  const finalCaptures = [];
+
+  for (const shot of manifest.screenshots) {
     const rawPath = path.join(rawDir, `${shot.id}.png`);
-    try {
-      await readFile(rawPath);
-    } catch {
-      throw new Error(`Required capture is missing: ${rawPath}`);
-    }
     const dimensions =
       device === "iphone"
         ? {
@@ -77,7 +90,6 @@ for (const device of ["iphone", "ipad"]) {
         .replace("{{FOOTER_Y}}", String(dimensions.footerY))
         .replace("{{FOOTER_SIZE}}", String(dimensions.footerSize)),
     );
-    const frame = sharp(frameSvg).png();
     const screenWidth =
       device === "iphone"
         ? Math.round(output.width * 0.78)
@@ -96,7 +108,8 @@ for (const device of ["iphone", "ipad"]) {
       .flatten({ background: "#F5F3EE" })
       .png()
       .toBuffer();
-    const composed = await frame
+    const composed = await sharp(frameSvg)
+      .png()
       .composite([{ input: raw, left, top }])
       .flatten({ background: "#133A50" })
       .png()
@@ -109,35 +122,86 @@ for (const device of ["iphone", "ipad"]) {
       metadata.height !== output.height ||
       metadata.hasAlpha
     )
-      throw new Error(`Invalid output ${finalPath}`);
-    process.stdout.write(
-      `WROTE ${finalPath} ${metadata.width}x${metadata.height} no-alpha\n`,
+      throw new Error(`Invalid native-derived output ${finalPath}`);
+    finalCaptures.push({
+      id: shot.id,
+      route: shot.route,
+      rawSha256: await hashFile(rawPath),
+      finalPath: finalPath.replaceAll("\\", "/"),
+      finalSha256: await hashFile(finalPath),
+      width: metadata.width,
+      height: metadata.height,
+      hasAlpha: Boolean(metadata.hasAlpha),
+    });
+  }
+
+  const provenanceDir = path.join(
+    "store-assets",
+    "screenshots",
+    "native",
+    "provenance",
+  );
+  await mkdir(provenanceDir, { recursive: true });
+  await writeFile(
+    path.join(provenanceDir, `${device}.json`),
+    `${JSON.stringify(
+      {
+        schemaVersion: 1,
+        ...rawProvenance,
+        composedAt: new Date().toISOString(),
+        finalCaptures,
+      },
+      null,
+      2,
+    )}\n`,
+    "utf8",
+  );
+
+  if (device === "iphone") {
+    const reviewSource = path.join(rawDir, "03-no-editing.png");
+    const reviewDir = path.join("store-assets", "app-review", "native");
+    const reviewOutput = path.join(reviewDir, "iap-review-1024.png");
+    const reviewProvenance = path.join(reviewDir, "provenance.json");
+    const crop = { left: 75, top: 500, width: 1140, height: 1140 };
+    await mkdir(reviewDir, { recursive: true });
+    await sharp(reviewSource)
+      .extract(crop)
+      .resize(1024, 1024, {
+        fit: "cover",
+        position: "center",
+      })
+      .flatten({ background: "#133A50" })
+      .removeAlpha()
+      .png()
+      .toFile(reviewOutput);
+    const reviewMetadata = await sharp(reviewOutput).metadata();
+    await writeFile(
+      reviewProvenance,
+      `${JSON.stringify(
+        {
+          schemaVersion: 1,
+          source: "native-react-native-ios-simulator",
+          sourceFrameId: "03-no-editing",
+          sourceRoute: "/purchase?fixture=both",
+          sourcePath: reviewSource.replaceAll("\\", "/"),
+          sourceSha256: await hashFile(reviewSource),
+          crop,
+          outputPath: reviewOutput.replaceAll("\\", "/"),
+          outputSha256: await hashFile(reviewOutput),
+          width: reviewMetadata.width,
+          height: reviewMetadata.height,
+          hasAlpha: Boolean(reviewMetadata.hasAlpha),
+          easBuildId: rawProvenance.easBuildId,
+          easWorkflowId: rawProvenance.easWorkflowId,
+          commitSha: rawProvenance.commitSha,
+        },
+        null,
+        2,
+      )}\n`,
+      "utf8",
     );
   }
+  process.stdout.write(
+    `Composed ${finalCaptures.length} native-derived ${device} screenshots with hashes.\n`,
+  );
 }
-
-await mkdir(path.join("store-assets", "app-review"), { recursive: true });
-const reviewSource = path.join(
-  "store-assets",
-  "screenshots",
-  "final",
-  "iphone",
-  "en-US",
-  "03-no-editing.png",
-);
-const reviewOutput = path.join(
-  "store-assets",
-  "app-review",
-  "iap-review-1024.png",
-);
-await sharp(reviewSource)
-  .resize(1024, 1024, {
-    fit: "contain",
-    position: "center",
-    background: "#133A50",
-  })
-  .flatten({ background: "#133A50" })
-  .removeAlpha()
-  .png()
-  .toFile(reviewOutput);
-process.stdout.write(`WROTE ${reviewOutput} 1024x1024 no-alpha\n`);

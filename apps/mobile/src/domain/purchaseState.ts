@@ -13,6 +13,7 @@ export const canEditAsset = (set: SignatureSet, kind: AssetKind): boolean => {
 };
 
 export const hasPurchaseRecoveryInProgress = (data: AppStateData): boolean =>
+  data.unboundPurchases.length > 0 ||
   data.sets.some(
     (set) => Boolean(set.pendingPurchaseId) || set.transactionFinishPending,
   );
@@ -35,6 +36,52 @@ export const canBeginPurchase = (set: SignatureSet): boolean =>
   !set.transactionFinishPending &&
   set.status !== "purchased" &&
   (hasDrawing(set.signature) || hasDrawing(set.initials));
+
+export const statePreparedForUnboundPurchaseRecovery = (
+  data: AppStateData,
+  setId: string,
+  transactionId: string,
+  fallbackToken: string,
+  signatureHash: string | null,
+  initialsHash: string | null,
+): AppStateData => {
+  const hold = data.unboundPurchases.find(
+    (purchase) => purchase.transactionId === transactionId,
+  );
+  const target = data.sets.find((set) => set.id === setId);
+  const token =
+    canonicalPurchaseToken(hold?.appAccountToken) ??
+    canonicalPurchaseToken(fallbackToken);
+  if (
+    !hold ||
+    !target ||
+    !token ||
+    target.status !== "draft" ||
+    target.pendingPurchaseId ||
+    target.transactionId ||
+    target.transactionFinishPending ||
+    (!hasDrawing(target.signature) && !hasDrawing(target.initials)) ||
+    (hasDrawing(target.signature) && !signatureHash) ||
+    (hasDrawing(target.initials) && !initialsHash)
+  )
+    throw new Error("unbound-purchase-recovery-unavailable");
+  const frozen: SignatureSet = {
+    ...target,
+    pendingPurchaseId: token,
+    purchaseIntentState: "pending",
+    signature: target.signature
+      ? { ...target.signature, finalizedHash: signatureHash }
+      : null,
+    initials: target.initials
+      ? { ...target.initials, finalizedHash: initialsHash }
+      : null,
+  };
+  return {
+    ...data,
+    sets: data.sets.map((set) => (set.id === frozen.id ? frozen : set)),
+    lastError: null,
+  };
+};
 
 export const stateWithPendingPurchaseCleared = (
   data: AppStateData,

@@ -1,8 +1,13 @@
-import { Alert, Pressable, StyleSheet, Text } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import Constants from "expo-constants";
 import { router } from "expo-router";
-import { BackLink, GlassCard, Heading, Screen } from "@/components/ui";
-import { theme } from "@/integrations/workspace";
+import Svg, { Path } from "react-native-svg";
+import {
+  FlowBackButton,
+  FlowHeading,
+  FlowScreen,
+  flowColors,
+} from "@/components/flow-ui";
 import { useAppState } from "@/state/AppStateProvider";
 
 const rows = [
@@ -40,9 +45,12 @@ export default function SettingsScreen() {
       ],
     );
   return (
-    <Screen>
-      <Heading>Settings and About</Heading>
-      <GlassCard style={styles.list}>
+    <FlowScreen contentStyle={styles.content} testID="settings-screen">
+      <View style={styles.back}>
+        <FlowBackButton onPress={() => router.back()} />
+      </View>
+      <FlowHeading>Settings and About</FlowHeading>
+      <View style={styles.list}>
         {rows.map((row) => (
           <Pressable
             key={row.route}
@@ -51,7 +59,21 @@ export default function SettingsScreen() {
             style={styles.row}
           >
             <Text style={styles.rowLabel}>{row.label}</Text>
-            <Text style={styles.arrow}>›</Text>
+            <Svg
+              width={20}
+              height={20}
+              viewBox="0 0 24 24"
+              accessibilityElementsHidden
+            >
+              <Path
+                d="m9 5 7 7-7 7"
+                fill="none"
+                stroke={flowColors.accessibleLink}
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
           </Pressable>
         ))}
         <Pressable
@@ -62,18 +84,27 @@ export default function SettingsScreen() {
         >
           <Text style={styles.delete}>Delete All Saved Signatures</Text>
         </Pressable>
-      </GlassCard>
+      </View>
       <Text style={styles.version}>
         Version {Constants.expoConfig?.version ?? "1.0.0"} · Build{" "}
         {Constants.expoConfig?.ios?.buildNumber ?? "1"}
       </Text>
-      <BackLink onPress={() => router.back()} />
-    </Screen>
+    </FlowScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  list: { paddingVertical: 7 },
+  content: { paddingTop: 28 },
+  back: { height: 32, alignSelf: "flex-start" },
+  list: {
+    marginTop: 16,
+    paddingVertical: 7,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#D6E0E3",
+    backgroundColor: flowColors.card,
+  },
   row: {
     minHeight: 58,
     borderBottomWidth: 1,
@@ -86,12 +117,18 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   rowLabel: {
-    color: theme.colors.text,
-    fontSize: 18,
+    color: flowColors.cardText,
+    fontSize: 16,
+    lineHeight: 22,
     fontWeight: "700",
     flex: 1,
   },
-  arrow: { color: theme.colors.primary, fontSize: 30 },
-  delete: { color: theme.colors.destructive, fontSize: 18, fontWeight: "700" },
-  version: { color: theme.colors.white, fontSize: 16, textAlign: "center" },
+  delete: { color: "#8F2727", fontSize: 16, lineHeight: 22, fontWeight: "700" },
+  version: {
+    color: flowColors.muted,
+    fontSize: 12,
+    lineHeight: 17,
+    textAlign: "center",
+    marginTop: 16,
+  },
 });

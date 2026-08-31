@@ -38,7 +38,7 @@ function prepared() {
   return preparePurchase(
     set,
     "intent-1",
-    "com.example.onlysignature.transparent-set-v1",
+    "com.example.onlysignature.transparent_set_v1",
     "n2",
   );
 }

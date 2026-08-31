@@ -41,11 +41,19 @@ export interface SignatureSet {
   exportCount: number;
 }
 
+export interface UnboundPurchase {
+  transactionId: string;
+  productId: string;
+  appAccountToken: string | null;
+  detectedAt: string;
+}
+
 export interface AppStateData {
   hydrated: boolean;
   activeSetId: string;
   sets: SignatureSet[];
   selectedAsset: AssetKind;
+  unboundPurchases: UnboundPurchase[];
   reviewPrompted: boolean;
   lastError: string | null;
 }
@@ -90,3 +98,8 @@ export const formatLabel: Record<ExportFormat, string> = {
   "png-white": "PNG, White Background",
   "jpeg-white": "JPEG, White Background",
 };
+
+export const formatControlAccessibilityLabel = (
+  label: string,
+  format: ExportFormat,
+): string => `${label} format. ${formatLabel[format]}`;

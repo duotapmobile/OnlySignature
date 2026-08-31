@@ -1,15 +1,15 @@
 # Domain and DNS Setup
 
 Prepared: 2026-08-25  
-Status: GitHub Pages is selected and prepared for `onlysignature.app`; waiting for Pages activation and the founder-entered DNS changes below.
+Status: validated static output is published on remote `gh-pages` at `e0d9c6d`; waiting only for GitHub Pages activation, custom-domain confirmation, DNS changes, and HTTPS issuance.
 
 ## Founder decisions required
 
 - production host: GitHub Pages selected;
 - registrar/DNS: Namecheap BasicDNS observed; founder retains account control;
 - support email: `admin@onlysignature.app` confirmed; preserve Namecheap email forwarding;
-- legal operator and phone are confirmed; the private Apple membership address must not be published;
-- authorization to create DNS, TLS, and deployment records.
+- legal operator is confirmed; the private Apple membership address and phone must not be published;
+- founder completion of the GitHub Pages activation and Namecheap DNS records below.
 
 Do not purchase, transfer, or configure a domain without that authorization. `onlysignature.com` is already registered and must not be represented as owned.
 
@@ -23,7 +23,7 @@ Required public paths are listed in `REQUIRED_PUBLIC_URLS.md`.
 
 Public DNS observed on 2026-08-26 uses Namecheap BasicDNS. The apex currently points to Namecheap parking at `162.255.119.176`, while `www` points to `parkingpage.namecheap.com`. The MX and SPF records support `admin@onlysignature.app` and must remain unchanged.
 
-Before changing DNS, publish `apps/site/dist` from the `gh-pages` branch, select that branch and `/ (root)` under **GitHub repository > Settings > Pages**, then set the Pages custom domain to `onlysignature.app`. GitHub recommends associating the domain with the Pages site before pointing public DNS at it.
+The validated `apps/site/dist` output is published as remote `gh-pages` commit `e0d9c6d`. Select `gh-pages` and `/ (root)` under **GitHub repository > Settings > Pages**, save, and then set the Pages custom domain to `onlysignature.app`. GitHub recommends associating the domain with the Pages site before pointing public DNS at it.
 
 In **Namecheap > Domain List > onlysignature.app > Advanced DNS**, delete only the current parking `A` record for host `@` and the parking `CNAME` for host `www`. Add these records with TTL `Automatic`:
 

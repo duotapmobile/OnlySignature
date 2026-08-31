@@ -47,11 +47,13 @@
     "typecheck": "tsc --noEmit",
     "test": "tsx --test test/**/*.test.ts",
     "eas-build-post-install": "node ../../scripts/check-release-config.mjs --if-production",
-    "capture:screenshots": "node ./scripts/capture-screenshots.mjs",
+    "capture:screenshots": "npx --yes eas-cli@23.0.0 workflow:run .eas/workflows/native-ios-screenshots.yml",
+    "testflight:internal": "npx --yes eas-cli@23.0.0 workflow:run .eas/workflows/internal-testflight.yml",
     "prebuild:ios": "expo prebuild --platform ios --clean",
-    "build:preview": "eas build --platform ios --profile preview",
-    "build:production": "eas build --platform ios --profile production",
-    "submit:ios": "eas submit --platform ios --profile production"
+    "build:preview": "npx --yes eas-cli@23.0.0 build --platform ios --profile preview",
+    "build:production": "npx --yes eas-cli@23.0.0 build --platform ios --profile production",
+    "submit:ios": "npx --yes eas-cli@23.0.0 submit --platform ios --profile production",
+    "capture:actual-flow": "npx --yes eas-cli@23.0.0 workflow:run .eas/workflows/native-ios-actual-flow.yml"
   },
   "private": true
 }

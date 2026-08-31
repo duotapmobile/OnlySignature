@@ -1,6 +1,6 @@
 # Current Final Authority
 
-Date: 2026-08-25
+Date: 2026-08-28
 
 Scope: final authority over the corrected local source after the sequential defect audit, independent improvement review, four-person council, tenth-man challenge, remediation, and hostile re-review.
 
@@ -59,3 +59,28 @@ Observed local results:
 ## Authority boundary
 
 The source may proceed to the external release gates. It may not be described as signed, sandbox-tested, device-tested, deployed, submitted, trademark-cleared, or attorney-certified until corresponding evidence exists.
+
+## 2026-08-28 authority renewal
+
+The current four-person council and subsequent tenth-man review found no P0. Every locally actionable P1 was corrected before this renewal. Corrections include screenshot-fixture authorization, per-asset export confirmation, non-repeating authorized-use prompts, finite no-second-charge recovery for an unmatched verified consumable, successful snapshot-recovery messaging, checked-in native network scanning, complete archive privacy-manifest inspection, source-SHA provenance, GitHub Pages privacy disclosure, a native runtime export harness, and post-upload TestFlight readback.
+
+Fresh `npm run acceptance:local` evidence passed in full:
+
+- Prettier, strict TypeScript, and lint passed.
+- Root Vitest passed 34/34; mobile Node tests passed 51/51.
+- Content drift, development release configuration, production network allowlist, production Expo introspection, iOS native autolink, composition-evidence asset verification, and the source secret scan passed.
+- The dependency threshold passed with zero high or critical advisories. Twelve moderate Expo/Xcode build-chain findings remain governed; no force downgrade was used.
+- Export pixel verification passed 6/6.
+- The Astro site built 9 pages and passed required-output, internal-link, no-client-JavaScript, and prohibited-tracking validation.
+- The CycloneDX SBOM was regenerated with 1,147 components after locking the exact optional Apple Silicon Astro compiler and Satteri bindings.
+- Both EAS workflow files passed exact `eas-cli@23.0.0 workflow:validate`.
+- Expo readback is `duotap` / `admin@duotap.app`, project `@duotap/onlysignature`, ID `954b1a21-89e9-41af-8021-d7c8e66d74c8`.
+- The existing GitHub integration base directory was changed to `/apps/mobile` and verified by live readback without dispatching a workflow.
+
+**Renewed decision: LOCAL SOURCE APPROVED FOR THE AUTHORIZED NATIVE-SCREENSHOT AND INTERNAL-TESTFLIGHT GATES.** No signed build, native screenshot, StoreKit sandbox, physical-device, TestFlight, App Review, or public-release claim is made.
+
+The first native screenshot workflow failed safely in source acceptance before allocating a simulator build. Its macOS log exposed an implicit app-config callback type and npm's omission of Astro's Apple Silicon optional compiler binding from the Windows-authored lockfile. Both portability defects were corrected, the exact optional binding is now locked, and the complete local acceptance suite passed again. This renewal covers the corrected commit only; a successful cloud rerun is still required.
+
+The second native screenshot workflow also failed safely before allocating a simulator. It cleared the earlier defects and then exposed the separately omitted `@bruits/satteri-darwin-arm64` package during Astro's production build. The exact `0.10.5` optional binding is now locked, focused site checks and the complete local acceptance suite passed, and no production/TestFlight workflow was dispatched. Cloud-native capture evidence remains mandatory.
+
+The third native screenshot workflow passed source acceptance and reached the real Xcode simulator build. Xcode rejected three assignments to the get-only `URLResourceValues.fileProtection` property and one unqualified ambiguous `Transaction` type in owned Swift. Protection remains enforced through `FileManager` attributes, backup exclusion remains enforced through writable URL resource values, and every intended transaction reference is now `StoreKit.Transaction`. Two fail-closed source tests were added; focused mobile tests passed 53/53 and the complete acceptance suite passed. A successful cloud rerun remains mandatory.

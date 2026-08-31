@@ -18,6 +18,14 @@ export const landingCopy = {
   action: "Get Started",
 } as const;
 
+export const privacyFixtureCopy = {
+  heading: "Created on your device",
+  operatorStatement:
+    "The operator does not receive your signature or initials content.",
+  detail:
+    "Only Signature does not ask you to upload a document, create an account, or send your drawing to a developer-controlled server.",
+} as const;
+
 export const purchaseCopy = {
   title: "Transparent Export",
   noEditing: "No editing or cropping",

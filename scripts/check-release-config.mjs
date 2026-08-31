@@ -4,6 +4,7 @@ const production =
     process.env.EXPO_PUBLIC_RELEASE_MODE === "production");
 const env = process.env;
 const required = [
+  "EAS_PROJECT_ID",
   "EXPO_PUBLIC_APP_DISPLAY_NAME",
   "EXPO_PUBLIC_APP_SLUG",
   "EXPO_PUBLIC_BUNDLE_IDENTIFIER",
@@ -59,10 +60,34 @@ if (production) {
     errors.push("EXPO_PUBLIC_STOREKIT_MODE must be real");
   if (env.EXPO_PUBLIC_RELEASE_MODE !== "production")
     errors.push("EXPO_PUBLIC_RELEASE_MODE must be production");
+  if (env.EXPO_PUBLIC_SCREENSHOT_FIXTURE_MODE === "1")
+    errors.push("EXPO_PUBLIC_SCREENSHOT_FIXTURE_MODE must be disabled");
+  if (!/^[A-Za-z0-9_.]+$/.test(env.EXPO_PUBLIC_STOREKIT_PRODUCT_ID ?? ""))
+    errors.push(
+      "EXPO_PUBLIC_STOREKIT_PRODUCT_ID may contain only letters, numbers, underscores, and periods",
+    );
+  if (
+    !(env.EXPO_PUBLIC_STOREKIT_PRODUCT_ID ?? "").startsWith(
+      `${env.EXPO_PUBLIC_BUNDLE_IDENTIFIER ?? ""}.`,
+    )
+  )
+    errors.push(
+      "EXPO_PUBLIC_STOREKIT_PRODUCT_ID must derive from EXPO_PUBLIC_BUNDLE_IDENTIFIER",
+    );
+  if (
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      env.EAS_PROJECT_ID ?? "",
+    )
+  )
+    errors.push("EAS_PROJECT_ID must be a valid version 4 UUID");
   const territories = (env.EXPO_PUBLIC_APP_STORE_TERRITORIES ?? "")
     .split(",")
     .map((territory) => territory.trim().toUpperCase())
     .filter(Boolean);
+  if (territories.length !== 1 || territories[0] !== "US")
+    errors.push(
+      "EXPO_PUBLIC_APP_STORE_TERRITORIES must be exactly US for this release",
+    );
   const requiresDsaDecision = territories.some((territory) =>
     euDsaTerritories.has(territory),
   );

@@ -1,0 +1,14 @@
+{
+  "command": "xcrun",
+  "args": [
+    "simctl",
+    "terminate",
+    "71448586-815B-4DEF-940B-D07D724542F6",
+    "com.duotap.onlysignature"
+  ],
+  "status": 3,
+  "signal": null,
+  "error": null,
+  "stdout": "",
+  "stderr": "An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=3):\nSimulator device failed to terminate com.duotap.onlysignature.\nfound nothing to terminate\nUnderlying error (domain=NSPOSIXErrorDomain, code=3):\n\tThe request to terminate \"com.duotap.onlysignature\" failed. found nothing to terminate\n\tfound nothing to terminate\n"
+}

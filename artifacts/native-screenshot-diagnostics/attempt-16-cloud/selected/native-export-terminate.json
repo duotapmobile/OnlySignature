@@ -1,0 +1,14 @@
+{
+  "command": "xcrun",
+  "args": [
+    "simctl",
+    "terminate",
+    "BBC13B0A-7196-47CC-8BB1-1B14BD81B068",
+    "com.duotap.onlysignature"
+  ],
+  "status": 0,
+  "signal": null,
+  "error": null,
+  "stdout": "",
+  "stderr": ""
+}

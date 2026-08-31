@@ -14,6 +14,7 @@ const pendingData = (): AppStateData => ({
   hydrated: true,
   activeSetId: "original",
   selectedAsset: "signature",
+  unboundPurchases: [],
   reviewPrompted: false,
   lastError: null,
   sets: [

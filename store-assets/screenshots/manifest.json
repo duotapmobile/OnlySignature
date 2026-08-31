@@ -4,42 +4,73 @@
     {
       "id": "01-signature-initials",
       "route": "/draw?fixture=both",
-      "headline": "Your Signature and Initials"
+      "headline": "Your Signature and Initials",
+      "assertions": ["Draw Your Signature", "Signature", "Initials"]
     },
     {
       "id": "02-remove-white-box",
       "route": "/preview?fixture=comparison",
-      "headline": "Remove the White Box"
+      "headline": "Remove the White Box",
+      "assertions": [
+        "Preview on Document",
+        "Comparison of the same sample agreement. White Background covers part of the signature line and nearby date. Transparent Professional Export keeps the line and date visible."
+      ]
     },
     {
       "id": "03-no-editing",
       "route": "/purchase?fixture=both",
-      "headline": "No Editing or Cropping"
+      "headline": "No Editing or Cropping",
+      "assertions": [
+        "Transparent Export",
+        "No editing or cropping",
+        "^Purchase for \\$1\\.99$"
+      ]
     },
     {
       "id": "04-any-document",
       "route": "/purchase?fixture=signature",
-      "headline": "Place It on Any Document"
+      "headline": "Place It on Any Document",
+      "assertions": [
+        "Transparent Export",
+        "Place your signature on any document.",
+        "Save with White Background, Free"
+      ]
     },
     {
       "id": "05-no-login",
       "route": "/?fixture=landing",
-      "headline": "No Login. No Subscription."
+      "headline": "No Login. No Subscription.",
+      "assertions": [
+        "Signature and Initials",
+        "EXPORT WITH A TRANSPARENT BACKGROUND",
+        "No login. No subscription."
+      ]
     },
     {
       "id": "06-no-upload",
       "route": "/privacy?fixture=privacy",
-      "headline": "We Do Not Upload Your Signature"
+      "headline": "We Do Not Upload Your Signature",
+      "assertions": [
+        "Privacy Policy",
+        "The operator does not receive your signature or initials content."
+      ]
     },
     {
       "id": "07-formats",
       "route": "/export?fixture=purchased",
-      "headline": "Choose the Format You Need"
+      "headline": "Choose the Format You Need",
+      "assertions": [
+        "Thanks for your purchase",
+        "Choose your export format.",
+        "Signature format. PNG, Transparent",
+        "Initials format. PNG, Transparent"
+      ]
     },
     {
       "id": "08-one-purchase",
       "route": "/saved?fixture=purchased",
-      "headline": "One Purchase for This Set"
+      "headline": "One Purchase for This Set",
+      "assertions": ["Saved", "Transparent export purchased", "Export"]
     }
   ],
   "outputs": {

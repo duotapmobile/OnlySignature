@@ -17,17 +17,21 @@ Use actual implemented fixture-mode UI only. No real document, checkerboard comp
 
 The first three must communicate category, white-box problem, and no-editing benefit without the description. Run a five-second comprehension test at actual display size.
 
-## Current target masters
+## Current target masters (reverified 2026-08-28)
 
-- iPhone 6.9-inch accepted portrait master selected at capture time from Apple’s current list, such as 1320×2868, 1290×2796, or 1260×2736.
-- iPad 13-inch portrait master because iPad is supported, selected from current accepted sizes such as 2064×2752 or 2048×2732.
+- Accepted large-iPhone portrait master: **1290×2796**, captured natively from an `iPhone 15 Pro Max` simulator whose screenshot pixels exactly match that size.
+- iPad 13-inch portrait master because iPad is supported: **2064×2752**, captured from an `iPad Pro 13-inch (M4)` simulator.
 - One to ten screenshots, `.png`/`.jpg`/`.jpeg`, flattened opaque RGB with no alpha.
 
 Recheck sizes immediately before capture/upload. Layout sources preserve safe text areas and localization expansion.
 
 ## Pipeline and evidence
 
-Deterministic fixture data → exact UI capture → source composition → flattened output → dimension/color-mode/alpha validation → source/output hashes → UI-copy/feature drift check. The current 16 masters are deterministic web-rendered implemented-UI composition proofs. Final iOS Simulator capture is Apple-gated and must replace them before upload.
+Deterministic fixture data → real React Native iOS Simulator build → per-route Maestro visible-state assertions → raw native capture → source composition → flattened output → dimension/color-mode/alpha validation → source/output hashes → UI-copy/feature drift check.
+
+The pre-existing 16 web-rendered implemented-UI masters now live only under `store-assets/screenshots/composition-evidence/`. They are composition proofs and must never be uploaded or described as native captures. The EAS workflow writes actual simulator frames under `store-assets/screenshots/native/`, records commit/build/workflow/simulator/route hashes, and creates the native-derived IAP review image under `store-assets/app-review/native/`.
+
+Current official sources, accessed 2026-08-28: [Apple screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications), [Apple upload instructions](https://developer.apple.com/help/app-store-connect/manage-app-information/upload-app-previews-and-screenshots), [Expo EAS Maestro workflow example](https://docs.expo.dev/eas/workflows/examples/e2e-tests/), and [Expo workflow environment/provenance contexts](https://docs.expo.dev/eas/workflows/environment/).
 
 ## PPO variants
 

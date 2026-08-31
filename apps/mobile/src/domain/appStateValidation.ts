@@ -96,6 +96,31 @@ export const validateAndMigrateAppState = (value: unknown): AppStateData => {
   )
     throw new Error("local-state-invalid");
   const sets = source.sets.map(signatureSet);
+  const unboundPurchases = (
+    Array.isArray(source.unboundPurchases) ? source.unboundPurchases : []
+  ).map((value) => {
+    const candidate = object(value);
+    const appAccountToken =
+      candidate.appAccountToken === null
+        ? null
+        : canonicalPurchaseToken(String(candidate.appAccountToken ?? ""));
+    if (
+      typeof candidate.transactionId !== "string" ||
+      !candidate.transactionId ||
+      typeof candidate.productId !== "string" ||
+      !candidate.productId ||
+      (candidate.appAccountToken !== null && !appAccountToken) ||
+      typeof candidate.detectedAt !== "string" ||
+      !candidate.detectedAt
+    )
+      throw new Error("local-state-invalid");
+    return {
+      transactionId: candidate.transactionId,
+      productId: candidate.productId,
+      appAccountToken,
+      detectedAt: candidate.detectedAt,
+    };
+  });
   const ids = new Set(sets.map((set) => set.id));
   if (ids.size !== sets.length || !ids.has(source.activeSetId))
     throw new Error("local-state-invalid");
@@ -107,7 +132,12 @@ export const validateAndMigrateAppState = (value: unknown): AppStateData => {
     .filter((id): id is string => Boolean(id));
   if (
     new Set(transactionIds).size !== transactionIds.length ||
-    new Set(pendingTokens).size !== pendingTokens.length
+    new Set(pendingTokens).size !== pendingTokens.length ||
+    new Set(unboundPurchases.map((purchase) => purchase.transactionId)).size !==
+      unboundPurchases.length ||
+    unboundPurchases.some((purchase) =>
+      transactionIds.includes(purchase.transactionId),
+    )
   )
     throw new Error("local-state-invalid");
   return {
@@ -115,6 +145,7 @@ export const validateAndMigrateAppState = (value: unknown): AppStateData => {
     activeSetId: source.activeSetId,
     sets,
     selectedAsset: source.selectedAsset as AppStateData["selectedAsset"],
+    unboundPurchases,
     reviewPrompted: source.reviewPrompted,
     lastError: typeof source.lastError === "string" ? source.lastError : null,
   };

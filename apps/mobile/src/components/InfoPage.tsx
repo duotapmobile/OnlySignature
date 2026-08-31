@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
-import { BackLink, GlassCard, Heading, Screen } from "./ui";
-import { theme } from "@/integrations/workspace";
+import { FlowBackButton, FlowHeading, FlowScreen, flowColors } from "./flow-ui";
 
 export function InfoPage({
   title,
@@ -12,11 +11,13 @@ export function InfoPage({
   children: ReactNode;
 }) {
   return (
-    <Screen>
-      <Heading>{title}</Heading>
-      <GlassCard>{children}</GlassCard>
-      <BackLink onPress={() => router.back()} />
-    </Screen>
+    <FlowScreen contentStyle={styles.content}>
+      <View style={styles.back}>
+        <FlowBackButton onPress={() => router.back()} />
+      </View>
+      <FlowHeading>{title}</FlowHeading>
+      <View style={styles.card}>{children}</View>
+    </FlowScreen>
   );
 }
 export function Section({
@@ -38,22 +39,32 @@ export function Section({
   );
 }
 const styles = StyleSheet.create({
+  content: { paddingTop: 28 },
+  back: { height: 32, alignSelf: "flex-start" },
+  card: {
+    marginTop: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#D6E0E3",
+    backgroundColor: flowColors.card,
+    padding: 18,
+  },
   title: {
-    color: theme.colors.text,
-    fontSize: 21,
-    lineHeight: 28,
+    color: flowColors.cardText,
+    fontSize: 18,
+    lineHeight: 24,
     fontWeight: "800",
     marginTop: 12,
     marginBottom: 4,
   },
   body: {
-    color: theme.colors.muted,
-    fontSize: 17,
-    lineHeight: 25,
+    color: flowColors.cardMuted,
+    fontSize: 15,
+    lineHeight: 22,
     marginBottom: 8,
   },
   link: {
-    color: theme.colors.primary,
+    color: flowColors.accessibleLink,
     fontWeight: "700",
     textDecorationLine: "underline",
   },
