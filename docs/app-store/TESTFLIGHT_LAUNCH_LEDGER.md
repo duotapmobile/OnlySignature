@@ -82,6 +82,9 @@ Authorized terminal boundary: complete App Store Connect launch record plus a ve
 - A separate native deletion operation confines generated-file cleanup to regular nonsymlink files inside the export Caches root. The fixture uses the same native promotion API. Focused source-linked regressions passed 9/9; complete local acceptance passed with 43 root, 64 mobile, and 6 export tests plus every configured formatting, type, lint, content, configuration, network, introspection, native, store-asset, secret, high/critical audit, and 9-page/11-output site gate.
 - The correction changes no dependency, permission, network behavior, UI, format, price, purchase semantic, or screenshot story. It remains uncommitted/unpushed pending coordinator publication clearance. No further screenshot workflow, production build, or TestFlight workflow was dispatched.
 
+- Native screenshot attempt 18 `01a04c51-8c5c-735d-b10d-66907217b65c` requested the exact synchronized Git ref `73103e96f3206befb998e4d42f1a6cf2a0a01883`. Source job `01a04c51-8f6b-72d1-a7cf-08a5c2e647bc` failed before allocation because the DuoTap Expo free-plan 60-minute CI/CD allowance was exhausted; EAS reports a reset on September 1, 2026 at 00:00 UTC. No simulator build, capture job, native image, export verification, or artifact was produced. No retry, production build, or TestFlight workflow was dispatched.
+- Post-evidence complete local acceptance, the 6/6 export-pixel gate, and the 9-page/11-output static-site production build passed. The quota gate is external and does not establish either success or failure of the protected native promotion at runtime.
+
 ## Prepared workflow
 
 - Simulator profile: `apps/mobile/eas.json` → `screenshot`, credentials-free, iOS Simulator, Xcode 26.6, fixture mode on, mock StoreKit.
