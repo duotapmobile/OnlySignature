@@ -46,3 +46,9 @@ test-results/
 playwright-report/
 .DS_Store
 Thumbs.db
+# Protected local configuration and generated handoff packages.
+# These stay in the workspace but are not source-controlled.
+/app.json
+/Only-Signature-Actual-Flow-Screens.zip
+/Only-Signature-App-Store-Screenshots-v1.zip
+/artifacts/aso-before-click-reference/
