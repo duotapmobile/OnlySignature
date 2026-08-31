@@ -6,7 +6,7 @@ const signature: DrawingAsset = {
   canvasHeight: 420,
   orientation: "landscape",
   renderingVersion: 1,
-  finalizedHash: "fixture-signature-cursive-v2",
+  finalizedHash: "fixture-signature-taylor-brooks-v3",
   strokes: [
     {
       id: "fixture-signature-avery",
@@ -107,7 +107,7 @@ const initials: DrawingAsset = {
   canvasHeight: 420,
   orientation: "landscape",
   renderingVersion: 1,
-  finalizedHash: "fixture-initials-cursive-v2",
+  finalizedHash: "fixture-initials-tb-v3",
   strokes: [
     {
       id: "fixture-initials-a",
@@ -154,7 +154,7 @@ const initials: DrawingAsset = {
 
 export const screenshotFixtureSet: SignatureSet = {
   id: "screenshot-fixture",
-  label: "My Signature",
+  label: "Taylor Brooks",
   status: "purchased",
   signature,
   initials,

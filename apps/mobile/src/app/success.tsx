@@ -49,14 +49,14 @@ export default function ConfirmationScreen() {
           </View>
           <FlowBody style={styles.copy}>
             {transparent
-              ? "This signing set is unlocked and can be exported again anytime."
-              : "Your signing set is saved privately on this device."}
+              ? "Download this signing set again anytime."
+              : "Your signing set is finalized and saved on this device. Return anytime to unlock the transparent version."}
           </FlowBody>
         </View>
         <View style={styles.actions}>
           {transparent ? (
             <FlowPrimaryButton
-              label="Export Files"
+              label="Save or Share Files"
               onPress={() => router.push("/export")}
             />
           ) : (
@@ -74,8 +74,8 @@ export default function ConfirmationScreen() {
 const styles = StyleSheet.create({
   content: { padding: 0 },
   shade: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(0,0,0,0.62)" },
-  sheet: { top: 132 },
-  success: { alignItems: "center", paddingTop: 28 },
+  sheet: { top: "28%" },
+  success: { alignItems: "center", paddingTop: 30 },
   title: { marginTop: 18 },
   copy: {
     color: "#E3EAED",
@@ -85,5 +85,5 @@ const styles = StyleSheet.create({
     marginTop: 14,
     paddingHorizontal: 10,
   },
-  actions: { marginTop: "auto" },
+  actions: { marginTop: 28 },
 });

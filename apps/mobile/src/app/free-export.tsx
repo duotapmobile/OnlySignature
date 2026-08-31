@@ -28,7 +28,7 @@ export default function DiyWarningScreen() {
       <ScriptLabel asset="before" style={styles.script} />
       <View style={styles.warning}>
         <FlowHeading>
-          Background-removal tools can erase fine signature strokes.
+          Removing the background later can damage your signature.
         </FlowHeading>
         <View style={styles.labels}>
           <Text selectable style={styles.label}>
@@ -77,11 +77,11 @@ export default function DiyWarningScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingTop: 28 },
-  back: { position: "absolute", top: 28, left: 27, zIndex: 4 },
-  script: { marginTop: -3, marginLeft: 32, marginBottom: 10 },
+  content: { paddingTop: 24 },
+  back: { position: "absolute", top: 24, left: 18, zIndex: 4 },
+  script: { marginLeft: 24, marginBottom: 8 },
   warning: { marginTop: 2 },
-  labels: { flexDirection: "row", marginTop: 20, marginBottom: 8 },
+  labels: { flexDirection: "row", marginTop: 18, marginBottom: 8 },
   label: {
     flex: 1,
     color: flowColors.white,
@@ -92,15 +92,15 @@ const styles = StyleSheet.create({
   compare: { flexDirection: "row", gap: 12 },
   compareCard: {
     flex: 1,
-    height: 156,
-    borderRadius: 16,
+    height: 176,
+    borderRadius: 14,
     backgroundColor: "#FFF",
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
   },
   checker: { backgroundColor: "#EEF1F2" },
-  preview: { width: "96%", height: 120 },
+  preview: { width: "96%", height: 138 },
   damaged: { opacity: 0.72 },
   damageOne: {
     position: "absolute",
@@ -118,5 +118,5 @@ const styles = StyleSheet.create({
     height: 8,
     backgroundColor: "#FFF",
   },
-  actions: { marginTop: "auto" },
+  actions: { marginTop: 18 },
 });

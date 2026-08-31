@@ -16,6 +16,7 @@ import type {
   StrokePoint,
 } from "@/domain/models";
 import { pointToDrawingPlane, smoothPath } from "@/domain/drawing";
+import { SampleDrawing, sampleSourceFor } from "./SampleDrawing";
 import { theme } from "@/integrations/workspace";
 
 interface Props {
@@ -40,6 +41,7 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
     height: asset.canvasHeight,
   });
   const [strokes, setStrokes] = useState<Stroke[]>(asset.strokes);
+  const sampleSource = sampleSourceFor(asset);
   const current = useRef<Stroke | null>(null);
   const sequence = useRef(0);
   const strokesRef = useRef<Stroke[]>(asset.strokes);
@@ -174,25 +176,33 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
       }}
       {...responder.panHandlers}
     >
-      <Svg
-        width="100%"
-        height="100%"
-        viewBox={`0 0 ${plane.width} ${plane.height}`}
-        preserveAspectRatio="xMidYMid meet"
-        pointerEvents="none"
-      >
-        {strokes.map((stroke) => (
-          <Path
-            key={stroke.id}
-            d={smoothPath(stroke.points)}
-            fill="none"
-            stroke={theme.colors.text}
-            strokeWidth={5.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        ))}
-      </Svg>
+      {sampleSource ? (
+        <SampleDrawing
+          asset={asset}
+          accessibilityLabel={`${kind === "signature" ? "Signature" : "Initials"} sample`}
+          style={[styles.sample, kind === "initials" && styles.initialsSample]}
+        />
+      ) : (
+        <Svg
+          width="100%"
+          height="100%"
+          viewBox={`0 0 ${plane.width} ${plane.height}`}
+          preserveAspectRatio="xMidYMid meet"
+          pointerEvents="none"
+        >
+          {strokes.map((stroke) => (
+            <Path
+              key={stroke.id}
+              d={smoothPath(stroke.points)}
+              fill="none"
+              stroke={theme.colors.text}
+              strokeWidth={5.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          ))}
+        </Svg>
+      )}
       {strokes.length === 0 ? <Text style={styles.hint}>Draw here</Text> : null}
     </View>
   );
@@ -202,16 +212,17 @@ const styles = StyleSheet.create({
   canvas: {
     width: "100%",
     height: "100%",
-    minHeight: 250,
-    maxHeight: 430,
-    backgroundColor: "#FAFCFB",
-    borderRadius: theme.radii.md,
-    borderWidth: 2,
-    borderColor: "#B9CBD2",
+    minHeight: 0,
+    backgroundColor: "#FAFAFA",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E2E6E8",
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
   },
+  sample: { width: "92%", height: "86%" },
+  initialsSample: { width: "76%", height: "72%" },
   hint: {
     position: "absolute",
     color: "#6E7E86",

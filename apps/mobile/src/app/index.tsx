@@ -43,9 +43,11 @@ export default function EntryScreen() {
   return (
     <FlowScreen contentStyle={styles.content} testID="entry-screen">
       <View>
-        <ScriptLabel asset="sign" />
+        <ScriptLabel asset="sign" style={styles.script} />
         <FlowHeading>Without the sign-up.</FlowHeading>
-        <FlowBody>Create your reusable signature + initials.</FlowBody>
+        <FlowBody style={styles.intro}>
+          Create your reusable signature + initials.
+        </FlowBody>
       </View>
       <View style={styles.features} accessibilityLabel="Privacy benefits">
         <Feature kind="subscription">No{`\n`}Subscription</Feature>
@@ -69,8 +71,10 @@ export default function EntryScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingTop: 54 },
-  features: { flexDirection: "row", gap: 12, marginTop: 44 },
-  action: { marginTop: 42 },
-  privacy: { marginTop: 28 },
+  content: { paddingTop: 42 },
+  script: { marginLeft: 2, marginBottom: -3 },
+  intro: { marginTop: 3 },
+  features: { flexDirection: "row", gap: 14, marginTop: 34 },
+  action: { marginTop: 38 },
+  privacy: { marginTop: 14 },
 });

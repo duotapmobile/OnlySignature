@@ -25,8 +25,8 @@ test("marketing fixtures use multi-stroke fictional handwriting rather than abst
   assert.ok(asset.strokes.length >= 3);
   assert.ok(initials.strokes.length >= 3);
   assert.ok(asset.strokes[0]!.points.length >= 20);
-  assert.match(asset.finalizedHash!, /cursive-v2$/);
-  assert.match(initials.finalizedHash!, /cursive-v2$/);
+  assert.match(asset.finalizedHash!, /taylor-brooks-v3$/);
+  assert.match(initials.finalizedHash!, /tb-v3$/);
   for (const stroke of [...asset.strokes, ...initials.strokes]) {
     if (stroke.points.length !== 2) continue;
     const [start, end] = stroke.points;

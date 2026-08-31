@@ -16,10 +16,10 @@ import Svg, { Circle, Path, Rect } from "react-native-svg";
 
 export const flowColors = {
   night: "#020B12",
-  ink: "#061722",
-  inkRaised: "#092532",
-  cyan: "#07B9D4",
-  cyanText: "#58D6E5",
+  ink: "#061721",
+  inkRaised: "#0A2530",
+  cyan: "#04B8D0",
+  cyanText: "#42C9DA",
   white: "#F7FBFD",
   muted: "#AEBBC2",
   card: "#FBFBFB",
@@ -115,7 +115,12 @@ export function ScriptLabel({
       accessibilityLabel={labels[asset]}
       resizeMode="contain"
       style={[
-        asset === "before" ? styles.beforeLabel : styles.scriptLabel,
+        styles.scriptLabel,
+        asset === "sign" && styles.signLabel,
+        asset === "initial" && styles.initialLabel,
+        asset === "review" && styles.reviewLabel,
+        asset === "select" && styles.selectLabel,
+        asset === "before" && styles.beforeLabel,
         style,
       ]}
     />
@@ -213,12 +218,7 @@ export function FlowBackButton({ onPress }: { onPress(): void }) {
       onPress={onPress}
       style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
     >
-      <Svg
-        width={23}
-        height={23}
-        viewBox="0 0 24 24"
-        accessibilityElementsHidden
-      >
+      <Svg width={23} height={23} viewBox="0 0 24 24">
         <Path
           d="m15 5-7 7 7 7"
           fill="none"
@@ -244,7 +244,13 @@ export function FlowSheet({
       style={[styles.sheet, style]}
     >
       <View accessibilityElementsHidden style={styles.handle} />
-      {children}
+      <ScrollView
+        contentContainerStyle={styles.sheetContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {children}
+      </ScrollView>
     </View>
   );
 }
@@ -312,12 +318,7 @@ export function Feature({
 function featureIcon(kind: FeatureKind): ReactNode {
   if (kind === "subscription") {
     return (
-      <Svg
-        width={36}
-        height={36}
-        viewBox="0 0 32 32"
-        accessibilityElementsHidden
-      >
+      <Svg width={36} height={36} viewBox="0 0 32 32">
         <Path
           d="M17 5v22M21 9c-1.2-1.1-2.7-1.7-4.5-1.7-2.7 0-4.7 1.5-4.7 3.8 0 5.8 9.4 2.7 9.4 8.4 0 2.7-2.1 4.4-5.1 4.4-2.1 0-3.9-.8-5.3-2.1M6 6l20 20"
           fill="none"
@@ -331,12 +332,7 @@ function featureIcon(kind: FeatureKind): ReactNode {
   }
   if (kind === "upload") {
     return (
-      <Svg
-        width={36}
-        height={36}
-        viewBox="0 0 32 32"
-        accessibilityElementsHidden
-      >
+      <Svg width={36} height={36} viewBox="0 0 32 32">
         <Path
           d="M7 3.5h12l6 6V28H7zM19 3.5v6h6M16 23V12M11.5 16.5 16 12l4.5 4.5"
           fill="none"
@@ -349,7 +345,7 @@ function featureIcon(kind: FeatureKind): ReactNode {
     );
   }
   return (
-    <Svg width={36} height={36} viewBox="0 0 32 32" accessibilityElementsHidden>
+    <Svg width={36} height={36} viewBox="0 0 32 32">
       <Circle
         cx={16}
         cy={10}
@@ -372,12 +368,7 @@ function featureIcon(kind: FeatureKind): ReactNode {
 export function LockLine({ children }: PropsWithChildren) {
   return (
     <View style={styles.lockLine}>
-      <Svg
-        width={18}
-        height={18}
-        viewBox="0 0 20 20"
-        accessibilityElementsHidden
-      >
+      <Svg width={18} height={18} viewBox="0 0 20 20">
         <Rect
           x={4}
           y={8}
@@ -405,12 +396,7 @@ export function LockLine({ children }: PropsWithChildren) {
 export function CheckMark() {
   return (
     <View accessible accessibilityLabel="Success" style={styles.checkMark}>
-      <Svg
-        width={29}
-        height={29}
-        viewBox="0 0 24 24"
-        accessibilityElementsHidden
-      >
+      <Svg width={29} height={29} viewBox="0 0 24 24">
         <Path
           d="m6 12 4 4 8-9"
           fill="none"
@@ -432,37 +418,37 @@ const styles = StyleSheet.create({
   screenContent: {
     flexGrow: 1,
     width: "100%",
-    maxWidth: 520,
+    maxWidth: 480,
     alignSelf: "center",
-    paddingHorizontal: 27,
-    paddingTop: 28,
-    paddingBottom: 24,
+    paddingHorizontal: 26,
+    paddingTop: 24,
+    paddingBottom: 20,
   },
-  wordmark: { width: 228, height: 150, alignSelf: "center" },
-  scriptLabel: { width: 92, height: 64, alignSelf: "flex-start" },
-  beforeLabel: {
-    width: 186,
-    height: 29,
-    marginLeft: 18,
-    alignSelf: "flex-start",
-  },
+  wordmark: { width: 230, height: 126, alignSelf: "center" },
+  scriptLabel: { alignSelf: "flex-start" },
+  signLabel: { width: 76, height: 56 },
+  initialLabel: { width: 77, height: 34 },
+  reviewLabel: { width: 66, height: 28 },
+  selectLabel: { width: 72, height: 36 },
+  beforeLabel: { width: 164, height: 28, alignSelf: "flex-start" },
   heading: {
     color: flowColors.white,
-    fontSize: 28,
-    lineHeight: 30,
+    fontSize: 27,
+    lineHeight: 32,
     fontWeight: "800",
+    letterSpacing: -0.45,
   },
-  body: { color: flowColors.white, fontSize: 14, lineHeight: 20 },
+  body: { color: "#E8EEF0", fontSize: 14, lineHeight: 20 },
   primaryButton: {
     width: "100%",
-    minHeight: 59,
+    minHeight: 56,
     paddingHorizontal: 20,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 999,
     borderWidth: 1,
     borderColor: flowColors.cyan,
-    backgroundColor: "#06232E",
+    backgroundColor: "#06212B",
   },
   primaryButtonText: {
     color: flowColors.white,
@@ -490,8 +476,7 @@ const styles = StyleSheet.create({
   backButton: {
     width: 44,
     height: 44,
-    marginLeft: -17,
-    marginTop: -12,
+    marginLeft: -12,
     borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
@@ -501,15 +486,20 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    paddingHorizontal: 27,
-    paddingTop: 14,
-    paddingBottom: 24,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+    maxHeight: "88%",
+    paddingTop: 12,
+    paddingBottom: 8,
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
     borderWidth: 1,
     borderBottomWidth: 0,
     borderColor: "#6D7E87",
     backgroundColor: flowColors.ink,
+  },
+  sheetContent: {
+    flexGrow: 1,
+    paddingHorizontal: 26,
+    paddingBottom: 16,
   },
   handle: {
     width: 45,
@@ -517,17 +507,17 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: "#9CA8AD",
     alignSelf: "center",
-    marginBottom: 12,
+    marginBottom: 10,
   },
   backdrop: {
     ...StyleSheet.absoluteFill,
-    paddingHorizontal: 27,
-    paddingTop: 54,
+    paddingHorizontal: 26,
+    paddingTop: 46,
     opacity: 0.25,
   },
   previewCard: {
-    minHeight: 98,
-    borderRadius: 16,
+    minHeight: 96,
+    borderRadius: 14,
     backgroundColor: flowColors.card,
     paddingHorizontal: 12,
     paddingTop: 10,
@@ -557,14 +547,14 @@ const styles = StyleSheet.create({
   },
   feature: { flex: 1, minWidth: 0, alignItems: "center" },
   featureIcon: {
-    width: 62,
-    height: 62,
-    borderRadius: 31,
-    borderWidth: 1.5,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    borderWidth: 1.25,
     borderColor: flowColors.cyan,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 9,
+    marginBottom: 8,
   },
   featureText: {
     color: flowColors.white,

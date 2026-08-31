@@ -1,11 +1,42 @@
 import { useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import Svg, { Path } from "react-native-svg";
 import {
   formatControlAccessibilityLabel,
   formatLabel,
   type ExportFormat,
 } from "@/domain/models";
-import { theme } from "@/integrations/workspace";
+import { flowColors } from "./flow-ui";
+
+function Chevron({ up = false }: { up?: boolean }) {
+  return (
+    <Svg width={20} height={20} viewBox="0 0 20 20">
+      <Path
+        d={up ? "m5 12 5-5 5 5" : "m5 8 5 5 5-5"}
+        fill="none"
+        stroke={flowColors.accessibleLink}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function SelectedMark() {
+  return (
+    <Svg width={20} height={20} viewBox="0 0 20 20">
+      <Path
+        d="m4.5 10 3.5 3.5 7.5-8"
+        fill="none"
+        stroke={flowColors.white}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
 
 export function FormatDropdown({
   label,
@@ -30,7 +61,7 @@ export function FormatDropdown({
         style={styles.trigger}
       >
         <Text style={styles.triggerText}>{formatLabel[value]}</Text>
-        <Text style={styles.chevron}>⌄</Text>
+        <Chevron />
       </Pressable>
       <Modal
         visible={open}
@@ -62,7 +93,7 @@ export function FormatDropdown({
                 >
                   {formatLabel[format]}
                 </Text>
-                {format === value ? <Text style={styles.check}>✓</Text> : null}
+                {format === value ? <SelectedMark /> : null}
               </Pressable>
             ))}
             <Pressable
@@ -81,45 +112,55 @@ export function FormatDropdown({
 
 const styles = StyleSheet.create({
   group: { gap: 8 },
-  label: { color: theme.colors.text, fontSize: 20, fontWeight: "800" },
+  label: {
+    color: flowColors.cardText,
+    fontSize: 17,
+    lineHeight: 22,
+    fontWeight: "800",
+  },
   trigger: {
-    minHeight: 56,
+    minHeight: 54,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    borderWidth: 2,
-    borderColor: "#9BB2BD",
-    borderRadius: theme.radii.md,
-    backgroundColor: theme.colors.white,
+    paddingHorizontal: 15,
+    borderWidth: 1,
+    borderColor: "#A8B9C0",
+    borderRadius: 14,
+    backgroundColor: flowColors.card,
   },
-  triggerText: { color: theme.colors.text, fontSize: 18, fontWeight: "600" },
-  chevron: { color: theme.colors.primary, fontSize: 28, fontWeight: "800" },
+  triggerText: {
+    color: flowColors.cardText,
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: "600",
+  },
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(2,17,24,0.66)",
+    backgroundColor: "rgba(2,11,18,0.72)",
     justifyContent: "center",
     padding: 24,
   },
   dialog: {
     width: "100%",
-    maxWidth: 520,
+    maxWidth: 480,
     alignSelf: "center",
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.radii.lg,
-    padding: 20,
+    backgroundColor: flowColors.card,
+    borderRadius: 18,
+    padding: 18,
     gap: 8,
   },
   dialogTitle: {
-    color: theme.colors.text,
-    fontSize: 24,
+    color: flowColors.cardText,
+    fontSize: 22,
+    lineHeight: 27,
     fontWeight: "800",
     marginBottom: 8,
   },
   option: {
-    minHeight: 56,
+    minHeight: 54,
     paddingHorizontal: 14,
-    borderRadius: theme.radii.sm,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: "#B8C7CD",
     flexDirection: "row",
@@ -127,17 +168,26 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   selected: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
+    backgroundColor: "#086F84",
+    borderColor: "#086F84",
   },
-  optionText: { color: theme.colors.text, fontSize: 17, fontWeight: "600" },
-  selectedText: { color: theme.colors.white },
-  check: { color: theme.colors.white, fontSize: 20, fontWeight: "900" },
+  optionText: {
+    color: flowColors.cardText,
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: "600",
+  },
+  selectedText: { color: flowColors.white },
   cancel: {
-    minHeight: 52,
+    minHeight: 48,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 8,
+    marginTop: 6,
   },
-  cancelText: { color: theme.colors.primary, fontSize: 18, fontWeight: "700" },
+  cancelText: {
+    color: flowColors.accessibleLink,
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: "700",
+  },
 });

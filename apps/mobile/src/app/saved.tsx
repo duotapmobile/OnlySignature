@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import * as StoreReview from "expo-store-review";
+import Svg, { Circle, Path } from "react-native-svg";
 import { DrawingPreview } from "@/components/DrawingPreview";
 import {
   FlowHeading,
@@ -11,6 +12,28 @@ import {
 } from "@/components/flow-ui";
 import { hasDrawing, type SignatureSet } from "@/domain/models";
 import { useAppState } from "@/state/AppStateProvider";
+
+function GearIcon() {
+  return (
+    <Svg width={22} height={22} viewBox="0 0 24 24">
+      <Circle
+        cx={12}
+        cy={12}
+        r={3}
+        fill="none"
+        stroke={flowColors.white}
+        strokeWidth={1.7}
+      />
+      <Path
+        d="M12 2.8v2.1M12 19.1v2.1M21.2 12h-2.1M4.9 12H2.8M18.5 5.5 17 7M7 17l-1.5 1.5M18.5 18.5 17 17M7 7 5.5 5.5M8.8 4.9l.7 2M14.5 17.1l.7 2M19.1 8.8l-2 .7M6.9 14.5l-2 .7M15.2 4.9l-.7 2M9.5 17.1l-.7 2M19.1 15.2l-2-.7M6.9 9.5l-2-.7"
+        fill="none"
+        stroke={flowColors.white}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
 
 function MiniButton({ label, onPress }: { label: string; onPress(): void }) {
   return (
@@ -33,7 +56,6 @@ function SigningSetCard({ item }: { item: SignatureSet }) {
     Boolean(item.pendingPurchaseId) || item.transactionFinishPending;
   const transparent = item.status === "purchased" && !purchaseLocked;
   const title = item.label.trim() || "Signing Set";
-
   const select = () => selectSet(item.id);
 
   return (
@@ -43,34 +65,35 @@ function SigningSetCard({ item }: { item: SignatureSet }) {
           {signatureExists && item.signature ? (
             <DrawingPreview asset={item.signature} style={styles.signature} />
           ) : (
-            <Text style={styles.empty}>—</Text>
+            <Text style={styles.empty}></Text>
           )}
         </View>
         <View style={styles.initialsSlot}>
           {initialsExists && item.initials ? (
             <DrawingPreview asset={item.initials} style={styles.initials} />
           ) : (
-            <Text style={styles.empty}>—</Text>
+            <Text style={styles.empty}></Text>
           )}
         </View>
       </View>
       <View style={styles.cardMeta}>
         <View
           accessible
-          accessibilityLabel={`${title}. ${purchaseLocked ? "Apple purchase finishing" : transparent ? "Transparent" : "White Background"}${initialsExists ? "" : ". Initials not added"}`}
+          accessibilityLabel={`${title}. ${purchaseLocked ? "Apple purchase finishing" : transparent ? "Transparent Unlocked" : "White Background"}${initialsExists ? "" : ". Initials not added"}`}
           style={styles.metaCopy}
         >
-          <Text selectable numberOfLines={1} style={styles.setName}>
-            {title}
-          </Text>
           <Text selectable numberOfLines={1} style={styles.setStatus}>
             {purchaseLocked
               ? "Apple purchase finishing"
               : transparent
-                ? "Transparent"
+                ? "Transparent Unlocked"
                 : "White Background"}
-            {initialsExists ? "" : " · Initials not added"}
           </Text>
+          {!initialsExists ? (
+            <Text selectable numberOfLines={1} style={styles.missingStatus}>
+              Initials not added
+            </Text>
+          ) : null}
         </View>
         <View style={styles.cardActions}>
           {!initialsExists && !purchaseLocked ? (
@@ -145,7 +168,7 @@ export default function SavedSetsScreen() {
           onPress={() => router.push("/settings")}
           style={({ pressed }) => [styles.settings, pressed && styles.pressed]}
         >
-          <Text style={styles.settingsIcon}>⚙</Text>
+          <GearIcon />
         </Pressable>
       </View>
       <View style={styles.list}>
@@ -177,13 +200,13 @@ export default function SavedSetsScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingTop: 28 },
+  content: { paddingTop: 24 },
   header: {
     minHeight: 44,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 14,
   },
   settings: {
     width: 44,
@@ -192,52 +215,51 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  settingsIcon: { color: flowColors.white, fontSize: 22, lineHeight: 26 },
-  list: { gap: 12 },
+  list: { gap: 10 },
   card: {
-    minHeight: 112,
-    borderRadius: 16,
+    minHeight: 126,
+    borderRadius: 14,
     backgroundColor: "#FAFAFA",
-    paddingHorizontal: 10,
-    paddingTop: 9,
-    paddingBottom: 7,
+    paddingHorizontal: 12,
+    paddingTop: 10,
+    paddingBottom: 9,
     overflow: "hidden",
   },
-  cardTop: { height: 48, flexDirection: "row", alignItems: "center" },
-  signatureSlot: { flex: 1, height: 45 },
+  cardTop: { height: 64, flexDirection: "row", alignItems: "center" },
+  signatureSlot: { flex: 1, height: 60 },
   initialsSlot: {
-    width: 72,
-    height: 46,
+    width: 88,
+    height: 60,
     alignItems: "center",
     justifyContent: "center",
   },
-  signature: { width: "100%", height: 45 },
-  initials: { width: 64, height: 46 },
-  empty: { color: flowColors.cardText, fontSize: 20, textAlign: "center" },
+  signature: { width: "100%", height: 60 },
+  initials: { width: 78, height: 58 },
+  empty: { color: flowColors.cardText, fontSize: 22, textAlign: "center" },
   cardMeta: {
     minHeight: 44,
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 8,
   },
   metaCopy: { flex: 1, minWidth: 0 },
-  setName: {
-    color: flowColors.cardText,
-    fontSize: 11,
-    lineHeight: 14,
-    fontWeight: "700",
-  },
   setStatus: {
     color: flowColors.accessibleLink,
-    fontSize: 10,
-    lineHeight: 13,
-    marginTop: 2,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "700",
+  },
+  missingStatus: {
+    color: flowColors.cardMuted,
+    fontSize: 11,
+    lineHeight: 15,
+    marginTop: 1,
   },
   cardActions: { flexDirection: "row", gap: 6 },
   miniButton: {
-    minWidth: 76,
+    minWidth: 82,
     height: 44,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: "#007C96",
     borderRadius: 22,
@@ -247,12 +269,12 @@ const styles = StyleSheet.create({
   },
   miniButtonText: {
     color: flowColors.accessibleLink,
-    fontSize: 11,
-    lineHeight: 14,
+    fontSize: 12,
+    lineHeight: 15,
     fontWeight: "700",
   },
   pressed: { opacity: 0.72 },
-  emptyCard: { borderRadius: 16, backgroundColor: "#FAFAFA", padding: 18 },
+  emptyCard: { borderRadius: 14, backgroundColor: "#FAFAFA", padding: 18 },
   emptyTitle: {
     color: flowColors.cardText,
     fontSize: 18,

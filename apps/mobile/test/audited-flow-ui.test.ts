@@ -6,14 +6,14 @@ const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 
 test("audited flow keeps one shared spacing and control system", async () => {
   const source = await read("../src/components/flow-ui.tsx");
-  assert.match(source, /paddingHorizontal: 27/);
-  assert.match(source, /minHeight: 59/);
+  assert.match(source, /paddingHorizontal: 26/);
+  assert.match(source, /minHeight: 56/);
   assert.match(source, /minHeight: 44/);
-  assert.match(source, /borderRadius: 16/);
-  assert.match(source, /borderTopLeftRadius: 28/);
+  assert.match(source, /borderRadius: 14/);
+  assert.match(source, /borderTopLeftRadius: 26/);
   assert.match(source, /accessibilityViewIsModal/);
-  assert.match(source, /minHeight: 98/);
-  assert.doesNotMatch(source, /height: 98/);
+  assert.match(source, /minHeight: 96/);
+  assert.doesNotMatch(source, /height: 96/);
   assert.doesNotMatch(source, /9:41|dynamic island|homebar/i);
 });
 
@@ -35,13 +35,13 @@ test("audited routes preserve the complete white and transparent branches", asyn
   assert.match(draw, /Save Initials/);
   assert.match(draw, /Skip for Now/);
   assert.match(review, /Confirm Your Signing Set/);
-  assert.match(review, /Continue to Background/);
+  assert.match(review, /Confirm and Choose Background/);
   assert.match(background, /Choose Your Background/);
   assert.match(background, /Continue With White Background/);
   assert.match(background, /purchaseActiveSet/);
   assert.match(
     warning,
-    /Background-removal tools can erase fine signature strokes/,
+    /Removing the background later can damage your signature\./,
   );
   assert.match(warning, /white-export/);
   assert.match(exportFlow, /pathname: "\/success"/);
@@ -61,6 +61,19 @@ test("native splash uses the approved wordmark without simulated phone chrome", 
   assert.match(layout, /<StatusBar style="light"/);
   assert.doesNotMatch(layout, /<StatusBar hidden/);
   assert.doesNotMatch(layout, /9:41|island|homebar/i);
+});
+
+test("the exact flow uses supplied script art and professional fictional handwriting", async () => {
+  const [flowUi, sample, fixture] = await Promise.all([
+    read("../src/components/flow-ui.tsx"),
+    read("../src/components/SampleDrawing.tsx"),
+    read("../src/domain/fixtures.ts"),
+  ]);
+  assert.match(flowUi, /only-signature-wordmark\.png/);
+  assert.doesNotMatch(flowUi, /fontFamily|SF Pro|9:41/i);
+  assert.match(sample, /taylor-brooks-signature\.png/);
+  assert.match(sample, /taylor-brooks-initials\.png/);
+  assert.match(fixture, /label: "Taylor Brooks"/);
 });
 
 test("reachable export and information surfaces keep the audited visual system", async () => {
@@ -161,7 +174,8 @@ test("sheet content scrolls and saved card actions remain individually accessibl
 
 test("capture geometry and controls use deterministic audited primitives", async () => {
   const draw = await read("../src/app/draw.tsx");
-  assert.match(draw, /height: 230/);
+  assert.match(draw, /windowHeight \* 0\.255/);
+  assert.match(draw, /Math\.min\(260, Math\.max\(190/);
   assert.match(draw, /function RotateIcon\(\)/);
   assert.doesNotMatch(draw, /↻/);
   assert.match(draw, /back: \{ position: "absolute"/);

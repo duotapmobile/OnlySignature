@@ -4,7 +4,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import {
   EntryBackdrop,
   FlowBackButton,
-  FlowBody,
   FlowHeading,
   FlowPrimaryButton,
   FlowScreen,
@@ -183,9 +182,6 @@ export default function BackgroundScreen() {
         </View>
         <ScriptLabel asset="select" style={styles.script} />
         <FlowHeading>Choose Your Background</FlowHeading>
-        <FlowBody style={styles.purchaseNote}>
-          {displayPrice} one-time for this signing set. No subscription.
-        </FlowBody>
         <View
           accessibilityRole="radiogroup"
           accessibilityLabel="Background format"
@@ -257,19 +253,12 @@ export default function BackgroundScreen() {
 const styles = StyleSheet.create({
   content: { padding: 0 },
   shade: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(0,0,0,0.62)" },
-  sheet: { top: 68 },
-  sheetBack: { position: "absolute", top: 14, left: 22, zIndex: 3 },
-  script: { width: 84, height: 29, marginLeft: 28, marginBottom: 2 },
-  purchaseNote: {
-    color: "#CBD7DC",
-    fontSize: 12,
-    lineHeight: 17,
-    marginTop: 8,
-    marginBottom: 12,
-  },
-  options: { gap: 12 },
+  sheet: { top: "34%" },
+  sheetBack: { position: "absolute", top: -6, left: 20, zIndex: 3 },
+  script: { marginLeft: 28, marginBottom: 2 },
+  options: { gap: 10, marginTop: 12 },
   choice: {
-    minHeight: 104,
+    minHeight: 92,
     borderWidth: 1,
     borderColor: flowColors.outline,
     borderRadius: 16,
@@ -278,7 +267,7 @@ const styles = StyleSheet.create({
     gap: 12,
     alignItems: "center",
   },
-  choiceSelected: { minHeight: 118, borderColor: flowColors.cyan },
+  choiceSelected: { minHeight: 108, borderColor: flowColors.cyan },
   pressed: { opacity: 0.76 },
   swatch: {
     width: 56,
@@ -346,5 +335,5 @@ const styles = StyleSheet.create({
     backgroundColor: flowColors.cyan,
   },
   error: { color: "#FFD8D2", fontSize: 12, lineHeight: 17, marginTop: 8 },
-  actions: { marginTop: "auto", paddingTop: 12 },
+  actions: { marginTop: 12 },
 });

@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import Svg, { Path } from "react-native-svg";
 import { SignatureCanvas } from "@/components/SignatureCanvas";
@@ -28,6 +35,7 @@ export default function CaptureScreen() {
     clearAsset,
     fillIncludedSlot,
   } = useAppState();
+  const { height: windowHeight } = useWindowDimensions();
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const kind = data.selectedAsset;
@@ -104,7 +112,7 @@ export default function CaptureScreen() {
       <View style={styles.header}>
         <ScriptLabel
           asset={initial ? "initial" : "sign"}
-          style={initial ? styles.compactScript : undefined}
+          style={[styles.script, initial && styles.compactScript]}
         />
         <FlowHeading>
           {initial ? "Add your initials" : "Add your signature"}
@@ -119,7 +127,12 @@ export default function CaptureScreen() {
           </Text>
         </View>
       </View>
-      <View style={styles.canvas}>
+      <View
+        style={[
+          styles.canvas,
+          { height: Math.min(260, Math.max(190, windowHeight * 0.255)) },
+        ]}
+      >
         {immutable ? (
           <View style={styles.locked}>
             <Text style={styles.lockedTitle}>
@@ -189,7 +202,7 @@ export default function CaptureScreen() {
 
 function RotateIcon() {
   return (
-    <Svg width={16} height={16} viewBox="0 0 16 16" accessibilityElementsHidden>
+    <Svg width={16} height={16} viewBox="0 0 16 16">
       <Path
         d="M13 5.5V2.7l-1.4 1.4A5.3 5.3 0 1 0 13.1 10"
         fill="none"
@@ -203,26 +216,28 @@ function RotateIcon() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingTop: 28 },
-  back: { position: "absolute", top: 28, left: 27, zIndex: 4 },
-  header: { marginTop: -1 },
-  compactScript: { width: 92, height: 30, marginBottom: 2 },
+  content: { paddingTop: 24 },
+  back: { position: "absolute", top: 24, left: 18, zIndex: 4 },
+  header: { marginTop: 0 },
+  script: { marginLeft: 10, marginBottom: -2 },
+  compactScript: { marginBottom: 2 },
   rotate: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
     marginTop: 6,
-    marginBottom: 22,
+    marginBottom: 12,
   },
   rotateText: { color: "#E5ECEF", fontSize: 12, lineHeight: 18 },
   canvas: {
-    height: 230,
-    borderRadius: 16,
+    minHeight: 190,
+    borderRadius: 14,
     backgroundColor: "#F7F7F7",
     overflow: "hidden",
   },
   redo: {
-    minHeight: 44,
+    minHeight: 40,
+    marginTop: 6,
     paddingHorizontal: 14,
     alignItems: "center",
     justifyContent: "center",
@@ -230,7 +245,7 @@ const styles = StyleSheet.create({
   },
   redoContent: { flexDirection: "row", alignItems: "center", gap: 6 },
   redoText: { color: flowColors.white, fontSize: 12, lineHeight: 18 },
-  actions: { marginTop: 2 },
+  actions: { marginTop: 0, gap: 0 },
   error: {
     color: "#FFD8D2",
     fontSize: 13,

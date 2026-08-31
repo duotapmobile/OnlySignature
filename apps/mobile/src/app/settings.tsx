@@ -59,12 +59,7 @@ export default function SettingsScreen() {
             style={styles.row}
           >
             <Text style={styles.rowLabel}>{row.label}</Text>
-            <Svg
-              width={20}
-              height={20}
-              viewBox="0 0 24 24"
-              accessibilityElementsHidden
-            >
+            <Svg width={20} height={20} viewBox="0 0 24 24">
               <Path
                 d="m9 5 7 7-7 7"
                 fill="none"

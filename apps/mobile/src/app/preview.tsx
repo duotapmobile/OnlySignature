@@ -42,8 +42,7 @@ export default function ReviewScreen() {
         <ScriptLabel asset="review" style={styles.script} />
         <FlowHeading>Confirm Your Signing Set</FlowHeading>
         <FlowBody style={styles.copy}>
-          Review your signing set before saving. Saved originals stay unchanged;
-          duplicate a set to make changes later.
+          Check carefully. Once downloaded, saved assets cannot be changed.
         </FlowBody>
         <PreviewCard
           label="Signature"
@@ -77,7 +76,7 @@ export default function ReviewScreen() {
         </PreviewCard>
         <View style={styles.continue}>
           <FlowPrimaryButton
-            label="Continue to Background"
+            label="Confirm and Choose Background"
             onPress={() => router.push("/purchase")}
             disabled={!signatureExists}
           />
@@ -90,18 +89,18 @@ export default function ReviewScreen() {
 const styles = StyleSheet.create({
   content: { padding: 0 },
   shade: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(0,0,0,0.62)" },
-  sheet: { top: 164 },
-  sheetBack: { position: "absolute", top: 14, left: 22, zIndex: 3 },
-  script: { width: 84, height: 29, marginLeft: 28, marginBottom: 2 },
+  sheet: { top: "14%" },
+  sheetBack: { position: "absolute", top: -6, left: 20, zIndex: 3 },
+  script: { marginLeft: 28, marginBottom: 2 },
   copy: {
     fontSize: 13,
     lineHeight: 18,
     color: "#DDE4E7",
     marginTop: 7,
-    marginBottom: 12,
+    marginBottom: 10,
   },
-  signature: { width: "82%", height: 58 },
-  initials: { width: "52%", height: 55 },
+  signature: { width: "90%", height: 64 },
+  initials: { width: "58%", height: 60 },
   missing: { color: flowColors.cardMuted, fontSize: 13, lineHeight: 18 },
-  continue: { marginTop: "auto" },
+  continue: { marginTop: 4 },
 });
