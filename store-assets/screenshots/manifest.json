@@ -3,17 +3,19 @@
   "screenshots": [
     {
       "id": "01-signature-initials",
-      "route": "/draw?fixture=both",
+      "route": "/preview?fixture=both",
       "headline": "Your Signature and Initials",
-      "assertions": ["Draw Your Signature", "Signature", "Initials"]
+      "assertions": ["Confirm Your Signing Set", "Signature", "Initials"]
     },
     {
       "id": "02-remove-white-box",
-      "route": "/preview?fixture=comparison",
+      "route": "/clear-background?fixture=both",
       "headline": "Remove the White Box",
       "assertions": [
-        "Preview on Document",
-        "Comparison of the same sample agreement. White Background covers part of the signature line and nearby date. Transparent Professional Export keeps the line and date visible."
+        "Clear Background",
+        "Looks natural on any document.",
+        "White box",
+        "No Thanks"
       ]
     },
     {
@@ -21,9 +23,10 @@
       "route": "/purchase?fixture=both",
       "headline": "No Editing or Cropping",
       "assertions": [
-        "Transparent Export",
-        "No editing or cropping",
-        "^Purchase for \\$1\\.99$"
+        "Choose Your Background",
+        "Transparent Background",
+        "White Background",
+        "^Unlock Transparent Set · \\$1\\.99$"
       ]
     },
     {
@@ -31,9 +34,9 @@
       "route": "/purchase?fixture=signature",
       "headline": "Place It on Any Document",
       "assertions": [
-        "Transparent Export",
-        "Place your signature on any document.",
-        "Save with White Background, Free"
+        "Choose Your Background",
+        "Sits cleanly over lines, dates, and text.",
+        "Continue With White Background"
       ]
     },
     {
@@ -41,9 +44,11 @@
       "route": "/?fixture=landing",
       "headline": "No Login. No Subscription.",
       "assertions": [
-        "Signature and Initials",
-        "EXPORT WITH A TRANSPARENT BACKGROUND",
-        "No login. No subscription."
+        "Without the sign-up.",
+        "Create your reusable signature + initials.",
+        "No Account",
+        "No Document Upload",
+        "No Subscription"
       ]
     },
     {
@@ -60,7 +65,7 @@
       "route": "/export?fixture=purchased",
       "headline": "Choose the Format You Need",
       "assertions": [
-        "Thanks for your purchase",
+        "Export Transparent Set",
         "Choose your export format.",
         "Signature format. PNG, Transparent",
         "Initials format. PNG, Transparent"
@@ -70,7 +75,12 @@
       "id": "08-one-purchase",
       "route": "/saved?fixture=purchased",
       "headline": "One Purchase for This Set",
-      "assertions": ["Saved", "Transparent export purchased", "Export"]
+      "assertions": [
+        "My Signing Sets",
+        "Transparent Unlocked",
+        "Export",
+        "Create New Signing Set"
+      ]
     }
   ],
   "outputs": {

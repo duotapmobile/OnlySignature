@@ -278,11 +278,35 @@ const coldLaunch = async (route, diagnosticName) => {
     "screenshot",
     path.join(directory, "post-open.png"),
   ]);
-  await diagnosticCommand(directory, "accessibility-hierarchy", "maestro", [
-    "--device",
-    udid,
-    "hierarchy",
-  ]);
+  const hierarchy = await diagnosticCommand(
+    directory,
+    "accessibility-hierarchy",
+    "maestro",
+    ["--device", udid, "hierarchy"],
+  );
+  if (new RegExp(iosOpenConfirmationPattern).test(hierarchy.stdout)) {
+    const confirmationFlowPath = path.join(
+      tempDir,
+      `${diagnosticName}-open-confirmation.yml`,
+    );
+    await writeFile(
+      confirmationFlowPath,
+      [
+        `appId: ${screenshotAppId}`,
+        "---",
+        `- tapOn: ${JSON.stringify("Open")}`,
+        "",
+      ].join("\n"),
+      "utf8",
+    );
+    run("maestro", [
+      "--device",
+      udid,
+      "test",
+      `--test-output-dir=${path.join(directory, "maestro-open-confirmation")}`,
+      confirmationFlowPath,
+    ]);
+  }
   await diagnosticCommand(directory, "process-state", "xcrun", [
     "simctl",
     "spawn",

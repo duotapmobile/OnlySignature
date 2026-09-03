@@ -42,12 +42,12 @@ const exists = async (file) => {
 const expectedStory = [
   [
     "01-signature-initials",
-    "/draw?fixture=both",
+    "/preview?fixture=both",
     "Your Signature and Initials",
   ],
   [
     "02-remove-white-box",
-    "/preview?fixture=comparison",
+    "/clear-background?fixture=both",
     "Remove the White Box",
   ],
   ["03-no-editing", "/purchase?fixture=both", "No Editing or Cropping"],

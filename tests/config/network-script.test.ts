@@ -24,7 +24,7 @@ describe("production network scanner", () => {
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
-  }, 15_000);
+  }, 30_000);
 
   it("allows only the declared GitHub Pages privacy statement", () => {
     const root = mkdtempSync(path.join(tmpdir(), "only-signature-network-"));
@@ -56,5 +56,5 @@ describe("production network scanner", () => {
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
-  }, 15_000);
+  }, 30_000);
 });

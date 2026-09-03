@@ -7,20 +7,19 @@ import {
   screenshotColdLaunchPlan,
   screenshotDeepLink,
 } from "../../scripts/native-screenshot-flow.mjs";
-import { documentComparisonAccessibilityLabel } from "../../apps/mobile/src/domain/documentComparison";
 import { formatControlAccessibilityLabel } from "../../apps/mobile/src/domain/models";
 import { privacyFixtureCopy } from "../../packages/content/src/copy/index";
 
 describe("native screenshot deep-link readiness", () => {
   const shot = {
     id: "01-signature-initials",
-    route: "/draw?fixture=both",
-    assertions: ["Draw Your Signature", "Signature", "Initials"],
+    route: "/preview?fixture=both",
+    assertions: ["Confirm Your Signing Set", "Signature", "Initials"],
   };
 
   it("preserves the exact Expo Router fixture route", () => {
     expect(screenshotDeepLink(shot.route)).toBe(
-      "onlysignature:///draw?fixture=both",
+      "onlysignature:///preview?fixture=both",
     );
   });
 
@@ -44,7 +43,7 @@ describe("native screenshot deep-link readiness", () => {
           "simctl",
           "openurl",
           "SIMULATOR-UDID",
-          "onlysignature:///draw?fixture=both",
+          "onlysignature:///preview?fixture=both",
         ],
         allowFailure: false,
       },
@@ -57,9 +56,9 @@ describe("native screenshot deep-link readiness", () => {
       JSON.stringify(iosOpenConfirmationPattern),
     );
     const appReady = flow.indexOf(`id: "${screenshotAppReadyTestId}"`);
-    const routeReady = flow.indexOf('visible: "Draw Your Signature"');
+    const routeReady = flow.indexOf('visible: "Confirm Your Signing Set"');
     const finalAssertion = flow.indexOf(
-      '- assertVisible: "Draw Your Signature"',
+      '- assertVisible: "Confirm Your Signing Set"',
     );
 
     expect(confirmation).toBeGreaterThan(-1);
@@ -79,7 +78,7 @@ describe("native screenshot deep-link readiness", () => {
     expect(confirmation.test("Open in Another App?")).toBe(false);
   });
 
-  it("asserts the document comparison through its combined VoiceOver label", () => {
+  it("asserts the current Clear Background comparison and decline action", () => {
     const manifest = JSON.parse(
       readFileSync("store-assets/screenshots/manifest.json", "utf8"),
     );
@@ -88,15 +87,30 @@ describe("native screenshot deep-link readiness", () => {
     );
 
     expect(comparison.assertions).toEqual([
-      "Preview on Document",
-      documentComparisonAccessibilityLabel,
+      "Clear Background",
+      "Looks natural on any document.",
+      "White box",
+      "No Thanks",
     ]);
     const flow = buildScreenshotMaestroFlow(comparison);
-    expect(flow).toContain(
-      `- assertVisible: ${JSON.stringify(documentComparisonAccessibilityLabel)}`,
+    expect(flow).toContain('- assertVisible: "White box"');
+    expect(flow).toContain('- assertVisible: "No Thanks"');
+  });
+
+  it("asserts the current background choices and U.S. fixture price", () => {
+    const manifest = JSON.parse(
+      readFileSync("store-assets/screenshots/manifest.json", "utf8"),
     );
-    expect(flow).not.toContain('- assertVisible: "White Background"');
-    expect(flow).not.toContain('- assertVisible: "Professional Export"');
+    const purchase = manifest.screenshots.find(
+      (candidate: { id: string }) => candidate.id === "03-no-editing",
+    );
+
+    expect(purchase.assertions).toEqual([
+      "Choose Your Background",
+      "Transparent Background",
+      "White Background",
+      "^Unlock Transparent Set · \\$1\\.99$",
+    ]);
   });
 
   it("asserts the exact centralized privacy sentence including punctuation", () => {
@@ -133,7 +147,7 @@ describe("native screenshot deep-link readiness", () => {
     );
 
     expect(formats.assertions).toEqual([
-      "Thanks for your purchase",
+      "Export Transparent Set",
       "Choose your export format.",
       signatureLabel,
       initialsLabel,
@@ -209,6 +223,10 @@ describe("native screenshot deep-link readiness", () => {
     const openUrl = source.indexOf("name,\n      step.command,");
     const screenshot = source.indexOf('"post-open-screenshot"');
     const hierarchy = source.indexOf('"accessibility-hierarchy"');
+    const confirmationMatch = source.indexOf(
+      "new RegExp(iosOpenConfirmationPattern).test(hierarchy.stdout)",
+    );
+    const confirmationFlow = source.indexOf('"maestro-open-confirmation"');
     const processState = source.indexOf('"process-state"');
     const frontmost = source.indexOf('"frontmost-application"');
     const launchLog = source.indexOf('"launch-log"');
@@ -216,7 +234,9 @@ describe("native screenshot deep-link readiness", () => {
     expect(openUrl).toBeGreaterThan(-1);
     expect(screenshot).toBeGreaterThan(openUrl);
     expect(hierarchy).toBeGreaterThan(screenshot);
-    expect(processState).toBeGreaterThan(hierarchy);
+    expect(confirmationMatch).toBeGreaterThan(hierarchy);
+    expect(confirmationFlow).toBeGreaterThan(confirmationMatch);
+    expect(processState).toBeGreaterThan(confirmationFlow);
     expect(frontmost).toBeGreaterThan(processState);
     expect(launchLog).toBeGreaterThan(frontmost);
     expect(workflow).toContain("if: ${{ always() }}");
