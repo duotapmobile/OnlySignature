@@ -22,6 +22,27 @@ test("native storage uses writable FileManager protection attributes", () => {
   assert.match(swiftSource, /isExcludedFromBackup = true/);
 });
 
+test("simulator protection readback exception cannot weaken physical-device verification", () => {
+  const helper = swiftSource.match(
+    /private func hasCompleteFileProtection\([\s\S]*?\n  \}/,
+  )?.[0];
+  assert.ok(helper, "file-protection verifier must exist");
+  assert.match(helper, /#if targetEnvironment\(simulator\)[\s\S]*return true/);
+  assert.match(helper, /#else/);
+  assert.match(helper, /FileProtectionType\.complete/);
+  assert.match(helper, /FileProtectionType\.complete\.rawValue/);
+  assert.match(helper, /#endif/);
+
+  assert.match(
+    swiftSource,
+    /verifyProtectedExport[\s\S]*values\.isRegularFile == true[\s\S]*values\.isSymbolicLink != true[\s\S]*values\.isExcludedFromBackup == true[\s\S]*hasCompleteFileProtection\(attributes\)[\s\S]*isReadableFile/,
+  );
+  assert.match(
+    swiftSource,
+    /AsyncFunction\("verifyTemporaryFileProtection"\)[\s\S]*hasCompleteFileProtection\(attributes\)/,
+  );
+});
+
 test("temporary exports use Expo's writable cache scope with bounded cleanup", () => {
   const exportDirectory = swiftSource.match(
     /private func exportDirectory\(\) throws -> URL \{([\s\S]*?)\n  \}/,

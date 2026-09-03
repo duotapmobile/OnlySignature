@@ -140,6 +140,23 @@ public final class OnlySignatureStorageModule: Module {
     }
   }
 
+  private func hasCompleteFileProtection(_ attributes: [FileAttributeKey: Any]) -> Bool {
+#if targetEnvironment(simulator)
+    // The simulator filesystem does not emulate iOS Data Protection classes.
+    // Device builds must still prove Complete Protection below.
+    return true
+#else
+    guard let value = attributes[.protectionKey] else { return false }
+    if let protection = value as? FileProtectionType {
+      return protection == FileProtectionType.complete
+    }
+    if let rawProtection = value as? String {
+      return rawProtection == FileProtectionType.complete.rawValue
+    }
+    return false
+#endif
+  }
+
   private func verifyProtectedExport(at url: URL) throws {
     do {
       let values = try url.resourceValues(forKeys: [
@@ -151,8 +168,7 @@ public final class OnlySignatureStorageModule: Module {
       guard values.isRegularFile == true,
             values.isSymbolicLink != true,
             values.isExcludedFromBackup == true,
-            let protection = attributes[.protectionKey] as? FileProtectionType,
-            protection == FileProtectionType.complete,
+            hasCompleteFileProtection(attributes),
             fileManager.isReadableFile(atPath: url.path) else {
         throw storageError(.exportVerificationFailed)
       }
@@ -316,8 +332,7 @@ public final class OnlySignatureStorageModule: Module {
     AsyncFunction("verifyTemporaryFileProtection") { (uri: String) in
       guard let url = URL(string: uri), url.isFileURL else { throw NSError(domain: "OnlySignatureStorage", code: 1) }
       let attributes = try self.fileManager.attributesOfItem(atPath: url.path)
-      guard let protection = attributes[.protectionKey] as? FileProtectionType,
-            protection == FileProtectionType.complete else {
+      guard self.hasCompleteFileProtection(attributes) else {
         throw NSError(domain: "OnlySignatureStorage", code: 2)
       }
       let values = try url.resourceValues(forKeys: [.isExcludedFromBackupKey])

@@ -141,6 +141,7 @@ test("fixture-only protection verifier reads back Complete Protection and backup
     /AsyncFunction\("verifyTemporaryFileProtection"\)/,
   );
   assert.match(nativeSource, /attributesOfItem\(atPath: url\.path\)/);
+  assert.match(nativeSource, /hasCompleteFileProtection\(attributes\)/);
   assert.match(nativeSource, /FileProtectionType\.complete/);
   assert.match(
     nativeSource,
