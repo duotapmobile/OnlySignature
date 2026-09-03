@@ -30,6 +30,8 @@
     "screenshots:verify:native": "node scripts/verify-store-assets.mjs --require-native",
     "inspect:ios-archive": "node scripts/inspect-ios-archive.mjs",
     "preview:capture:ios": "node scripts/capture-app-preview.mjs",
+    "layout:studio": "node scripts/layout-studio.mjs",
+    "verify:flow-geometry": "node scripts/verify-flow-geometry.mjs",
     "sync:legal": "node scripts/sync-legal-content.mjs",
     "verify:exports": "vitest run tests/export",
     "verify:asc:live": "node scripts/verify-asc-record.mjs",

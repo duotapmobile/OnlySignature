@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Only Signature Layout Studio</title>
+    <link rel="stylesheet" href="/studio/studio.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">OS</span>
+        <div>
+          <strong>Layout Studio</strong>
+          <span>Drag the actual app layers. Changes save into the app.</span>
+        </div>
+      </div>
+      <label class="screen-picker">
+        <span>Screen</span>
+        <select id="screenSelect"></select>
+      </label>
+      <div class="device-switch" aria-label="Preview device">
+        <button id="iphoneButton" class="active" type="button">iPhone</button>
+        <button id="ipadButton" type="button">iPad</button>
+      </div>
+      <div class="history-actions">
+        <button id="undoButton" type="button" title="Undo (Ctrl+Z)">
+          Undo
+        </button>
+        <button id="redoButton" type="button" title="Redo (Ctrl+Shift+Z)">
+          Redo
+        </button>
+      </div>
+      <button id="rebuildButton" class="primary" type="button">
+        Save &amp; rebuild app
+      </button>
+      <span id="saveStatus" class="save-status">Loading…</span>
+    </header>
+
+    <main class="studio">
+      <aside class="layers-panel">
+        <div class="panel-heading">
+          <span>Layers</span>
+          <small>Click or drag</small>
+        </div>
+        <div id="layerList" class="layer-list"></div>
+        <div class="help-card">
+          <strong>Controls</strong>
+          <span>Drag a highlighted layer on the phone.</span>
+          <span>Arrow keys nudge 1px. Shift nudges 10px.</span>
+          <span>Every completed change saves and rebuilds the app.</span>
+        </div>
+      </aside>
+
+      <section id="workspace" class="workspace">
+        <div class="workspace-grid"></div>
+        <div id="previewViewport" class="preview-viewport">
+          <div id="previewSurface" class="preview-surface">
+            <iframe
+              id="appFrame"
+              title="Editable Only Signature screen"
+            ></iframe>
+            <div class="alignment-guides" aria-hidden="true">
+              <span class="guide safe-left"></span>
+              <span class="guide safe-right"></span>
+              <span class="guide center-vertical"></span>
+              <span class="guide quarter-horizontal"></span>
+              <span class="guide center-horizontal"></span>
+              <span class="guide three-quarter-horizontal"></span>
+              <span class="guide moving-vertical"></span>
+              <span class="guide moving-horizontal"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="properties-panel">
+        <div class="panel-heading">
+          <span>Position</span>
+          <small id="selectedName">Select a layer</small>
+        </div>
+        <fieldset id="propertyFields" disabled>
+          <label>
+            <span>X</span>
+            <input id="xInput" type="number" step="1" />
+          </label>
+          <label>
+            <span>Y</span>
+            <input id="yInput" type="number" step="1" />
+          </label>
+          <label class="wide">
+            <span>Scale</span>
+            <input id="scaleRange" type="range" min="0.5" max="3" step="0.01" />
+            <output id="scaleOutput">100%</output>
+          </label>
+          <label>
+            <span>Rotation</span>
+            <input
+              id="rotateInput"
+              type="number"
+              min="-180"
+              max="180"
+              step="0.1"
+            />
+          </label>
+          <label class="wide">
+            <span>Width</span>
+            <div class="width-row">
+              <input
+                id="widthInput"
+                type="number"
+                min="120"
+                step="1"
+                placeholder="Auto"
+              />
+              <button id="autoWidthButton" type="button">Auto</button>
+            </div>
+          </label>
+        </fieldset>
+        <label class="snap-control">
+          <input id="snapInput" type="checkbox" checked />
+          <span>Snap to 4px grid</span>
+        </label>
+        <button id="resetSelectedButton" class="danger" type="button" disabled>
+          Reset selected layer
+        </button>
+        <button id="resetScreenButton" type="button">Reset this screen</button>
+      </aside>
+    </main>
+
+    <script type="module" src="/studio/studio.js"></script>
+  </body>
+</html>

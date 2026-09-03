@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { DrawingPreview } from "@/components/DrawingPreview";
+import { LayoutSlot } from "@/components/layout-slot";
 import {
   FlowBackButton,
   FlowHeading,
@@ -10,97 +11,160 @@ import {
   ScriptLabel,
   flowColors,
 } from "@/components/flow-ui";
+import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 import { hasDrawing } from "@/domain/models";
+import { useTransparentPurchase } from "@/hooks/use-transparent-purchase";
 import { useAppState } from "@/state/AppStateProvider";
 
 export default function DiyWarningScreen() {
-  const { activeSet, product } = useAppState();
+  const { activeSet } = useAppState();
+  const { fixture } = useLocalSearchParams<{ fixture?: string }>();
+  const screenshotFixture = isAuthorizedScreenshotFixture(fixture, [
+    "both",
+    "signature",
+  ]);
+  const purchase = useTransparentPurchase({
+    suppressSuccessRedirect: screenshotFixture,
+  });
   const asset = hasDrawing(activeSet.signature)
     ? activeSet.signature
     : activeSet.initials;
-  const displayPrice = product.displayPrice || "$1.99";
+  const displayPrice = purchase.displayPrice;
 
   return (
     <FlowScreen contentStyle={styles.content} testID="diy-warning-screen">
       <View style={styles.back}>
-        <FlowBackButton onPress={() => router.back()} />
+        <FlowBackButton
+          onPress={() => router.back()}
+          layoutId="warning.back.icon"
+        />
       </View>
-      <ScriptLabel asset="before" style={styles.script} />
-      <View style={styles.warning}>
-        <FlowHeading>
+      <LayoutSlot id="warning.header" style={styles.warning}>
+        <ScriptLabel
+          asset="before"
+          style={styles.script}
+          layoutId="warning.script"
+        />
+        <FlowHeading style={styles.headingText} layoutId="warning.title">
           Removing the background later can damage your signature.
         </FlowHeading>
+      </LayoutSlot>
+      <LayoutSlot id="warning.comparison">
         <View style={styles.labels}>
-          <Text selectable style={styles.label}>
-            Original{`\n`}Transparent
-          </Text>
-          <Text selectable style={styles.label}>
-            DIY Removal{`\n`}Missing strokes
-          </Text>
+          <LayoutSlot id="warning.original.label" style={styles.labelSlot}>
+            <Text selectable style={styles.label}>
+              Original{`\n`}Transparent
+            </Text>
+          </LayoutSlot>
+          <LayoutSlot id="warning.diy.label" style={styles.labelSlot}>
+            <Text selectable style={styles.label}>
+              DIY Removal{`\n`}Missing strokes
+            </Text>
+          </LayoutSlot>
         </View>
         <View style={styles.compare}>
-          <View style={[styles.compareCard, styles.checker]}>
-            {asset ? (
-              <DrawingPreview
-                asset={asset}
-                accessibilityLabel="Original transparent signature"
-                style={styles.preview}
-              />
-            ) : null}
-          </View>
-          <View style={styles.compareCard}>
-            {asset ? (
-              <DrawingPreview
-                asset={asset}
-                accessibilityLabel="DIY removal result with missing strokes"
-                color="#586167"
-                style={[styles.preview, styles.damaged]}
-              />
-            ) : null}
-            <View accessibilityElementsHidden style={styles.damageOne} />
-            <View accessibilityElementsHidden style={styles.damageTwo} />
-          </View>
+          <LayoutSlot id="warning.original.card" style={styles.compareSlot}>
+            <View style={[styles.compareCard, styles.checker]}>
+              {asset ? (
+                <LayoutSlot
+                  id="warning.original.art"
+                  style={styles.previewLayer}
+                >
+                  <DrawingPreview
+                    asset={asset}
+                    accessibilityLabel="Original transparent signature"
+                    style={styles.preview}
+                  />
+                </LayoutSlot>
+              ) : null}
+            </View>
+          </LayoutSlot>
+          <LayoutSlot id="warning.diy.card" style={styles.compareSlot}>
+            <View style={styles.compareCard}>
+              {asset ? (
+                <LayoutSlot id="warning.diy.art" style={styles.previewLayer}>
+                  <DrawingPreview
+                    asset={asset}
+                    accessibilityLabel="DIY removal result with missing strokes"
+                    color="#586167"
+                    style={[styles.preview, styles.damaged]}
+                  />
+                </LayoutSlot>
+              ) : null}
+              <LayoutSlot
+                id="warning.diy.damage-one"
+                style={styles.damageLayer}
+              >
+                <View accessibilityElementsHidden style={styles.damageOne} />
+              </LayoutSlot>
+              <LayoutSlot
+                id="warning.diy.damage-two"
+                style={styles.damageLayer}
+              >
+                <View accessibilityElementsHidden style={styles.damageTwo} />
+              </LayoutSlot>
+            </View>
+          </LayoutSlot>
         </View>
-      </View>
-      <View style={styles.actions}>
+      </LayoutSlot>
+      {purchase.error ? (
+        <LayoutSlot id="warning.error">
+          <Text accessibilityRole="alert" selectable style={styles.error}>
+            {purchase.error}
+          </Text>
+        </LayoutSlot>
+      ) : null}
+      <LayoutSlot id="warning.actions" style={styles.actions}>
         <FlowPrimaryButton
           label={`Unlock Transparent Set · ${displayPrice}`}
-          onPress={() => router.replace("/purchase")}
+          onPress={() => void purchase.beginPurchase()}
+          disabled={purchase.busy || purchase.transparentUnavailable}
+          layoutId="warning.primary.button"
+          labelLayoutId="warning.primary.label"
         />
         <FlowTextButton
-          label="Download White Background Set"
+          label="No Thanks, Download Free White Set"
           onPress={() => router.push("/white-export" as never)}
+          disabled={purchase.busy}
+          layoutId="warning.secondary.button"
+          labelLayoutId="warning.secondary.label"
         />
-      </View>
+      </LayoutSlot>
     </FlowScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { paddingTop: 24 },
-  back: { position: "absolute", top: 24, left: 18, zIndex: 4 },
-  script: { marginLeft: 24, marginBottom: 8 },
-  warning: { marginTop: 2 },
-  labels: { flexDirection: "row", marginTop: 18, marginBottom: 8 },
+  headingText: { fontSize: 32, lineHeight: 38 },
+  content: { paddingTop: 32, paddingBottom: 30 },
+  back: { position: "absolute", top: 28, left: 20, zIndex: 4 },
+  script: { width: 250, height: 43, marginLeft: 24, marginBottom: 18 },
+  warning: { marginTop: 20 },
+  labels: { flexDirection: "row", marginTop: 34, marginBottom: 12 },
+  labelSlot: { flex: 1 },
   label: {
     flex: 1,
     color: flowColors.white,
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 15,
+    lineHeight: 20,
     textAlign: "center",
   },
-  compare: { flexDirection: "row", gap: 12 },
+  compare: { flexDirection: "row", gap: 18 },
+  compareSlot: { flex: 1 },
   compareCard: {
     flex: 1,
-    height: 176,
-    borderRadius: 14,
+    height: 246,
+    borderRadius: 18,
     backgroundColor: "#FFF",
     overflow: "hidden",
+    boxShadow: "0 18px 34px rgba(0, 0, 0, 0.34)",
     alignItems: "center",
     justifyContent: "center",
   },
   checker: { backgroundColor: "#EEF1F2" },
-  preview: { width: "96%", height: 138 },
+  previewLayer: { width: "100%", alignItems: "center" },
+  damageLayer: { ...StyleSheet.absoluteFill },
+  preview: { width: "96%", height: 190 },
   damaged: { opacity: 0.72 },
   damageOne: {
     position: "absolute",
@@ -118,5 +182,12 @@ const styles = StyleSheet.create({
     height: 8,
     backgroundColor: "#FFF",
   },
-  actions: { marginTop: 18 },
+  error: {
+    color: "#FFD8D2",
+    fontSize: 14,
+    lineHeight: 19,
+    textAlign: "center",
+    marginTop: 10,
+  },
+  actions: { marginTop: "auto", paddingTop: 32, marginBottom: 26, gap: 6 },
 });

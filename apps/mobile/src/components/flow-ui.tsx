@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle, Path, Rect } from "react-native-svg";
+import { LayoutSlot } from "@/components/layout-slot";
 
 export const flowColors = {
   night: "#020B12",
@@ -45,22 +46,33 @@ export function FlowScreen({
   scroll = true,
   contentStyle,
   testID,
+  tone = "dark",
 }: PropsWithChildren<{
   scroll?: boolean;
   contentStyle?: StyleProp<ViewStyle>;
   testID?: string;
+  tone?: "dark" | "light";
 }>) {
+  const light = tone === "light";
   const content = (
     <View style={[styles.screenContent, contentStyle]}>{children}</View>
   );
   return (
     <SafeAreaView
-      style={styles.safe}
+      style={[styles.safe, light && styles.lightSafe]}
       edges={["top", "right", "bottom", "left"]}
     >
-      <View style={styles.background} />
+      <View style={[styles.background, light && styles.lightBackground]}>
+        {light ? null : (
+          <>
+            <View style={styles.depthGlowTop} />
+            <View style={styles.depthGlowBottom} />
+          </>
+        )}
+      </View>
       {scroll ? (
         <ScrollView
+          style={styles.screenScroll}
           testID={testID}
           contentInsetAdjustmentBehavior="automatic"
           contentContainerStyle={styles.scroll}
@@ -98,9 +110,11 @@ export function Wordmark({
 export function ScriptLabel({
   asset,
   style,
+  layoutId,
 }: {
   asset: ScriptAsset;
   style?: StyleProp<ImageStyle>;
+  layoutId?: string;
 }) {
   const labels: Record<ScriptAsset, string> = {
     sign: "Sign.",
@@ -109,7 +123,7 @@ export function ScriptLabel({
     select: "Select.",
     before: "Before You Download",
   };
-  return (
+  const image = (
     <Image
       source={brandSources[asset]}
       accessibilityLabel={labels[asset]}
@@ -125,25 +139,39 @@ export function ScriptLabel({
       ]}
     />
   );
+  return layoutId ? <LayoutSlot id={layoutId}>{image}</LayoutSlot> : image;
 }
 
-export function FlowHeading({ children }: PropsWithChildren) {
-  return (
-    <Text accessibilityRole="header" selectable style={styles.heading}>
+export function FlowHeading({
+  children,
+  layoutId,
+  style,
+}: PropsWithChildren<{
+  layoutId?: string;
+  style?: StyleProp<TextStyle>;
+}>) {
+  const heading = (
+    <Text accessibilityRole="header" selectable style={[styles.heading, style]}>
       {children}
     </Text>
   );
+  return layoutId ? <LayoutSlot id={layoutId}>{heading}</LayoutSlot> : heading;
 }
 
 export function FlowBody({
   children,
   style,
-}: PropsWithChildren<{ style?: StyleProp<TextStyle> }>) {
-  return (
+  layoutId,
+}: PropsWithChildren<{
+  style?: StyleProp<TextStyle>;
+  layoutId?: string;
+}>) {
+  const body = (
     <Text selectable style={[styles.body, style]}>
       {children}
     </Text>
   );
+  return layoutId ? <LayoutSlot id={layoutId}>{body}</LayoutSlot> : body;
 }
 
 export function FlowPrimaryButton({
@@ -152,14 +180,34 @@ export function FlowPrimaryButton({
   disabled = false,
   accessibilityHint,
   testID,
+  layoutId,
+  labelLayoutId,
+  labelStyle,
 }: {
   label: string;
   onPress(): void;
   disabled?: boolean;
   accessibilityHint?: string;
   testID?: string;
+  layoutId?: string;
+  labelLayoutId?: string;
+  labelStyle?: StyleProp<TextStyle>;
 }) {
-  return (
+  const labelNode = (
+    <Text
+      adjustsFontSizeToFit
+      minimumFontScale={0.6}
+      numberOfLines={1}
+      style={[
+        styles.primaryButtonText,
+        label.length > 24 && { transform: [{ scaleX: 0.91 }] },
+        labelStyle,
+      ]}
+    >
+      {label}
+    </Text>
+  );
+  const button = (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
@@ -174,9 +222,14 @@ export function FlowPrimaryButton({
         disabled && styles.disabled,
       ]}
     >
-      <Text style={styles.primaryButtonText}>{label}</Text>
+      {labelLayoutId ? (
+        <LayoutSlot id={labelLayoutId}>{labelNode}</LayoutSlot>
+      ) : (
+        labelNode
+      )}
     </Pressable>
   );
+  return layoutId ? <LayoutSlot id={layoutId}>{button}</LayoutSlot> : button;
 }
 
 export function FlowTextButton({
@@ -184,13 +237,18 @@ export function FlowTextButton({
   onPress,
   disabled = false,
   testID,
+  layoutId,
+  labelLayoutId,
 }: {
   label: string;
   onPress(): void;
   disabled?: boolean;
   testID?: string;
+  layoutId?: string;
+  labelLayoutId?: string;
 }) {
-  return (
+  const labelNode = <Text style={styles.textButtonText}>{label}</Text>;
+  const button = (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
@@ -204,13 +262,24 @@ export function FlowTextButton({
         disabled && styles.disabled,
       ]}
     >
-      <Text style={styles.textButtonText}>{label}</Text>
+      {labelLayoutId ? (
+        <LayoutSlot id={labelLayoutId}>{labelNode}</LayoutSlot>
+      ) : (
+        labelNode
+      )}
     </Pressable>
   );
+  return layoutId ? <LayoutSlot id={layoutId}>{button}</LayoutSlot> : button;
 }
 
-export function FlowBackButton({ onPress }: { onPress(): void }) {
-  return (
+export function FlowBackButton({
+  onPress,
+  layoutId,
+}: {
+  onPress(): void;
+  layoutId?: string;
+}) {
+  const button = (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel="Go back"
@@ -230,27 +299,55 @@ export function FlowBackButton({ onPress }: { onPress(): void }) {
       </Svg>
     </Pressable>
   );
+  return layoutId ? <LayoutSlot id={layoutId}>{button}</LayoutSlot> : button;
 }
 
 export function FlowSheet({
   children,
   label,
   style,
-}: PropsWithChildren<{ label: string; style?: StyleProp<ViewStyle> }>) {
-  return (
-    <View
-      accessibilityViewIsModal
-      accessibilityLabel={label}
-      style={[styles.sheet, style]}
-    >
-      <View accessibilityElementsHidden style={styles.handle} />
+  layoutId,
+  handleLayoutId,
+}: PropsWithChildren<{
+  label: string;
+  style?: StyleProp<ViewStyle>;
+  layoutId?: string;
+  handleLayoutId?: string;
+}>) {
+  const handle = <View accessibilityElementsHidden style={styles.handle} />;
+  const content = (
+    <>
+      {handleLayoutId ? (
+        <LayoutSlot id={handleLayoutId}>{handle}</LayoutSlot>
+      ) : (
+        handle
+      )}
       <ScrollView
+        style={styles.sheetScroll}
         contentContainerStyle={styles.sheetContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         {children}
       </ScrollView>
+    </>
+  );
+  return layoutId ? (
+    <LayoutSlot
+      id={layoutId}
+      accessibilityViewIsModal
+      accessibilityLabel={label}
+      style={[styles.sheet, style]}
+    >
+      {content}
+    </LayoutSlot>
+  ) : (
+    <View
+      accessibilityViewIsModal
+      accessibilityLabel={label}
+      style={[styles.sheet, style]}
+    >
+      {content}
     </View>
   );
 }
@@ -269,32 +366,89 @@ export function EntryBackdrop() {
   );
 }
 
+export function ReviewBackdrop() {
+  return (
+    <View
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+      style={styles.backdrop}
+    >
+      <ScriptLabel asset="review" />
+      <FlowHeading>Confirm Your Signing Set</FlowHeading>
+      <FlowBody>Check carefully before choosing a background.</FlowBody>
+      <View style={styles.backdropCard} />
+      <View style={styles.backdropCard} />
+    </View>
+  );
+}
+
+export function CaptureBackdrop({ initial = false }: { initial?: boolean }) {
+  return (
+    <View
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+      style={styles.backdrop}
+    >
+      <ScriptLabel asset={initial ? "initial" : "sign"} />
+      <FlowHeading>
+        {initial ? "Add your initials" : "Add your signature"}
+      </FlowHeading>
+      <FlowBody>Write in the space below.</FlowBody>
+      <View style={styles.backdropCanvas} />
+    </View>
+  );
+}
+
 export function PreviewCard({
   label,
   actionLabel,
   onAction,
   children,
+  labelLayoutId,
+  actionLayoutId,
+  contentLayoutId,
 }: PropsWithChildren<{
   label: string;
   actionLabel?: string;
   onAction?(): void;
+  labelLayoutId?: string;
+  actionLayoutId?: string;
+  contentLayoutId?: string;
 }>) {
+  const labelNode = (
+    <Text selectable style={styles.previewLabel}>
+      {label}
+    </Text>
+  );
+  const actionNode =
+    actionLabel && onAction ? (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${actionLabel} ${label.toLowerCase()}`}
+        onPress={onAction}
+        style={styles.previewAction}
+      >
+        <Text style={styles.previewActionText}>{actionLabel}</Text>
+      </Pressable>
+    ) : null;
+  const contentNode = <View style={styles.previewContent}>{children}</View>;
   return (
     <View style={styles.previewCard}>
-      <Text selectable style={styles.previewLabel}>
-        {label}
-      </Text>
-      {actionLabel && onAction ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`${actionLabel} ${label.toLowerCase()}`}
-          onPress={onAction}
-          style={styles.previewAction}
-        >
-          <Text style={styles.previewActionText}>{actionLabel}</Text>
-        </Pressable>
-      ) : null}
-      <View style={styles.previewContent}>{children}</View>
+      {labelLayoutId ? (
+        <LayoutSlot id={labelLayoutId}>{labelNode}</LayoutSlot>
+      ) : (
+        labelNode
+      )}
+      {actionNode && actionLayoutId ? (
+        <LayoutSlot id={actionLayoutId}>{actionNode}</LayoutSlot>
+      ) : (
+        actionNode
+      )}
+      {contentLayoutId ? (
+        <LayoutSlot id={contentLayoutId}>{contentNode}</LayoutSlot>
+      ) : (
+        contentNode
+      )}
     </View>
   );
 }
@@ -304,13 +458,27 @@ export type FeatureKind = "subscription" | "upload" | "account";
 export function Feature({
   kind,
   children,
-}: PropsWithChildren<{ kind: FeatureKind }>) {
+  iconLayoutId,
+  labelLayoutId,
+}: PropsWithChildren<{
+  kind: FeatureKind;
+  iconLayoutId?: string;
+  labelLayoutId?: string;
+}>) {
+  const icon = <View style={styles.featureIcon}>{featureIcon(kind)}</View>;
+  const label = (
+    <Text selectable style={styles.featureText}>
+      {children}
+    </Text>
+  );
   return (
     <View style={styles.feature}>
-      <View style={styles.featureIcon}>{featureIcon(kind)}</View>
-      <Text selectable style={styles.featureText}>
-        {children}
-      </Text>
+      {iconLayoutId ? <LayoutSlot id={iconLayoutId}>{icon}</LayoutSlot> : icon}
+      {labelLayoutId ? (
+        <LayoutSlot id={labelLayoutId}>{label}</LayoutSlot>
+      ) : (
+        label
+      )}
     </View>
   );
 }
@@ -318,7 +486,7 @@ export function Feature({
 function featureIcon(kind: FeatureKind): ReactNode {
   if (kind === "subscription") {
     return (
-      <Svg width={36} height={36} viewBox="0 0 32 32">
+      <Svg width={40} height={40} viewBox="0 0 32 32">
         <Path
           d="M17 5v22M21 9c-1.2-1.1-2.7-1.7-4.5-1.7-2.7 0-4.7 1.5-4.7 3.8 0 5.8 9.4 2.7 9.4 8.4 0 2.7-2.1 4.4-5.1 4.4-2.1 0-3.9-.8-5.3-2.1M6 6l20 20"
           fill="none"
@@ -332,7 +500,7 @@ function featureIcon(kind: FeatureKind): ReactNode {
   }
   if (kind === "upload") {
     return (
-      <Svg width={36} height={36} viewBox="0 0 32 32">
+      <Svg width={40} height={40} viewBox="0 0 32 32">
         <Path
           d="M7 3.5h12l6 6V28H7zM19 3.5v6h6M16 23V12M11.5 16.5 16 12l4.5 4.5"
           fill="none"
@@ -345,7 +513,7 @@ function featureIcon(kind: FeatureKind): ReactNode {
     );
   }
   return (
-    <Svg width={36} height={36} viewBox="0 0 32 32">
+    <Svg width={40} height={40} viewBox="0 0 32 32">
       <Circle
         cx={16}
         cy={10}
@@ -365,36 +533,49 @@ function featureIcon(kind: FeatureKind): ReactNode {
   );
 }
 
-export function LockLine({ children }: PropsWithChildren) {
+export function LockLine({
+  children,
+  iconLayoutId,
+  textLayoutId,
+}: PropsWithChildren<{
+  iconLayoutId?: string;
+  textLayoutId?: string;
+}>) {
+  const icon = (
+    <Svg width={18} height={18} viewBox="0 0 20 20">
+      <Rect
+        x={4}
+        y={8}
+        width={12}
+        height={9}
+        rx={1.5}
+        fill="none"
+        stroke={flowColors.cyan}
+        strokeWidth={1.8}
+      />
+      <Path
+        d="M6.5 8V5.7a3.5 3.5 0 0 1 7 0V8M10 11v3"
+        fill="none"
+        stroke={flowColors.cyan}
+        strokeWidth={1.8}
+      />
+    </Svg>
+  );
+  const text = (
+    <Text selectable style={styles.lockText}>
+      {children}
+    </Text>
+  );
   return (
     <View style={styles.lockLine}>
-      <Svg width={18} height={18} viewBox="0 0 20 20">
-        <Rect
-          x={4}
-          y={8}
-          width={12}
-          height={9}
-          rx={1.5}
-          fill="none"
-          stroke={flowColors.cyan}
-          strokeWidth={1.8}
-        />
-        <Path
-          d="M6.5 8V5.7a3.5 3.5 0 0 1 7 0V8M10 11v3"
-          fill="none"
-          stroke={flowColors.cyan}
-          strokeWidth={1.8}
-        />
-      </Svg>
-      <Text selectable style={styles.lockText}>
-        {children}
-      </Text>
+      {iconLayoutId ? <LayoutSlot id={iconLayoutId}>{icon}</LayoutSlot> : icon}
+      {textLayoutId ? <LayoutSlot id={textLayoutId}>{text}</LayoutSlot> : text}
     </View>
   );
 }
 
-export function CheckMark() {
-  return (
+export function CheckMark({ layoutId }: { layoutId?: string } = {}) {
+  const mark = (
     <View accessible accessibilityLabel="Success" style={styles.checkMark}>
       <Svg width={29} height={29} viewBox="0 0 24 24">
         <Path
@@ -408,12 +589,39 @@ export function CheckMark() {
       </Svg>
     </View>
   );
+  return layoutId ? <LayoutSlot id={layoutId}>{mark}</LayoutSlot> : mark;
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: flowColors.night },
+  lightSafe: { backgroundColor: "#FAF9F7" },
   fill: { flex: 1 },
-  background: { ...StyleSheet.absoluteFill, backgroundColor: flowColors.night },
+  background: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: flowColors.night,
+    overflow: "hidden",
+  },
+  lightBackground: { backgroundColor: "#FAF9F7" },
+  depthGlowTop: {
+    position: "absolute",
+    width: 520,
+    height: 520,
+    borderRadius: 260,
+    top: -250,
+    right: -285,
+    backgroundColor: "rgba(18, 87, 108, 0.24)",
+  },
+  depthGlowBottom: {
+    position: "absolute",
+    width: 560,
+    height: 560,
+    borderRadius: 280,
+    bottom: -330,
+    left: -290,
+    backgroundColor: "rgba(0, 146, 176, 0.12)",
+  },
+  screenScroll: { flex: 1 },
+  sheetScroll: { flex: 1 },
   scroll: { flexGrow: 1 },
   screenContent: {
     flexGrow: 1,
@@ -422,41 +630,44 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     paddingHorizontal: 26,
     paddingTop: 24,
-    paddingBottom: 20,
+    paddingBottom: 28,
   },
-  wordmark: { width: 230, height: 126, alignSelf: "center" },
+  wordmark: { width: 244, height: 134, alignSelf: "center" },
   scriptLabel: { alignSelf: "flex-start" },
-  signLabel: { width: 76, height: 56 },
-  initialLabel: { width: 77, height: 34 },
-  reviewLabel: { width: 66, height: 28 },
-  selectLabel: { width: 72, height: 36 },
-  beforeLabel: { width: 164, height: 28, alignSelf: "flex-start" },
+  signLabel: { width: 152, height: 108 },
+  initialLabel: { width: 154, height: 60 },
+  reviewLabel: { width: 148, height: 60 },
+  selectLabel: { width: 122, height: 60 },
+  beforeLabel: { width: 250, height: 43, alignSelf: "flex-start" },
   heading: {
     color: flowColors.white,
-    fontSize: 27,
-    lineHeight: 32,
+    fontSize: 30,
+    lineHeight: 36,
     fontWeight: "800",
-    letterSpacing: -0.45,
+    letterSpacing: -0.55,
   },
-  body: { color: "#E8EEF0", fontSize: 14, lineHeight: 20 },
+  body: { color: "#E8EEF0", fontSize: 22, lineHeight: 31 },
   primaryButton: {
     width: "100%",
-    minHeight: 56,
+    minHeight: 59,
     paddingHorizontal: 20,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 999,
     borderWidth: 1,
     borderColor: flowColors.cyan,
-    backgroundColor: "#06212B",
+    backgroundColor: "#062A36",
+    boxShadow:
+      "0 12px 30px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255,255,255,0.08)",
   },
   primaryButtonText: {
     color: flowColors.white,
-    fontSize: 16,
-    lineHeight: 21,
+    fontSize: 17,
+    lineHeight: 23,
     fontWeight: "700",
     textAlign: "center",
   },
+  primaryButtonTextCompact: { fontSize: 22, lineHeight: 29 },
   textButton: {
     width: "100%",
     minHeight: 44,
@@ -466,8 +677,8 @@ const styles = StyleSheet.create({
   },
   textButtonText: {
     color: flowColors.cyanText,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 15,
+    lineHeight: 21,
     fontWeight: "600",
     textAlign: "center",
   },
@@ -493,12 +704,14 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 26,
     borderWidth: 1,
     borderBottomWidth: 0,
-    borderColor: "#6D7E87",
-    backgroundColor: flowColors.ink,
+    borderColor: "#62808C",
+    backgroundColor: "#061A24",
+    boxShadow:
+      "0 -22px 54px rgba(0, 0, 0, 0.5), 0 -1px 0 rgba(4, 184, 208, 0.28)",
   },
   sheetContent: {
     flexGrow: 1,
-    paddingHorizontal: 26,
+    paddingHorizontal: 30,
     paddingBottom: 16,
   },
   handle: {
@@ -515,20 +728,38 @@ const styles = StyleSheet.create({
     paddingTop: 46,
     opacity: 0.25,
   },
-  previewCard: {
+  backdropCard: {
     minHeight: 96,
     borderRadius: 14,
     backgroundColor: flowColors.card,
-    paddingHorizontal: 12,
-    paddingTop: 10,
-    marginBottom: 12,
+    marginTop: 12,
   },
-  previewLabel: { color: flowColors.cardText, fontSize: 12, lineHeight: 15 },
+  backdropCanvas: {
+    height: 230,
+    borderRadius: 14,
+    backgroundColor: flowColors.card,
+    marginTop: 18,
+  },
+  previewCard: {
+    minHeight: 132,
+    borderRadius: 18,
+    backgroundColor: flowColors.card,
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    marginBottom: 18,
+    boxShadow: "0 16px 34px rgba(0, 0, 0, 0.3)",
+  },
+  previewLabel: {
+    color: flowColors.cardText,
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: "600",
+  },
   previewAction: {
     position: "absolute",
-    right: 4,
-    top: 0,
-    minWidth: 54,
+    right: 6,
+    top: 2,
+    minWidth: 60,
     minHeight: 44,
     alignItems: "center",
     justifyContent: "center",
@@ -536,31 +767,32 @@ const styles = StyleSheet.create({
   },
   previewActionText: {
     color: flowColors.accessibleLink,
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "700",
   },
   previewContent: {
     flex: 1,
-    minHeight: 54,
+    minHeight: 82,
     justifyContent: "center",
     alignItems: "center",
   },
   feature: { flex: 1, minWidth: 0, alignItems: "center" },
   featureIcon: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
+    width: 66,
+    height: 66,
+    borderRadius: 33,
     borderWidth: 1.25,
     borderColor: flowColors.cyan,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 12,
+    boxShadow: "0 10px 22px rgba(0, 0, 0, 0.28)",
   },
   featureText: {
     color: flowColors.white,
-    fontSize: 12,
-    lineHeight: 17,
-    fontWeight: "500",
+    fontSize: 14,
+    lineHeight: 19,
+    fontWeight: "600",
     textAlign: "center",
   },
   lockLine: {
@@ -570,7 +802,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  lockText: { color: "#C7D1D5", fontSize: 12, lineHeight: 17 },
+  lockText: { color: "#C7D1D5", fontSize: 14, lineHeight: 20 },
   checkMark: {
     width: 50,
     height: 50,

@@ -1,20 +1,20 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import { LayoutSlot } from "@/components/layout-slot";
 import {
-  EntryBackdrop,
   FlowBackButton,
   FlowHeading,
   FlowPrimaryButton,
   FlowScreen,
   FlowSheet,
   FlowTextButton,
+  ReviewBackdrop,
   ScriptLabel,
   flowColors,
 } from "@/components/flow-ui";
-import { hasPurchaseRecoveryInProgress } from "@/domain/purchaseState";
 import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
-import { useAppState } from "@/state/AppStateProvider";
+import { useTransparentPurchase } from "@/hooks/use-transparent-purchase";
 
 type Background = "transparent" | "white";
 
@@ -46,6 +46,7 @@ function BackgroundChoice({
   description,
   price,
   onSelect,
+  layerPrefix,
 }: {
   value: Background;
   selected: boolean;
@@ -53,6 +54,7 @@ function BackgroundChoice({
   description: string;
   price?: string;
   onSelect(): void;
+  layerPrefix: string;
 }) {
   return (
     <Pressable
@@ -66,155 +68,147 @@ function BackgroundChoice({
         pressed && styles.pressed,
       ]}
     >
-      {value === "transparent" ? (
-        <CheckerSwatch />
-      ) : (
-        <View
-          accessibilityElementsHidden
-          style={[styles.swatch, styles.whiteSwatch]}
-        />
-      )}
+      <LayoutSlot id={`${layerPrefix}.swatch`}>
+        {value === "transparent" ? (
+          <CheckerSwatch />
+        ) : (
+          <View
+            accessibilityElementsHidden
+            style={[styles.swatch, styles.whiteSwatch]}
+          />
+        )}
+      </LayoutSlot>
       <View style={styles.choiceCopy}>
         <View style={styles.choiceTitleRow}>
-          <Text selectable style={styles.choiceTitle}>
-            {title}
-          </Text>
+          <LayoutSlot id={`${layerPrefix}.title`}>
+            <Text selectable style={styles.choiceTitle}>
+              {title}
+            </Text>
+          </LayoutSlot>
           {value === "transparent" ? (
-            <Text style={styles.tag}>Recommended</Text>
+            <LayoutSlot id={`${layerPrefix}.tag`}>
+              <Text style={styles.tag}>Recommended</Text>
+            </LayoutSlot>
           ) : null}
         </View>
         <View style={styles.descriptionRow}>
-          <Text selectable style={styles.choiceDescription}>
-            {description}
-          </Text>
-          {price ? (
-            <Text selectable style={styles.price}>
-              {price}
+          <LayoutSlot
+            id={`${layerPrefix}.description`}
+            style={styles.descriptionSlot}
+          >
+            <Text selectable style={styles.choiceDescription}>
+              {description}
             </Text>
+          </LayoutSlot>
+          {price ? (
+            <LayoutSlot id={`${layerPrefix}.price`}>
+              <Text selectable style={styles.price}>
+                {price}
+              </Text>
+            </LayoutSlot>
           ) : null}
         </View>
       </View>
-      <View
-        accessibilityElementsHidden
-        style={[styles.radio, selected && styles.radioSelected]}
-      >
-        {selected ? <View style={styles.radioDot} /> : null}
-      </View>
+      <LayoutSlot id={`${layerPrefix}.radio`}>
+        <View
+          accessibilityElementsHidden
+          style={[styles.radio, selected && styles.radioSelected]}
+        >
+          {selected ? <View style={styles.radioDot} /> : null}
+        </View>
+      </LayoutSlot>
     </Pressable>
   );
 }
-
 export default function BackgroundScreen() {
-  const {
-    activeSet,
-    data,
-    product,
-    productStatus,
-    purchaseActiveSet,
-    recoverUnboundPurchase,
-  } = useAppState();
   const { fixture } = useLocalSearchParams<{ fixture?: string }>();
   const purchaseFixture = isAuthorizedScreenshotFixture(fixture, [
     "both",
     "signature",
   ]);
   const [background, setBackground] = useState<Background>("transparent");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const purchasePending = hasPurchaseRecoveryInProgress(data);
-  const unboundPurchase = data.unboundPurchases[0];
-  const displayPrice = product.displayPrice || "$1.99";
-
-  useEffect(() => {
-    if (
-      !purchaseFixture &&
-      activeSet.status === "purchased" &&
-      !activeSet.transactionFinishPending
-    )
-      router.replace({ pathname: "/success", params: { mode: "transparent" } });
-  }, [activeSet.status, activeSet.transactionFinishPending, purchaseFixture]);
-
-  const purchase = async () => {
-    setBusy(true);
-    setError(null);
-    try {
-      const result = unboundPurchase
-        ? await recoverUnboundPurchase()
-        : await purchaseActiveSet();
-      if (result.state === "purchased") {
-        // Advance through the state effect only after StoreKit finishing is
-        // durably complete. A verified purchase can still be finish-pending.
-      } else if (result.state === "pending") {
-        setError(
-          "Your purchase is pending with Apple. This set will unlock automatically after approval.",
-        );
-      } else if (result.state === "cancelled") {
-        setError("Purchase cancelled. You were not charged.");
-      } else {
-        setError(
-          "Apple did not report a completed purchase. This frozen set stays saved while Only Signature checks again.",
-        );
-      }
-    } catch {
-      setError(
-        "Transparent export is temporarily unavailable. You can still save with a white background for free.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
+  const {
+    beginPurchase,
+    busy,
+    clearError,
+    displayPrice,
+    error,
+    transparentUnavailable,
+    unboundPurchase,
+  } = useTransparentPurchase({ suppressSuccessRedirect: purchaseFixture });
 
   const continueFlow = () => {
-    if (background === "white") router.push("/free-export");
-    else void purchase();
+    if (background === "white") router.push("/clear-background" as never);
+    else void beginPurchase();
   };
-
-  const transparentUnavailable =
-    !unboundPurchase && (purchasePending || productStatus !== "available");
 
   return (
     <FlowScreen contentStyle={styles.content} testID="background-screen">
-      <EntryBackdrop />
+      <ReviewBackdrop />
       <View accessibilityElementsHidden style={styles.shade} />
-      <FlowSheet label="Choose Your Background" style={styles.sheet}>
+      <FlowSheet
+        label="Choose Your Background"
+        style={styles.sheet}
+        layoutId="background.sheet"
+        handleLayoutId="background.handle"
+      >
         <View style={styles.sheetBack}>
-          <FlowBackButton onPress={() => router.back()} />
+          <FlowBackButton
+            onPress={() => router.back()}
+            layoutId="background.back.icon"
+          />
         </View>
-        <ScriptLabel asset="select" style={styles.script} />
-        <FlowHeading>Choose Your Background</FlowHeading>
+        <LayoutSlot id="background.header">
+          <ScriptLabel
+            asset="select"
+            style={styles.script}
+            layoutId="background.script"
+          />
+          <FlowHeading style={styles.headingText} layoutId="background.title">
+            Choose Your Background
+          </FlowHeading>
+        </LayoutSlot>
         <View
           accessibilityRole="radiogroup"
           accessibilityLabel="Background format"
           style={styles.options}
         >
-          <BackgroundChoice
-            value="transparent"
-            selected={background === "transparent"}
-            title="Transparent Background"
-            description="Sits cleanly over lines, dates, and text."
-            price={displayPrice}
-            onSelect={() => {
-              setBackground("transparent");
-              setError(null);
-            }}
-          />
-          <BackgroundChoice
-            value="white"
-            selected={background === "white"}
-            title="White Background"
-            description="May cover anything behind your signature."
-            onSelect={() => {
-              setBackground("white");
-              setError(null);
-            }}
-          />
+          <LayoutSlot id="background.transparent">
+            <BackgroundChoice
+              value="transparent"
+              selected={background === "transparent"}
+              title="Transparent Background"
+              description="Sits cleanly over lines, dates, and text."
+              price={displayPrice}
+              layerPrefix="background.transparent"
+              onSelect={() => {
+                setBackground("transparent");
+                clearError();
+              }}
+            />
+          </LayoutSlot>
+          <LayoutSlot id="background.white">
+            <BackgroundChoice
+              value="white"
+              selected={background === "white"}
+              title="White Background"
+              description="May cover anything behind your signature."
+              layerPrefix="background.white"
+              onSelect={() => {
+                setBackground("white");
+                clearError();
+              }}
+            />
+          </LayoutSlot>
         </View>
         {error ? (
-          <Text accessibilityRole="alert" style={styles.error}>
-            {error}
-          </Text>
+          <LayoutSlot id="background.error">
+            <Text accessibilityRole="alert" style={styles.error}>
+              {error}
+            </Text>
+          </LayoutSlot>
         ) : null}
-        <View style={styles.actions}>
+        <LayoutSlot id="background.actions" style={styles.actions}>
           <FlowPrimaryButton
             label={
               busy
@@ -231,6 +225,8 @@ export default function BackgroundScreen() {
             disabled={
               busy || (background === "transparent" && transparentUnavailable)
             }
+            layoutId="background.primary.button"
+            labelLayoutId="background.primary.label"
           />
           <FlowTextButton
             label={
@@ -239,39 +235,44 @@ export default function BackgroundScreen() {
                 : "Choose Transparent Instead"
             }
             onPress={() => {
-              if (background === "transparent") router.push("/free-export");
+              if (background === "transparent")
+                router.push("/clear-background" as never);
               else setBackground("transparent");
             }}
             disabled={busy}
+            layoutId="background.secondary.button"
+            labelLayoutId="background.secondary.label"
           />
-        </View>
+        </LayoutSlot>
       </FlowSheet>
     </FlowScreen>
   );
 }
 
 const styles = StyleSheet.create({
+  headingText: { fontSize: 32, lineHeight: 38 },
   content: { padding: 0 },
   shade: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(0,0,0,0.62)" },
-  sheet: { top: "34%" },
-  sheetBack: { position: "absolute", top: -6, left: 20, zIndex: 3 },
-  script: { marginLeft: 28, marginBottom: 2 },
-  options: { gap: 10, marginTop: 12 },
+  sheet: { top: "33%" },
+  sheetBack: { position: "absolute", top: 2, left: 20, zIndex: 3 },
+  script: { width: 122, height: 60, marginLeft: 52, marginBottom: -6 },
+  options: { gap: 18, marginTop: 24 },
   choice: {
-    minHeight: 92,
+    minHeight: 110,
     borderWidth: 1,
     borderColor: flowColors.outline,
-    borderRadius: 16,
-    padding: 12,
+    borderRadius: 18,
+    padding: 16,
     flexDirection: "row",
-    gap: 12,
+    gap: 16,
     alignItems: "center",
+    boxShadow: "0 14px 30px rgba(0, 0, 0, 0.28)",
   },
-  choiceSelected: { minHeight: 108, borderColor: flowColors.cyan },
+  choiceSelected: { minHeight: 124, borderColor: flowColors.cyan },
   pressed: { opacity: 0.76 },
   swatch: {
-    width: 56,
-    height: 56,
+    width: 64,
+    height: 64,
     borderRadius: 7,
     borderWidth: 1,
     borderColor: "#CCD3D6",
@@ -280,7 +281,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   checker: { backgroundColor: "#FFF" },
-  checkerSquare: { width: 14, height: 14 },
+  checkerSquare: { width: 16, height: 16 },
   whiteSwatch: { backgroundColor: "#FFF" },
   choiceCopy: { flex: 1, minWidth: 0 },
   choiceTitleRow: {
@@ -291,8 +292,8 @@ const styles = StyleSheet.create({
   },
   choiceTitle: {
     color: flowColors.white,
-    fontSize: 14,
-    lineHeight: 19,
+    fontSize: 17,
+    lineHeight: 22,
     fontWeight: "700",
   },
   tag: {
@@ -302,8 +303,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 5,
     paddingVertical: 1,
-    fontSize: 10,
-    lineHeight: 13,
+    fontSize: 11,
+    lineHeight: 14,
   },
   descriptionRow: {
     flexDirection: "row",
@@ -311,19 +312,20 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 5,
   },
+  descriptionSlot: { flex: 1 },
   choiceDescription: {
     color: "#DCE3E5",
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 15,
+    lineHeight: 20,
     flex: 1,
   },
-  price: { color: flowColors.cyanText, fontSize: 13, lineHeight: 17 },
+  price: { color: flowColors.cyanText, fontSize: 15, lineHeight: 20 },
   radio: {
-    width: 22,
-    height: 22,
+    width: 26,
+    height: 26,
     borderWidth: 1.5,
     borderColor: "#FFF",
-    borderRadius: 11,
+    borderRadius: 13,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -334,6 +336,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: flowColors.cyan,
   },
-  error: { color: "#FFD8D2", fontSize: 12, lineHeight: 17, marginTop: 8 },
-  actions: { marginTop: 12 },
+  error: { color: "#FFD8D2", fontSize: 14, lineHeight: 20, marginTop: 10 },
+  actions: { marginTop: "auto", paddingTop: 24, marginBottom: 28, gap: 6 },
 });

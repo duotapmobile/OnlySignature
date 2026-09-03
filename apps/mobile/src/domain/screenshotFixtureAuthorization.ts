@@ -5,6 +5,7 @@ const recognizedFixtures = new Set([
   "landing",
   "privacy",
   "purchased",
+  "saved-home",
   "native-export",
 ]);
 

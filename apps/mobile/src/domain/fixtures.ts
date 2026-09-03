@@ -154,7 +154,7 @@ const initials: DrawingAsset = {
 
 export const screenshotFixtureSet: SignatureSet = {
   id: "screenshot-fixture",
-  label: "Taylor Brooks",
+  label: "Alex Morgan",
   status: "purchased",
   signature,
   initials,
@@ -179,4 +179,32 @@ export const screenshotFixtureSetFor = (fixture?: string): SignatureSet => {
     purchasedAt: null,
     transactionId: null,
   };
+};
+
+export const screenshotFixtureSetsFor = (fixture?: string): SignatureSet[] => {
+  if (fixture !== "saved-home") return [screenshotFixtureSetFor(fixture)];
+
+  const whiteSet: SignatureSet = {
+    ...screenshotFixtureSet,
+    id: "screenshot-white-set",
+    status: "draft",
+    signature: { ...signature, finalizedHash: null },
+    initials: { ...initials, finalizedHash: null },
+    purchasedAt: null,
+    transactionId: null,
+  };
+  const transparentSet: SignatureSet = {
+    ...screenshotFixtureSet,
+    id: "screenshot-transparent-set",
+    lastUsedAt: "2026-08-25T11:00:00.000Z",
+  };
+  const incompleteSet: SignatureSet = {
+    ...whiteSet,
+    id: "screenshot-incomplete-set",
+    label: "Taylor Brooks",
+    initials: null,
+    lastUsedAt: "2026-08-25T10:00:00.000Z",
+  };
+
+  return [whiteSet, transparentSet, incompleteSet];
 };

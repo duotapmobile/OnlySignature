@@ -7,7 +7,7 @@ const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 test("audited flow keeps one shared spacing and control system", async () => {
   const source = await read("../src/components/flow-ui.tsx");
   assert.match(source, /paddingHorizontal: 26/);
-  assert.match(source, /minHeight: 56/);
+  assert.match(source, /minHeight: 59/);
   assert.match(source, /minHeight: 44/);
   assert.match(source, /borderRadius: 14/);
   assert.match(source, /borderTopLeftRadius: 26/);
@@ -18,17 +18,27 @@ test("audited flow keeps one shared spacing and control system", async () => {
 });
 
 test("audited routes preserve the complete white and transparent branches", async () => {
-  const [entry, draw, review, background, warning, success, saved, exportFlow] =
-    await Promise.all([
-      read("../src/app/index.tsx"),
-      read("../src/app/draw.tsx"),
-      read("../src/app/preview.tsx"),
-      read("../src/app/purchase.tsx"),
-      read("../src/app/free-export.tsx"),
-      read("../src/app/success.tsx"),
-      read("../src/app/saved.tsx"),
-      read("../src/components/ExportFlow.tsx"),
-    ]);
+  const [
+    entry,
+    draw,
+    review,
+    background,
+    clear,
+    warning,
+    success,
+    saved,
+    exportFlow,
+  ] = await Promise.all([
+    read("../src/app/index.tsx"),
+    read("../src/app/draw.tsx"),
+    read("../src/app/preview.tsx"),
+    read("../src/app/purchase.tsx"),
+    read("../src/app/clear-background.tsx"),
+    read("../src/app/free-export.tsx"),
+    read("../src/app/success.tsx"),
+    read("../src/app/saved.tsx"),
+    read("../src/components/ExportFlow.tsx"),
+  ]);
 
   assert.match(entry, /Create My Signing Set/);
   assert.match(draw, /Save Signature/);
@@ -38,11 +48,19 @@ test("audited routes preserve the complete white and transparent branches", asyn
   assert.match(review, /Confirm and Choose Background/);
   assert.match(background, /Choose Your Background/);
   assert.match(background, /Continue With White Background/);
-  assert.match(background, /purchaseActiveSet/);
+  assert.match(background, /clear-background/);
+  assert.match(background, /useTransparentPurchase/);
+  assert.match(clear, /Clear Background/);
+  assert.match(clear, /Looks natural on any document\./);
+  assert.match(clear, /router\.push\("\/free-export"\)/);
+  assert.match(clear, /purchase\.beginPurchase/);
+  assert.match(clear, /clear\.bad\.white-box/);
+  assert.match(clear, /obstructedDate/);
   assert.match(
     warning,
     /Removing the background later can damage your signature\./,
   );
+  assert.match(warning, /purchase\.beginPurchase/);
   assert.match(warning, /white-export/);
   assert.match(exportFlow, /pathname: "\/success"/);
   assert.match(success, /White Background Set Saved/);
@@ -51,12 +69,12 @@ test("audited routes preserve the complete white and transparent branches", asyn
   assert.match(saved, /Create New Signing Set/);
 });
 
-test("native splash uses the approved wordmark without simulated phone chrome", async () => {
+test("native splash uses the raised full-screen brand composition without simulated phone chrome", async () => {
   const [config, layout] = await Promise.all([
     read("../app.config.ts"),
     read("../src/app/_layout.tsx"),
   ]);
-  assert.match(config, /assets\/brand\/only-signature-wordmark\.png/);
+  assert.match(config, /assets\/brand\/only-signature-splash\.png/);
   assert.match(config, /backgroundColor: "#020B12"/);
   assert.match(layout, /<StatusBar style="light"/);
   assert.doesNotMatch(layout, /<StatusBar hidden/);
@@ -73,7 +91,30 @@ test("the exact flow uses supplied script art and professional fictional handwri
   assert.doesNotMatch(flowUi, /fontFamily|SF Pro|9:41/i);
   assert.match(sample, /taylor-brooks-signature\.png/);
   assert.match(sample, /taylor-brooks-initials\.png/);
+  assert.match(fixture, /label: "Alex Morgan"/);
+  assert.match(fixture, /fixture !== "saved-home"/);
   assert.match(fixture, /label: "Taylor Brooks"/);
+});
+test("reference rendering contract contains the complete eleven-screen flow", async () => {
+  const manifest = JSON.parse(
+    await read("../../../artifacts/actual-flow-preview/manifest.json"),
+  ) as { screenshots: { id: string }[] };
+  assert.deepEqual(
+    manifest.screenshots.map(({ id }) => id),
+    [
+      "01-splash",
+      "02-entry",
+      "03-signature-capture",
+      "04-initials-capture",
+      "05-review-popup",
+      "06-background-popup",
+      "07-clear-background",
+      "08-diy-warning-popup",
+      "09-white-confirmation-popup",
+      "10-transparent-confirmation-popup",
+      "11-saved-sets-home",
+    ],
+  );
 });
 
 test("reachable export and information surfaces keep the audited visual system", async () => {
@@ -125,17 +166,17 @@ test("included purchased slots finalize once and return to their source route", 
 });
 
 test("finish-pending purchases cannot announce success or export", async () => {
-  const [background, paidExport, saved] = await Promise.all([
-    read("../src/app/purchase.tsx"),
+  const [purchaseHook, paidExport, saved] = await Promise.all([
+    read("../src/hooks/use-transparent-purchase.ts"),
     read("../src/app/export.tsx"),
     read("../src/app/saved.tsx"),
   ]);
-  const purchaseHandler = background.slice(
-    background.indexOf("const purchase ="),
-    background.indexOf("const continueFlow ="),
+  const purchaseHandler = purchaseHook.slice(
+    purchaseHook.indexOf("const beginPurchase ="),
+    purchaseHook.indexOf("return {"),
   );
   assert.doesNotMatch(purchaseHandler, /pathname: "\/success"/);
-  assert.match(background, /!activeSet\.transactionFinishPending/);
+  assert.match(purchaseHook, /!activeSet\.transactionFinishPending/);
   assert.match(paidExport, /activeSet\.transactionFinishPending/);
   assert.match(
     saved,
@@ -164,7 +205,10 @@ test("sheet content scrolls and saved card actions remain individually accessibl
   ]);
   for (const source of [review, background, success])
     assert.doesNotMatch(source, /scroll=\{false\}/);
-  assert.match(saved, /<View style=\{styles\.card\}>/);
+  assert.match(
+    saved,
+    /<LayoutSlot id=\{`\$\{layerPrefix\}\.group`\} style=\{styles\.card\}>/,
+  );
   assert.doesNotMatch(
     saved,
     /<View\s+accessible\s+accessibilityLabel=\{`\$\{title\}[\s\S]*?style=\{styles\.card\}/,
@@ -174,9 +218,192 @@ test("sheet content scrolls and saved card actions remain individually accessibl
 
 test("capture geometry and controls use deterministic audited primitives", async () => {
   const draw = await read("../src/app/draw.tsx");
-  assert.match(draw, /windowHeight \* 0\.255/);
-  assert.match(draw, /Math\.min\(260, Math\.max\(190/);
+  assert.match(draw, /windowHeight \* 0\.4/);
+  assert.match(draw, /Math\.min\(440, Math\.max\(360/);
   assert.match(draw, /function RotateIcon\(\)/);
   assert.doesNotMatch(draw, /↻/);
   assert.match(draw, /back: \{ position: "absolute"/);
+});
+
+test("layout studio slots are backed by persisted device profiles", async () => {
+  const [
+    slot,
+    values,
+    entry,
+    draw,
+    review,
+    purchase,
+    clear,
+    freeExport,
+    success,
+    saved,
+  ] = await Promise.all([
+    read("../src/components/layout-slot.tsx"),
+    read("../src/design/layout-studio-values.ts"),
+    read("../src/app/index.tsx"),
+    read("../src/app/draw.tsx"),
+    read("../src/app/preview.tsx"),
+    read("../src/app/purchase.tsx"),
+    read("../src/app/clear-background.tsx"),
+    read("../src/app/free-export.tsx"),
+    read("../src/app/success.tsx"),
+    read("../src/app/saved.tsx"),
+  ]);
+
+  assert.match(slot, /useWindowDimensions\(\)/);
+  assert.match(slot, /width >= 768 \? "ipad" : "iphone"/);
+  assert.match(slot, /`layout-slot:\$\{id\}`/);
+  assert.match(values, /(?:["']iphone["']|iphone):/);
+  assert.match(values, /(?:["']ipad["']|ipad):/);
+  assert.match(values, /rotate\?: number/);
+  assert.match(slot, /rotate: `\$\{clean\.rotate\}deg`/);
+  assert.doesNotMatch(values, /["']capture\./);
+  assert.doesNotMatch(values, /["']confirmation\./);
+  for (const [source, expected] of [
+    [entry, /id="entry\.hero"/],
+    [draw, /\$\{layerPrefix\}\.canvas/],
+    [review, /id="review\.signature"/],
+    [purchase, /id="background\.transparent"/],
+    [clear, /id="clear\.comparison"/],
+    [freeExport, /id="warning\.comparison"/],
+    [success, /\$\{layerPrefix\}\.message/],
+    [saved, /id="saved\.list"/],
+  ])
+    assert.match(source, expected);
+});
+
+test("native splash is editable and regenerates the configured launch asset", async () => {
+  const [server, generator, preview] = await Promise.all([
+    read("../../../scripts/layout-studio.mjs"),
+    read("../../../scripts/splash-layout.mjs"),
+    read("../../../tools/layout-studio/splash-preview.html"),
+  ]);
+  assert.match(server, /id: "splash"/);
+  assert.match(server, /"splash\.wordmark"/);
+  assert.match(server, /await renderSplash\(profiles\)/);
+  assert.match(generator, /only-signature-splash\.png/);
+  assert.match(generator, /profiles\?\.iphone\?\.\["splash\.wordmark"\]/);
+  assert.match(preview, /data-testid="layout-slot:splash\.wordmark"/);
+});
+
+test("layout studio exposes individual text, icon, artwork, and action layers", async () => {
+  const [
+    flow,
+    entry,
+    draw,
+    review,
+    background,
+    clear,
+    warning,
+    confirmation,
+    saved,
+    studio,
+  ] = await Promise.all([
+    read("../src/components/flow-ui.tsx"),
+    read("../src/app/index.tsx"),
+    read("../src/app/draw.tsx"),
+    read("../src/app/preview.tsx"),
+    read("../src/app/purchase.tsx"),
+    read("../src/app/clear-background.tsx"),
+    read("../src/app/free-export.tsx"),
+    read("../src/app/success.tsx"),
+    read("../src/app/saved.tsx"),
+    read("../../../tools/layout-studio/studio.js"),
+  ]);
+
+  assert.match(flow, /layoutId\?: string/);
+  assert.match(flow, /labelLayoutId\?: string/);
+  assert.match(flow, /iconLayoutId\?: string/);
+  for (const [sourceName, screen, markers] of [
+    [
+      "entry",
+      entry,
+      [
+        "entry.sign",
+        "entry.title",
+        "entry.subscription.icon",
+        "entry.privacy.icon",
+      ],
+    ],
+    [
+      "capture",
+      draw,
+      [
+        "${layerPrefix}.script",
+        "${layerPrefix}.title",
+        "${layerPrefix}.rotate.icon",
+        "${layerPrefix}.redo.label",
+      ],
+    ],
+    [
+      "review",
+      review,
+      [
+        "review.handle",
+        "review.signature.label",
+        "review.signature.edit",
+        "review.signature.art",
+      ],
+    ],
+    [
+      "background",
+      background,
+      [
+        "background.handle",
+        "${layerPrefix}.swatch",
+        "${layerPrefix}.title",
+        "${layerPrefix}.radio",
+        'layerPrefix="background.transparent"',
+      ],
+    ],
+    [
+      "clear",
+      clear,
+      [
+        "clear.title",
+        'prefix + ".icon"',
+        'prefix + ".signature-line"',
+        'prefix + ".signature-art"',
+        "clear.primary.label",
+      ],
+    ],
+    [
+      "warning",
+      warning,
+      [
+        "warning.original.label",
+        "warning.original.art",
+        "warning.diy.art",
+        "warning.diy.damage-one",
+      ],
+    ],
+    [
+      "confirmation",
+      confirmation,
+      [
+        "${layerPrefix}.handle",
+        "${layerPrefix}.check.icon",
+        "${layerPrefix}.title",
+        "${layerPrefix}.primary.label",
+      ],
+    ],
+    [
+      "saved",
+      saved,
+      [
+        "saved.title",
+        "saved.settings.icon",
+        "saved.card-${index + 1}",
+        "saved.create.label",
+      ],
+    ],
+  ] as const) {
+    for (const marker of markers)
+      assert.ok(
+        screen.includes(marker),
+        `${sourceName} is missing editable layer ${marker}`,
+      );
+  }
+  assert.ok(studio.includes(`closest('[data-testid^="layout-slot:"]')`));
+  assert.ok(studio.includes("1px dashed transparent"));
 });

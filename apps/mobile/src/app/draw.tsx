@@ -10,6 +10,7 @@ import {
 import { router, useLocalSearchParams } from "expo-router";
 import Svg, { Path } from "react-native-svg";
 import { SignatureCanvas } from "@/components/SignatureCanvas";
+import { LayoutSlot } from "@/components/layout-slot";
 import {
   FlowBackButton,
   FlowBody,
@@ -40,6 +41,7 @@ export default function CaptureScreen() {
   const [saving, setSaving] = useState(false);
   const kind = data.selectedAsset;
   const initial = kind === "initials";
+  const layerPrefix = initial ? "initials" : "signature";
   const asset = activeSet[kind];
   const drawableAsset = asset ?? createEmptyAsset(kind);
   const immutable =
@@ -107,40 +109,54 @@ export default function CaptureScreen() {
       testID={initial ? "initials-capture-screen" : "signature-capture-screen"}
     >
       <View style={styles.back}>
-        <FlowBackButton onPress={goBack} />
+        <FlowBackButton
+          onPress={goBack}
+          layoutId={`${layerPrefix}.back.icon`}
+        />
       </View>
-      <View style={styles.header}>
+      <LayoutSlot id={`${layerPrefix}.header`} style={styles.header}>
         <ScriptLabel
           asset={initial ? "initial" : "sign"}
-          style={[styles.script, initial && styles.compactScript]}
+          style={styles.script}
+          layoutId={`${layerPrefix}.script`}
         />
-        <FlowHeading>
+        <FlowHeading style={styles.heroTitle} layoutId={`${layerPrefix}.title`}>
           {initial ? "Add your initials" : "Add your signature"}
         </FlowHeading>
-        <FlowBody>
+        <FlowBody style={styles.subtitle} layoutId={`${layerPrefix}.subtitle`}>
           {initial ? "Write your initials" : "Sign"} in the space below.
         </FlowBody>
         <View style={styles.rotate}>
-          <RotateIcon />
-          <Text selectable style={styles.rotateText}>
-            Rotate for more room
-          </Text>
+          <LayoutSlot id={`${layerPrefix}.rotate.icon`}>
+            <RotateIcon />
+          </LayoutSlot>
+          <LayoutSlot id={`${layerPrefix}.rotate.label`}>
+            <Text selectable style={styles.rotateText}>
+              Rotate for more room
+            </Text>
+          </LayoutSlot>
         </View>
-      </View>
-      <View
+      </LayoutSlot>
+      <LayoutSlot
+        id={`${layerPrefix}.canvas`}
         style={[
           styles.canvas,
-          { height: Math.min(260, Math.max(190, windowHeight * 0.255)) },
+          { height: Math.min(440, Math.max(360, windowHeight * 0.4)) },
         ]}
       >
         {immutable ? (
           <View style={styles.locked}>
-            <Text style={styles.lockedTitle}>
-              This saved drawing stays unchanged.
-            </Text>
-            <Text style={styles.lockedBody}>
-              Duplicate the set from My Signing Sets to make a changed version.
-            </Text>
+            <LayoutSlot id={`${layerPrefix}.locked.title`}>
+              <Text style={styles.lockedTitle}>
+                This saved drawing stays unchanged.
+              </Text>
+            </LayoutSlot>
+            <LayoutSlot id={`${layerPrefix}.locked.body`}>
+              <Text style={styles.lockedBody}>
+                Duplicate the set from My Signing Sets to make a changed
+                version.
+              </Text>
+            </LayoutSlot>
           </View>
         ) : (
           <SignatureCanvas
@@ -152,38 +168,54 @@ export default function CaptureScreen() {
             }
           />
         )}
-      </View>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={
-          initial ? "Clear and redraw initials" : "Clear and redraw signature"
-        }
-        disabled={immutable || saving || !hasDrawing(drawableAsset)}
-        onPress={confirmRedo}
-        style={({ pressed }) => [
-          styles.redo,
-          pressed && styles.pressed,
-          (immutable || saving || !hasDrawing(drawableAsset)) &&
-            styles.disabled,
+      </LayoutSlot>
+      <LayoutSlot id={`${layerPrefix}.redo`} style={styles.redoSlot}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={
+            initial ? "Clear and redraw initials" : "Clear and redraw signature"
+          }
+          disabled={immutable || saving || !hasDrawing(drawableAsset)}
+          onPress={confirmRedo}
+          style={({ pressed }) => [
+            styles.redo,
+            pressed && styles.pressed,
+            (immutable || saving || !hasDrawing(drawableAsset)) &&
+              styles.disabled,
+          ]}
+        >
+          <View style={styles.redoContent}>
+            <LayoutSlot id={`${layerPrefix}.redo.icon`}>
+              <RotateIcon />
+            </LayoutSlot>
+            <LayoutSlot id={`${layerPrefix}.redo.label`}>
+              <Text style={styles.redoText}>Redo</Text>
+            </LayoutSlot>
+          </View>
+        </Pressable>
+      </LayoutSlot>
+      {message ? (
+        <LayoutSlot id={`${layerPrefix}.error`}>
+          <Text accessibilityRole="alert" style={styles.error}>
+            {message}
+          </Text>
+        </LayoutSlot>
+      ) : null}
+      <LayoutSlot
+        id={`${layerPrefix}.actions`}
+        style={[
+          styles.actions,
+          initial ? styles.initialActions : styles.signatureActions,
         ]}
       >
-        <View style={styles.redoContent}>
-          <RotateIcon />
-          <Text style={styles.redoText}>Redo</Text>
-        </View>
-      </Pressable>
-      {message ? (
-        <Text accessibilityRole="alert" style={styles.error}>
-          {message}
-        </Text>
-      ) : null}
-      <View style={styles.actions}>
         <FlowPrimaryButton
           label={initial ? "Save Initials" : "Save Signature"}
           onPress={() => {
             void finishCapture();
           }}
           disabled={immutable || saving}
+          layoutId={`${layerPrefix}.primary.button`}
+          labelLayoutId={`${layerPrefix}.primary.label`}
         />
         {initial ? (
           <FlowTextButton
@@ -193,9 +225,11 @@ export default function CaptureScreen() {
               else router.push("/preview");
             }}
             disabled={immutable || saving}
+            layoutId={`${layerPrefix}.skip.button`}
+            labelLayoutId={`${layerPrefix}.skip.label`}
           />
         ) : null}
-      </View>
+      </LayoutSlot>
     </FlowScreen>
   );
 }
@@ -214,42 +248,53 @@ function RotateIcon() {
     </Svg>
   );
 }
-
 const styles = StyleSheet.create({
-  content: { paddingTop: 24 },
-  back: { position: "absolute", top: 24, left: 18, zIndex: 4 },
-  header: { marginTop: 0 },
-  script: { marginLeft: 10, marginBottom: -2 },
-  compactScript: { marginBottom: 2 },
+  content: { paddingTop: 32, paddingBottom: 30 },
+  back: { position: "absolute", top: 24, left: 20, zIndex: 4 },
+  header: { marginTop: 36, marginBottom: 24 },
+  script: { width: 152, height: 108, marginLeft: 6, marginBottom: -34 },
+  compactScript: {
+    width: 154,
+    height: 60,
+    marginTop: 22,
+    marginLeft: 18,
+    marginBottom: -10,
+  },
+  heroTitle: { fontSize: 32, lineHeight: 38 },
+  subtitle: { marginTop: 51, fontSize: 17, lineHeight: 24 },
   rotate: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    marginTop: 6,
-    marginBottom: 12,
+    gap: 7,
+    marginTop: 12,
+    marginBottom: 22,
   },
-  rotateText: { color: "#E5ECEF", fontSize: 12, lineHeight: 18 },
+  rotateText: { color: "#E5ECEF", fontSize: 15, lineHeight: 21 },
   canvas: {
-    minHeight: 190,
-    borderRadius: 14,
+    minHeight: 360,
+    borderRadius: 18,
     backgroundColor: "#F7F7F7",
     overflow: "hidden",
+    boxShadow: "0 18px 38px rgba(0, 0, 0, 0.36)",
   },
+  redoSlot: { alignItems: "center" },
   redo: {
     minHeight: 40,
-    marginTop: 6,
+    marginTop: 12,
     paddingHorizontal: 14,
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "center",
   },
   redoContent: { flexDirection: "row", alignItems: "center", gap: 6 },
-  redoText: { color: flowColors.white, fontSize: 12, lineHeight: 18 },
-  actions: { marginTop: 0, gap: 0 },
+  redoText: { color: flowColors.white, fontSize: 14, lineHeight: 20 },
+  actions: { marginTop: "auto", paddingTop: 28, gap: 6 },
+  signatureActions: { marginBottom: 72 },
+  initialActions: { marginBottom: 26 },
   error: {
     color: "#FFD8D2",
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 15,
+    lineHeight: 21,
     textAlign: "center",
     marginBottom: 6,
   },

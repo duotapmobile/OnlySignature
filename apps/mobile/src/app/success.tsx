@@ -1,8 +1,9 @@
 import { StyleSheet, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import { LayoutSlot } from "@/components/layout-slot";
 import {
+  CaptureBackdrop,
   CheckMark,
-  EntryBackdrop,
   FlowBody,
   FlowHeading,
   FlowPrimaryButton,
@@ -14,6 +15,9 @@ import {
 export default function ConfirmationScreen() {
   const { mode } = useLocalSearchParams<{ mode?: string }>();
   const transparent = mode === "transparent" || mode === "purchased";
+  const layerPrefix = transparent
+    ? "transparent-confirmation"
+    : "white-confirmation";
   const finishFlow = () => {
     router.dismissAll();
     router.replace("/saved");
@@ -28,7 +32,7 @@ export default function ConfirmationScreen() {
           : "white-confirmation-screen"
       }
     >
-      <EntryBackdrop />
+      <CaptureBackdrop initial={transparent} />
       <View accessibilityElementsHidden style={styles.shade} />
       <FlowSheet
         label={
@@ -37,53 +41,71 @@ export default function ConfirmationScreen() {
             : "White Background Set Saved"
         }
         style={styles.sheet}
+        layoutId={`${layerPrefix}.sheet`}
+        handleLayoutId={`${layerPrefix}.handle`}
       >
-        <View style={styles.success}>
-          <CheckMark />
+        <LayoutSlot id={`${layerPrefix}.message`} style={styles.success}>
+          <CheckMark layoutId={`${layerPrefix}.check.icon`} />
           <View style={styles.title}>
-            <FlowHeading>
+            <FlowHeading
+              style={styles.headingText}
+              layoutId={`${layerPrefix}.title`}
+            >
               {transparent
                 ? "Transparent Set Unlocked"
                 : "White Background Set Saved"}
             </FlowHeading>
           </View>
-          <FlowBody style={styles.copy}>
+          <FlowBody style={styles.copy} layoutId={`${layerPrefix}.subtitle`}>
             {transparent
               ? "Download this signing set again anytime."
               : "Your signing set is finalized and saved on this device. Return anytime to unlock the transparent version."}
           </FlowBody>
-        </View>
-        <View style={styles.actions}>
+        </LayoutSlot>
+        <LayoutSlot id={`${layerPrefix}.actions`} style={styles.actions}>
           {transparent ? (
             <FlowPrimaryButton
               label="Save or Share Files"
               onPress={() => router.push("/export")}
+              layoutId={`${layerPrefix}.primary.button`}
+              labelLayoutId={`${layerPrefix}.primary.label`}
             />
           ) : (
-            <FlowPrimaryButton label="Done" onPress={finishFlow} />
+            <FlowPrimaryButton
+              label="Done"
+              onPress={finishFlow}
+              layoutId={`${layerPrefix}.primary.button`}
+              labelLayoutId={`${layerPrefix}.primary.label`}
+            />
           )}
           {transparent ? (
-            <FlowTextButton label="Done" onPress={finishFlow} />
+            <FlowTextButton
+              label="Done"
+              onPress={finishFlow}
+              layoutId={`${layerPrefix}.secondary.button`}
+              labelLayoutId={`${layerPrefix}.secondary.label`}
+            />
           ) : null}
-        </View>
+        </LayoutSlot>
       </FlowSheet>
     </FlowScreen>
   );
 }
 
 const styles = StyleSheet.create({
+  headingText: { fontSize: 32, lineHeight: 38 },
   content: { padding: 0 },
   shade: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(0,0,0,0.62)" },
-  sheet: { top: "28%" },
-  success: { alignItems: "center", paddingTop: 30 },
-  title: { marginTop: 18 },
+  sheet: { height: "42%", minHeight: 370, maxHeight: 420 },
+  success: { alignItems: "center", paddingTop: 0 },
+  title: { marginTop: 6 },
   copy: {
     color: "#E3EAED",
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 22,
+    lineHeight: 31,
     textAlign: "center",
-    marginTop: 14,
+    marginTop: 6,
     paddingHorizontal: 10,
   },
-  actions: { marginTop: 28 },
+  actions: { marginTop: "auto", paddingTop: 6, gap: 4 },
 });

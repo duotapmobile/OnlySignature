@@ -44,6 +44,7 @@ import {
 import {
   screenshotFixtureSet,
   screenshotFixtureSetFor,
+  screenshotFixtureSetsFor,
 } from "@/domain/fixtures";
 import { appStorage } from "@/services/storage";
 import {
@@ -261,15 +262,16 @@ export function AppStateProvider({ children }: PropsWithChildren) {
       const parsed = new URL(url);
       const fixture = parsed.searchParams.get("fixture") ?? undefined;
       const set = screenshotFixtureSetFor(fixture);
+      const sets = screenshotFixtureSetsFor(fixture);
       const next = {
         ...initialData,
         hydrated: true,
-        activeSetId: set.id,
+        activeSetId: sets[0]?.id ?? set.id,
         selectedAsset:
           fixture === "initials"
             ? ("initials" as const)
             : ("signature" as const),
-        sets: [set],
+        sets,
       };
       dataRef.current = next;
       setData(next);

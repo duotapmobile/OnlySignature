@@ -1,35 +1,38 @@
 {
-  "purpose": "Route and assertion contract for a future EAS iOS Simulator actual-flow capture",
+  "purpose": "Route and assertion contract for the nine in-app states in the founder-approved ten-screen flow; the native splash is governed separately by app.config.ts",
   "evidenceStatus": "No native evidence is created by this file; provenance is written only by the EAS capture runtime",
   "screenshots": [
     {
-      "id": "01-entry",
+      "id": "02-entry",
       "route": "/?fixture=landing",
       "headline": "Entry",
       "assertions": ["Without the sign-up.", "Create My Signing Set"]
     },
     {
-      "id": "02-signature-capture",
+      "id": "03-signature-capture",
       "route": "/draw?fixture=both",
       "headline": "Signature Capture",
       "assertions": ["Add your signature", "Save Signature"]
     },
     {
-      "id": "03-initials-capture",
+      "id": "04-initials-capture",
       "route": "/draw?fixture=initials",
       "headline": "Initials Capture",
       "assertions": ["Add your initials", "Save Initials", "Skip for Now"]
     },
     {
-      "id": "04-review",
+      "id": "05-review-popup",
       "route": "/preview?fixture=both",
-      "headline": "Review",
-      "assertions": ["Confirm Your Signing Set", "Continue to Background"]
+      "headline": "Review popup",
+      "assertions": [
+        "Confirm Your Signing Set",
+        "Confirm and Choose Background"
+      ]
     },
     {
-      "id": "05-background",
+      "id": "06-background-popup",
       "route": "/purchase?fixture=both",
-      "headline": "Background Choice",
+      "headline": "Background popup",
       "assertions": [
         "Choose Your Background",
         "Transparent Background",
@@ -37,25 +40,36 @@
       ]
     },
     {
-      "id": "06-diy-warning",
+      "id": "07-diy-warning-popup",
       "route": "/free-export?fixture=both",
-      "headline": "DIY Warning",
+      "headline": "DIY warning popup",
       "assertions": [
-        "Background-removal tools can erase fine signature strokes.",
+        "Removing the background later can damage your signature.",
         "Download White Background Set"
       ]
     },
     {
-      "id": "07-transparent-unlocked",
-      "route": "/success?fixture=purchased&mode=transparent",
-      "headline": "Transparent Confirmation",
-      "assertions": ["Transparent Set Unlocked", "Export Files", "Done"]
+      "id": "08-white-confirmation-popup",
+      "route": "/success?fixture=both&mode=white",
+      "headline": "White confirmation popup",
+      "assertions": ["White Background Set Saved", "Done"]
     },
     {
-      "id": "08-saved-sets",
-      "route": "/saved?fixture=purchased",
-      "headline": "Saved Sets",
-      "assertions": ["My Signing Sets", "Export"]
+      "id": "09-transparent-confirmation-popup",
+      "route": "/success?fixture=purchased&mode=transparent",
+      "headline": "Transparent confirmation popup",
+      "assertions": ["Transparent Set Unlocked", "Save or Share Files", "Done"]
+    },
+    {
+      "id": "10-saved-sets-home",
+      "route": "/saved?fixture=saved-home",
+      "headline": "Saved Sets home",
+      "assertions": [
+        "My Signing Sets",
+        "Transparent Unlocked",
+        "Initials not added",
+        "Add Initials"
+      ]
     }
   ],
   "outputs": {
