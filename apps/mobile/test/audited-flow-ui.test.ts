@@ -117,6 +117,69 @@ test("reference rendering contract contains the complete eleven-screen flow", as
   );
 });
 
+test("native capture contract contains ten in-app states matching the approved eleven-screen flow", async () => {
+  const [
+    nativeManifestSource,
+    actualFlowWorkflow,
+    marketingWorkflow,
+    auditedFullFlow,
+  ] = await Promise.all([
+    read("../e2e/native-actual-flow-manifest.json"),
+    read("../.eas/workflows/native-ios-actual-flow.yml"),
+    read("../.eas/workflows/native-ios-screenshots.yml"),
+    read("../e2e/audited-full-flow.yml"),
+  ]);
+  const nativeManifest = JSON.parse(nativeManifestSource) as {
+    purpose: string;
+    screenshots: {
+      id: string;
+      route: string;
+      headline: string;
+      assertions: string[];
+    }[];
+  };
+
+  assert.match(nativeManifest.purpose, /ten in-app states/);
+  assert.match(nativeManifest.purpose, /eleven-screen flow/);
+  assert.deepEqual(
+    nativeManifest.screenshots.map(({ id }) => id),
+    [
+      "02-entry",
+      "03-signature-capture",
+      "04-initials-capture",
+      "05-review-popup",
+      "06-background-popup",
+      "07-clear-background",
+      "08-diy-warning-popup",
+      "09-white-confirmation-popup",
+      "10-transparent-confirmation-popup",
+      "11-saved-sets-home",
+    ],
+  );
+  assert.deepEqual(nativeManifest.screenshots[5], {
+    id: "07-clear-background",
+    route: "/clear-background?fixture=both",
+    headline: "Clear Background",
+    assertions: [
+      "Clear Background",
+      "Looks natural on any document.",
+      "White box",
+      "No Thanks",
+    ],
+  });
+  assert.match(actualFlowWorkflow, /Capture the ten real in-app screens/);
+  assert.match(actualFlowWorkflow, /Capture ten asserted iPhone screens/);
+  assert.match(actualFlowWorkflow, /Capture ten asserted iPad screens/);
+  assert.doesNotMatch(actualFlowWorkflow, /Capture eight/);
+  assert.match(marketingWorkflow, /Capture eight asserted iPhone frames/);
+  assert.match(marketingWorkflow, /Capture eight asserted iPad frames/);
+  assert.match(
+    auditedFullFlow,
+    /tapOn: "Confirm and Choose Background"[\s\S]*tapOn: "Continue With White Background"[\s\S]*assertVisible: "Clear Background"[\s\S]*tapOn: "No Thanks"[\s\S]*assertVisible: "Removing the background later can damage your signature\."[\s\S]*tapOn: "No Thanks, Download Free White Set"[\s\S]*assertVisible: "White Background Export"/,
+  );
+  assert.doesNotMatch(auditedFullFlow, /tapOn: "Continue to Background"/);
+});
+
 test("reachable export and information surfaces keep the audited visual system", async () => {
   const [exportFlow, settings, infoPage] = await Promise.all([
     read("../src/components/ExportFlow.tsx"),

@@ -29,7 +29,7 @@ jobs:
       profile: screenshot
 
   capture_actual_flow:
-    name: Capture the eight real screens on iPhone and iPad
+    name: Capture the ten real in-app screens on iPhone and iPad
     needs: [build_ios_simulator]
     runs_on: macos-medium
     environment: preview
@@ -50,9 +50,9 @@ jobs:
         run: |
           command -v maestro
           maestro --version
-      - name: Capture eight asserted iPhone screens
+      - name: Capture ten asserted iPhone screens
         run: node scripts/capture-native-ios-screenshots.mjs --app "${{ steps.simulator_build.outputs.artifact_path }}" --device iphone
-      - name: Capture eight asserted iPad screens
+      - name: Capture ten asserted iPad screens
         run: node scripts/capture-native-ios-screenshots.mjs --app "${{ steps.simulator_build.outputs.artifact_path }}" --device ipad
       - uses: eas/upload_artifact
         if: ${{ always() }}

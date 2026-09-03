@@ -1,5 +1,5 @@
 {
-  "purpose": "Route and assertion contract for the nine in-app states in the founder-approved ten-screen flow; the native splash is governed separately by app.config.ts",
+  "purpose": "Route and assertion contract for the ten in-app states in the founder-approved eleven-screen flow; the native splash is governed separately by app.config.ts",
   "evidenceStatus": "No native evidence is created by this file; provenance is written only by the EAS capture runtime",
   "screenshots": [
     {
@@ -40,28 +40,39 @@
       ]
     },
     {
-      "id": "07-diy-warning-popup",
+      "id": "07-clear-background",
+      "route": "/clear-background?fixture=both",
+      "headline": "Clear Background",
+      "assertions": [
+        "Clear Background",
+        "Looks natural on any document.",
+        "White box",
+        "No Thanks"
+      ]
+    },
+    {
+      "id": "08-diy-warning-popup",
       "route": "/free-export?fixture=both",
       "headline": "DIY warning popup",
       "assertions": [
         "Removing the background later can damage your signature.",
-        "Download White Background Set"
+        "No Thanks, Download Free White Set"
       ]
     },
     {
-      "id": "08-white-confirmation-popup",
+      "id": "09-white-confirmation-popup",
       "route": "/success?fixture=both&mode=white",
       "headline": "White confirmation popup",
       "assertions": ["White Background Set Saved", "Done"]
     },
     {
-      "id": "09-transparent-confirmation-popup",
+      "id": "10-transparent-confirmation-popup",
       "route": "/success?fixture=purchased&mode=transparent",
       "headline": "Transparent confirmation popup",
       "assertions": ["Transparent Set Unlocked", "Save or Share Files", "Done"]
     },
     {
-      "id": "10-saved-sets-home",
+      "id": "11-saved-sets-home",
       "route": "/saved?fixture=saved-home",
       "headline": "Saved Sets home",
       "assertions": [
