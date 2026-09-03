@@ -176,6 +176,27 @@ describe("native screenshot deep-link readiness", () => {
     expect(source).not.toContain("screenshotDeepLink(route)");
   });
 
+  it("copies verification exports from the native protected cache directory", () => {
+    const captureSource = readFileSync(
+      "scripts/capture-native-ios-screenshots.mjs",
+      "utf8",
+    );
+    const storageSource = readFileSync(
+      "apps/mobile/modules/only-signature-native/ios/OnlySignatureStorageModule.swift",
+      "utf8",
+    );
+    const exportDirectory = storageSource.match(
+      /private func exportDirectory\(\) throws -> URL \{([\s\S]*?)\n  \}/,
+    )?.[1];
+    const nativeCacheFolder = exportDirectory?.match(
+      /appendingPathComponent\("([^"]+)", isDirectory: true\)/,
+    )?.[1];
+
+    expect(nativeCacheFolder).toBe("OnlySignatureExports");
+    expect(captureSource).toContain(`"${nativeCacheFolder}",`);
+    expect(captureSource).not.toContain('"only-signature-exports",');
+  });
+
   it("preserves post-open launch diagnostics and uploads them on failure", () => {
     const source = readFileSync(
       "scripts/capture-native-ios-screenshots.mjs",

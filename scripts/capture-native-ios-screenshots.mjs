@@ -433,7 +433,7 @@ try {
       dataContainer,
       "Library",
       "Caches",
-      "only-signature-exports",
+      "OnlySignatureExports",
       "native-export-verification",
     );
     const nativeExportDirectory = path.join(
