@@ -209,6 +209,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     web: { output: "static", favicon: "./assets/icon.png" },
     plugins: [
       "expo-router",
+      "expo-sharing",
       ["./plugins/withOnlySignatureIos"],
       [
         "expo-splash-screen",
