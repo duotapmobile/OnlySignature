@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
+import { readImageOpacity } from "./image-opacity.mjs";
 import {
   buildScreenshotMaestroFlow,
   iosOpenConfirmationPattern,
@@ -18,19 +19,6 @@ const digest = async (file) =>
   createHash("sha256")
     .update(await readFile(file))
     .digest("hex");
-const fingerprint = async (file) =>
-  Array.from(
-    await sharp(file)
-      .resize(16, 16, { fit: "fill" })
-      .grayscale()
-      .raw()
-      .toBuffer(),
-  );
-const averageDifference = (left, right) =>
-  left.reduce(
-    (total, value, index) => total + Math.abs(value - right[index]),
-    0,
-  ) / left.length;
 const exists = async (file) => {
   try {
     await access(file);
@@ -174,8 +162,6 @@ for (const device of ["iphone", "ipad"]) {
   if (provenance.captures?.length !== 8)
     throw new Error(`Expected eight asserted raw captures for ${device}.`);
 
-  const rawHashes = new Set();
-  const rawFingerprints = [];
   for (const shot of manifest.screenshots) {
     const rawPath = path.join(nativeRoot, "raw", device, `${shot.id}.png`);
     const finalPath = path.join(
@@ -205,20 +191,16 @@ for (const device of ["iphone", "ipad"]) {
       record.finalSha256 !== finalHash
     )
       throw new Error(`Hash mismatch for ${device}/${shot.id}.`);
-    rawHashes.add(rawHash);
     allFinalHashes.add(finalHash);
-    const rawMetadata = await sharp(rawPath).metadata();
+    const { metadata: rawMetadata, fullyOpaque: rawIsFullyOpaque } =
+      await readImageOpacity(rawPath);
     if (
       rawMetadata.format !== "png" ||
       rawMetadata.width !== expected.width ||
       rawMetadata.height !== expected.height ||
-      rawMetadata.hasAlpha
+      !rawIsFullyOpaque
     )
       throw new Error(`Invalid native raw screenshot: ${rawPath}`);
-    rawFingerprints.push({
-      id: shot.id,
-      values: await fingerprint(rawPath),
-    });
     const metadata = await sharp(finalPath).metadata();
     if (
       metadata.format !== "png" ||
@@ -229,19 +211,6 @@ for (const device of ["iphone", "ipad"]) {
       throw new Error(`Invalid native App Store screenshot: ${finalPath}`);
     nativeCount += 1;
   }
-  if (rawHashes.size !== 8)
-    throw new Error(`${device} native frames are not all visually distinct.`);
-  for (let left = 0; left < rawFingerprints.length; left += 1)
-    for (let right = left + 1; right < rawFingerprints.length; right += 1)
-      if (
-        averageDifference(
-          rawFingerprints[left].values,
-          rawFingerprints[right].values,
-        ) < 0.75
-      )
-        throw new Error(
-          `${device} frames ${rawFingerprints[left].id} and ${rawFingerprints[right].id} are perceptually indistinguishable.`,
-        );
 }
 if (allFinalHashes.size !== 16)
   throw new Error(

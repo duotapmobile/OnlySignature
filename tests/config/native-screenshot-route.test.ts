@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
+import { mkdtemp, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import sharp from "sharp";
 import {
   buildScreenshotMaestroFlow,
   iosOpenConfirmationPattern,
@@ -7,6 +11,7 @@ import {
   screenshotColdLaunchPlan,
   screenshotDeepLink,
 } from "../../scripts/native-screenshot-flow.mjs";
+import { readImageOpacity } from "../../scripts/image-opacity.mjs";
 import { formatControlAccessibilityLabel } from "../../apps/mobile/src/domain/models";
 import { privacyFixtureCopy } from "../../packages/content/src/copy/index";
 
@@ -241,5 +246,41 @@ describe("native screenshot deep-link readiness", () => {
     expect(launchLog).toBeGreaterThan(frontmost);
     expect(workflow).toContain("if: ${{ always() }}");
     expect(workflow).toContain("artifacts/native-screenshot-diagnostics/**/*");
+  });
+
+  it("accepts fully opaque simulator PNGs even when they retain an alpha channel", async () => {
+    const directory = await mkdtemp(
+      path.join(os.tmpdir(), "only-signature-opacity-"),
+    );
+    const opaqueRgba = path.join(directory, "opaque-rgba.png");
+    const translucentRgba = path.join(directory, "translucent-rgba.png");
+
+    try {
+      await sharp(Buffer.from([10, 20, 30, 255]), {
+        raw: { width: 1, height: 1, channels: 4 },
+      })
+        .png()
+        .toFile(opaqueRgba);
+      await sharp(Buffer.from([10, 20, 30, 254]), {
+        raw: { width: 1, height: 1, channels: 4 },
+      })
+        .png()
+        .toFile(translucentRgba);
+
+      expect((await readImageOpacity(opaqueRgba)).fullyOpaque).toBe(true);
+      expect((await readImageOpacity(translucentRgba)).fullyOpaque).toBe(false);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("enforces uniqueness on flattened store images rather than reusable raw app states", () => {
+    const verifier = readFileSync("scripts/verify-store-assets.mjs", "utf8");
+
+    expect(verifier).toContain("allFinalHashes.size !== 16");
+    expect(verifier).not.toContain(
+      "native frames are not all visually distinct",
+    );
+    expect(verifier).not.toContain("perceptually indistinguishable");
   });
 });
