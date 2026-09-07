@@ -23,6 +23,7 @@ interface ProtectedStorageModule {
     fileExtension: "png" | "jpg",
   ): Promise<string>;
   deleteTemporaryExport(uri: string): Promise<void>;
+  saveExportToPhotos(uri: string): Promise<void>;
   protectTemporaryFile(uri: string): Promise<void>;
   verifyTemporaryFileProtection(uri: string): Promise<void>;
 }
@@ -148,6 +149,12 @@ export const appStorage = {
     const storage = requireProtectedStorage();
     if (!storage) throw new Error("protected-export-deletion-unavailable");
     await storage.deleteTemporaryExport(uri);
+  },
+
+  async saveExportToPhotos(uri: string): Promise<void> {
+    const storage = requireProtectedStorage();
+    if (!storage) throw new Error("native-photo-save-unavailable");
+    await storage.saveExportToPhotos(uri);
   },
 
   async protectTemporaryFile(uri: string): Promise<void> {

@@ -88,9 +88,10 @@ test("the exact flow uses crisp script labels and professional fictional handwri
     read("../src/domain/fixtures.ts"),
   ]);
   assert.match(flowUi, /only-signature-wordmark\.png/);
-  assert.match(flowUi, /Snell Roundhand/);
-  assert.match(flowUi, /allowFontScaling=\{false\}/);
-  assert.doesNotMatch(flowUi, /sign-label\.png|initial-label\.png/);
+  assert.match(flowUi, /sign-label\.png/);
+  assert.match(flowUi, /initial-label\.png/);
+  assert.match(flowUi, /review-label\.png/);
+  assert.doesNotMatch(flowUi, /Snell Roundhand/);
   assert.match(sample, /taylor-brooks-signature\.png/);
   assert.match(sample, /taylor-brooks-initials\.png/);
   assert.match(fixture, /label: "Alex Morgan"/);
@@ -197,10 +198,10 @@ test("reachable export and information surfaces keep the audited visual system",
     exportFlow,
     /router\.push\(\{[\s\S]*?pathname: "\/draw",[\s\S]*?returnTo: "export"/,
   );
-  assert.match(
-    exportFlow,
-    /label="Done"[\s\S]*?recordExport\(\);[\s\S]*?router\.replace\("\/saved"\)/,
-  );
+  assert.match(exportFlow, /<Modal/);
+  assert.match(exportFlow, /Choose where to save/);
+  assert.match(exportFlow, /saveFileToPhotos/);
+  assert.match(exportFlow, /if \(toSaved\) router\.replace\("\/saved"\)/);
 
   assert.match(settings, /FlowScreen/);
   assert.match(settings, /borderRadius: 16/);
@@ -257,19 +258,25 @@ test("returning-user hydration and terminal navigation fail closed", async () =>
   ]);
   assert.match(entry, /if \(!data\.hydrated\) return/);
   assert.match(entry, /disabled=\{!data\.hydrated\}/);
+  assert.match(entry, /opening-splash-screen/);
+  assert.match(entry, /only-signature-splash\.png/);
+  assert.doesNotMatch(entry, /router\.replace\("\/saved"\)/);
   assert.match(success, /router\.dismissAll\(\)/);
   assert.match(success, /router\.replace\("\/saved"\)/);
 });
 
-test("sheet content scrolls and saved card actions remain individually accessible", async () => {
+test("review and background are fixed full screens while saved actions remain individually accessible", async () => {
   const [review, background, success, saved] = await Promise.all([
     read("../src/app/preview.tsx"),
     read("../src/app/purchase.tsx"),
     read("../src/app/success.tsx"),
     read("../src/app/saved.tsx"),
   ]);
-  for (const source of [review, background, success])
-    assert.doesNotMatch(source, /scroll=\{false\}/);
+  for (const source of [review, background])
+    assert.match(source, /scroll=\{false\}/);
+  assert.doesNotMatch(success, /scroll=\{false\}/);
+  assert.doesNotMatch(review, /FlowSheet|EntryBackdrop/);
+  assert.doesNotMatch(background, /FlowSheet|ReviewBackdrop/);
   assert.match(
     saved,
     /<LayoutSlot id=\{`\$\{layerPrefix\}\.group`\} style=\{styles\.card\}>/,
@@ -298,6 +305,8 @@ test("drawing responder owns one continuous finger gesture", async () => {
   assert.match(canvas, /onMoveShouldSetPanResponderCapture: \(\) => true/);
   assert.match(canvas, /onPanResponderTerminationRequest: \(\) => false/);
   assert.match(canvas, /onShouldBlockNativeResponder: \(\) => true/);
+  const draw = await read("../src/app/draw.tsx");
+  assert.match(draw, /<FlowScreen[\s\S]*scroll=\{false\}/);
   assert.match(canvas, /Math\.max\(plane\.width, nextSize\.width\)/);
   assert.match(canvas, /Math\.max\(plane\.height, nextSize\.height\)/);
 });
@@ -436,7 +445,7 @@ test("layout studio exposes individual text, icon, artwork, and action layers", 
       "review",
       review,
       [
-        "review.handle",
+        "review.back.icon",
         "review.signature.label",
         "review.signature.edit",
         "review.signature.art",
@@ -446,7 +455,7 @@ test("layout studio exposes individual text, icon, artwork, and action layers", 
       "background",
       background,
       [
-        "background.handle",
+        "background.back.icon",
         "${layerPrefix}.swatch",
         "${layerPrefix}.title",
         "${layerPrefix}.radio",

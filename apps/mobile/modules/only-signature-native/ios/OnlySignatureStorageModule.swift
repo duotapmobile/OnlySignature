@@ -1,4 +1,5 @@
 import ExpoModulesCore
+import Photos
 
 public final class OnlySignatureStorageModule: Module {
   private let fileManager = FileManager.default
@@ -17,6 +18,8 @@ public final class OnlySignatureStorageModule: Module {
     case exportCleanupFailed = 20
     case exportDeletionFailed = 21
     case sourceExtensionMismatch = 22
+    case photoPermissionDenied = 23
+    case photoSaveFailed = 24
   }
 
   private func storageError(_ code: StorageErrorCode) -> NSError {
@@ -275,6 +278,34 @@ public final class OnlySignatureStorageModule: Module {
     }
   }
 
+  private func saveExportToPhotos(uri: String) async throws {
+    do {
+      let directory = try exportDirectory()
+      let requested = try fileURL(from: uri)
+      let target = try validatedExportURL(requested, inside: directory)
+      try verifyProtectedExport(at: target)
+
+      let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+      guard status == .authorized || status == .limited else {
+        throw storageError(.photoPermissionDenied)
+      }
+
+      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+        PHPhotoLibrary.shared().performChanges({
+          PHAssetChangeRequest.creationRequestForAssetFromImage(atFileURL: target)
+        }) { success, _ in
+          if success {
+            continuation.resume()
+          } else {
+            continuation.resume(throwing: self.storageError(.photoSaveFailed))
+          }
+        }
+      }
+    } catch {
+      throw sanitizedStorageError(error, fallback: .photoSaveFailed)
+    }
+  }
+
   public func definition() -> ModuleDefinition {
     Name("OnlySignatureStorage")
     AsyncFunction("readState") { () -> String? in
@@ -322,6 +353,9 @@ public final class OnlySignatureStorageModule: Module {
     }
     AsyncFunction("deleteTemporaryExport") { (uri: String) in
       try self.deleteTemporaryExport(uri: uri)
+    }
+    AsyncFunction("saveExportToPhotos") { (uri: String) in
+      try await self.saveExportToPhotos(uri: uri)
     }
     AsyncFunction("protectTemporaryFile") { (uri: String) in
       guard let url = URL(string: uri) else { throw NSError(domain: "OnlySignatureStorage", code: 1) }

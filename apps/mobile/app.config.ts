@@ -158,6 +158,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       requireFullScreen: false,
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
+        NSPhotoLibraryAddUsageDescription:
+          "Save your signature images to Photos when you choose Save Photo.",
         NSAppTransportSecurity: {
           NSAllowsArbitraryLoads: false,
           NSAllowsLocalNetworking: false,

@@ -3,13 +3,11 @@ import { router } from "expo-router";
 import { DrawingPreview } from "@/components/DrawingPreview";
 import { LayoutSlot } from "@/components/layout-slot";
 import {
-  EntryBackdrop,
   FlowBackButton,
   FlowBody,
   FlowHeading,
   FlowPrimaryButton,
   FlowScreen,
-  FlowSheet,
   PreviewCard,
   ScriptLabel,
   flowColors,
@@ -28,37 +26,34 @@ export default function ReviewScreen() {
   };
 
   return (
-    <FlowScreen contentStyle={styles.content} testID="review-screen">
-      <EntryBackdrop />
-      <View accessibilityElementsHidden style={styles.shade} />
-      <FlowSheet
-        label="Confirm Your Signing Set"
-        style={styles.sheet}
-        layoutId="review.sheet"
-        handleLayoutId="review.handle"
-      >
-        <View style={styles.sheetBack}>
-          <FlowBackButton
-            layoutId="review.back.icon"
-            onPress={() => {
-              setSelectedAsset("initials");
-              router.back();
-            }}
-          />
-        </View>
-        <LayoutSlot id="review.header">
-          <ScriptLabel
-            asset="review"
-            style={styles.script}
-            layoutId="review.script"
-          />
-          <FlowHeading style={styles.headingText} layoutId="review.title">
-            Confirm Your Signing Set
-          </FlowHeading>
-          <FlowBody style={styles.copy} layoutId="review.subtitle">
-            Check carefully. Once downloaded, saved assets cannot be changed.
-          </FlowBody>
-        </LayoutSlot>
+    <FlowScreen
+      scroll={false}
+      contentStyle={styles.content}
+      testID="review-screen"
+    >
+      <View style={styles.back}>
+        <FlowBackButton
+          layoutId="review.back.icon"
+          onPress={() => {
+            setSelectedAsset("initials");
+            router.back();
+          }}
+        />
+      </View>
+      <LayoutSlot id="review.header" style={styles.header}>
+        <ScriptLabel
+          asset="review"
+          style={styles.script}
+          layoutId="review.script"
+        />
+        <FlowHeading style={styles.headingText} layoutId="review.title">
+          Confirm Your Signing Set
+        </FlowHeading>
+        <FlowBody style={styles.copy} layoutId="review.subtitle">
+          Check both before choosing a background.
+        </FlowBody>
+      </LayoutSlot>
+      <View style={styles.previews}>
         <LayoutSlot id="review.signature">
           <PreviewCard
             label="Signature"
@@ -99,36 +94,36 @@ export default function ReviewScreen() {
             )}
           </PreviewCard>
         </LayoutSlot>
-        <LayoutSlot id="review.actions" style={styles.continue}>
-          <FlowPrimaryButton
-            label="Confirm and Choose Background"
-            onPress={() => router.push("/purchase")}
-            disabled={!signatureExists}
-            layoutId="review.confirm.button"
-            labelLayoutId="review.confirm.label"
-          />
-        </LayoutSlot>
-      </FlowSheet>
+      </View>
+      <LayoutSlot id="review.actions" style={styles.continue}>
+        <FlowPrimaryButton
+          label="Confirm and Choose Background"
+          onPress={() => router.push("/purchase")}
+          disabled={!signatureExists}
+          layoutId="review.confirm.button"
+          labelLayoutId="review.confirm.label"
+        />
+      </LayoutSlot>
     </FlowScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  headingText: { fontSize: 32, lineHeight: 38 },
-  content: { padding: 0 },
-  shade: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(0,0,0,0.62)" },
-  sheet: { top: "27%" },
-  sheetBack: { position: "absolute", top: 2, left: 20, zIndex: 3 },
-  script: { width: 148, height: 60, marginLeft: 52, marginBottom: -6 },
+  content: { paddingTop: 18, paddingBottom: 18 },
+  back: { position: "absolute", top: 8, left: 20, zIndex: 3 },
+  header: { marginTop: 28 },
+  script: { width: 126, height: 48, marginLeft: 30, marginBottom: -4 },
+  headingText: { fontSize: 27, lineHeight: 32 },
   copy: {
-    fontSize: 22,
-    lineHeight: 31,
+    fontSize: 15,
+    lineHeight: 21,
     color: "#DDE4E7",
-    marginTop: 12,
-    marginBottom: 24,
+    marginTop: 5,
+    marginBottom: 12,
   },
-  signature: { width: "92%", height: 88 },
-  initials: { width: "62%", height: 82 },
-  missing: { color: flowColors.cardMuted, fontSize: 15, lineHeight: 21 },
-  continue: { marginTop: "auto", paddingTop: 24, marginBottom: 26 },
+  previews: { gap: 0 },
+  signature: { width: "92%", height: 72 },
+  initials: { width: "58%", height: 66 },
+  missing: { color: flowColors.cardMuted, fontSize: 14, lineHeight: 20 },
+  continue: { marginTop: "auto", paddingTop: 6, marginBottom: 2 },
 });

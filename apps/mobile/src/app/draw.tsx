@@ -106,6 +106,7 @@ export default function CaptureScreen() {
 
   return (
     <FlowScreen
+      scroll={false}
       contentStyle={[styles.content, landscape && styles.landscapeContent]}
       testID={initial ? "initials-capture-screen" : "signature-capture-screen"}
     >
