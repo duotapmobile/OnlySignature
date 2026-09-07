@@ -237,11 +237,6 @@ export function AppStateProvider({ children }: PropsWithChildren) {
         setProductStatus("available");
       } catch {
         setProductStatus("unavailable");
-        setData((current) => ({
-          ...current,
-          lastError:
-            "The transparent export product is temporarily unavailable.",
-        }));
       }
       hydrating = false;
     };
@@ -725,13 +720,28 @@ export function AppStateProvider({ children }: PropsWithChildren) {
         if (initialTarget.status === "purchased" && initialTarget.transactionId)
           return {
             transactionId: initialTarget.transactionId,
-            productId: product.productId,
+            productId: configuredStoreKitProductId,
             appAccountToken: initialTarget.id,
             state: "purchased",
             verified: true,
           };
         purchaseSingleFlight.current = true;
         try {
+          let availableProduct = product;
+          if (productStatus !== "available" || !availableProduct.productId) {
+            setProductStatus("loading");
+            try {
+              availableProduct = await withTimeout(
+                storeKit.loadProduct(),
+                15_000,
+              );
+              setProduct(availableProduct);
+              setProductStatus("available");
+            } catch (error) {
+              setProductStatus("unavailable");
+              throw error;
+            }
+          }
           let target!: SignatureSet;
           let pendingId = "";
           await enqueueOperation(async () => {
@@ -742,7 +752,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
               ) ?? initialTarget;
             if (!hasDrawing(target.signature) && !hasDrawing(target.initials))
               throw new Error("no-drawing");
-            if (productStatus !== "available" || !product.productId)
+            if (!availableProduct.productId)
               throw new Error("product-unavailable");
             if (hasPurchaseRecoveryInProgress(currentData))
               throw new Error("purchase-recovery-in-progress");
@@ -1041,7 +1051,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
       mutateData,
       persistData,
       processTransaction,
-      product.productId,
+      product,
       productStatus,
       reconcile,
       updateSet,

@@ -13,7 +13,6 @@ import {
 } from "@/components/flow-ui";
 import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 import { hasDrawing } from "@/domain/models";
-import { confirmAuthorizedUse } from "@/services/authorizedUse";
 import { useAppState } from "@/state/AppStateProvider";
 
 export default function EntryScreen() {
@@ -34,11 +33,9 @@ export default function EntryScreen() {
 
   const begin = () => {
     if (!data.hydrated) return;
-    confirmAuthorizedUse(() => {
-      if (hasSavedWork) createNew();
-      setSelectedAsset("signature");
-      router.push("/draw");
-    });
+    if (hasSavedWork) createNew();
+    setSelectedAsset("signature");
+    router.push("/draw");
   };
 
   return (

@@ -43,19 +43,34 @@ function MiniButton({
   onPress,
   layoutId,
   labelLayoutId,
+  wide = false,
 }: {
   label: string;
   onPress(): void;
   layoutId?: string;
   labelLayoutId?: string;
+  wide?: boolean;
 }) {
-  const labelNode = <Text style={styles.miniButtonText}>{label}</Text>;
+  const labelNode = (
+    <Text
+      adjustsFontSizeToFit
+      minimumFontScale={0.78}
+      numberOfLines={1}
+      style={styles.miniButtonText}
+    >
+      {label}
+    </Text>
+  );
   const button = (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      style={({ pressed }) => [styles.miniButton, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        styles.miniButton,
+        wide && styles.wideMiniButton,
+        pressed && styles.pressed,
+      ]}
     >
       {labelLayoutId ? (
         <LayoutSlot id={labelLayoutId}>{labelNode}</LayoutSlot>
@@ -79,6 +94,11 @@ function SigningSetCard({
   const purchaseLocked =
     Boolean(item.pendingPurchaseId) || item.transactionFinishPending;
   const transparent = item.status === "purchased" && !purchaseLocked;
+  const canUnlock =
+    item.status === "draft" &&
+    !purchaseLocked &&
+    signatureExists &&
+    initialsExists;
   const title = item.label.trim() || "Signing Set";
   const select = () => selectSet(item.id);
 
@@ -153,22 +173,22 @@ function SigningSetCard({
               }}
             />
           ) : null}
-          {item.status === "draft" &&
-          !purchaseLocked &&
-          signatureExists &&
-          initialsExists ? (
-            <MiniButton
-              label={`Unlock Transparent · ${product.displayPrice || "$1.99"}`}
-              layoutId={`${layerPrefix}.unlock.button`}
-              labelLayoutId={`${layerPrefix}.unlock.label`}
-              onPress={() => {
-                select();
-                router.push("/purchase");
-              }}
-            />
-          ) : null}
         </View>
       </View>
+      {canUnlock ? (
+        <View style={styles.unlockRow}>
+          <MiniButton
+            wide
+            label={`Unlock Transparent · ${product.displayPrice || "$1.99"}`}
+            layoutId={`${layerPrefix}.unlock.button`}
+            labelLayoutId={`${layerPrefix}.unlock.label`}
+            onPress={() => {
+              select();
+              router.push("/purchase");
+            }}
+          />
+        </View>
+      ) : null}
     </LayoutSlot>
   );
 }
@@ -317,6 +337,7 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   cardActions: { flexDirection: "row", gap: 6 },
+  unlockRow: { marginTop: 8 },
   miniButton: {
     minWidth: 82,
     height: 44,
@@ -328,6 +349,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  wideMiniButton: { width: "100%" },
   miniButtonText: {
     color: flowColors.accessibleLink,
     fontSize: 14,
@@ -348,5 +370,5 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginTop: 5,
   },
-  create: { marginTop: "auto", paddingTop: 24, marginBottom: 72 },
+  create: { marginTop: "auto", paddingTop: 24, marginBottom: 12 },
 });

@@ -32,14 +32,9 @@ export const flowColors = {
 
 const brandSources = {
   wordmark: require("../../assets/brand/only-signature-wordmark.png"),
-  sign: require("../../assets/brand/sign-label.png"),
-  initial: require("../../assets/brand/initial-label.png"),
-  review: require("../../assets/brand/review-label.png"),
-  select: require("../../assets/brand/select-label.png"),
-  before: require("../../assets/brand/before-label.png"),
 } as const;
 
-export type ScriptAsset = keyof Omit<typeof brandSources, "wordmark">;
+export type ScriptAsset = "sign" | "initial" | "review" | "select" | "before";
 
 export function FlowScreen({
   children,
@@ -113,7 +108,7 @@ export function ScriptLabel({
   layoutId,
 }: {
   asset: ScriptAsset;
-  style?: StyleProp<ImageStyle>;
+  style?: StyleProp<TextStyle>;
   layoutId?: string;
 }) {
   const labels: Record<ScriptAsset, string> = {
@@ -123,11 +118,13 @@ export function ScriptLabel({
     select: "Select.",
     before: "Before You Download",
   };
-  const image = (
-    <Image
-      source={brandSources[asset]}
+  const label = (
+    <Text
       accessibilityLabel={labels[asset]}
-      resizeMode="contain"
+      adjustsFontSizeToFit
+      allowFontScaling={false}
+      minimumFontScale={0.72}
+      numberOfLines={1}
       style={[
         styles.scriptLabel,
         asset === "sign" && styles.signLabel,
@@ -137,9 +134,11 @@ export function ScriptLabel({
         asset === "before" && styles.beforeLabel,
         style,
       ]}
-    />
+    >
+      {labels[asset]}
+    </Text>
   );
-  return layoutId ? <LayoutSlot id={layoutId}>{image}</LayoutSlot> : image;
+  return layoutId ? <LayoutSlot id={layoutId}>{label}</LayoutSlot> : label;
 }
 
 export function FlowHeading({
@@ -633,12 +632,24 @@ const styles = StyleSheet.create({
     paddingBottom: 28,
   },
   wordmark: { width: 244, height: 134, alignSelf: "center" },
-  scriptLabel: { alignSelf: "flex-start" },
-  signLabel: { width: 152, height: 108 },
-  initialLabel: { width: 154, height: 60 },
-  reviewLabel: { width: 148, height: 60 },
-  selectLabel: { width: 122, height: 60 },
-  beforeLabel: { width: 250, height: 43, alignSelf: "flex-start" },
+  scriptLabel: {
+    alignSelf: "flex-start",
+    color: flowColors.white,
+    fontFamily: process.env.EXPO_OS === "ios" ? "Snell Roundhand" : "cursive",
+    fontWeight: "400",
+    includeFontPadding: false,
+  },
+  signLabel: { width: 152, height: 72, fontSize: 48, lineHeight: 68 },
+  initialLabel: { width: 154, height: 54, fontSize: 38, lineHeight: 52 },
+  reviewLabel: { width: 148, height: 54, fontSize: 38, lineHeight: 52 },
+  selectLabel: { width: 122, height: 54, fontSize: 38, lineHeight: 52 },
+  beforeLabel: {
+    width: 250,
+    height: 43,
+    fontSize: 30,
+    lineHeight: 42,
+    alignSelf: "flex-start",
+  },
   heading: {
     color: flowColors.white,
     fontSize: 30,

@@ -81,14 +81,16 @@ test("native splash uses the raised full-screen brand composition without simula
   assert.doesNotMatch(layout, /9:41|island|homebar/i);
 });
 
-test("the exact flow uses supplied script art and professional fictional handwriting", async () => {
+test("the exact flow uses crisp script labels and professional fictional handwriting", async () => {
   const [flowUi, sample, fixture] = await Promise.all([
     read("../src/components/flow-ui.tsx"),
     read("../src/components/SampleDrawing.tsx"),
     read("../src/domain/fixtures.ts"),
   ]);
   assert.match(flowUi, /only-signature-wordmark\.png/);
-  assert.doesNotMatch(flowUi, /fontFamily|SF Pro|9:41/i);
+  assert.match(flowUi, /Snell Roundhand/);
+  assert.match(flowUi, /allowFontScaling=\{false\}/);
+  assert.doesNotMatch(flowUi, /sign-label\.png|initial-label\.png/);
   assert.match(sample, /taylor-brooks-signature\.png/);
   assert.match(sample, /taylor-brooks-initials\.png/);
   assert.match(fixture, /label: "Alex Morgan"/);
@@ -279,13 +281,43 @@ test("sheet content scrolls and saved card actions remain individually accessibl
   assert.match(saved, /style=\{styles\.cardActions\}/);
 });
 
-test("capture geometry and controls use deterministic audited primitives", async () => {
+test("capture geometry responds to iPhone portrait and landscape", async () => {
   const draw = await read("../src/app/draw.tsx");
-  assert.match(draw, /windowHeight \* 0\.4/);
-  assert.match(draw, /Math\.min\(440, Math\.max\(360/);
+  assert.match(draw, /landscape = windowWidth > windowHeight/);
+  assert.match(draw, /Math\.max\(190, windowHeight - 195\)/);
+  assert.match(draw, /Math\.max\(190, windowHeight \* 0\.26\)/);
+  assert.match(draw, /maxWidth: 1100/);
   assert.match(draw, /function RotateIcon\(\)/);
   assert.doesNotMatch(draw, /↻/);
   assert.match(draw, /back: \{ position: "absolute"/);
+});
+
+test("drawing responder owns one continuous finger gesture", async () => {
+  const canvas = await read("../src/components/SignatureCanvas.tsx");
+  assert.match(canvas, /onStartShouldSetPanResponderCapture: \(\) => true/);
+  assert.match(canvas, /onMoveShouldSetPanResponderCapture: \(\) => true/);
+  assert.match(canvas, /onPanResponderTerminationRequest: \(\) => false/);
+  assert.match(canvas, /onShouldBlockNativeResponder: \(\) => true/);
+  assert.match(canvas, /Math\.max\(plane\.width, nextSize\.width\)/);
+  assert.match(canvas, /Math\.max\(plane\.height, nextSize\.height\)/);
+});
+
+test("entry has no authorization interruption and StoreKit can retry", async () => {
+  const [entry, provider, purchaseHook] = await Promise.all([
+    read("../src/app/index.tsx"),
+    read("../src/state/AppStateProvider.tsx"),
+    read("../src/hooks/use-transparent-purchase.ts"),
+  ]);
+  assert.doesNotMatch(entry, /confirmAuthorizedUse|Authorized use only/);
+  assert.match(entry, /router\.push\("\/draw"\)/);
+  assert.match(
+    provider,
+    /availableProduct = await withTimeout\(\s*storeKit\.loadProduct\(\),\s*15_000,\s*\)/,
+  );
+  assert.match(
+    purchaseHook,
+    /transparentUnavailable: !unboundPurchase && purchasePending/,
+  );
 });
 
 test("layout studio slots are backed by persisted device profiles", async () => {
@@ -315,6 +347,8 @@ test("layout studio slots are backed by persisted device profiles", async () => 
 
   assert.match(slot, /useWindowDimensions\(\)/);
   assert.match(slot, /width >= 768 \? "ipad" : "iphone"/);
+  assert.match(slot, /Platform\.OS === "web" && layoutStudioMode/);
+  assert.match(slot, /if \(!studioEnabled\) return slot/);
   assert.match(slot, /`layout-slot:\$\{id\}`/);
   assert.match(values, /(?:["']iphone["']|iphone):/);
   assert.match(values, /(?:["']ipad["']|ipad):/);

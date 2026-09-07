@@ -45,6 +45,7 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
   const current = useRef<Stroke | null>(null);
   const sequence = useRef(0);
   const strokesRef = useRef<Stroke[]>(asset.strokes);
+  const layoutInitialized = useRef(false);
 
   const updateLocal = useCallback((next: Stroke[]) => {
     strokesRef.current = next;
@@ -135,11 +136,15 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
     () =>
       PanResponder.create({
         onStartShouldSetPanResponder: () => true,
+        onStartShouldSetPanResponderCapture: () => true,
         onMoveShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponderCapture: () => true,
         onPanResponderGrant: grant,
         onPanResponderMove: move,
         onPanResponderRelease: release,
         onPanResponderTerminate: terminate,
+        onPanResponderTerminationRequest: () => false,
+        onShouldBlockNativeResponder: () => true,
       }),
     [grant, move, release, terminate],
   );
@@ -163,16 +168,39 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
           width: event.nativeEvent.layout.width,
           height: event.nativeEvent.layout.height,
         };
+        const orientation =
+          windowWidth > windowHeight ? "landscape" : "portrait";
+        const firstLayout = !layoutInitialized.current;
+        layoutInitialized.current = true;
         setSize(nextSize);
-        if (strokesRef.current.length === 0 && !current.current) {
+        if (current.current) return;
+        if (firstLayout && strokesRef.current.length === 0) {
           setPlane(nextSize);
-          onChange(
-            [],
-            nextSize.width,
-            nextSize.height,
-            windowWidth > windowHeight ? "landscape" : "portrait",
-          );
+          onChange([], nextSize.width, nextSize.height, orientation);
+          return;
         }
+        const nextPlane = {
+          width: Math.max(plane.width, nextSize.width),
+          height: Math.max(plane.height, nextSize.height),
+        };
+        if (
+          Math.abs(nextPlane.width - plane.width) < 1 &&
+          Math.abs(nextPlane.height - plane.height) < 1
+        )
+          return;
+        const offsetX = (nextPlane.width - plane.width) / 2;
+        const offsetY = (nextPlane.height - plane.height) / 2;
+        const expanded = strokesRef.current.map((stroke) => ({
+          ...stroke,
+          points: stroke.points.map((point) => ({
+            ...point,
+            x: point.x + offsetX,
+            y: point.y + offsetY,
+          })),
+        }));
+        setPlane(nextPlane);
+        updateLocal(expanded);
+        onChange(expanded, nextPlane.width, nextPlane.height, orientation);
       }}
       {...responder.panHandlers}
     >

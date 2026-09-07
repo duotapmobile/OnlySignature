@@ -1,0 +1,36 @@
+{
+  "capturedOn": "2026-09-07",
+  "source": "Expo web static build with screenshot fixture mode and mock StoreKit",
+  "classification": "Local browser rendering and interaction evidence only; not native iOS, TestFlight, App Store Connect, or live StoreKit proof",
+  "outputs": {
+    "portrait": {
+      "file": "draw-portrait-continuous-stroke.png",
+      "viewport": {
+        "width": 430,
+        "height": 932,
+        "deviceScaleFactor": 2
+      },
+      "checks": [
+        "continuous pointer gesture rendered as one SVG path",
+        "route remained /draw 1.2 seconds after release",
+        "no horizontal overflow",
+        "no console errors"
+      ]
+    },
+    "landscape": {
+      "file": "draw-landscape-expanded.png",
+      "viewport": {
+        "width": 844,
+        "height": 390,
+        "deviceScaleFactor": 2
+      },
+      "checks": [
+        "portrait-to-landscape transition preserved drawing",
+        "canvas measured 796 x 195 CSS pixels",
+        "Save Signature remained fully visible",
+        "no horizontal overflow",
+        "no console errors"
+      ]
+    }
+  }
+}

@@ -68,8 +68,8 @@ export function useTransparentPurchase({
     clearError: () => setError(null),
     displayPrice,
     error,
-    transparentUnavailable:
-      !unboundPurchase && (purchasePending || productStatus !== "available"),
+    productNeedsRetry: productStatus !== "available",
+    transparentUnavailable: !unboundPurchase && purchasePending,
     unboundPurchase: Boolean(unboundPurchase),
   };
 }

@@ -36,7 +36,8 @@ export default function CaptureScreen() {
     clearAsset,
     fillIncludedSlot,
   } = useAppState();
-  const { height: windowHeight } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const landscape = windowWidth > windowHeight;
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const kind = data.selectedAsset;
@@ -105,43 +106,68 @@ export default function CaptureScreen() {
 
   return (
     <FlowScreen
-      contentStyle={styles.content}
+      contentStyle={[styles.content, landscape && styles.landscapeContent]}
       testID={initial ? "initials-capture-screen" : "signature-capture-screen"}
     >
-      <View style={styles.back}>
+      <View style={[styles.back, landscape && styles.landscapeBack]}>
         <FlowBackButton
           onPress={goBack}
           layoutId={`${layerPrefix}.back.icon`}
         />
       </View>
-      <LayoutSlot id={`${layerPrefix}.header`} style={styles.header}>
-        <ScriptLabel
-          asset={initial ? "initial" : "sign"}
-          style={styles.script}
-          layoutId={`${layerPrefix}.script`}
-        />
-        <FlowHeading style={styles.heroTitle} layoutId={`${layerPrefix}.title`}>
+      <LayoutSlot
+        id={`${layerPrefix}.header`}
+        style={[styles.header, landscape && styles.landscapeHeader]}
+      >
+        {landscape ? null : (
+          <ScriptLabel
+            asset={initial ? "initial" : "sign"}
+            style={styles.script}
+            layoutId={`${layerPrefix}.script`}
+          />
+        )}
+        <FlowHeading
+          style={[styles.heroTitle, landscape && styles.landscapeTitle]}
+          layoutId={`${layerPrefix}.title`}
+        >
           {initial ? "Add your initials" : "Add your signature"}
         </FlowHeading>
-        <FlowBody style={styles.subtitle} layoutId={`${layerPrefix}.subtitle`}>
-          {initial ? "Write your initials" : "Sign"} in the space below.
-        </FlowBody>
-        <View style={styles.rotate}>
-          <LayoutSlot id={`${layerPrefix}.rotate.icon`}>
-            <RotateIcon />
-          </LayoutSlot>
-          <LayoutSlot id={`${layerPrefix}.rotate.label`}>
-            <Text selectable style={styles.rotateText}>
-              Rotate for more room
-            </Text>
-          </LayoutSlot>
-        </View>
+        {landscape ? (
+          <Text selectable style={styles.landscapeInstruction}>
+            Keep your finger down and write across the full canvas.
+          </Text>
+        ) : (
+          <>
+            <FlowBody
+              style={styles.subtitle}
+              layoutId={`${layerPrefix}.subtitle`}
+            >
+              {initial ? "Write your initials" : "Sign"} in the space below.
+            </FlowBody>
+            <View style={styles.rotate}>
+              <LayoutSlot id={`${layerPrefix}.rotate.icon`}>
+                <RotateIcon />
+              </LayoutSlot>
+              <LayoutSlot id={`${layerPrefix}.rotate.label`}>
+                <Text selectable style={styles.rotateText}>
+                  Rotate for more room
+                </Text>
+              </LayoutSlot>
+            </View>
+          </>
+        )}
       </LayoutSlot>
       <LayoutSlot
         id={`${layerPrefix}.canvas`}
         style={[
           styles.canvas,
-          { height: Math.min(440, Math.max(360, windowHeight * 0.4)) },
+          landscape
+            ? {
+                height: Math.min(230, Math.max(190, windowHeight - 195)),
+              }
+            : {
+                height: Math.min(250, Math.max(190, windowHeight * 0.26)),
+              },
         ]}
       >
         {immutable ? (
@@ -205,6 +231,7 @@ export default function CaptureScreen() {
         id={`${layerPrefix}.actions`}
         style={[
           styles.actions,
+          landscape && styles.landscapeActions,
           initial ? styles.initialActions : styles.signatureActions,
         ]}
       >
@@ -249,10 +276,26 @@ function RotateIcon() {
   );
 }
 const styles = StyleSheet.create({
-  content: { paddingTop: 32, paddingBottom: 30 },
+  content: { paddingTop: 32, paddingBottom: 24 },
+  landscapeContent: {
+    maxWidth: 1100,
+    paddingHorizontal: 24,
+    paddingTop: 10,
+    paddingBottom: 14,
+  },
   back: { position: "absolute", top: 24, left: 20, zIndex: 4 },
-  header: { marginTop: 36, marginBottom: 24 },
-  script: { width: 152, height: 108, marginLeft: 6, marginBottom: -34 },
+  landscapeBack: { top: 2, left: 24 },
+  header: { marginTop: 36, marginBottom: 16 },
+  landscapeHeader: {
+    minHeight: 44,
+    marginTop: 0,
+    marginBottom: 8,
+    paddingLeft: 48,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+  script: { width: 152, height: 72, marginLeft: 6, marginBottom: -12 },
   compactScript: {
     width: 154,
     height: 60,
@@ -261,7 +304,14 @@ const styles = StyleSheet.create({
     marginBottom: -10,
   },
   heroTitle: { fontSize: 32, lineHeight: 38 },
-  subtitle: { marginTop: 51, fontSize: 17, lineHeight: 24 },
+  landscapeTitle: { fontSize: 24, lineHeight: 30 },
+  landscapeInstruction: {
+    flex: 1,
+    color: "#E5ECEF",
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  subtitle: { marginTop: 6, fontSize: 17, lineHeight: 24 },
   rotate: {
     flexDirection: "row",
     alignItems: "center",
@@ -271,7 +321,7 @@ const styles = StyleSheet.create({
   },
   rotateText: { color: "#E5ECEF", fontSize: 15, lineHeight: 21 },
   canvas: {
-    minHeight: 360,
+    minHeight: 190,
     borderRadius: 18,
     backgroundColor: "#F7F7F7",
     overflow: "hidden",
@@ -289,8 +339,9 @@ const styles = StyleSheet.create({
   redoContent: { flexDirection: "row", alignItems: "center", gap: 6 },
   redoText: { color: flowColors.white, fontSize: 14, lineHeight: 20 },
   actions: { marginTop: "auto", paddingTop: 28, gap: 6 },
-  signatureActions: { marginBottom: 72 },
-  initialActions: { marginBottom: 26 },
+  landscapeActions: { paddingTop: 4 },
+  signatureActions: { marginBottom: 18 },
+  initialActions: { marginBottom: 18 },
   error: {
     color: "#FFD8D2",
     fontSize: 15,
