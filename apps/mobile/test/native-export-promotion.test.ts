@@ -136,3 +136,27 @@ test("production export and cleanup use only the protected native promotion boun
   assert.match(fixtureSource, /appStorage\.promoteTemporaryExport\(/);
   assert.doesNotMatch(fixtureSource, /FileSystem\.moveAsync\(\{/);
 });
+
+test("photo export stays inside the validated native boundary and requests add-only access", () => {
+  const configSource = readFileSync(
+    new URL("../app.config.ts", import.meta.url),
+    "utf8",
+  );
+  assert.match(swiftSource, /import Photos/);
+  assert.match(
+    swiftSource,
+    /saveExportToPhotos[\s\S]*validatedExportURL\(requested, inside: directory\)/,
+  );
+  assert.match(swiftSource, /verifyProtectedExport\(at: target\)/);
+  assert.match(
+    swiftSource,
+    /PHPhotoLibrary\.requestAuthorization\(for: \.addOnly\)/,
+  );
+  assert.match(
+    swiftSource,
+    /PHAssetChangeRequest\.creationRequestForAssetFromImage/,
+  );
+  assert.match(storageSource, /saveExportToPhotos\(uri: string\)/);
+  assert.match(exportSource, /appStorage\.saveExportToPhotos\(file\.uri\)/);
+  assert.match(configSource, /NSPhotoLibraryAddUsageDescription/);
+});

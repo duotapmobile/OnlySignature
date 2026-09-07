@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { StyleSheet, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Image, StyleSheet, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { LayoutSlot } from "@/components/layout-slot";
 import {
@@ -8,6 +8,7 @@ import {
   FlowHeading,
   FlowPrimaryButton,
   FlowScreen,
+  FlowTextButton,
   LockLine,
   ScriptLabel,
 } from "@/components/flow-ui";
@@ -15,10 +16,13 @@ import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 import { hasDrawing } from "@/domain/models";
 import { useAppState } from "@/state/AppStateProvider";
 
+const splashSource = require("../../assets/brand/only-signature-splash.png");
+
 export default function EntryScreen() {
   const { data, createNew, setSelectedAsset } = useAppState();
   const { fixture } = useLocalSearchParams<{ fixture?: string }>();
   const entryFixture = isAuthorizedScreenshotFixture(fixture, "landing");
+  const [showOpening, setShowOpening] = useState(!entryFixture);
   const hasSavedWork = data.sets.some(
     (set) =>
       set.status === "purchased" ||
@@ -27,9 +31,10 @@ export default function EntryScreen() {
   );
 
   useEffect(() => {
-    if (data.hydrated && hasSavedWork && !entryFixture)
-      router.replace("/saved");
-  }, [data.hydrated, entryFixture, hasSavedWork]);
+    if (!showOpening) return;
+    const timer = setTimeout(() => setShowOpening(false), 1_250);
+    return () => clearTimeout(timer);
+  }, [showOpening]);
 
   const begin = () => {
     if (!data.hydrated) return;
@@ -38,8 +43,29 @@ export default function EntryScreen() {
     router.push("/draw");
   };
 
+  if (showOpening) {
+    return (
+      <View
+        accessibilityLabel="Only Signature opening screen"
+        style={styles.opening}
+        testID="opening-splash-screen"
+      >
+        <Image
+          source={splashSource}
+          accessibilityLabel="Only Signature"
+          resizeMode="contain"
+          style={styles.openingImage}
+        />
+      </View>
+    );
+  }
+
   return (
-    <FlowScreen contentStyle={styles.content} testID="entry-screen">
+    <FlowScreen
+      scroll={false}
+      contentStyle={styles.content}
+      testID="entry-screen"
+    >
       <LayoutSlot id="entry.hero" style={styles.hero}>
         <ScriptLabel asset="sign" style={styles.script} layoutId="entry.sign" />
         <FlowHeading style={styles.heroTitle} layoutId="entry.title">
@@ -87,6 +113,13 @@ export default function EntryScreen() {
           layoutId="entry.create.button"
           labelLayoutId="entry.create.label"
         />
+        {hasSavedWork ? (
+          <FlowTextButton
+            label="My Signing Sets"
+            onPress={() => router.push("/saved")}
+            disabled={!data.hydrated}
+          />
+        ) : null}
         <View style={styles.privacy}>
           <LockLine
             iconLayoutId="entry.privacy.icon"
@@ -101,16 +134,20 @@ export default function EntryScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: {
-    paddingTop: 38,
-    paddingBottom: 32,
+  opening: {
+    flex: 1,
+    backgroundColor: "#020B12",
+    alignItems: "center",
+    justifyContent: "center",
   },
+  openingImage: { width: "100%", height: "100%" },
+  content: { paddingTop: 38, paddingBottom: 32 },
   hero: { gap: 4 },
-  script: { width: 90, height: 64, marginLeft: 2, marginBottom: -5 },
+  script: { width: 104, height: 68, marginLeft: 0, marginBottom: -5 },
   heroTitle: { fontSize: 32, lineHeight: 38 },
   intro: { marginTop: 2, fontSize: 17, lineHeight: 24 },
   primaryLabel: { fontSize: 17, lineHeight: 23 },
   features: { flexDirection: "row", gap: 20, marginTop: 48 },
-  action: { gap: 14, marginTop: "auto" },
+  action: { gap: 9, marginTop: "auto" },
   privacy: { marginTop: 2 },
 });

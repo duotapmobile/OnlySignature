@@ -43,6 +43,13 @@ export async function generateExport(
   }
 }
 
+export async function saveFileToPhotos(file: GeneratedFile): Promise<void> {
+  await appStorage.saveExportToPhotos(file.uri);
+  AccessibilityInfo.announceForAccessibility(
+    `${file.kind === "signature" ? "Signature" : "Initials"} saved to Photos.`,
+  );
+}
+
 export async function shareFile(file: GeneratedFile): Promise<void> {
   if (!(await Sharing.isAvailableAsync()))
     throw new Error("sharing-unavailable");

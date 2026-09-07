@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ComponentRef } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { ExportSurface } from "./ExportSurface";
 import { FormatDropdown } from "./FormatDropdown";
@@ -14,8 +14,9 @@ import {
 } from "./flow-ui";
 import { hasDrawing, type AssetKind, type ExportFormat } from "@/domain/models";
 import {
-  generateExport,
   cleanupGeneratedFiles,
+  generateExport,
+  saveFileToPhotos,
   shareFile,
   type GeneratedFile,
 } from "@/services/export";
@@ -33,6 +34,32 @@ const paidFormats: ExportFormat[] = [
 ];
 const freeFormats: ExportFormat[] = ["png-white", "jpeg-white"];
 
+function DestinationButton({
+  label,
+  onPress,
+  disabled,
+}: {
+  label: string;
+  onPress(): void;
+  disabled: boolean;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.destinationButton,
+        pressed && styles.pressed,
+        disabled && styles.disabled,
+      ]}
+    >
+      <Text style={styles.destinationButtonText}>{label}</Text>
+    </Pressable>
+  );
+}
+
 export function ExportFlow({ purchased }: { purchased: boolean }) {
   const { activeSet, createNew, recordExport, setSelectedAsset } =
     useAppState();
@@ -45,14 +72,15 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
   const [generated, setGenerated] = useState<GeneratedFile[]>([]);
   const generatedRef = useRef<GeneratedFile[]>([]);
   const [busy, setBusy] = useState(false);
+  const [saveModalVisible, setSaveModalVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sharedKinds, setSharedKinds] = useState<AssetKind[]>([]);
   const [confirmedKinds, setConfirmedKinds] = useState<AssetKind[]>([]);
   const signatureRef = useRef<ComponentRef<typeof View>>(null);
   const initialsRef = useRef<ComponentRef<typeof View>>(null);
   const assetCount =
     Number(hasDrawing(activeSet.signature)) +
     Number(hasDrawing(activeSet.initials));
+  const allSaved = everyGeneratedFileConfirmed(generated, confirmedKinds);
 
   useEffect(() => {
     generatedRef.current = generated;
@@ -86,6 +114,8 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
       }
       const files = await generateExportBatch(producers, cleanupGeneratedFiles);
       setGenerated(files);
+      setConfirmedKinds([]);
+      setSaveModalVisible(true);
     } catch {
       setError(
         "We could not create the export file. Your saved drawing is unchanged.",
@@ -94,29 +124,47 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
       setBusy(false);
     }
   };
+
   const changeFormat = (kind: AssetKind, format: ExportFormat): void => {
     if (kind === "signature") setSignatureFormat(format);
     else setInitialsFormat(format);
     const stale = generatedRef.current;
     generatedRef.current = [];
     setGenerated([]);
-    void cleanupGeneratedFiles(stale);
-    setSharedKinds((current) => current.filter((item) => item !== kind));
     setConfirmedKinds((current) => current.filter((item) => item !== kind));
+    void cleanupGeneratedFiles(stale);
   };
-  const completeDestination = async (file: GeneratedFile) => {
+
+  const saveDestination = async (
+    file: GeneratedFile,
+    destination: "photos" | "share",
+  ) => {
     setBusy(true);
     setError(null);
     try {
-      await shareFile(file);
-      setSharedKinds((current) => addConfirmedKind(current, file.kind));
-      return;
+      if (destination === "photos") await saveFileToPhotos(file);
+      else await shareFile(file);
+      setConfirmedKinds((current) => addConfirmedKind(current, file.kind));
     } catch {
       setError(
-        "That export action did not finish. Your saved drawing is unchanged.",
+        destination === "photos"
+          ? "Photo access was not granted or the image could not be saved."
+          : "The share action did not finish. Your saved drawing is unchanged.",
       );
     } finally {
       setBusy(false);
+    }
+  };
+
+  const finish = (toSaved: boolean) => {
+    recordExport();
+    setSaveModalVisible(false);
+    if (toSaved) router.replace("/saved");
+    else {
+      router.replace({
+        pathname: "/success",
+        params: { mode: purchased ? "purchased" : "free" },
+      });
     }
   };
 
@@ -170,81 +218,20 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
           {error}
         </Text>
       ) : null}
-      {generated.length === 0 ? (
-        <FlowPrimaryButton
-          label={busy ? "Preparing…" : "Export"}
-          disabled={busy || assetCount === 0}
-          onPress={() => {
-            void prepare();
-          }}
-        />
-      ) : (
-        <View style={[styles.card, styles.destinations]}>
-          <Text accessibilityRole="header" style={styles.destinationTitle}>
-            Choose where to save
-          </Text>
-          <Text style={styles.destinationHint}>
-            Share includes Save to Files and AirDrop. What you choose next is
-            handled by that app or service under its own terms.
-          </Text>
-          {generated.map((file) => (
-            <View key={file.kind} style={styles.file}>
-              <Text style={styles.fileTitle}>
-                {file.kind === "signature" ? "Signature" : "Initials"}
-              </Text>
-              <FlowPrimaryButton
-                label="Share / Save to Files"
-                onPress={() => {
-                  void completeDestination(file);
-                }}
-                disabled={busy}
-              />
-              {sharedKinds.includes(file.kind) &&
-              !confirmedKinds.includes(file.kind) ? (
-                <FlowTextButton
-                  label={`I Saved ${file.kind === "signature" ? "Signature" : "Initials"}`}
-                  onPress={() =>
-                    setConfirmedKinds((current) =>
-                      addConfirmedKind(current, file.kind),
-                    )
-                  }
-                />
-              ) : null}
-              {confirmedKinds.includes(file.kind) ? (
-                <Text accessibilityRole="alert" style={styles.confirmed}>
-                  {file.kind === "signature" ? "Signature" : "Initials"} save
-                  confirmed.
-                </Text>
-              ) : null}
-            </View>
-          ))}
-        </View>
-      )}
-      {everyGeneratedFileConfirmed(generated, confirmedKinds) ? (
-        <View style={[styles.card, styles.completion]}>
-          <Text accessibilityRole="alert" style={styles.shareStatus}>
-            You confirmed every prepared file. Only Signature cannot inspect the
-            destination you selected.
-          </Text>
-          <FlowPrimaryButton
-            label="Continue"
-            onPress={() => {
-              recordExport();
-              router.replace({
-                pathname: "/success",
-                params: { mode: purchased ? "purchased" : "free" },
-              });
-            }}
-          />
-          <FlowTextButton
-            label="Done"
-            onPress={() => {
-              recordExport();
-              router.replace("/saved");
-            }}
-          />
-        </View>
-      ) : null}
+      <FlowPrimaryButton
+        label={
+          busy
+            ? "Preparing..."
+            : generated.length > 0
+              ? "Choose Save Location"
+              : "Download"
+        }
+        disabled={busy || assetCount === 0}
+        onPress={() => {
+          if (generated.length > 0) setSaveModalVisible(true);
+          else void prepare();
+        }}
+      />
       {purchased ? (
         <FlowTextButton
           label="Create New"
@@ -254,6 +241,82 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
           disabled={busy}
         />
       ) : null}
+
+      <Modal
+        animationType="fade"
+        transparent
+        visible={saveModalVisible}
+        onRequestClose={() => setSaveModalVisible(false)}
+      >
+        <View style={styles.modalShade}>
+          <View
+            accessibilityViewIsModal
+            accessibilityLabel="Choose where to save"
+            style={styles.modalCard}
+          >
+            <Text accessibilityRole="header" style={styles.destinationTitle}>
+              Choose where to save
+            </Text>
+            <Text style={styles.destinationHint}>
+              Save directly to Photos or open the iPhone share sheet for Save to
+              Files, AirDrop, and other apps.
+            </Text>
+            {generated.map((file) => {
+              const name = file.kind === "signature" ? "Signature" : "Initials";
+              const saved = confirmedKinds.includes(file.kind);
+              return (
+                <View key={file.kind} style={styles.file}>
+                  <Text style={styles.fileTitle}>{name}</Text>
+                  {saved ? (
+                    <Text accessibilityRole="alert" style={styles.confirmed}>
+                      {name} saved.
+                    </Text>
+                  ) : (
+                    <View style={styles.destinationRow}>
+                      <DestinationButton
+                        label={`Save ${name} to Photos`}
+                        onPress={() => void saveDestination(file, "photos")}
+                        disabled={busy}
+                      />
+                      <DestinationButton
+                        label={`Save ${name} to Files or Share`}
+                        onPress={() => void saveDestination(file, "share")}
+                        disabled={busy}
+                      />
+                    </View>
+                  )}
+                </View>
+              );
+            })}
+            {error ? (
+              <Text accessibilityRole="alert" style={styles.modalError}>
+                {error}
+              </Text>
+            ) : null}
+            {allSaved ? (
+              <View style={styles.doneActions}>
+                <FlowPrimaryButton
+                  label="Continue"
+                  onPress={() => finish(false)}
+                  disabled={busy}
+                />
+                <FlowTextButton
+                  label="Done"
+                  onPress={() => finish(true)}
+                  disabled={busy}
+                />
+              </View>
+            ) : (
+              <FlowTextButton
+                label="Close"
+                onPress={() => setSaveModalVisible(false)}
+                disabled={busy}
+              />
+            )}
+          </View>
+        </View>
+      </Modal>
+
       {hasDrawing(activeSet.signature) ? (
         <ExportSurface
           ref={signatureRef}
@@ -275,7 +338,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
 const styles = StyleSheet.create({
   content: { paddingTop: 28, gap: 16 },
   back: { height: 32, alignSelf: "flex-start" },
-  intro: { marginTop: -8 },
+  intro: { marginTop: -8, fontSize: 17, lineHeight: 24 },
   card: {
     borderRadius: 16,
     borderWidth: 1,
@@ -284,42 +347,70 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   controls: { gap: 18 },
-  error: {
-    color: "#FFD8D2",
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: "700",
+  error: { color: "#FFD8D2", fontSize: 14, lineHeight: 20, fontWeight: "700" },
+  modalShade: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.72)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 22,
   },
-  destinations: { gap: 14 },
-  completion: { gap: 12 },
+  modalCard: {
+    width: "100%",
+    maxWidth: 440,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "#62808C",
+    backgroundColor: "#061A24",
+    padding: 20,
+    gap: 12,
+    boxShadow: "0 22px 54px rgba(0,0,0,0.5)",
+  },
   destinationTitle: {
-    color: flowColors.cardText,
-    fontSize: 20,
-    lineHeight: 25,
+    color: flowColors.white,
+    fontSize: 24,
+    lineHeight: 29,
     fontWeight: "800",
   },
-  destinationHint: {
-    color: flowColors.cardMuted,
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  shareStatus: {
-    color: flowColors.cardText,
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: "600",
-  },
-  confirmed: {
-    color: flowColors.accessibleLink,
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: "700",
-  },
+  destinationHint: { color: "#DCE5E8", fontSize: 14, lineHeight: 19 },
   file: {
     gap: 8,
     borderTopWidth: 1,
-    borderTopColor: "#D6E0E3",
-    paddingTop: 14,
+    borderTopColor: "#28424D",
+    paddingTop: 11,
   },
-  fileTitle: { color: flowColors.cardText, fontSize: 16, fontWeight: "800" },
+  fileTitle: {
+    color: flowColors.white,
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: "800",
+  },
+  destinationRow: { gap: 8 },
+  destinationButton: {
+    minHeight: 46,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: flowColors.cyan,
+    backgroundColor: "#082B37",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 12,
+  },
+  destinationButtonText: {
+    color: flowColors.white,
+    fontSize: 14,
+    lineHeight: 19,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  confirmed: {
+    color: flowColors.cyanText,
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: "700",
+  },
+  modalError: { color: "#FFD8D2", fontSize: 13, lineHeight: 18 },
+  doneActions: { gap: 2 },
+  pressed: { opacity: 0.74 },
+  disabled: { opacity: 0.46 },
 });

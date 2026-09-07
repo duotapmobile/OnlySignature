@@ -29,10 +29,13 @@ export default function DiyWarningScreen() {
   const asset = hasDrawing(activeSet.signature)
     ? activeSet.signature
     : activeSet.initials;
-  const displayPrice = purchase.displayPrice;
 
   return (
-    <FlowScreen contentStyle={styles.content} testID="diy-warning-screen">
+    <FlowScreen
+      scroll={false}
+      contentStyle={styles.content}
+      testID="diy-warning-screen"
+    >
       <View style={styles.back}>
         <FlowBackButton
           onPress={() => router.back()}
@@ -49,16 +52,16 @@ export default function DiyWarningScreen() {
           Removing the background later can damage your signature.
         </FlowHeading>
       </LayoutSlot>
-      <LayoutSlot id="warning.comparison">
+      <LayoutSlot id="warning.comparison" style={styles.comparison}>
         <View style={styles.labels}>
           <LayoutSlot id="warning.original.label" style={styles.labelSlot}>
             <Text selectable style={styles.label}>
-              Original{`\n`}Transparent
+              Original{"\n"}Transparent
             </Text>
           </LayoutSlot>
           <LayoutSlot id="warning.diy.label" style={styles.labelSlot}>
             <Text selectable style={styles.label}>
-              DIY Removal{`\n`}Missing strokes
+              DIY Removal{"\n"}Missing strokes
             </Text>
           </LayoutSlot>
         </View>
@@ -116,7 +119,7 @@ export default function DiyWarningScreen() {
       ) : null}
       <LayoutSlot id="warning.actions" style={styles.actions}>
         <FlowPrimaryButton
-          label={`Unlock Transparent Set · ${displayPrice}`}
+          label={`Unlock Transparent Set - ${purchase.displayPrice}`}
           onPress={() => void purchase.beginPurchase()}
           disabled={purchase.busy || purchase.transparentUnavailable}
           layoutId="warning.primary.button"
@@ -135,59 +138,60 @@ export default function DiyWarningScreen() {
 }
 
 const styles = StyleSheet.create({
-  headingText: { fontSize: 32, lineHeight: 38 },
-  content: { paddingTop: 32, paddingBottom: 30 },
-  back: { position: "absolute", top: 28, left: 20, zIndex: 4 },
-  script: { width: 250, height: 43, marginLeft: 24, marginBottom: 18 },
-  warning: { marginTop: 20 },
-  labels: { flexDirection: "row", marginTop: 34, marginBottom: 12 },
+  content: { paddingTop: 18, paddingBottom: 18 },
+  back: { position: "absolute", top: 8, left: 20, zIndex: 4 },
+  warning: { marginTop: 34 },
+  script: { width: 205, height: 36, marginLeft: 30, marginBottom: 7 },
+  headingText: { fontSize: 25, lineHeight: 30 },
+  comparison: { marginTop: 16 },
+  labels: { flexDirection: "row", marginBottom: 8 },
   labelSlot: { flex: 1 },
   label: {
     flex: 1,
     color: flowColors.white,
-    fontSize: 15,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 17,
     textAlign: "center",
   },
-  compare: { flexDirection: "row", gap: 18 },
+  compare: { flexDirection: "row", gap: 12 },
   compareSlot: { flex: 1 },
   compareCard: {
     flex: 1,
-    height: 246,
-    borderRadius: 18,
+    height: 188,
+    borderRadius: 16,
     backgroundColor: "#FFF",
     overflow: "hidden",
-    boxShadow: "0 18px 34px rgba(0, 0, 0, 0.34)",
+    boxShadow: "0 16px 30px rgba(0, 0, 0, 0.34)",
     alignItems: "center",
     justifyContent: "center",
   },
   checker: { backgroundColor: "#EEF1F2" },
   previewLayer: { width: "100%", alignItems: "center" },
   damageLayer: { ...StyleSheet.absoluteFill },
-  preview: { width: "96%", height: 190 },
+  preview: { width: "96%", height: 142 },
   damaged: { opacity: 0.72 },
   damageOne: {
     position: "absolute",
     left: 0,
-    right: 42,
-    top: 62,
-    height: 9,
+    right: 30,
+    top: 49,
+    height: 8,
     backgroundColor: "#FFF",
   },
   damageTwo: {
     position: "absolute",
-    left: 54,
+    left: 38,
     right: 0,
-    top: 91,
-    height: 8,
+    top: 72,
+    height: 7,
     backgroundColor: "#FFF",
   },
   error: {
     color: "#FFD8D2",
-    fontSize: 14,
-    lineHeight: 19,
+    fontSize: 12,
+    lineHeight: 17,
     textAlign: "center",
-    marginTop: 10,
+    marginTop: 7,
   },
-  actions: { marginTop: "auto", paddingTop: 32, marginBottom: 26, gap: 6 },
+  actions: { marginTop: "auto", paddingTop: 10, marginBottom: 1, gap: 2 },
 });
