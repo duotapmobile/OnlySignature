@@ -238,6 +238,7 @@ async function buildApp() {
           ...process.env,
           APP_VARIANT: "screenshot",
           EXPO_PUBLIC_SCREENSHOT_FIXTURE_MODE: "1",
+          EXPO_PUBLIC_LAYOUT_STUDIO_MODE: "1",
         },
         stdio: "inherit",
       },

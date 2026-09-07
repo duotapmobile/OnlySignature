@@ -133,6 +133,7 @@ export default function BackgroundScreen() {
     clearError,
     displayPrice,
     error,
+    productNeedsRetry,
     transparentUnavailable,
     unboundPurchase,
   } = useTransparentPurchase({ suppressSuccessRedirect: purchaseFixture });
@@ -207,6 +208,12 @@ export default function BackgroundScreen() {
               {error}
             </Text>
           </LayoutSlot>
+        ) : background === "transparent" && productNeedsRetry ? (
+          <LayoutSlot id="background.retry-note">
+            <Text selectable style={styles.retryNote}>
+              Apple pricing will refresh when you tap Unlock.
+            </Text>
+          </LayoutSlot>
         ) : null}
         <LayoutSlot id="background.actions" style={styles.actions}>
           <FlowPrimaryButton
@@ -253,7 +260,7 @@ const styles = StyleSheet.create({
   headingText: { fontSize: 32, lineHeight: 38 },
   content: { padding: 0 },
   shade: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(0,0,0,0.62)" },
-  sheet: { top: "33%" },
+  sheet: { top: "14%" },
   sheetBack: { position: "absolute", top: 2, left: 20, zIndex: 3 },
   script: { width: 122, height: 60, marginLeft: 52, marginBottom: -6 },
   options: { gap: 18, marginTop: 24 },
@@ -337,5 +344,12 @@ const styles = StyleSheet.create({
     backgroundColor: flowColors.cyan,
   },
   error: { color: "#FFD8D2", fontSize: 14, lineHeight: 20, marginTop: 10 },
+  retryNote: {
+    color: "#DCE3E5",
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: 10,
+    textAlign: "center",
+  },
   actions: { marginTop: "auto", paddingTop: 24, marginBottom: 28, gap: 6 },
 });

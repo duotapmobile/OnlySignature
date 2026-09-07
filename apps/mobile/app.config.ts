@@ -78,6 +78,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     process.env.EXPO_PUBLIC_STOREKIT_MODE ?? (production ? "real" : "mock");
   const screenshotFixtureMode =
     process.env.EXPO_PUBLIC_SCREENSHOT_FIXTURE_MODE === "1";
+  const layoutStudioMode = process.env.EXPO_PUBLIC_LAYOUT_STUDIO_MODE === "1";
   const sourceRevision =
     process.env.EAS_BUILD_GIT_COMMIT_HASH ??
     process.env.ONLY_SIGNATURE_SOURCE_REVISION ??
@@ -101,6 +102,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       throw new Error(
         "Screenshot fixture mode cannot be enabled in production.",
       );
+    if (layoutStudioMode)
+      throw new Error("Layout Studio mode cannot be enabled in production.");
     if (!required.productId.startsWith(`${bundleIdentifier}.`))
       throw new Error(
         "The StoreKit product identifier must derive from the production bundle identifier.",
@@ -234,6 +237,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       territories: normalizedTerritories,
       storeKitProductId: required.productId,
       screenshotFixtureMode,
+      layoutStudioMode,
       ...(required.easProjectId === PLACEHOLDER
         ? {}
         : { eas: { projectId: required.easProjectId } }),

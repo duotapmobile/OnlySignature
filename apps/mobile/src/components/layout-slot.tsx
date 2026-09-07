@@ -1,4 +1,5 @@
 import { createElement, type PropsWithChildren } from "react";
+import Constants from "expo-constants";
 import {
   Platform,
   useWindowDimensions,
@@ -11,6 +12,11 @@ import {
   layoutStudioValues,
   type LayoutStudioValue,
 } from "@/design/layout-studio-values";
+
+const layoutStudioMode = Boolean(
+  (Constants.expoConfig?.extra as { layoutStudioMode?: boolean } | undefined)
+    ?.layoutStudioMode,
+);
 
 type LayoutSlotProps = PropsWithChildren<
   Omit<ViewProps, "style"> & {
@@ -79,8 +85,9 @@ export function LayoutSlot({
 }: LayoutSlotProps) {
   const { width } = useWindowDimensions();
   const device = width >= 768 ? "ipad" : "iphone";
-  const phoneValue = layoutStudioValues.iphone[id];
-  const ipadValue = layoutStudioValues.ipad[id];
+  const studioEnabled = Platform.OS === "web" && layoutStudioMode;
+  const phoneValue = studioEnabled ? layoutStudioValues.iphone[id] : undefined;
+  const ipadValue = studioEnabled ? layoutStudioValues.ipad[id] : undefined;
   const slot = (
     <View
       {...props}
@@ -91,7 +98,7 @@ export function LayoutSlot({
       {children}
     </View>
   );
-  if (Platform.OS !== "web") return slot;
+  if (!studioEnabled) return slot;
   return (
     <>
       {createElement("style", {
