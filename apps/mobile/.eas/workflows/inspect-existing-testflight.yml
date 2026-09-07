@@ -1,0 +1,55 @@
+name: Inspect and submit existing iOS build
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_id:
+        type: string
+        required: true
+        description: Existing EAS iOS build ID
+      source_revision:
+        type: string
+        required: true
+        description: Git commit embedded in the signed archive
+
+defaults:
+  image: macos-tahoe-26.5-xcode-26.6
+  tools:
+    node: 22.22.0
+  run:
+    working_directory: ../..
+
+jobs:
+  inspect_archive:
+    name: Inspect existing signed archive
+    runs_on: macos-medium
+    environment: production
+    env:
+      ARCHIVE_BUILD_ID: ${{ inputs.build_id }}
+      ARCHIVE_WORKFLOW_ID: ${{ workflow.id }}
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - uses: eas/download_build
+        id: production_archive
+        with:
+          build_id: ${{ inputs.build_id }}
+          extensions: [ipa]
+      - name: Inspect the exact signed archive
+        run: node scripts/inspect-ios-archive.mjs --ipa "${{ steps.production_archive.outputs.artifact_path }}" --report artifacts/ios-archive-inspection.json --source-revision ${{ inputs.source_revision }}
+      - uses: eas/upload_artifact
+        with:
+          type: other
+          name: only-signature-ios-archive-inspection
+          path: artifacts/ios-archive-inspection.json
+
+  upload_internal_testflight:
+    name: Upload inspected existing build to internal TestFlight
+    type: testflight
+    needs: [inspect_archive]
+    params:
+      build_id: ${{ inputs.build_id }}
+      profile: production
+      internal_groups: ["Only Signature Internal"]
+      changelog: Fix signature drawing, iPhone layout, and transparent unlock.
+      submit_beta_review: false
