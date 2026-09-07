@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
+import plistModule from "@expo/plist";
 import {
   access,
   mkdtemp,
@@ -26,6 +27,7 @@ const EXPECTED_REQUIRED_REASONS = new Map([
   ["NSPrivacyAccessedAPICategoryDiskSpace", ["E174.1"]],
   ["NSPrivacyAccessedAPICategorySystemBootTime", ["35F9.1"]],
 ]);
+const { parse: parsePlist } = plistModule.default ?? plistModule;
 const fail = (message) => {
   throw new Error(message);
 };
@@ -64,8 +66,9 @@ const plistFromCommand = async (contents, directory, filename) => {
   if (xmlStart === -1 || plistEnd === -1)
     fail(`No property list was returned for ${filename}.`);
   const file = path.join(directory, filename);
-  await writeFile(file, contents.slice(xmlStart, plistEnd + 8), "utf8");
-  return readPlistJson(file);
+  const xml = contents.slice(xmlStart, plistEnd + 8);
+  await writeFile(file, xml, "utf8");
+  return parsePlist(xml);
 };
 
 if (process.platform !== "darwin")
@@ -73,10 +76,13 @@ if (process.platform !== "darwin")
 const ipaArgument = argument("--ipa");
 const reportArgument = argument("--report");
 if (!ipaArgument || !reportArgument)
-  fail("Usage: --ipa <archive.ipa> --report <report.json>");
+  fail(
+    "Usage: --ipa <archive.ipa> --report <report.json> [--source-revision <git-sha>]",
+  );
 const ipaPath = path.resolve(ipaArgument);
 const reportPath = path.resolve(reportArgument);
-const expectedSourceRevision = run("git", ["rev-parse", "HEAD"]).trim();
+const expectedSourceRevision =
+  argument("--source-revision") ?? run("git", ["rev-parse", "HEAD"]).trim();
 const archiveBuildId = process.env.ARCHIVE_BUILD_ID;
 const archiveWorkflowId = process.env.ARCHIVE_WORKFLOW_ID;
 if (!/^[0-9a-f]{40}$/i.test(expectedSourceRevision))
