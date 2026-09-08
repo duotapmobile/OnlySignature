@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AppStateProvider, useAppState } from "@/state/AppStateProvider";
 import { theme } from "@/integrations/workspace";
@@ -70,7 +71,15 @@ function ApplicationShell({ reduceMotion }: { reduceMotion: boolean }) {
           animation: reduceMotion ? "none" : "slide_from_right",
           contentStyle: { backgroundColor: "#020B12" },
         }}
-      />
+      >
+        <Stack.Screen
+          name="draw"
+          options={{
+            gestureEnabled: false,
+            fullScreenGestureEnabled: false,
+          }}
+        />
+      </Stack>
       <GlobalErrorBanner />
       <PrivacyCover />
     </View>
@@ -88,11 +97,13 @@ export default function RootLayout() {
     return () => subscription.remove();
   }, []);
   return (
-    <SafeAreaProvider>
-      <AppStateProvider>
-        <ApplicationShell reduceMotion={reduceMotion} />
-      </AppStateProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={styles.application}>
+      <SafeAreaProvider>
+        <AppStateProvider>
+          <ApplicationShell reduceMotion={reduceMotion} />
+        </AppStateProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 

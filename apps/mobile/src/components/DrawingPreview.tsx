@@ -38,7 +38,7 @@ export function DrawingPreview({
         <SampleDrawing
           asset={asset}
           accessibilityLabel={label}
-          style={[styles.sample, align === "baseline" && styles.baselineSample]}
+          style={styles.sample}
         />
       ) : (
         <Svg
@@ -74,5 +74,4 @@ const styles = StyleSheet.create({
     borderRadius: theme.radii.sm,
   },
   sample: { width: "100%", height: "100%" },
-  baselineSample: { transform: [{ translateY: 9 }] },
 });
