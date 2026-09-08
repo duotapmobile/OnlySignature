@@ -3,6 +3,18 @@ import { router } from "expo-router";
 import { hasPurchaseRecoveryInProgress } from "@/domain/purchaseState";
 import { useAppState } from "@/state/AppStateProvider";
 
+const purchaseErrorCopy = (error: unknown): string => {
+  const detail =
+    error instanceof Error
+      ? error.message.toLowerCase()
+      : String(error).toLowerCase();
+  if (detail.includes("product-not-found"))
+    return "Apple TestFlight did not return the transparent product. Confirm this iPhone uses a United States Media & Purchases account, then tap Try Again.";
+  if (detail.includes("product-lookup-failed"))
+    return "Apple TestFlight could not load the transparent product. Check your connection, then tap Try Again.";
+  return "Apple could not open the transparent purchase. Your signing set is unchanged. Tap Try Again or save the white version for free.";
+};
+
 export function useTransparentPurchase({
   suppressSuccessRedirect = false,
 }: {
@@ -20,7 +32,7 @@ export function useTransparentPurchase({
   const [error, setError] = useState<string | null>(null);
   const purchasePending = hasPurchaseRecoveryInProgress(data);
   const unboundPurchase = data.unboundPurchases[0];
-  const displayPrice = product.displayPrice || "$1.99";
+  const displayPrice = product.displayPrice;
 
   useEffect(() => {
     if (
@@ -53,10 +65,8 @@ export function useTransparentPurchase({
           "Apple did not report a completed purchase. This frozen set stays saved while Only Signature checks again.",
         );
       }
-    } catch {
-      setError(
-        "Transparent export is temporarily unavailable. You can still save with a white background for free.",
-      );
+    } catch (caught) {
+      setError(purchaseErrorCopy(caught));
     } finally {
       setBusy(false);
     }

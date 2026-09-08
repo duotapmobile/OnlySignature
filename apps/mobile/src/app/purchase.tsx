@@ -220,7 +220,9 @@ export default function BackgroundScreen() {
               : background === "transparent"
                 ? unboundPurchase
                   ? "Apply Apple Purchase to This Set"
-                  : `Unlock Transparent Set - ${displayPrice}`
+                  : productNeedsRetry
+                    ? "Try Transparent Purchase Again"
+                    : `Unlock Transparent Set - ${displayPrice}`
                 : "Continue With White Background"
           }
           onPress={continueFlow}

@@ -135,7 +135,7 @@ export default function CaptureScreen() {
         </FlowHeading>
         {landscape ? (
           <Text selectable style={styles.landscapeInstruction}>
-            Keep your finger down and write across the full canvas.
+            Fine ink follows the center of your fingertip across the canvas.
           </Text>
         ) : (
           <>
@@ -143,7 +143,9 @@ export default function CaptureScreen() {
               style={styles.subtitle}
               layoutId={`${layerPrefix}.subtitle`}
             >
-              {initial ? "Write your initials" : "Sign"} in the space below.
+              {initial
+                ? "Write your initials in the space below."
+                : "Use the center of your fingertip and write naturally."}
             </FlowBody>
             <View style={styles.rotate}>
               <LayoutSlot id={`${layerPrefix}.rotate.icon`}>
@@ -277,14 +279,14 @@ function RotateIcon() {
   );
 }
 const styles = StyleSheet.create({
-  content: { paddingTop: 32, paddingBottom: 24 },
+  content: { paddingHorizontal: 12, paddingTop: 32, paddingBottom: 24 },
   landscapeContent: {
     maxWidth: 1100,
-    paddingHorizontal: 24,
+    paddingHorizontal: 12,
     paddingTop: 10,
     paddingBottom: 14,
   },
-  back: { position: "absolute", top: 24, left: 20, zIndex: 4 },
+  back: { position: "absolute", top: 24, left: 14, zIndex: 4 },
   landscapeBack: { top: 2, left: 24 },
   header: { marginTop: 36, marginBottom: 16 },
   landscapeHeader: {

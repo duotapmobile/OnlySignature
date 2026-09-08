@@ -96,6 +96,7 @@ function ComparisonCard({
                 : "Signature with a white rectangle covering the document"
             }
             style={styles.art}
+            align="baseline"
           />
         </LayoutSlot>
         <LayoutSlot id={prefix + ".date-label"} style={styles.dateLabel}>
@@ -172,7 +173,9 @@ export default function ClearBackgroundScreen() {
               ? purchase.unboundPurchase
                 ? "Applying Apple Purchase..."
                 : "Opening Apple Purchase..."
-              : "Unlock Transparent Set - " + purchase.displayPrice
+              : purchase.productNeedsRetry
+                ? "Try Transparent Purchase Again"
+                : "Unlock Transparent Set - " + purchase.displayPrice
           }
           onPress={() => void purchase.beginPurchase()}
           disabled={purchase.busy || purchase.transparentUnavailable}
@@ -209,18 +212,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 5,
   },
-  comparison: { flexDirection: "row", gap: 10, marginTop: 18 },
+  comparison: { flexDirection: "column", gap: 12, marginTop: 14 },
   card: {
-    flex: 1,
-    minWidth: 0,
-    height: 278,
+    width: "100%",
+    height: 196,
     borderRadius: 18,
     backgroundColor: "#FFFFFF",
     paddingHorizontal: 10,
     paddingTop: 12,
     boxShadow: "0 14px 34px rgba(0, 0, 0, 0.3)",
   },
-  tabletCard: { height: 330, paddingHorizontal: 20, paddingTop: 18 },
+  tabletCard: { height: 210, paddingHorizontal: 20, paddingTop: 14 },
   statusRow: { flexDirection: "row", alignItems: "center", gap: 7 },
   statusIcon: {
     width: 32,
@@ -246,31 +248,31 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 15,
   },
-  signatureLabel: { position: "absolute", left: 0, top: 44 },
-  signatureRule: { position: "absolute", left: 52, right: 1, top: 57 },
-  dateLabel: { position: "absolute", left: 0, top: 116 },
-  dateRule: { position: "absolute", left: 31, right: 1, top: 130 },
+  signatureLabel: { position: "absolute", left: 0, top: 25 },
+  signatureRule: { position: "absolute", left: 58, right: 1, top: 55 },
+  dateLabel: { position: "absolute", left: 0, top: 83 },
+  dateRule: { position: "absolute", left: 31, right: 1, top: 98 },
   rule: { height: 1.2, backgroundColor: "#252A2D" },
   artLayer: {
     position: "absolute",
-    left: 45,
-    right: 2,
-    top: 20,
-    height: 66,
+    left: 55,
+    right: 12,
+    top: 13,
+    height: 42,
     zIndex: 3,
   },
   whiteBox: {
     position: "absolute",
-    left: 42,
+    left: 50,
     right: 0,
-    top: 18,
-    height: 112,
+    top: 10,
+    height: 88,
     zIndex: 2,
     backgroundColor: "#FFFFFF",
     boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
   },
   art: { width: "100%", height: "100%" },
-  dateValue: { position: "absolute", left: 36, top: 109, zIndex: 3 },
+  dateValue: { position: "absolute", left: 36, top: 78, zIndex: 3 },
   obstructedDate: { zIndex: 1 },
   dateText: {
     color: "#1C2023",

@@ -2,7 +2,12 @@ import { forwardRef, type ComponentRef } from "react";
 import { StyleSheet, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import type { DrawingAsset } from "@/domain/models";
-import { exportDimensions, paddedViewBox, smoothPath } from "@/domain/drawing";
+import {
+  exportDimensions,
+  paddedViewBox,
+  SIGNATURE_STROKE_WIDTH,
+  smoothPath,
+} from "@/domain/drawing";
 
 export const ExportSurface = forwardRef<
   ComponentRef<typeof View>,
@@ -27,7 +32,7 @@ export const ExportSurface = forwardRef<
             d={smoothPath(stroke.points)}
             fill="none"
             stroke="#102733"
-            strokeWidth={6}
+            strokeWidth={SIGNATURE_STROKE_WIDTH}
             strokeLinecap="round"
             strokeLinejoin="round"
           />

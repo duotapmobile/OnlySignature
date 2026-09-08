@@ -15,7 +15,11 @@ import type {
   Stroke,
   StrokePoint,
 } from "@/domain/models";
-import { pointToDrawingPlane, smoothPath } from "@/domain/drawing";
+import {
+  pointToDrawingPlane,
+  SIGNATURE_STROKE_WIDTH,
+  smoothPath,
+} from "@/domain/drawing";
 import { SampleDrawing, sampleSourceFor } from "./SampleDrawing";
 import { theme } from "@/integrations/workspace";
 
@@ -224,14 +228,21 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
               d={smoothPath(stroke.points)}
               fill="none"
               stroke={theme.colors.text}
-              strokeWidth={5.5}
+              strokeWidth={SIGNATURE_STROKE_WIDTH}
               strokeLinecap="round"
               strokeLinejoin="round"
             />
           ))}
         </Svg>
       )}
-      {strokes.length === 0 ? <Text style={styles.hint}>Draw here</Text> : null}
+      {strokes.length === 0 ? (
+        <View pointerEvents="none" style={styles.emptyGuide}>
+          <Text style={styles.hint}>
+            Sign naturally — we will fit it for you
+          </Text>
+          <View style={styles.guideLine} />
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -252,9 +263,19 @@ const styles = StyleSheet.create({
   sample: { width: "92%", height: "86%" },
   initialsSample: { width: "76%", height: "72%" },
   hint: {
-    position: "absolute",
     color: "#6E7E86",
-    fontSize: 22,
+    fontSize: 16,
+    lineHeight: 21,
     fontWeight: "600",
+    textAlign: "center",
   },
+  emptyGuide: {
+    position: "absolute",
+    left: 22,
+    right: 22,
+    bottom: "31%",
+    alignItems: "center",
+    gap: 14,
+  },
+  guideLine: { width: "86%", height: 1, backgroundColor: "#B8C1C5" },
 });

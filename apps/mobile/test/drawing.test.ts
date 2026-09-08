@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  SIGNATURE_STROKE_WIDTH,
   exportDimensions,
   drawingBounds,
   paddedViewBox,
@@ -62,6 +63,8 @@ test("runtime export dimensions preserve the padded drawing aspect ratio", () =>
 
 test("transparent SVG is openable vector markup without an opaque background or private stroke metadata", () => {
   const svg = serializeSvg(asset);
+  assert.equal(SIGNATURE_STROKE_WIDTH, 2.25);
+  assert.match(svg, /stroke-width=\"2.25\"/);
   assert.match(
     svg,
     /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" viewBox="[^"]+">/,
