@@ -1,7 +1,11 @@
 import { StyleSheet, View, type ViewStyle, type StyleProp } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { SampleDrawing, sampleSourceFor } from "./SampleDrawing";
-import { paddedViewBox, smoothPath } from "@/domain/drawing";
+import {
+  paddedViewBox,
+  SIGNATURE_STROKE_WIDTH,
+  smoothPath,
+} from "@/domain/drawing";
 import type { DrawingAsset } from "@/domain/models";
 import { theme } from "@/integrations/workspace";
 
@@ -10,11 +14,13 @@ export function DrawingPreview({
   color = "#102733",
   accessibilityLabel,
   style,
+  align = "center",
 }: {
   asset: DrawingAsset;
   color?: string;
   accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
+  align?: "center" | "baseline";
 }) {
   const label =
     accessibilityLabel ??
@@ -32,14 +38,16 @@ export function DrawingPreview({
         <SampleDrawing
           asset={asset}
           accessibilityLabel={label}
-          style={styles.sample}
+          style={[styles.sample, align === "baseline" && styles.baselineSample]}
         />
       ) : (
         <Svg
           width="100%"
           height="100%"
           viewBox={paddedViewBox(asset)}
-          preserveAspectRatio="xMidYMid meet"
+          preserveAspectRatio={
+            align === "baseline" ? "xMidYMax meet" : "xMidYMid meet"
+          }
         >
           {asset.strokes.map((stroke) => (
             <Path
@@ -47,7 +55,7 @@ export function DrawingPreview({
               d={smoothPath(stroke.points)}
               fill="none"
               stroke={color}
-              strokeWidth={6}
+              strokeWidth={SIGNATURE_STROKE_WIDTH}
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -66,4 +74,5 @@ const styles = StyleSheet.create({
     borderRadius: theme.radii.sm,
   },
   sample: { width: "100%", height: "100%" },
+  baselineSample: { transform: [{ translateY: 9 }] },
 });

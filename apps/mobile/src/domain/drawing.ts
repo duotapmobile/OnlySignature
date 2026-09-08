@@ -1,5 +1,9 @@
 import type { DrawingAsset, StrokePoint } from "./models";
 
+// Apple treats finger input as the configured ink width. Keep this close to a
+// fine ballpoint so a thumb does not create marker-like handwriting.
+export const SIGNATURE_STROKE_WIDTH = 2.25;
+
 export interface Bounds {
   minX: number;
   minY: number;
@@ -74,8 +78,9 @@ export const paddedViewBox = (asset: DrawingAsset): string => {
   if (!bounds) return `0 0 ${asset.canvasWidth} ${asset.canvasHeight}`;
   const width = Math.max(1, bounds.maxX - bounds.minX);
   const height = Math.max(1, bounds.maxY - bounds.minY);
-  const padding = Math.max(16, Math.max(width, height) * 0.08);
-  return `${(bounds.minX - padding).toFixed(2)} ${(bounds.minY - padding).toFixed(2)} ${(width + padding * 2).toFixed(2)} ${(height + padding * 2).toFixed(2)}`;
+  const paddingX = Math.max(28, width * 0.18);
+  const paddingY = Math.max(16, height * 0.14);
+  return `${(bounds.minX - paddingX).toFixed(2)} ${(bounds.minY - paddingY).toFixed(2)} ${(width + paddingX * 2).toFixed(2)} ${(height + paddingY * 2).toFixed(2)}`;
 };
 
 export const exportDimensions = (
@@ -104,7 +109,7 @@ export const serializeSvg = (
   const paths = asset.strokes
     .map(
       (stroke) =>
-        `<path d="${smoothPath(stroke.points)}" fill="none" stroke="#102733" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`,
+        `<path d="${smoothPath(stroke.points)}" fill="none" stroke="#102733" stroke-width="${SIGNATURE_STROKE_WIDTH}" stroke-linecap="round" stroke-linejoin="round"/>`,
     )
     .join("");
   const [x, y, width, height] = viewBox.split(" ");

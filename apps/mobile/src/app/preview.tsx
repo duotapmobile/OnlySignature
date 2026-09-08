@@ -64,10 +64,17 @@ export default function ReviewScreen() {
             contentLayoutId="review.signature.art"
           >
             {signatureExists && activeSet.signature ? (
-              <DrawingPreview
-                asset={activeSet.signature}
-                style={styles.signature}
-              />
+              <View style={styles.signatureStage}>
+                <View
+                  accessibilityElementsHidden
+                  style={styles.signatureRule}
+                />
+                <DrawingPreview
+                  asset={activeSet.signature}
+                  align="baseline"
+                  style={styles.signature}
+                />
+              </View>
             ) : (
               <Text style={styles.missing}>Signature not added</Text>
             )}
@@ -122,7 +129,21 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   previews: { gap: 0 },
-  signature: { width: "92%", height: 72 },
+  signatureStage: {
+    width: "94%",
+    height: 76,
+    justifyContent: "flex-end",
+    position: "relative",
+  },
+  signatureRule: {
+    position: "absolute",
+    left: 8,
+    right: 8,
+    bottom: 9,
+    height: 1,
+    backgroundColor: "#AEB8BD",
+  },
+  signature: { width: "92%", height: 58, alignSelf: "center", marginBottom: 9 },
   initials: { width: "58%", height: 66 },
   missing: { color: flowColors.cardMuted, fontSize: 14, lineHeight: 20 },
   continue: { marginTop: "auto", paddingTop: 6, marginBottom: 2 },

@@ -75,7 +75,23 @@ public final class OnlySignatureStoreKitModule: Module {
     }
     OnDestroy { self.observer?.cancel() }
     AsyncFunction("loadProduct") { (productId: String) -> [String: String] in
-      guard let product = try await Product.products(for: [productId]).first else { throw NSError(domain: "OnlySignatureStoreKit", code: 2) }
+      let products: [Product]
+      do {
+        products = try await Product.products(for: [productId])
+      } catch {
+        throw NSError(
+          domain: "OnlySignatureStoreKit",
+          code: 3,
+          userInfo: [NSLocalizedDescriptionKey: "product-lookup-failed"]
+        )
+      }
+      guard let product = products.first else {
+        throw NSError(
+          domain: "OnlySignatureStoreKit",
+          code: 2,
+          userInfo: [NSLocalizedDescriptionKey: "product-not-found"]
+        )
+      }
       return ["productId": product.id, "displayPrice": product.displayPrice]
     }
     AsyncFunction("purchase") { (productId: String, appAccountToken: String?) -> [String: Any] in

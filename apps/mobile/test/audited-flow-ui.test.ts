@@ -274,7 +274,8 @@ test("review and background are fixed full screens while saved actions remain in
   ]);
   for (const source of [review, background])
     assert.match(source, /scroll=\{false\}/);
-  assert.doesNotMatch(success, /scroll=\{false\}/);
+  assert.match(success, /scroll=\{false\}/);
+  assert.doesNotMatch(success, /FlowSheet|CaptureBackdrop/);
   assert.doesNotMatch(review, /FlowSheet|EntryBackdrop/);
   assert.doesNotMatch(background, /FlowSheet|ReviewBackdrop/);
   assert.match(
@@ -487,7 +488,6 @@ test("layout studio exposes individual text, icon, artwork, and action layers", 
       "confirmation",
       confirmation,
       [
-        "${layerPrefix}.handle",
         "${layerPrefix}.check.icon",
         "${layerPrefix}.title",
         "${layerPrefix}.primary.label",

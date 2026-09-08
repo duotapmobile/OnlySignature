@@ -6,7 +6,6 @@ import * as StoreReview from "expo-store-review";
 import Svg, { Circle, Path } from "react-native-svg";
 import { DrawingPreview } from "@/components/DrawingPreview";
 import {
-  FlowHeading,
   FlowPrimaryButton,
   FlowScreen,
   flowColors,
@@ -110,7 +109,11 @@ function SigningSetCard({
           style={styles.signatureSlot}
         >
           {signatureExists && item.signature ? (
-            <DrawingPreview asset={item.signature} style={styles.signature} />
+            <DrawingPreview
+              asset={item.signature}
+              align="baseline"
+              style={styles.signature}
+            />
           ) : (
             <Text style={styles.empty}>—</Text>
           )}
@@ -179,7 +182,11 @@ function SigningSetCard({
         <View style={styles.unlockRow}>
           <MiniButton
             wide
-            label={`Unlock Transparent · ${product.displayPrice || "$1.99"}`}
+            label={
+              product.displayPrice
+                ? `Unlock Transparent · ${product.displayPrice}`
+                : "Try Transparent Purchase"
+            }
             layoutId={`${layerPrefix}.unlock.button`}
             labelLayoutId={`${layerPrefix}.unlock.label`}
             onPress={() => {
@@ -224,9 +231,18 @@ export default function SavedSetsScreen() {
   return (
     <FlowScreen contentStyle={styles.content} testID="saved-sets-screen">
       <LayoutSlot id="saved.header" style={styles.header}>
-        <FlowHeading style={styles.headingText} layoutId="saved.title">
-          My Signing Sets
-        </FlowHeading>
+        <LayoutSlot id="saved.title" style={styles.titleSlot}>
+          <Text
+            accessibilityRole="header"
+            selectable
+            adjustsFontSizeToFit
+            minimumFontScale={0.72}
+            numberOfLines={1}
+            style={styles.headingText}
+          >
+            My Signing Sets
+          </Text>
+        </LayoutSlot>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Open settings"
@@ -279,14 +295,21 @@ export default function SavedSetsScreen() {
 }
 
 const styles = StyleSheet.create({
-  headingText: { fontSize: 32, lineHeight: 38 },
-  content: { paddingTop: 38, paddingBottom: 30 },
+  titleSlot: { flex: 1, minWidth: 0 },
+  headingText: {
+    color: flowColors.white,
+    fontSize: 28,
+    lineHeight: 34,
+    fontWeight: "800",
+  },
+  content: { paddingTop: 28, paddingBottom: 20 },
   header: {
     minHeight: 52,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 24,
+    gap: 8,
+    marginBottom: 16,
   },
   settings: {
     width: 44,
@@ -295,9 +318,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  list: { gap: 18 },
+  list: { gap: 14 },
   card: {
-    minHeight: 154,
+    minHeight: 146,
     borderRadius: 18,
     backgroundColor: "#FAFAFA",
     paddingHorizontal: 14,
@@ -370,5 +393,5 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginTop: 5,
   },
-  create: { marginTop: "auto", paddingTop: 24, marginBottom: 12 },
+  create: { marginTop: "auto", paddingTop: 16, marginBottom: 6 },
 });

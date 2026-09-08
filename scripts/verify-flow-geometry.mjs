@@ -113,7 +113,6 @@ const screens = [
     subtitle: "white-confirmation.subtitle",
     button: "white-confirmation.primary.button",
     label: "white-confirmation.primary.label",
-    popup: true,
   },
   {
     name: "transparent-confirmation",
@@ -123,7 +122,6 @@ const screens = [
     subtitle: "transparent-confirmation.subtitle",
     button: "transparent-confirmation.primary.button",
     label: "transparent-confirmation.primary.label",
-    popup: true,
   },
   {
     name: "saved",
