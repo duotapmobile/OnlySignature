@@ -222,6 +222,25 @@ test("shared native controls expose correct radio state and preview labels", asy
   assert.match(preview, /accessibilityLabel \?\?/);
 });
 
+test("clear-background comparison keeps ink on the line and the white box compact", async () => {
+  const [clear, preview] = await Promise.all([
+    read("../src/app/clear-background.tsx"),
+    read("../src/components/DrawingPreview.tsx"),
+  ]);
+  const artLayer = clear.slice(
+    clear.indexOf("artLayer:"),
+    clear.indexOf("whiteBox:"),
+  );
+  const whiteBox = clear.slice(
+    clear.indexOf("whiteBox:"),
+    clear.indexOf("art: {"),
+  );
+  assert.match(artLayer, /top: 10,/);
+  assert.match(artLayer, /height: 40,/);
+  assert.match(whiteBox, /top: 17,/);
+  assert.match(whiteBox, /height: 48,/);
+  assert.doesNotMatch(preview, /baselineSample|translateY: 9/);
+});
 test("included purchased slots finalize once and return to their source route", async () => {
   const draw = await read("../src/app/draw.tsx");
   assert.match(draw, /type ReturnTarget = "review" \| "saved" \| "export"/);
@@ -302,14 +321,21 @@ test("capture geometry responds to iPhone portrait and landscape", async () => {
 
 test("drawing responder owns one continuous finger gesture", async () => {
   const canvas = await read("../src/components/SignatureCanvas.tsx");
-  assert.match(canvas, /onStartShouldSetPanResponderCapture: \(\) => true/);
-  assert.match(canvas, /onMoveShouldSetPanResponderCapture: \(\) => true/);
-  assert.match(canvas, /onPanResponderTerminationRequest: \(\) => false/);
-  assert.match(canvas, /onShouldBlockNativeResponder: \(\) => true/);
+  assert.match(canvas, /Gesture\.Pan\(\)/);
+  assert.match(canvas, /\.minDistance\(0\)/);
+  assert.match(canvas, /\.shouldCancelWhenOutside\(false\)/);
+  assert.match(canvas, /<GestureDetector gesture=\{drawingGesture\}>/);
+  assert.match(canvas, /collapsable=\{false\}/);
   const draw = await read("../src/app/draw.tsx");
+  const layout = await read("../src/app/_layout.tsx");
   assert.match(draw, /<FlowScreen[\s\S]*scroll=\{false\}/);
+  assert.match(layout, /name="draw"[\s\S]*gestureEnabled: false/);
+  assert.match(layout, /fullScreenGestureEnabled: false/);
+  assert.match(layout, /GestureHandlerRootView/);
   assert.match(canvas, /Math\.max\(plane\.width, nextSize\.width\)/);
   assert.match(canvas, /Math\.max\(plane\.height, nextSize\.height\)/);
+  assert.match(canvas, />Sign here</);
+  assert.doesNotMatch(canvas, /Sign naturally/);
 });
 
 test("entry has no authorization interruption and StoreKit can retry", async () => {

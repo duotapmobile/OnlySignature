@@ -1,12 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import {
-  PanResponder,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-  type GestureResponderEvent,
-} from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Svg, { Path } from "react-native-svg";
 import * as Haptics from "expo-haptics";
 import type {
@@ -92,9 +86,9 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
   );
 
   const grant = useCallback(
-    (event: GestureResponderEvent) => {
-      const { locationX, locationY, timestamp } = event.nativeEvent;
-      const point = pointFromEvent(locationX, locationY, timestamp);
+    (x: number, y: number) => {
+      const timestamp = Date.now();
+      const point = pointFromEvent(x, y, timestamp);
       if (!point) return;
       sequence.current += 1;
       const stroke = {
@@ -109,10 +103,10 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
   );
 
   const move = useCallback(
-    (event: GestureResponderEvent) => {
+    (x: number, y: number) => {
       if (!current.current) return;
-      const { locationX, locationY, timestamp } = event.nativeEvent;
-      const point = pointFromEvent(locationX, locationY, timestamp);
+      const timestamp = Date.now();
+      const point = pointFromEvent(x, y, timestamp);
       if (!point) return;
       const updated = {
         ...current.current,
@@ -135,115 +129,115 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
     current.current = null;
   }, [commit]);
 
-  /* eslint-disable react-hooks/refs -- PanResponder stores these callbacks and invokes them only after native gesture events. */
-  const responder = useMemo(
+  /* eslint-disable react-hooks/refs -- Gesture callbacks run only after native touch events, never during render. */
+  const drawingGesture = useMemo(
     () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => true,
-        onStartShouldSetPanResponderCapture: () => true,
-        onMoveShouldSetPanResponder: () => true,
-        onMoveShouldSetPanResponderCapture: () => true,
-        onPanResponderGrant: grant,
-        onPanResponderMove: move,
-        onPanResponderRelease: release,
-        onPanResponderTerminate: terminate,
-        onPanResponderTerminationRequest: () => false,
-        onShouldBlockNativeResponder: () => true,
-      }),
+      Gesture.Pan()
+        .minDistance(0)
+        .maxPointers(1)
+        .shouldCancelWhenOutside(false)
+        .runOnJS(true)
+        .onBegin((event) => grant(event.x, event.y))
+        .onUpdate((event) => move(event.x, event.y))
+        .onEnd(release)
+        .onFinalize(terminate),
     [grant, move, release, terminate],
   );
   /* eslint-enable react-hooks/refs */
 
   return (
-    <View
-      accessible
-      accessibilityRole="image"
-      accessibilityLabel={`${kind === "signature" ? "Signature" : "Initials"} drawing area. Draw with one finger. Use the labeled Clear button below to start over.`}
-      accessibilityHint="With VoiceOver, double-tap and hold, then draw without lifting. The Clear button below removes only this selected drawing after confirmation."
-      accessibilityValue={{
-        text:
-          strokes.length === 0
-            ? "Empty"
-            : `${strokes.length} ${strokes.length === 1 ? "stroke" : "strokes"}`,
-      }}
-      style={styles.canvas}
-      onLayout={(event) => {
-        const nextSize = {
-          width: event.nativeEvent.layout.width,
-          height: event.nativeEvent.layout.height,
-        };
-        const orientation =
-          windowWidth > windowHeight ? "landscape" : "portrait";
-        const firstLayout = !layoutInitialized.current;
-        layoutInitialized.current = true;
-        setSize(nextSize);
-        if (current.current) return;
-        if (firstLayout && strokesRef.current.length === 0) {
-          setPlane(nextSize);
-          onChange([], nextSize.width, nextSize.height, orientation);
-          return;
-        }
-        const nextPlane = {
-          width: Math.max(plane.width, nextSize.width),
-          height: Math.max(plane.height, nextSize.height),
-        };
-        if (
-          Math.abs(nextPlane.width - plane.width) < 1 &&
-          Math.abs(nextPlane.height - plane.height) < 1
-        )
-          return;
-        const offsetX = (nextPlane.width - plane.width) / 2;
-        const offsetY = (nextPlane.height - plane.height) / 2;
-        const expanded = strokesRef.current.map((stroke) => ({
-          ...stroke,
-          points: stroke.points.map((point) => ({
-            ...point,
-            x: point.x + offsetX,
-            y: point.y + offsetY,
-          })),
-        }));
-        setPlane(nextPlane);
-        updateLocal(expanded);
-        onChange(expanded, nextPlane.width, nextPlane.height, orientation);
-      }}
-      {...responder.panHandlers}
-    >
-      {sampleSource ? (
-        <SampleDrawing
-          asset={asset}
-          accessibilityLabel={`${kind === "signature" ? "Signature" : "Initials"} sample`}
-          style={[styles.sample, kind === "initials" && styles.initialsSample]}
-        />
-      ) : (
-        <Svg
-          width="100%"
-          height="100%"
-          viewBox={`0 0 ${plane.width} ${plane.height}`}
-          preserveAspectRatio="xMidYMid meet"
-          pointerEvents="none"
-        >
-          {strokes.map((stroke) => (
-            <Path
-              key={stroke.id}
-              d={smoothPath(stroke.points)}
-              fill="none"
-              stroke={theme.colors.text}
-              strokeWidth={SIGNATURE_STROKE_WIDTH}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          ))}
-        </Svg>
-      )}
-      {strokes.length === 0 ? (
-        <View pointerEvents="none" style={styles.emptyGuide}>
-          <Text style={styles.hint}>
-            Sign naturally — we will fit it for you
-          </Text>
-          <View style={styles.guideLine} />
-        </View>
-      ) : null}
-    </View>
+    <GestureDetector gesture={drawingGesture}>
+      <View
+        accessible
+        accessibilityRole="image"
+        accessibilityLabel={`${kind === "signature" ? "Signature" : "Initials"} drawing area. Draw with one finger. Use the labeled Clear button below to start over.`}
+        accessibilityHint="With VoiceOver, double-tap and hold, then draw without lifting. The Clear button below removes only this selected drawing after confirmation."
+        accessibilityValue={{
+          text:
+            strokes.length === 0
+              ? "Empty"
+              : `${strokes.length} ${strokes.length === 1 ? "stroke" : "strokes"}`,
+        }}
+        style={styles.canvas}
+        onLayout={(event) => {
+          const nextSize = {
+            width: event.nativeEvent.layout.width,
+            height: event.nativeEvent.layout.height,
+          };
+          const orientation =
+            windowWidth > windowHeight ? "landscape" : "portrait";
+          const firstLayout = !layoutInitialized.current;
+          layoutInitialized.current = true;
+          setSize(nextSize);
+          if (current.current) return;
+          if (firstLayout && strokesRef.current.length === 0) {
+            setPlane(nextSize);
+            onChange([], nextSize.width, nextSize.height, orientation);
+            return;
+          }
+          const nextPlane = {
+            width: Math.max(plane.width, nextSize.width),
+            height: Math.max(plane.height, nextSize.height),
+          };
+          if (
+            Math.abs(nextPlane.width - plane.width) < 1 &&
+            Math.abs(nextPlane.height - plane.height) < 1
+          )
+            return;
+          const offsetX = (nextPlane.width - plane.width) / 2;
+          const offsetY = (nextPlane.height - plane.height) / 2;
+          const expanded = strokesRef.current.map((stroke) => ({
+            ...stroke,
+            points: stroke.points.map((point) => ({
+              ...point,
+              x: point.x + offsetX,
+              y: point.y + offsetY,
+            })),
+          }));
+          setPlane(nextPlane);
+          updateLocal(expanded);
+          onChange(expanded, nextPlane.width, nextPlane.height, orientation);
+        }}
+        collapsable={false}
+      >
+        {sampleSource ? (
+          <SampleDrawing
+            asset={asset}
+            accessibilityLabel={`${kind === "signature" ? "Signature" : "Initials"} sample`}
+            style={[
+              styles.sample,
+              kind === "initials" && styles.initialsSample,
+            ]}
+          />
+        ) : (
+          <Svg
+            width="100%"
+            height="100%"
+            viewBox={`0 0 ${plane.width} ${plane.height}`}
+            preserveAspectRatio="xMidYMid meet"
+            pointerEvents="none"
+          >
+            {strokes.map((stroke) => (
+              <Path
+                key={stroke.id}
+                d={smoothPath(stroke.points)}
+                fill="none"
+                stroke={theme.colors.text}
+                strokeWidth={SIGNATURE_STROKE_WIDTH}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            ))}
+          </Svg>
+        )}
+        {strokes.length === 0 ? (
+          <View pointerEvents="none" style={styles.emptyGuide}>
+            <Text style={styles.hint}>Sign here</Text>
+            <View style={styles.guideLine} />
+          </View>
+        ) : null}
+      </View>
+    </GestureDetector>
   );
 }
 
