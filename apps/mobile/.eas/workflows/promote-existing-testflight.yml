@@ -1,0 +1,19 @@
+name: Promote existing App Store Connect build to internal TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      asc_build_id:
+        type: string
+        required: true
+        description: Existing App Store Connect build resource ID
+
+jobs:
+  promote_internal_testflight:
+    name: Assign existing build to internal TestFlight testers
+    type: testflight
+    params:
+      asc_build_id: ${{ inputs.asc_build_id }}
+      internal_groups: ["Only Signature Internal"]
+      changelog: Fix signature drawing, iPhone layout, and transparent unlock.
+      submit_beta_review: false
