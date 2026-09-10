@@ -173,9 +173,7 @@ export default function ClearBackgroundScreen() {
               ? purchase.unboundPurchase
                 ? "Applying Apple Purchase..."
                 : "Opening Apple Purchase..."
-              : purchase.productNeedsRetry
-                ? "Try Transparent Purchase Again"
-                : "Unlock Transparent Set - " + purchase.displayPrice
+              : "Purchase Transparent"
           }
           onPress={() => void purchase.beginPurchase()}
           disabled={purchase.busy || purchase.transparentUnavailable}

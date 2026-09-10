@@ -335,7 +335,29 @@ test("drawing responder owns one continuous finger gesture", async () => {
   assert.match(canvas, /Math\.max\(plane\.width, nextSize\.width\)/);
   assert.match(canvas, /Math\.max\(plane\.height, nextSize\.height\)/);
   assert.match(canvas, />Sign here</);
+  assert.match(canvas, /stabilizeStrokePoint/);
   assert.doesNotMatch(canvas, /Sign naturally/);
+});
+
+test("purchase actions use stable customer copy and saved actions stay above the list", async () => {
+  const [background, clear, warning, saved, purchaseHook] = await Promise.all([
+    read("../src/app/purchase.tsx"),
+    read("../src/app/clear-background.tsx"),
+    read("../src/app/free-export.tsx"),
+    read("../src/app/saved.tsx"),
+    read("../src/hooks/use-transparent-purchase.ts"),
+  ]);
+  for (const source of [background, clear, warning, saved]) {
+    assert.match(source, /Purchase Transparent/);
+    assert.doesNotMatch(source, /Try Transparent Purchase/);
+  }
+  assert.match(purchaseHook, /Sandbox Apple Account/);
+  assert.doesNotMatch(purchaseHook, /United States Media & Purchases/);
+  assert.ok(
+    saved.indexOf('id="saved.actions"') < saved.indexOf('id="saved.list"'),
+  );
+  assert.match(saved, /⚙︎/);
+  assert.doesNotMatch(saved, /react-native-svg/);
 });
 
 test("entry has no authorization interruption and StoreKit can retry", async () => {

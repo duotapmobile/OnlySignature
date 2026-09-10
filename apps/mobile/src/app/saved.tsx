@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { LayoutSlot } from "@/components/layout-slot";
 import * as StoreReview from "expo-store-review";
-import Svg, { Circle, Path } from "react-native-svg";
+
 import { DrawingPreview } from "@/components/DrawingPreview";
 import {
   FlowPrimaryButton,
@@ -17,23 +17,9 @@ import { useAppState } from "@/state/AppStateProvider";
 
 function GearIcon() {
   return (
-    <Svg width={22} height={22} viewBox="0 0 24 24">
-      <Circle
-        cx={12}
-        cy={12}
-        r={3}
-        fill="none"
-        stroke={flowColors.white}
-        strokeWidth={1.7}
-      />
-      <Path
-        d="M12 2.8v2.1M12 19.1v2.1M21.2 12h-2.1M4.9 12H2.8M18.5 5.5 17 7M7 17l-1.5 1.5M18.5 18.5 17 17M7 7 5.5 5.5M8.8 4.9l.7 2M14.5 17.1l.7 2M19.1 8.8l-2 .7M6.9 14.5l-2 .7M15.2 4.9l-.7 2M9.5 17.1l-.7 2M19.1 15.2l-2-.7M6.9 9.5l-2-.7"
-        fill="none"
-        stroke={flowColors.white}
-        strokeWidth={1.5}
-        strokeLinecap="round"
-      />
-    </Svg>
+    <Text accessibilityElementsHidden style={styles.settingsIcon}>
+      ⚙︎
+    </Text>
   );
 }
 
@@ -87,7 +73,7 @@ function SigningSetCard({
   item: SignatureSet;
   layerPrefix: string;
 }) {
-  const { product, selectSet, setSelectedAsset } = useAppState();
+  const { selectSet, setSelectedAsset } = useAppState();
   const signatureExists = hasDrawing(item.signature);
   const initialsExists = hasDrawing(item.initials);
   const purchaseLocked =
@@ -182,11 +168,7 @@ function SigningSetCard({
         <View style={styles.unlockRow}>
           <MiniButton
             wide
-            label={
-              product.displayPrice
-                ? `Unlock Transparent · ${product.displayPrice}`
-                : "Try Transparent Purchase"
-            }
+            label="Purchase Transparent"
             layoutId={`${layerPrefix}.unlock.button`}
             labelLayoutId={`${layerPrefix}.unlock.label`}
             onPress={() => {
@@ -254,6 +236,18 @@ export default function SavedSetsScreen() {
           </LayoutSlot>
         </Pressable>
       </LayoutSlot>
+      <LayoutSlot id="saved.actions" style={styles.create}>
+        <FlowPrimaryButton
+          label="Create New Signing Set"
+          layoutId="saved.create.button"
+          labelLayoutId="saved.create.label"
+          onPress={() => {
+            if (!createNew()) return;
+            setSelectedAsset("signature");
+            router.push("/draw");
+          }}
+        />
+      </LayoutSlot>
       <LayoutSlot id="saved.list" style={styles.list}>
         {visible.length ? (
           visible.map((item, index) => (
@@ -277,18 +271,6 @@ export default function SavedSetsScreen() {
             </LayoutSlot>
           </View>
         )}
-      </LayoutSlot>
-      <LayoutSlot id="saved.actions" style={styles.create}>
-        <FlowPrimaryButton
-          label="Create New Signing Set"
-          layoutId="saved.create.button"
-          labelLayoutId="saved.create.label"
-          onPress={() => {
-            if (!createNew()) return;
-            setSelectedAsset("signature");
-            router.push("/draw");
-          }}
-        />
       </LayoutSlot>
     </FlowScreen>
   );
@@ -318,6 +300,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  settingsIcon: { color: flowColors.white, fontSize: 24, lineHeight: 28 },
   list: { gap: 14 },
   card: {
     minHeight: 146,
@@ -393,5 +376,5 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginTop: 5,
   },
-  create: { marginTop: "auto", paddingTop: 16, marginBottom: 6 },
+  create: { marginBottom: 16 },
 });

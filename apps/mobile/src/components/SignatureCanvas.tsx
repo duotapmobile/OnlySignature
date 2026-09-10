@@ -12,7 +12,9 @@ import type {
 import {
   pointToDrawingPlane,
   SIGNATURE_STROKE_WIDTH,
+  stabilizeStrokePoint,
   smoothPath,
+  type StrokeStabilizerState,
 } from "@/domain/drawing";
 import { SampleDrawing, sampleSourceFor } from "./SampleDrawing";
 import { theme } from "@/integrations/workspace";
@@ -41,6 +43,7 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
   const [strokes, setStrokes] = useState<Stroke[]>(asset.strokes);
   const sampleSource = sampleSourceFor(asset);
   const current = useRef<Stroke | null>(null);
+  const stabilizer = useRef<StrokeStabilizerState | null>(null);
   const sequence = useRef(0);
   const strokesRef = useRef<Stroke[]>(asset.strokes);
   const layoutInitialized = useRef(false);
@@ -90,10 +93,12 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
       const timestamp = Date.now();
       const point = pointFromEvent(x, y, timestamp);
       if (!point) return;
+      const stabilized = stabilizeStrokePoint(null, point);
+      stabilizer.current = stabilized.state;
       sequence.current += 1;
       const stroke = {
         id: `stroke-${timestamp}-${sequence.current}`,
-        points: [point],
+        points: [stabilized.point],
       };
       current.current = stroke;
       updateLocal([...strokesRef.current, stroke]);
@@ -108,9 +113,11 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
       const timestamp = Date.now();
       const point = pointFromEvent(x, y, timestamp);
       if (!point) return;
+      const stabilized = stabilizeStrokePoint(stabilizer.current, point);
+      stabilizer.current = stabilized.state;
       const updated = {
         ...current.current,
-        points: [...current.current.points, point],
+        points: [...current.current.points, stabilized.point],
       };
       current.current = updated;
       updateLocal([...strokesRef.current.slice(0, -1), updated]);
@@ -121,12 +128,14 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
   const release = useCallback(() => {
     if (!current.current) return;
     current.current = null;
+    stabilizer.current = null;
     commit(strokesRef.current);
   }, [commit]);
 
   const terminate = useCallback(() => {
     if (current.current) commit(strokesRef.current);
     current.current = null;
+    stabilizer.current = null;
   }, [commit]);
 
   /* eslint-disable react-hooks/refs -- Gesture callbacks run only after native touch events, never during render. */
