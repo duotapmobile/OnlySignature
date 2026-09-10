@@ -8,6 +8,7 @@ import {
   pointToDrawingPlane,
   serializeSvg,
   smoothPath,
+  stabilizeStrokePoint,
 } from "../src/domain/drawing";
 import { screenshotFixtureSet } from "../src/domain/fixtures";
 import { formatLabel, isTransparent } from "../src/domain/models";
@@ -19,6 +20,45 @@ test("smooth path retains stroke endpoints and uses vector curves", () => {
   assert.match(path, /^M /);
   assert.match(path, / Q /);
   assert.match(path, / L /);
+});
+
+test("adaptive ink stabilization removes slow finger wobble without flattening deliberate movement", () => {
+  const makePoint = (x: number, y: number, t: number) => ({
+    x,
+    y,
+    t,
+    pressure: null,
+  });
+  let state = null;
+  const slowRaw = [100, 102, 98, 102, 98, 100];
+  const slowFiltered = slowRaw.map((y, index) => {
+    const result = stabilizeStrokePoint(
+      state,
+      makePoint(index * 0.5, y, index * 16),
+    );
+    state = result.state;
+    return result.point.y;
+  });
+  const rawSpread = Math.max(...slowRaw) - Math.min(...slowRaw);
+  const filteredSpread = Math.max(...slowFiltered) - Math.min(...slowFiltered);
+  assert.ok(filteredSpread < rawSpread * 0.6);
+
+  state = null;
+  const deliberate = [
+    makePoint(0, 0, 0),
+    makePoint(30, 0, 16),
+    makePoint(60, 25, 32),
+  ].map((point) => {
+    const result = stabilizeStrokePoint(state, point);
+    state = result.state;
+    return result.point;
+  });
+  const last = deliberate.at(-1)!;
+  assert.ok(last.x > 45);
+  assert.ok(last.y > 12);
+  assert.ok(last.x <= 60);
+  assert.ok(last.y <= 25);
+  assert.equal(last.t, 32);
 });
 
 test("marketing fixtures use multi-stroke fictional handwriting rather than abstract marks", () => {

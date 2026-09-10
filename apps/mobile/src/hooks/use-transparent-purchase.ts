@@ -9,10 +9,10 @@ const purchaseErrorCopy = (error: unknown): string => {
       ? error.message.toLowerCase()
       : String(error).toLowerCase();
   if (detail.includes("product-not-found"))
-    return "Apple TestFlight did not return the transparent product. Confirm this iPhone uses a United States Media & Purchases account, then tap Try Again.";
+    return "Apple did not return the transparent product. Your signing set is safe. Check the Sandbox Apple Account on this iPhone, then tap Purchase Transparent again.";
   if (detail.includes("product-lookup-failed"))
-    return "Apple TestFlight could not load the transparent product. Check your connection, then tap Try Again.";
-  return "Apple could not open the transparent purchase. Your signing set is unchanged. Tap Try Again or save the white version for free.";
+    return "Apple could not load the transparent product. Check your connection, then tap Purchase Transparent again.";
+  return "Apple could not open the transparent purchase. Your signing set is unchanged. Tap Purchase Transparent again or save the white version for free.";
 };
 
 export function useTransparentPurchase({
@@ -24,7 +24,7 @@ export function useTransparentPurchase({
     activeSet,
     data,
     product,
-    productStatus,
+
     purchaseActiveSet,
     recoverUnboundPurchase,
   } = useAppState();
@@ -78,7 +78,7 @@ export function useTransparentPurchase({
     clearError: () => setError(null),
     displayPrice,
     error,
-    productNeedsRetry: productStatus !== "available",
+
     transparentUnavailable: !unboundPurchase && purchasePending,
     unboundPurchase: Boolean(unboundPurchase),
   };

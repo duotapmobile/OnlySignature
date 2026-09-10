@@ -132,7 +132,6 @@ export default function BackgroundScreen() {
     clearError,
     displayPrice,
     error,
-    productNeedsRetry,
     transparentUnavailable,
     unboundPurchase,
   } = useTransparentPurchase({ suppressSuccessRedirect: purchaseFixture });
@@ -203,12 +202,6 @@ export default function BackgroundScreen() {
             {error}
           </Text>
         </LayoutSlot>
-      ) : background === "transparent" && productNeedsRetry ? (
-        <LayoutSlot id="background.retry-note">
-          <Text selectable style={styles.retryNote}>
-            Apple pricing refreshes when you tap Unlock.
-          </Text>
-        </LayoutSlot>
       ) : null}
       <LayoutSlot id="background.actions" style={styles.actions}>
         <FlowPrimaryButton
@@ -220,9 +213,7 @@ export default function BackgroundScreen() {
               : background === "transparent"
                 ? unboundPurchase
                   ? "Apply Apple Purchase to This Set"
-                  : productNeedsRetry
-                    ? "Try Transparent Purchase Again"
-                    : `Unlock Transparent Set - ${displayPrice}`
+                  : "Purchase Transparent"
                 : "Continue With White Background"
           }
           onPress={continueFlow}

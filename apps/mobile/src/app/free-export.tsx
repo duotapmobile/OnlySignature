@@ -123,9 +123,11 @@ export default function DiyWarningScreen() {
       <LayoutSlot id="warning.actions" style={styles.actions}>
         <FlowPrimaryButton
           label={
-            purchase.productNeedsRetry
-              ? "Try Transparent Purchase Again"
-              : `Unlock Transparent Set - ${purchase.displayPrice}`
+            purchase.busy
+              ? purchase.unboundPurchase
+                ? "Applying Apple Purchase..."
+                : "Opening Apple Purchase..."
+              : "Purchase Transparent"
           }
           onPress={() => void purchase.beginPurchase()}
           disabled={purchase.busy || purchase.transparentUnavailable}
