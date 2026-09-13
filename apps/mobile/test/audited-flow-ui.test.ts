@@ -69,13 +69,13 @@ test("audited routes preserve the complete white and transparent branches", asyn
   assert.match(saved, /Create New Signing Set/);
 });
 
-test("native splash uses the raised full-screen brand composition without simulated phone chrome", async () => {
+test("native launch frame flows into the teal animated opening without simulated phone chrome", async () => {
   const [config, layout] = await Promise.all([
     read("../app.config.ts"),
     read("../src/app/_layout.tsx"),
   ]);
-  assert.match(config, /assets\/brand\/only-signature-splash\.png/);
-  assert.match(config, /backgroundColor: "#020B12"/);
+  assert.match(config, /assets\/brand\/only-signature-wordmark-paper\.png/);
+  assert.match(config, /backgroundColor: "#006971"/);
   assert.match(layout, /<StatusBar style="light"/);
   assert.doesNotMatch(layout, /<StatusBar hidden/);
   assert.doesNotMatch(layout, /9:41|island|homebar/i);
@@ -209,10 +209,10 @@ test("reachable export and information surfaces keep the audited visual system",
   assert.doesNotMatch(exportFlow, /pathname: "\/success"/);
 
   assert.match(settings, /FlowScreen/);
-  assert.match(settings, /borderRadius: 16/);
+  assert.match(settings, /borderRadius: 20/);
   assert.doesNotMatch(settings, /components\/ui/);
   assert.match(infoPage, /FlowScreen/);
-  assert.match(infoPage, /borderRadius: 16/);
+  assert.match(infoPage, /borderRadius: 20/);
   assert.doesNotMatch(infoPage, /from "\.\/ui"/);
 });
 
@@ -275,15 +275,20 @@ test("finish-pending purchases cannot announce success or export", async () => {
   assert.match(saved, /&& !purchaseLocked/);
 });
 
-test("returning-user hydration and terminal navigation fail closed", async () => {
-  const [entry, success] = await Promise.all([
+test("returning-user hydration, animated opening, and terminal navigation fail closed", async () => {
+  const [entry, opening, success] = await Promise.all([
     read("../src/app/index.tsx"),
+    read("../src/components/animated-opening.tsx"),
     read("../src/app/success.tsx"),
   ]);
   assert.match(entry, /if \(!data\.hydrated\) return/);
   assert.match(entry, /disabled=\{!data\.hydrated\}/);
-  assert.match(entry, /opening-splash-screen/);
-  assert.match(entry, /only-signature-splash\.png/);
+  assert.match(entry, /AnimatedOpening/);
+  assert.match(entry, /only-signature-wordmark-paper\.png/);
+  assert.match(opening, /opening-splash-screen/);
+  assert.match(opening, /openingDurationMs = 2_750/);
+  assert.match(opening, /AccessibilityInfo\.isReduceMotionEnabled/);
+  assert.match(opening, /Tap to continue/);
   assert.doesNotMatch(entry, /router\.replace\("\/saved"\)/);
   assert.match(success, /router\.dismissAll\(\)/);
   assert.match(success, /router\.replace\("\/saved"\)/);
@@ -455,18 +460,22 @@ test("layout studio slots are backed by persisted device profiles", async () => 
     assert.match(source, expected);
 });
 
-test("native splash is editable and regenerates the configured launch asset", async () => {
-  const [server, generator, preview] = await Promise.all([
-    read("../../../scripts/layout-studio.mjs"),
-    read("../../../scripts/splash-layout.mjs"),
-    read("../../../tools/layout-studio/splash-preview.html"),
+test("the animated opening stages tactile paper, brand, and signature motion", async () => {
+  const [opening, paper, entry] = await Promise.all([
+    read("../src/components/animated-opening.tsx"),
+    read("../src/components/paper-ui.tsx"),
+    read("../src/app/index.tsx"),
   ]);
-  assert.match(server, /id: "splash"/);
-  assert.match(server, /"splash\.wordmark"/);
-  assert.match(server, /await renderSplash\(profiles\)/);
-  assert.match(generator, /only-signature-splash\.png/);
-  assert.match(generator, /profiles\?\.iphone\?\.\["splash\.wordmark"\]/);
-  assert.match(preview, /data-testid="layout-slot:splash\.wordmark"/);
+  assert.match(opening, /Animated\.timing/);
+  assert.match(opening, /PaperSurface folded/);
+  assert.match(opening, /only-signature-wordmark-paper\.png/);
+  assert.match(opening, /taylor-brooks-signature\.png/);
+  assert.match(paper, /teal-paper-texture\.png/);
+  assert.match(paper, /warm-paper-texture\.png/);
+  assert.ok(entry.indexOf("No Account") < entry.indexOf("No Subscription"));
+  assert.ok(
+    entry.indexOf("No Subscription") < entry.indexOf("No Document Upload"),
+  );
 });
 
 test("layout studio exposes individual text, icon, artwork, and action layers", async () => {

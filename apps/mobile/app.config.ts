@@ -219,9 +219,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       [
         "expo-splash-screen",
         {
-          backgroundColor: "#020B12",
-          image: "./assets/brand/only-signature-splash.png",
-          imageWidth: 430,
+          backgroundColor: "#006971",
+          image: "./assets/brand/only-signature-wordmark-paper.png",
+          imageWidth: 170,
         },
       ],
     ],

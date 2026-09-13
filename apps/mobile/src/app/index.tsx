@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { useCallback, useState } from "react";
+import { Image, StyleSheet, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import { AnimatedOpening } from "@/components/animated-opening";
 import { LayoutSlot } from "@/components/layout-slot";
+import { PaperSurface } from "@/components/paper-ui";
 import {
   Feature,
   FlowBody,
@@ -10,19 +12,22 @@ import {
   FlowScreen,
   FlowTextButton,
   LockLine,
-  ScriptLabel,
 } from "@/components/flow-ui";
 import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 import { hasDrawing } from "@/domain/models";
 import { useAppState } from "@/state/AppStateProvider";
 
-const splashSource = require("../../assets/brand/only-signature-splash.png");
+const wordmarkSource = require("../../assets/brand/only-signature-wordmark-paper.png");
+const signatureSource = require("../../assets/samples/taylor-brooks-signature.png");
+let hasShownOpening = false;
 
 export default function EntryScreen() {
   const { data, createNew, setSelectedAsset } = useAppState();
   const { fixture } = useLocalSearchParams<{ fixture?: string }>();
   const entryFixture = isAuthorizedScreenshotFixture(fixture, "landing");
-  const [showOpening, setShowOpening] = useState(!entryFixture);
+  const [showOpening, setShowOpening] = useState(
+    !entryFixture && !hasShownOpening,
+  );
   const hasSavedWork = data.sets.some(
     (set) =>
       set.status === "purchased" ||
@@ -30,11 +35,10 @@ export default function EntryScreen() {
       hasDrawing(set.initials),
   );
 
-  useEffect(() => {
-    if (!showOpening) return;
-    const timer = setTimeout(() => setShowOpening(false), 1_250);
-    return () => clearTimeout(timer);
-  }, [showOpening]);
+  const finishOpening = useCallback(() => {
+    hasShownOpening = true;
+    setShowOpening(false);
+  }, []);
 
   const begin = () => {
     if (!data.hydrated) return;
@@ -44,20 +48,7 @@ export default function EntryScreen() {
   };
 
   if (showOpening) {
-    return (
-      <View
-        accessibilityLabel="Only Signature opening screen"
-        style={styles.opening}
-        testID="opening-splash-screen"
-      >
-        <Image
-          source={splashSource}
-          accessibilityLabel="Only Signature"
-          resizeMode="contain"
-          style={styles.openingImage}
-        />
-      </View>
-    );
+    return <AnimatedOpening onFinished={finishOpening} />;
   }
 
   return (
@@ -67,19 +58,50 @@ export default function EntryScreen() {
       testID="entry-screen"
     >
       <LayoutSlot id="entry.hero" style={styles.hero}>
-        <ScriptLabel asset="sign" style={styles.script} layoutId="entry.sign" />
-        <FlowHeading style={styles.heroTitle} layoutId="entry.title">
-          Without the sign-up.
-        </FlowHeading>
-        <FlowBody style={styles.intro} layoutId="entry.subtitle">
-          Create your reusable signature + initials.
-        </FlowBody>
+        <PaperSurface folded style={styles.heroPaper}>
+          <Image
+            source={wordmarkSource}
+            accessibilityLabel="Only Signature"
+            resizeMode="contain"
+            style={styles.wordmark}
+          />
+          <View style={styles.heroCopy}>
+            <LayoutSlot id="entry.sign">
+              <Text style={styles.sign}>Sign.</Text>
+            </LayoutSlot>
+            <FlowHeading style={styles.heroTitle} layoutId="entry.title">
+              Without the sign-up.
+            </FlowHeading>
+            <FlowBody style={styles.intro} layoutId="entry.subtitle">
+              Create your reusable signature + initials.
+            </FlowBody>
+          </View>
+          <View style={styles.sampleRow}>
+            <Text style={styles.sampleLabel}>Signature</Text>
+            <View style={styles.sampleSticker}>
+              <Image
+                source={signatureSource}
+                accessibilityLabel="Sample signature"
+                resizeMode="contain"
+                style={styles.sampleSignature}
+              />
+              <View style={styles.sampleLine} />
+            </View>
+          </View>
+        </PaperSurface>
       </LayoutSlot>
       <LayoutSlot
         id="entry.features"
         style={styles.features}
         accessibilityLabel="Privacy benefits"
       >
+        <Feature
+          kind="account"
+          iconLayoutId="entry.account.icon"
+          labelLayoutId="entry.account.label"
+        >
+          No Account
+        </Feature>
         <Feature
           kind="subscription"
           iconLayoutId="entry.subscription.icon"
@@ -93,13 +115,6 @@ export default function EntryScreen() {
           labelLayoutId="entry.upload.label"
         >
           No Document Upload
-        </Feature>
-        <Feature
-          kind="account"
-          iconLayoutId="entry.account.icon"
-          labelLayoutId="entry.account.label"
-        >
-          No Account
         </Feature>
       </LayoutSlot>
       <LayoutSlot id="entry.actions" style={styles.action}>
@@ -134,20 +149,79 @@ export default function EntryScreen() {
 }
 
 const styles = StyleSheet.create({
-  opening: {
-    flex: 1,
-    backgroundColor: "#020B12",
-    alignItems: "center",
-    justifyContent: "center",
+  content: { paddingTop: 12, paddingBottom: 24 },
+  hero: { width: "100%" },
+  heroPaper: {
+    minHeight: 446,
+    borderRadius: 20,
+    paddingHorizontal: 24,
+    paddingTop: 18,
+    paddingBottom: 22,
+    borderWidth: 1,
+    borderColor: "rgba(216,182,106,0.48)",
+    boxShadow: "0 24px 48px rgba(0, 37, 43, 0.4)",
   },
-  openingImage: { width: "100%", height: "100%" },
-  content: { paddingTop: 38, paddingBottom: 32 },
-  hero: { gap: 4 },
-  script: { width: 104, height: 68, marginLeft: 0, marginBottom: -5 },
-  heroTitle: { fontSize: 32, lineHeight: 38 },
-  intro: { marginTop: 2, fontSize: 17, lineHeight: 24 },
+  wordmark: {
+    width: 130,
+    height: 56,
+    alignSelf: "flex-end",
+    zIndex: 6,
+  },
+  heroCopy: { marginTop: 52 },
+  sign: {
+    color: "#071F5A",
+    fontFamily: "Georgia",
+    fontSize: 58,
+    lineHeight: 66,
+    fontWeight: "700",
+    letterSpacing: -2.2,
+    marginBottom: -7,
+  },
+  heroTitle: {
+    color: "#071F5A",
+    fontSize: 30,
+    lineHeight: 36,
+    letterSpacing: -0.8,
+  },
+  intro: {
+    color: "#183B67",
+    marginTop: 10,
+    fontSize: 18,
+    lineHeight: 25,
+    maxWidth: 300,
+  },
+  sampleRow: {
+    marginTop: "auto",
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 10,
+  },
+  sampleLabel: {
+    color: "#071F5A",
+    fontFamily: "Georgia",
+    fontSize: 17,
+    fontStyle: "italic",
+    marginBottom: 10,
+  },
+  sampleSticker: {
+    flex: 1,
+    height: 72,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "rgba(7,31,90,0.2)",
+    backgroundColor: "rgba(255,255,255,0.56)",
+    paddingHorizontal: 8,
+    justifyContent: "center",
+    boxShadow: "0 8px 16px rgba(0,0,0,0.15)",
+  },
+  sampleSignature: { width: "100%", height: 58, zIndex: 2 },
+  sampleLine: {
+    height: 1,
+    backgroundColor: "rgba(7,31,90,0.48)",
+    marginTop: -13,
+  },
   primaryLabel: { fontSize: 17, lineHeight: 23 },
-  features: { flexDirection: "row", gap: 20, marginTop: 48 },
-  action: { gap: 9, marginTop: "auto" },
+  features: { gap: 5, marginTop: 25, paddingHorizontal: 12 },
+  action: { gap: 7, marginTop: "auto", paddingTop: 20 },
   privacy: { marginTop: 2 },
 });

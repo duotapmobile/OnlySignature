@@ -327,8 +327,10 @@ const styles = StyleSheet.create({
     minHeight: 190,
     borderRadius: 18,
     backgroundColor: "#F7F7F7",
+    borderWidth: 1,
+    borderColor: "rgba(216,182,106,0.72)",
     overflow: "hidden",
-    boxShadow: "0 18px 38px rgba(0, 0, 0, 0.36)",
+    boxShadow: "0 18px 38px rgba(0, 38, 43, 0.38)",
   },
   redoSlot: { alignItems: "center" },
   redo: {

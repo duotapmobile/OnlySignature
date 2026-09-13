@@ -43,11 +43,12 @@ const styles = StyleSheet.create({
   back: { height: 32, alignSelf: "flex-start" },
   card: {
     marginTop: 16,
-    borderRadius: 16,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#D6E0E3",
+    borderColor: "rgba(216,182,106,0.68)",
     backgroundColor: flowColors.card,
     padding: 18,
+    boxShadow: "0 14px 30px rgba(0, 38, 43, 0.28)",
   },
   title: {
     color: flowColors.cardText,

@@ -95,10 +95,11 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingVertical: 7,
     paddingHorizontal: 14,
-    borderRadius: 16,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#D6E0E3",
+    borderColor: "rgba(216,182,106,0.68)",
     backgroundColor: flowColors.card,
+    boxShadow: "0 14px 30px rgba(0, 38, 43, 0.28)",
   },
   row: {
     minHeight: 58,

@@ -60,5 +60,5 @@ jobs:
       build_id: ${{ needs.build_ios_production.outputs.build_id }}
       profile: production
       internal_groups: ["Only Signature Internal"]
-      changelog: Keeps the signing baseline visible, smooths finger ink, clears the missing-strokes preview, and simplifies save choices.
+      changelog: Introduces the teal-and-paper redesign, an animated opening, the upper-right Only Signature wordmark, and refreshed signing, review, export, saved-set, settings, and help screens while preserving the signature baseline and stabilized ink.
       submit_beta_review: false

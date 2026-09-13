@@ -14,20 +14,21 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle, Path, Rect } from "react-native-svg";
 import { LayoutSlot } from "@/components/layout-slot";
+import { PaperSurface, TealTexture } from "@/components/paper-ui";
 
 export const flowColors = {
-  night: "#020B12",
-  ink: "#061721",
-  inkRaised: "#0A2530",
-  cyan: "#04B8D0",
-  cyanText: "#42C9DA",
-  white: "#F7FBFD",
-  muted: "#AEBBC2",
-  card: "#FBFBFB",
-  cardText: "#111820",
-  cardMuted: "#4C5B63",
-  outline: "#71838D",
-  accessibleLink: "#006B83",
+  night: "#006971",
+  ink: "#071F5A",
+  inkRaised: "#004F57",
+  cyan: "#D8B66A",
+  cyanText: "#FFE2A0",
+  white: "#FBFAF5",
+  muted: "#D7E6E5",
+  card: "#FBFAF5",
+  cardText: "#071F5A",
+  cardMuted: "#425269",
+  outline: "#AFA58C",
+  accessibleLink: "#075E69",
 } as const;
 
 const brandSources = {
@@ -62,14 +63,14 @@ export function FlowScreen({
       style={[styles.safe, light && styles.lightSafe]}
       edges={["top", "right", "bottom", "left"]}
     >
-      <View style={[styles.background, light && styles.lightBackground]}>
+      <TealTexture style={[styles.background, light && styles.lightBackground]}>
         {light ? null : (
           <>
             <View style={styles.depthGlowTop} />
             <View style={styles.depthGlowBottom} />
           </>
         )}
-      </View>
+      </TealTexture>
       {scroll ? (
         <ScrollView
           style={styles.screenScroll}
@@ -239,6 +240,7 @@ export function FlowTextButton({
   testID,
   layoutId,
   labelLayoutId,
+  labelStyle,
 }: {
   label: string;
   onPress(): void;
@@ -246,8 +248,11 @@ export function FlowTextButton({
   testID?: string;
   layoutId?: string;
   labelLayoutId?: string;
+  labelStyle?: StyleProp<TextStyle>;
 }) {
-  const labelNode = <Text style={styles.textButtonText}>{label}</Text>;
+  const labelNode = (
+    <Text style={[styles.textButtonText, labelStyle]}>{label}</Text>
+  );
   const button = (
     <Pressable
       accessibilityRole="button"
@@ -433,7 +438,7 @@ export function PreviewCard({
     ) : null;
   const contentNode = <View style={styles.previewContent}>{children}</View>;
   return (
-    <View style={styles.previewCard}>
+    <PaperSurface style={styles.previewCard}>
       {labelLayoutId ? (
         <LayoutSlot id={labelLayoutId}>{labelNode}</LayoutSlot>
       ) : (
@@ -449,7 +454,7 @@ export function PreviewCard({
       ) : (
         contentNode
       )}
-    </View>
+    </PaperSurface>
   );
 }
 
@@ -594,14 +599,13 @@ export function CheckMark({ layoutId }: { layoutId?: string } = {}) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: flowColors.night },
-  lightSafe: { backgroundColor: "#FAF9F7" },
+  lightSafe: { backgroundColor: "#F8F6EF" },
   fill: { flex: 1 },
   background: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: flowColors.night,
     overflow: "hidden",
   },
-  lightBackground: { backgroundColor: "#FAF9F7" },
+  lightBackground: { backgroundColor: "#F8F6EF" },
   depthGlowTop: {
     position: "absolute",
     width: 520,
@@ -609,7 +613,7 @@ const styles = StyleSheet.create({
     borderRadius: 260,
     top: -250,
     right: -285,
-    backgroundColor: "rgba(18, 87, 108, 0.24)",
+    backgroundColor: "rgba(255, 226, 160, 0.08)",
   },
   depthGlowBottom: {
     position: "absolute",
@@ -618,7 +622,7 @@ const styles = StyleSheet.create({
     borderRadius: 280,
     bottom: -330,
     left: -290,
-    backgroundColor: "rgba(0, 146, 176, 0.12)",
+    backgroundColor: "rgba(0, 54, 61, 0.2)",
   },
   screenScroll: { flex: 1 },
   sheetScroll: { flex: 1 },
@@ -628,7 +632,7 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 480,
     alignSelf: "center",
-    paddingHorizontal: 26,
+    paddingHorizontal: 24,
     paddingTop: 24,
     paddingBottom: 28,
   },
@@ -646,7 +650,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     letterSpacing: -0.55,
   },
-  body: { color: "#E8EEF0", fontSize: 22, lineHeight: 31 },
+  body: { color: "#EDF5F2", fontSize: 22, lineHeight: 31 },
   primaryButton: {
     width: "100%",
     minHeight: 59,
@@ -656,12 +660,12 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     borderColor: flowColors.cyan,
-    backgroundColor: "#062A36",
+    backgroundColor: flowColors.card,
     boxShadow:
-      "0 12px 30px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255,255,255,0.08)",
+      "0 14px 32px rgba(0, 37, 43, 0.38), inset 0 1px 0 rgba(255,255,255,0.75)",
   },
   primaryButtonText: {
-    color: flowColors.white,
+    color: "#064957",
     fontSize: 17,
     lineHeight: 23,
     fontWeight: "700",
@@ -676,7 +680,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   textButtonText: {
-    color: flowColors.cyanText,
+    color: "#FFF2C8",
     fontSize: 15,
     lineHeight: 21,
     fontWeight: "600",
@@ -704,10 +708,10 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 26,
     borderWidth: 1,
     borderBottomWidth: 0,
-    borderColor: "#62808C",
-    backgroundColor: "#061A24",
+    borderColor: "#D8B66A",
+    backgroundColor: "#FBFAF5",
     boxShadow:
-      "0 -22px 54px rgba(0, 0, 0, 0.5), 0 -1px 0 rgba(4, 184, 208, 0.28)",
+      "0 -22px 54px rgba(0, 37, 43, 0.45), 0 -1px 0 rgba(216, 182, 106, 0.35)",
   },
   sheetContent: {
     flexGrow: 1,
@@ -718,7 +722,7 @@ const styles = StyleSheet.create({
     width: 45,
     height: 4,
     borderRadius: 5,
-    backgroundColor: "#9CA8AD",
+    backgroundColor: "#B5A985",
     alignSelf: "center",
     marginBottom: 10,
   },
@@ -742,12 +746,13 @@ const styles = StyleSheet.create({
   },
   previewCard: {
     minHeight: 132,
-    borderRadius: 18,
-    backgroundColor: flowColors.card,
+    borderRadius: 20,
     paddingHorizontal: 16,
     paddingTop: 14,
     marginBottom: 18,
-    boxShadow: "0 16px 34px rgba(0, 0, 0, 0.3)",
+    borderWidth: 1,
+    borderColor: "rgba(216,182,106,0.58)",
+    boxShadow: "0 16px 34px rgba(0, 38, 43, 0.3)",
   },
   previewLabel: {
     color: flowColors.cardText,
@@ -776,24 +781,26 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  feature: { flex: 1, minWidth: 0, alignItems: "center" },
+  feature: {
+    minWidth: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
   featureIcon: {
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    borderWidth: 1.25,
-    borderColor: flowColors.cyan,
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: flowColors.cyan,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
-    boxShadow: "0 10px 22px rgba(0, 0, 0, 0.28)",
+    overflow: "hidden",
   },
   featureText: {
     color: flowColors.white,
-    fontSize: 14,
-    lineHeight: 19,
-    fontWeight: "600",
-    textAlign: "center",
+    fontSize: 20,
+    lineHeight: 27,
+    fontWeight: "500",
   },
   lockLine: {
     minHeight: 44,
@@ -802,7 +809,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  lockText: { color: "#C7D1D5", fontSize: 14, lineHeight: 20 },
+  lockText: { color: "#F3F0E8", fontSize: 14, lineHeight: 20 },
   checkMark: {
     width: 50,
     height: 50,

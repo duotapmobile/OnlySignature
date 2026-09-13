@@ -29,7 +29,7 @@ function SelectedMark() {
       <Path
         d="m4.5 10 3.5 3.5 7.5-8"
         fill="none"
-        stroke={flowColors.white}
+        stroke="#FFFDF7"
         strokeWidth={2}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 15,
     borderWidth: 1,
-    borderColor: "#A8B9C0",
+    borderColor: "#BDB295",
     borderRadius: 14,
     backgroundColor: flowColors.card,
   },
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(2,11,18,0.72)",
+    backgroundColor: "rgba(0,37,43,0.74)",
     justifyContent: "center",
     padding: 24,
   },
@@ -146,7 +146,9 @@ const styles = StyleSheet.create({
     maxWidth: 480,
     alignSelf: "center",
     backgroundColor: flowColors.card,
-    borderRadius: 18,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: flowColors.cyan,
     padding: 18,
     gap: 8,
   },
@@ -162,14 +164,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#B8C7CD",
+    borderColor: "#CFC6AD",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
   selected: {
-    backgroundColor: "#086F84",
-    borderColor: "#086F84",
+    backgroundColor: "#075A63",
+    borderColor: "#075A63",
   },
   optionText: {
     color: flowColors.cardText,

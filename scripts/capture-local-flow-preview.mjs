@@ -120,7 +120,7 @@ const splashArtwork = path.join(
   "mobile",
   "assets",
   "brand",
-  "only-signature-splash.png",
+  "only-signature-wordmark-paper.png",
 );
 
 await mkdir(outputRoot, { recursive: true });
@@ -134,7 +134,7 @@ async function createSplash(outputPath, size) {
   await sharp(splashArtwork)
     .resize(size.width, size.height, {
       fit: "contain",
-      background: "#020B12",
+      background: "#006971",
     })
     .png()
     .toFile(outputPath);
@@ -211,7 +211,7 @@ async function phoneFrame(inputPath) {
   const frame =
     Buffer.from(`<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <rect x="1.5" y="1.5" width="${width - 3}" height="${height - 3}" rx="25" fill="#02070B" stroke="#7C6A57" stroke-width="3"/>
-    <rect x="${screenX}" y="${screenY}" width="${screenWidth}" height="${height - 24}" rx="18" fill="#020B12"/>
+    <rect x="${screenX}" y="${screenY}" width="${screenWidth}" height="${height - 24}" rx="18" fill="#006971"/>
     <text x="19" y="23" font-family="Arial, sans-serif" font-size="8" font-weight="700" fill="#F7FBFD">9:41</text>
     <rect x="135" y="16" width="12" height="6" rx="3" fill="#F7FBFD" opacity=".9"/>
     <circle cx="153" cy="19" r="3" fill="#F7FBFD" opacity=".9"/>
@@ -261,7 +261,7 @@ for (const [index, shot] of screenshots.entries()) {
   const y = marginY + row * (labelHeight + phoneHeight + rowGap);
   const label =
     Buffer.from(`<svg width="${phoneWidth}" height="${labelHeight}" xmlns="http://www.w3.org/2000/svg">
-    <text x="${phoneWidth / 2}" y="14" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="800" fill="#04B8D0">${xml(String(index + 1).padStart(2, "0"))}</text>
+    <text x="${phoneWidth / 2}" y="14" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="800" fill="#D8B66A">${xml(String(index + 1).padStart(2, "0"))}</text>
     <text x="${phoneWidth / 2}" y="33" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#F7FBFD">${xml(shot.headline)}</text>
   </svg>`);
   composites.push({ input: label, left: x, top: y });

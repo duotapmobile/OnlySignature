@@ -298,6 +298,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
                   label="Back"
                   onPress={chooseAnotherDestination}
                   disabled={busy}
+                  labelStyle={styles.modalSecondary}
                 />
                 <FlowPrimaryButton
                   label="Done"
@@ -310,6 +311,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
                 label="Close"
                 onPress={() => setSaveModalVisible(false)}
                 disabled={busy}
+                labelStyle={styles.modalSecondary}
               />
             )}
           </View>
@@ -349,7 +351,7 @@ const styles = StyleSheet.create({
   error: { color: "#FFD8D2", fontSize: 14, lineHeight: 20, fontWeight: "700" },
   modalShade: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.72)",
+    backgroundColor: "rgba(0,37,43,0.74)",
     alignItems: "center",
     justifyContent: "center",
     padding: 22,
@@ -359,27 +361,31 @@ const styles = StyleSheet.create({
     maxWidth: 440,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "#62808C",
-    backgroundColor: "#061A24",
+    borderColor: "#D8B66A",
+    backgroundColor: flowColors.card,
     padding: 20,
     gap: 12,
-    boxShadow: "0 22px 54px rgba(0,0,0,0.5)",
+    boxShadow: "0 22px 54px rgba(0,30,35,0.52)",
   },
   destinationTitle: {
-    color: flowColors.white,
+    color: flowColors.cardText,
     fontSize: 24,
     lineHeight: 29,
     fontWeight: "800",
   },
-  destinationHint: { color: "#DCE5E8", fontSize: 14, lineHeight: 19 },
+  destinationHint: {
+    color: flowColors.cardMuted,
+    fontSize: 14,
+    lineHeight: 19,
+  },
   file: {
     gap: 8,
     borderTopWidth: 1,
-    borderTopColor: "#28424D",
+    borderTopColor: "#DED5BD",
     paddingTop: 11,
   },
   fileTitle: {
-    color: flowColors.white,
+    color: flowColors.cardText,
     fontSize: 16,
     lineHeight: 21,
     fontWeight: "800",
@@ -389,27 +395,28 @@ const styles = StyleSheet.create({
     minHeight: 46,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: flowColors.cyan,
-    backgroundColor: "#082B37",
+    borderColor: "#0A6670",
+    backgroundColor: "#075A63",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 12,
   },
   destinationButtonText: {
-    color: flowColors.white,
+    color: "#FFFDF7",
     fontSize: 14,
     lineHeight: 19,
     fontWeight: "700",
     textAlign: "center",
   },
   confirmed: {
-    color: flowColors.cyanText,
+    color: flowColors.accessibleLink,
     fontSize: 14,
     lineHeight: 20,
     fontWeight: "700",
   },
   modalError: { color: "#FFD8D2", fontSize: 13, lineHeight: 18 },
   doneActions: { gap: 2 },
+  modalSecondary: { color: flowColors.accessibleLink },
   pressed: { opacity: 0.74 },
   disabled: { opacity: 0.46 },
 });
