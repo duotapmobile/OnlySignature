@@ -60,5 +60,5 @@ jobs:
       build_id: ${{ needs.build_ios_production.outputs.build_id }}
       profile: production
       internal_groups: ["Only Signature Internal"]
-      changelog: Initial internal TestFlight validation build.
+      changelog: Keeps the signing baseline visible, smooths finger ink, clears the missing-strokes preview, and simplifies save choices.
       submit_beta_review: false

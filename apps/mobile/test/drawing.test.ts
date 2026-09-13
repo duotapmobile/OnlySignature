@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  INK_STABILIZER_BETA,
+  INK_STABILIZER_MIN_CUTOFF,
   SIGNATURE_STROKE_WIDTH,
   exportDimensions,
   drawingBounds,
@@ -23,6 +25,8 @@ test("smooth path retains stroke endpoints and uses vector curves", () => {
 });
 
 test("adaptive ink stabilization removes slow finger wobble without flattening deliberate movement", () => {
+  assert.equal(INK_STABILIZER_MIN_CUTOFF, 1.8);
+  assert.equal(INK_STABILIZER_BETA, 0.015);
   const makePoint = (x: number, y: number, t: number) => ({
     x,
     y,
