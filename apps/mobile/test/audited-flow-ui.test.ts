@@ -62,7 +62,7 @@ test("audited routes preserve the complete white and transparent branches", asyn
   );
   assert.match(warning, /purchase\.beginPurchase/);
   assert.match(warning, /white-export/);
-  assert.match(exportFlow, /pathname: "\/success"/);
+  assert.match(exportFlow, /router\.replace\("\/saved"\)/);
   assert.match(success, /White Background Set Saved/);
   assert.match(success, /Transparent Set Unlocked/);
   assert.match(saved, /My Signing Sets/);
@@ -201,7 +201,12 @@ test("reachable export and information surfaces keep the audited visual system",
   assert.match(exportFlow, /<Modal/);
   assert.match(exportFlow, /Choose where to save/);
   assert.match(exportFlow, /saveFileToPhotos/);
-  assert.match(exportFlow, /if \(toSaved\) router\.replace\("\/saved"\)/);
+  assert.match(exportFlow, /label="Back"/);
+  assert.match(exportFlow, /setConfirmedKinds\(\[\]\)/);
+  assert.match(exportFlow, /label="Done"/);
+  assert.match(exportFlow, /router\.replace\("\/saved"\)/);
+  assert.doesNotMatch(exportFlow, /label="Continue"/);
+  assert.doesNotMatch(exportFlow, /pathname: "\/success"/);
 
   assert.match(settings, /FlowScreen/);
   assert.match(settings, /borderRadius: 16/);
@@ -336,7 +341,30 @@ test("drawing responder owns one continuous finger gesture", async () => {
   assert.match(canvas, /Math\.max\(plane\.height, nextSize\.height\)/);
   assert.match(canvas, />Sign here</);
   assert.match(canvas, /stabilizeStrokePoint/);
+  assert.match(canvas, /style=\{styles\.guideLineLayer\}/);
+  assert.ok(
+    canvas.indexOf("style={styles.guideLineLayer}") <
+      canvas.indexOf("{sampleSource ?"),
+  );
   assert.doesNotMatch(canvas, /Sign naturally/);
+});
+
+test("DIY warning keeps the missing-strokes pill outside the signature preview", async () => {
+  const warning = await read("../src/app/free-export.tsx");
+  const diyStart = warning.indexOf('id="warning.diy.label"');
+  const previewStart = warning.indexOf(
+    "<View style={styles.compareCard}>",
+    diyStart,
+  );
+  const heading = warning.slice(diyStart, previewStart);
+  const preview = warning.slice(
+    previewStart,
+    warning.indexOf("</LayoutSlot>", previewStart),
+  );
+  assert.match(heading, /Missing strokes/);
+  assert.match(heading, /styles\.damagePill/);
+  assert.doesNotMatch(heading, /Fine strokes get erased/);
+  assert.doesNotMatch(preview, /Missing strokes|damagePill/);
 });
 
 test("purchase actions use stable customer copy and saved actions stay above the list", async () => {

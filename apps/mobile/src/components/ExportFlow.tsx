@@ -156,16 +156,15 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
     }
   };
 
-  const finish = (toSaved: boolean) => {
+  const finish = () => {
     recordExport();
     setSaveModalVisible(false);
-    if (toSaved) router.replace("/saved");
-    else {
-      router.replace({
-        pathname: "/success",
-        params: { mode: purchased ? "purchased" : "free" },
-      });
-    }
+    router.replace("/saved");
+  };
+
+  const chooseAnotherDestination = () => {
+    setConfirmedKinds([]);
+    setError(null);
   };
 
   const formats = purchased ? paidFormats : freeFormats;
@@ -295,14 +294,14 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
             ) : null}
             {allSaved ? (
               <View style={styles.doneActions}>
-                <FlowPrimaryButton
-                  label="Continue"
-                  onPress={() => finish(false)}
+                <FlowTextButton
+                  label="Back"
+                  onPress={chooseAnotherDestination}
                   disabled={busy}
                 />
-                <FlowTextButton
+                <FlowPrimaryButton
                   label="Done"
-                  onPress={() => finish(true)}
+                  onPress={finish}
                   disabled={busy}
                 />
               </View>

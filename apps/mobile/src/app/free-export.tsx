@@ -84,9 +84,11 @@ export default function DiyWarningScreen() {
                 DIY Removal
               </Text>
             </LayoutSlot>
-            <Text selectable style={styles.resultCopy}>
-              Fine strokes get erased
-            </Text>
+            <LayoutSlot id="warning.diy.damage-one">
+              <Text selectable style={[styles.resultCopy, styles.damagePill]}>
+                Missing strokes
+              </Text>
+            </LayoutSlot>
           </View>
           <View style={styles.compareCard}>
             {asset ? (
@@ -102,14 +104,6 @@ export default function DiyWarningScreen() {
             ) : null}
             <View accessibilityElementsHidden style={styles.damageGapOne} />
             <View accessibilityElementsHidden style={styles.damageGapTwo} />
-            <LayoutSlot
-              id="warning.diy.damage-one"
-              style={styles.damageCallout}
-            >
-              <Text selectable style={styles.damageText}>
-                Missing strokes
-              </Text>
-            </LayoutSlot>
           </View>
         </LayoutSlot>
       </LayoutSlot>
@@ -207,16 +201,11 @@ const styles = StyleSheet.create({
     width: 9,
     backgroundColor: "#FFF",
   },
-  damageCallout: {
-    position: "absolute",
-    right: 9,
-    bottom: 8,
+  damagePill: {
     borderRadius: 999,
     backgroundColor: "#C9362E",
     paddingHorizontal: 10,
     paddingVertical: 4,
-  },
-  damageText: {
     color: "#FFF",
     fontSize: 11,
     lineHeight: 15,

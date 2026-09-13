@@ -8,9 +8,9 @@ Landing
   → Preview on Document
   → Missing-slot choice when applicable
   → Transparent Export offer
-       ↘ Save White Background, Free → format/destination → free success
+       ↘ Save White Background, Free → format/destination → Saved home
        ↘ StoreKit purchase → pending/recovery or verified fulfillment
-                                → format selection → destination → paid success
+                                → purchase confirmation → format/destination → Saved home
   → Saved home
 ```
 
@@ -38,11 +38,11 @@ Purchase states block duplicate activation and distinguish cancelled, pending/de
 
 ### Format and destination
 
-Each existing asset has its own verified format selector. Purchased default: PNG Transparent. Free default: PNG White Background. Export opens Apple’s Share sheet, including Save to Files and AirDrop where the device offers them. Direct Photos and image Copy are not shipped.
+Each existing asset has its own verified format selector. Purchased default: PNG Transparent. Free default: PNG White Background. A user may save directly to Photos or open Apple’s Share sheet for Save to Files, AirDrop, and other available apps. After saving every selected asset, Back restores the destination choices so the files can be saved another way; Done records the export and returns to Saved.
 
-### Success
+### Purchase confirmation
 
-Sparse `Saved Successfully!`, asset-aware confirmation, and `Done`. Paid success contains no price or new offer. Free success may show `Export Transparent for {localized price}` unless this set is already purchased. Done returns to Saved with the relevant set focused.
+After verified transparent fulfillment, the confirmation contains no price or new offer. Save or Share Files opens format and destination selection; Done returns to Saved with the relevant set focused. White-background export completes directly from the destination sheet.
 
 ## Returning users
 

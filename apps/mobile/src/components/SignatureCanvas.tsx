@@ -209,6 +209,9 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
         }}
         collapsable={false}
       >
+        <View pointerEvents="none" style={styles.guideLineLayer}>
+          <View style={styles.guideLine} />
+        </View>
         {sampleSource ? (
           <SampleDrawing
             asset={asset}
@@ -240,9 +243,8 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
           </Svg>
         )}
         {strokes.length === 0 ? (
-          <View pointerEvents="none" style={styles.emptyGuide}>
+          <View pointerEvents="none" style={styles.emptyHint}>
             <Text style={styles.hint}>Sign here</Text>
-            <View style={styles.guideLine} />
           </View>
         ) : null}
       </View>
@@ -272,13 +274,20 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textAlign: "center",
   },
-  emptyGuide: {
+  guideLineLayer: {
     position: "absolute",
     left: 22,
     right: 22,
     bottom: "31%",
     alignItems: "center",
-    gap: 14,
   },
   guideLine: { width: "86%", height: 1, backgroundColor: "#B8C1C5" },
+  emptyHint: {
+    position: "absolute",
+    left: 22,
+    right: 22,
+    bottom: "31%",
+    alignItems: "center",
+    transform: [{ translateY: -35 }],
+  },
 });
