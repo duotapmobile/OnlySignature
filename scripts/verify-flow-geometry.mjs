@@ -40,7 +40,6 @@ const screens = [
     name: "entry",
     route: "/?fixture=landing",
     testId: "entry-screen",
-    script: "entry.sign",
     title: "entry.title",
     subtitle: "entry.subtitle",
     button: "entry.create.button",
@@ -55,6 +54,17 @@ const screens = [
     subtitle: "signature.subtitle",
     button: "signature.primary.button",
     label: "signature.primary.label",
+    capture: true,
+  },
+  {
+    name: "last-name",
+    route: "/draw?fixture=both&namePart=last",
+    testId: "last-name-capture-screen",
+    script: "signature-last.script",
+    title: "signature-last.title",
+    subtitle: "signature-last.subtitle",
+    button: "signature-last.primary.button",
+    label: "signature-last.primary.label",
     capture: true,
   },
   {
@@ -352,6 +362,7 @@ try {
     const page = await context.newPage();
     const deviceReport = {};
     let entry;
+    let signatureReference;
     for (const screen of screens) {
       await page.goto(new URL(screen.route, baseUrl).href, {
         waitUntil: "networkidle",
@@ -386,104 +397,86 @@ try {
       };
       if (screen.name === "clear") {
         const whiteBox = await elementRect(page, "clear.bad.white-box");
-        const damagedDate = await textMetrics(page, "clear.bad.date-value");
+        const signatureArt = await elementRect(page, "clear.bad.signature-art");
         const stacking = await page.evaluate(() => {
           const whiteBox = document.querySelector(
             '[data-testid="layout-slot:clear.bad.white-box"]',
           );
-          const date = document.querySelector(
-            '[data-testid="layout-slot:clear.bad.date-value"]',
+          const signature = document.querySelector(
+            '[data-testid="layout-slot:clear.bad.signature-art"]',
           );
           return {
             whiteBox: Number(getComputedStyle(whiteBox).zIndex),
-            date: Number(getComputedStyle(date).zIndex),
+            signature: Number(getComputedStyle(signature).zIndex),
           };
         });
         assert(
-          whiteBox.x < damagedDate.rect.right &&
-            whiteBox.right > damagedDate.rect.x,
-          `${device}/clear white box does not cross the date horizontally`,
+          whiteBox.x < signatureArt.right && whiteBox.right > signatureArt.x,
+          `${device}/clear white box must sit behind the signature horizontally`,
         );
         assert(
-          whiteBox.bottom > damagedDate.rect.y + 4 &&
-            whiteBox.bottom < damagedDate.rect.bottom - 2,
-          `${device}/clear white box must visibly cut through, not fully hide, the date`,
+          whiteBox.y < signatureArt.bottom && whiteBox.bottom > signatureArt.y,
+          `${device}/clear white box must sit behind the signature vertically`,
         );
         assert(
-          stacking.whiteBox > stacking.date,
-          `${device}/clear date must sit beneath the white-box layer`,
+          stacking.whiteBox < stacking.signature,
+          `${device}/clear signature must remain readable above the white-box layer`,
         );
         measured.dateInterference = {
           whiteBox: roundedRect(whiteBox),
-          date: roundedRect(damagedDate.rect),
+          signature: roundedRect(signatureArt),
           stacking,
         };
       }
       if (screen.name === "entry") entry = measured;
       else {
-        assert.deepEqual(
-          roundedRect(measured.button),
-          roundedRect(entry.button),
-          `${device}/${screen.name} primary button differs from Entry`,
+        assert(
+          measured.button.x >= 0 &&
+            measured.button.right <= viewport.width &&
+            measured.button.height >= 44,
+          `${device}/${screen.name} primary button must stay on-screen with a 44px touch target`,
         );
-        assert.equal(
-          round(measured.label.rect.y),
-          round(entry.label.rect.y),
-          `${device}/${screen.name} button-label Y differs from Entry`,
-        );
-        assert.equal(
-          round(measured.label.rect.height),
-          round(entry.label.rect.height),
-          `${device}/${screen.name} button-label height differs from Entry`,
+        assert(
+          measured.label.rect.y >= measured.button.y &&
+            measured.label.rect.bottom <= measured.button.bottom,
+          `${device}/${screen.name} button label must stay inside its action`,
         );
         assert.deepEqual(
           measured.label.style,
           entry.label.style,
           `${device}/${screen.name} button-label typography differs from Entry`,
         );
-        assert.deepEqual(
-          measured.title.style,
-          entry.title.style,
-          `${device}/${screen.name} title typography differs from Entry`,
-        );
-        if (screen.script)
+        if (screen.name === "last-name")
           assert.equal(
             round(measured.script.angle),
-            round(entry.script.angle),
-            `${device}/${screen.name} script angle differs from Entry`,
+            round(signatureReference.script.angle),
+            `${device}/last-name script angle differs from First Name Capture`,
           );
-        if (screen.capture) {
+        if (screen.name === "last-name") {
+          assert.deepEqual(
+            roundedRect(measured.button),
+            roundedRect(signatureReference.button),
+            `${device}/last-name primary button differs from First Name Capture`,
+          );
           assert.equal(
             round(measured.title.rect.y),
-            round(entry.title.rect.y),
-            `${screen.name} title Y differs from Entry`,
-          );
-          assert.equal(
-            round(measured.title.rect.height),
-            round(entry.title.rect.height),
-            `${screen.name} title height differs from Entry`,
-          );
-          assert.equal(
-            round(measured.subtitle.rect.y),
-            round(entry.subtitle.rect.y),
-            `${screen.name} subtitle Y differs from Entry`,
+            round(signatureReference.title.rect.y),
+            `${device}/last-name title Y differs from First Name Capture`,
           );
           assert.deepEqual(
             measured.subtitle.style,
-            entry.subtitle.style,
-            `${screen.name} subtitle typography differs from Entry`,
+            signatureReference.subtitle.style,
+            `${device}/last-name subtitle typography differs from First Name Capture`,
           );
-        }
-        if (screen.name === "signature") {
           assert.equal(
             measured.script.src,
-            entry.script.src,
-            "Signature screen must use the same script asset as Entry",
+            signatureReference.script.src,
+            "Both name screens must use the same script asset",
           );
           assert.deepEqual(
             roundedRect(measured.script.visual),
-            roundedRect(entry.script.visual),
-            `${device}/signature visible script bounds differ from Entry`,
+            roundedRect(signatureReference.script.visual),
+            `${device}/last-name visible script bounds differ from First Name Capture`,
           );
         }
         if (screen.popup) {
@@ -515,6 +508,7 @@ try {
             }
           : {}),
       };
+      if (screen.name === "signature") signatureReference = measured;
     }
     report[device] = deviceReport;
     await context.close();

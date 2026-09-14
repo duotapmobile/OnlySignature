@@ -2,14 +2,19 @@ appId: com.duotap.onlysignature
 ---
 - launchApp:
     clearState: true
-- assertVisible: "Signature and Initials"
-- assertVisible: "EXPORT WITH A TRANSPARENT BACKGROUND"
+- assertVisible: "Without the sign-up."
 - tapOn: "Create My Signing Set"
-- assertVisible: "Add your signature"
+- assertVisible: "Add your first name"
 - swipe:
     start: "20%, 45%"
     end: "80%, 45%"
     duration: 1000
 - assertVisible: "Redo"
-- tapOn: "Save Signature"
+- tapOn: "Save First Name"
+- assertVisible: "Add your last name"
+- swipe:
+    start: "20%, 45%"
+    end: "80%, 45%"
+    duration: 1000
+- tapOn: "Save Last Name and Join"
 - assertVisible: "Add your initials"

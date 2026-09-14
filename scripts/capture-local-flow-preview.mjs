@@ -29,10 +29,17 @@ const screenshots = [
   },
   {
     id: "03-signature-capture",
-    headline: "Signature Capture",
+    headline: "First Name Capture",
     route: "/draw?fixture=both",
     testId: "signature-capture-screen",
-    assertions: ["Add your signature", "Save Signature"],
+    assertions: ["Add your first name", "Save First Name"],
+  },
+  {
+    id: "03b-last-name-capture",
+    headline: "Last Name Capture",
+    route: "/draw?fixture=both&namePart=last",
+    testId: "last-name-capture-screen",
+    assertions: ["Add your last name", "Save Last Name and Join"],
   },
   {
     id: "04-initials-capture",

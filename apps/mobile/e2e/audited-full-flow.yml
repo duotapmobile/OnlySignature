@@ -5,9 +5,15 @@ appId: com.duotap.onlysignature
 - openLink: "onlysignature:///?fixture=landing"
 - assertVisible: "Without the sign-up."
 - tapOn: "Create My Signing Set"
-- assertVisible: "Add your signature"
+- assertVisible: "Add your first name"
 - openLink: "onlysignature:///draw?fixture=both"
-- tapOn: "Save Signature"
+- tapOn: "Save First Name"
+- assertVisible: "Add your last name"
+- swipe:
+    start: "24%, 45%"
+    end: "76%, 45%"
+    duration: 900
+- tapOn: "Save Last Name and Join"
 - assertVisible: "Add your initials"
 - tapOn: "Save Initials"
 - assertVisible: "Confirm Your Signing Set"

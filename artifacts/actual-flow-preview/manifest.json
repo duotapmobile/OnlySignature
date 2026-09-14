@@ -1,7 +1,7 @@
 {
   "source": "Expo web static build with screenshot fixture mode enabled",
   "classification": "Local reference-matched app rendering; phone frames are presentation-only and this is not native iOS or App Store evidence",
-  "capturedOn": "2026-09-13",
+  "capturedOn": "2026-09-14",
   "referenceFlow": "11-screen founder-directed flow",
   "screenshots": [
     {
@@ -24,10 +24,19 @@
     {
       "id": "03-signature-capture",
       "route": "/draw?fixture=both",
-      "headline": "Signature Capture",
+      "headline": "First Name Capture",
       "assertions": [
-        "Add your signature",
-        "Save Signature"
+        "Add your first name",
+        "Save First Name"
+      ]
+    },
+    {
+      "id": "03b-last-name-capture",
+      "route": "/draw?fixture=both&namePart=last",
+      "headline": "Last Name Capture",
+      "assertions": [
+        "Add your last name",
+        "Save Last Name and Join"
       ]
     },
     {

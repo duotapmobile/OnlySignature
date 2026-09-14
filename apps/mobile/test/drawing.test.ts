@@ -13,7 +13,12 @@ import {
   stabilizeStrokePoint,
 } from "../src/domain/drawing";
 import { screenshotFixtureSet } from "../src/domain/fixtures";
-import { formatLabel, isTransparent } from "../src/domain/models";
+import {
+  formatLabel,
+  isTransparent,
+  type DrawingAsset,
+} from "../src/domain/models";
+import { fuseSignatureParts } from "../src/domain/signature-composition";
 
 const asset = screenshotFixtureSet.signature!;
 
@@ -145,4 +150,55 @@ test("layout rotation cannot change canonical drawing geometry or hash input", (
     x: 0,
     y: 100,
   });
+});
+
+test("first and last name drawings fuse in order on one shared baseline", () => {
+  const part = (
+    id: string,
+    width: number,
+    height: number,
+    points: { x: number; y: number }[],
+  ): DrawingAsset => ({
+    kind: "signature",
+    canvasWidth: width,
+    canvasHeight: height,
+    orientation: "portrait",
+    renderingVersion: 1,
+    finalizedHash: null,
+    strokes: [
+      {
+        id,
+        points: points.map((point, index) => ({
+          ...point,
+          t: index,
+          pressure: null,
+        })),
+      },
+    ],
+  });
+  const first = part("first", 400, 200, [
+    { x: 40, y: 92 },
+    { x: 180, y: 138 },
+  ]);
+  const last = part("last", 600, 300, [
+    { x: 90, y: 140 },
+    { x: 430, y: 207 },
+  ]);
+
+  const fused = fuseSignatureParts(first, last);
+  const firstStroke = fused.strokes[0]!;
+  const lastStroke = fused.strokes[1]!;
+  const targetBaseline = fused.canvasHeight * 0.69;
+  assert.equal(fused.canvasWidth, 600);
+  assert.equal(fused.canvasHeight, 300);
+  assert.ok(Math.abs(firstStroke.points.at(-1)!.y - targetBaseline) < 0.001);
+  assert.ok(Math.abs(lastStroke.points.at(-1)!.y - targetBaseline) < 0.001);
+  assert.ok(
+    Math.max(...firstStroke.points.map(({ x }) => x)) <
+      Math.min(...lastStroke.points.map(({ x }) => x)),
+  );
+  assert.ok(drawingBounds(fused)!.minX >= 0);
+  assert.ok(drawingBounds(fused)!.maxX <= fused.canvasWidth);
+  assert.equal(first.strokes[0]!.points[0]!.x, 40);
+  assert.equal(last.strokes[0]!.points[0]!.x, 90);
 });

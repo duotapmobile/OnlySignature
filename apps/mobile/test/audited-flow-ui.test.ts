@@ -41,7 +41,8 @@ test("audited routes preserve the complete white and transparent branches", asyn
   ]);
 
   assert.match(entry, /Create My Signing Set/);
-  assert.match(draw, /Save Signature/);
+  assert.match(draw, /Save First Name/);
+  assert.match(draw, /Save Last Name and Join/);
   assert.match(draw, /Save Initials/);
   assert.match(draw, /Skip for Now/);
   assert.match(review, /Confirm Your Signing Set/);
@@ -98,7 +99,7 @@ test("the exact flow uses crisp script labels and professional fictional handwri
   assert.match(fixture, /fixture !== "saved-home"/);
   assert.match(fixture, /label: "Taylor Brooks"/);
 });
-test("reference rendering contract contains the complete eleven-screen flow", async () => {
+test("reference rendering contract contains the complete twelve-screen flow", async () => {
   const manifest = JSON.parse(
     await read("../../../artifacts/actual-flow-preview/manifest.json"),
   ) as { screenshots: { id: string }[] };
@@ -108,6 +109,7 @@ test("reference rendering contract contains the complete eleven-screen flow", as
       "01-splash",
       "02-entry",
       "03-signature-capture",
+      "03b-last-name-capture",
       "04-initials-capture",
       "05-review-popup",
       "06-background-popup",
@@ -120,7 +122,7 @@ test("reference rendering contract contains the complete eleven-screen flow", as
   );
 });
 
-test("native capture contract contains ten in-app states matching the approved eleven-screen flow", async () => {
+test("native capture contract contains eleven in-app states matching the approved twelve-screen flow", async () => {
   const [
     nativeManifestSource,
     actualFlowWorkflow,
@@ -142,13 +144,14 @@ test("native capture contract contains ten in-app states matching the approved e
     }[];
   };
 
-  assert.match(nativeManifest.purpose, /ten in-app states/);
-  assert.match(nativeManifest.purpose, /eleven-screen flow/);
+  assert.match(nativeManifest.purpose, /eleven in-app states/);
+  assert.match(nativeManifest.purpose, /twelve-screen flow/);
   assert.deepEqual(
     nativeManifest.screenshots.map(({ id }) => id),
     [
       "02-entry",
       "03-signature-capture",
+      "03b-last-name-capture",
       "04-initials-capture",
       "05-review-popup",
       "06-background-popup",
@@ -159,7 +162,7 @@ test("native capture contract contains ten in-app states matching the approved e
       "11-saved-sets-home",
     ],
   );
-  assert.deepEqual(nativeManifest.screenshots[5], {
+  assert.deepEqual(nativeManifest.screenshots[6], {
     id: "07-clear-background",
     route: "/clear-background?fixture=both",
     headline: "Clear Background",
@@ -170,9 +173,9 @@ test("native capture contract contains ten in-app states matching the approved e
       "No Thanks",
     ],
   });
-  assert.match(actualFlowWorkflow, /Capture the ten real in-app screens/);
-  assert.match(actualFlowWorkflow, /Capture ten asserted iPhone screens/);
-  assert.match(actualFlowWorkflow, /Capture ten asserted iPad screens/);
+  assert.match(actualFlowWorkflow, /Capture the eleven real in-app screens/);
+  assert.match(actualFlowWorkflow, /Capture eleven asserted iPhone screens/);
+  assert.match(actualFlowWorkflow, /Capture eleven asserted iPad screens/);
   assert.doesNotMatch(actualFlowWorkflow, /Capture eight/);
   assert.match(marketingWorkflow, /Capture eight asserted iPhone frames/);
   assert.match(marketingWorkflow, /Capture eight asserted iPad frames/);
@@ -250,9 +253,28 @@ test("included purchased slots finalize once and return to their source route", 
   const draw = await read("../src/app/draw.tsx");
   assert.match(draw, /type ReturnTarget = "review" \| "saved" \| "export"/);
   assert.match(draw, /activeSet\.unclaimedSlot === kind/);
-  assert.match(draw, /await fillIncludedSlot\(kind, drawableAsset\)/);
+  assert.match(draw, /await fillIncludedSlot\(kind, completedAsset\)/);
   assert.match(draw, /if \(returnTo \|\| includedSlot\) \{\s*router\.back\(\)/);
   assert.doesNotMatch(draw, /router\.replace\("\/(preview|saved|export)"\)/);
+});
+
+test("signature capture separates first and last name before baseline-aligned fusion", async () => {
+  const [draw, composition, canvas] = await Promise.all([
+    read("../src/app/draw.tsx"),
+    read("../src/domain/signature-composition.ts"),
+    read("../src/components/SignatureCanvas.tsx"),
+  ]);
+  assert.match(draw, /type SignaturePart = "first" \| "last"/);
+  assert.match(draw, /setSignaturePart\("last"\)/);
+  assert.match(draw, /Add your \$\{signaturePart\} name/);
+  assert.match(draw, /Save First Name/);
+  assert.match(draw, /Save Last Name and Join/);
+  assert.match(draw, /fuseSignatureParts\(firstNameAsset, lastNameAsset\)/);
+  assert.match(draw, /last-name-capture-screen/);
+  assert.match(composition, /GUIDE_LINE_RATIO = 0\.69/);
+  assert.match(composition, /targetBaseline/);
+  assert.match(composition, /firstStrokes, \.\.\.lastStrokes/);
+  assert.match(canvas, /bottom: "31%"/);
 });
 
 test("finish-pending purchases cannot announce success or export", async () => {
@@ -344,7 +366,7 @@ test("drawing responder owns one continuous finger gesture", async () => {
   assert.match(layout, /GestureHandlerRootView/);
   assert.match(canvas, /Math\.max\(plane\.width, nextSize\.width\)/);
   assert.match(canvas, /Math\.max\(plane\.height, nextSize\.height\)/);
-  assert.match(canvas, />Sign here</);
+  assert.match(canvas, /prompt \?\? "Sign here"/);
   assert.match(canvas, /stabilizeStrokePoint/);
   assert.match(canvas, /style=\{styles\.guideLineLayer\}/);
   assert.ok(

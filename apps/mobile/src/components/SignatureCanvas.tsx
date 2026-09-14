@@ -22,6 +22,8 @@ import { theme } from "@/integrations/workspace";
 interface Props {
   asset: DrawingAsset;
   kind: AssetKind;
+  prompt?: string;
+  drawingAccessibilityLabel?: string | undefined;
   onChange(
     strokes: Stroke[],
     width: number,
@@ -30,7 +32,13 @@ interface Props {
   ): void;
 }
 
-export function SignatureCanvas({ asset, kind, onChange }: Props) {
+export function SignatureCanvas({
+  asset,
+  kind,
+  prompt,
+  drawingAccessibilityLabel,
+  onChange,
+}: Props) {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [size, setSize] = useState({
     width: Math.max(300, windowWidth - 48),
@@ -159,7 +167,10 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
       <View
         accessible
         accessibilityRole="image"
-        accessibilityLabel={`${kind === "signature" ? "Signature" : "Initials"} drawing area. Draw with one finger. Use the labeled Clear button below to start over.`}
+        accessibilityLabel={
+          drawingAccessibilityLabel ??
+          `${kind === "signature" ? "Signature" : "Initials"} drawing area. Draw with one finger. Use the labeled Clear button below to start over.`
+        }
         accessibilityHint="With VoiceOver, double-tap and hold, then draw without lifting. The Clear button below removes only this selected drawing after confirmation."
         accessibilityValue={{
           text:
@@ -244,7 +255,7 @@ export function SignatureCanvas({ asset, kind, onChange }: Props) {
         )}
         {strokes.length === 0 ? (
           <View pointerEvents="none" style={styles.emptyHint}>
-            <Text style={styles.hint}>Sign here</Text>
+            <Text style={styles.hint}>{prompt ?? "Sign here"}</Text>
           </View>
         ) : null}
       </View>

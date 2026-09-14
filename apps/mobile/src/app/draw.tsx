@@ -21,13 +21,24 @@ import {
   ScriptLabel,
   flowColors,
 } from "@/components/flow-ui";
-import { createEmptyAsset, hasDrawing } from "@/domain/models";
+import {
+  createEmptyAsset,
+  hasDrawing,
+  type DrawingAsset,
+} from "@/domain/models";
+import { fuseSignatureParts } from "@/domain/signature-composition";
+import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 import { useAppState } from "@/state/AppStateProvider";
 
 type ReturnTarget = "review" | "saved" | "export";
+type SignaturePart = "first" | "last";
 
 export default function CaptureScreen() {
-  const { returnTo } = useLocalSearchParams<{ returnTo?: ReturnTarget }>();
+  const { returnTo, fixture, namePart } = useLocalSearchParams<{
+    returnTo?: ReturnTarget;
+    fixture?: string;
+    namePart?: SignaturePart;
+  }>();
   const {
     activeSet,
     data,
@@ -42,9 +53,30 @@ export default function CaptureScreen() {
   const [saving, setSaving] = useState(false);
   const kind = data.selectedAsset;
   const initial = kind === "initials";
-  const layerPrefix = initial ? "initials" : "signature";
-  const asset = activeSet[kind];
-  const drawableAsset = asset ?? createEmptyAsset(kind);
+  const lastNameFixture =
+    namePart === "last" && isAuthorizedScreenshotFixture(fixture, "both");
+  const [signaturePart, setSignaturePart] = useState<SignaturePart>(
+    lastNameFixture ? "last" : "first",
+  );
+  const [firstNameAsset, setFirstNameAsset] = useState<DrawingAsset>(() =>
+    !returnTo && hasDrawing(activeSet.signature)
+      ? activeSet.signature
+      : createEmptyAsset("signature"),
+  );
+  const [lastNameAsset, setLastNameAsset] = useState<DrawingAsset>(() =>
+    createEmptyAsset("signature"),
+  );
+  const layerPrefix = initial
+    ? "initials"
+    : signaturePart === "first"
+      ? "signature"
+      : "signature-last";
+  const persistedAsset = activeSet[kind];
+  const drawableAsset = initial
+    ? (persistedAsset ?? createEmptyAsset(kind))
+    : signaturePart === "first"
+      ? firstNameAsset
+      : lastNameAsset;
   const immutable =
     Boolean(activeSet.pendingPurchaseId) ||
     activeSet.transactionFinishPending ||
@@ -57,15 +89,22 @@ export default function CaptureScreen() {
       setMessage(
         initial
           ? "Add your initials or skip for now."
-          : "Add your signature before continuing.",
+          : `Sign your ${signaturePart} name before continuing.`,
       );
       return;
     }
     setMessage(null);
+    if (!initial && signaturePart === "first") {
+      setSignaturePart("last");
+      return;
+    }
+    const completedAsset = initial
+      ? drawableAsset
+      : fuseSignatureParts(firstNameAsset, lastNameAsset);
     if (includedSlot) {
       setSaving(true);
       try {
-        await fillIncludedSlot(kind, drawableAsset);
+        await fillIncludedSlot(kind, completedAsset);
       } catch {
         setMessage(
           "This included drawing could not be finalized. Your saved set is unchanged.",
@@ -74,6 +113,15 @@ export default function CaptureScreen() {
         return;
       }
       setSaving(false);
+    }
+    if (!initial && !includedSlot) {
+      updateAsset(
+        "signature",
+        completedAsset.strokes,
+        completedAsset.canvasWidth,
+        completedAsset.canvasHeight,
+        completedAsset.orientation,
+      );
     }
     if (returnTo || includedSlot) {
       router.back();
@@ -87,6 +135,11 @@ export default function CaptureScreen() {
   };
 
   const goBack = () => {
+    if (!initial && signaturePart === "last") {
+      setSignaturePart("first");
+      setMessage(null);
+      return;
+    }
     if (returnTo || includedSlot) router.back();
     else if (initial) setSelectedAsset("signature");
     else router.back();
@@ -95,20 +148,58 @@ export default function CaptureScreen() {
   const confirmRedo = () => {
     if (!hasDrawing(drawableAsset)) return;
     Alert.alert(
-      initial ? "Redo these initials?" : "Redo this signature?",
+      initial ? "Redo these initials?" : `Redo your ${signaturePart} name?`,
       "The drawing on this screen will be cleared.",
       [
         { text: "Keep Drawing", style: "cancel" },
-        { text: "Redo", style: "destructive", onPress: () => clearAsset(kind) },
+        {
+          text: "Redo",
+          style: "destructive",
+          onPress: () => {
+            if (initial) clearAsset(kind);
+            else if (signaturePart === "first")
+              setFirstNameAsset(createEmptyAsset("signature"));
+            else setLastNameAsset(createEmptyAsset("signature"));
+          },
+        },
       ],
     );
+  };
+
+  const updateDrawing = (
+    strokes: DrawingAsset["strokes"],
+    width: number,
+    height: number,
+    orientation: DrawingAsset["orientation"],
+  ) => {
+    if (initial) {
+      updateAsset(kind, strokes, width, height, orientation);
+      return;
+    }
+    const next: DrawingAsset = {
+      kind: "signature",
+      strokes,
+      canvasWidth: width,
+      canvasHeight: height,
+      orientation,
+      renderingVersion: 1,
+      finalizedHash: null,
+    };
+    if (signaturePart === "first") setFirstNameAsset(next);
+    else setLastNameAsset(next);
   };
 
   return (
     <FlowScreen
       scroll={false}
       contentStyle={[styles.content, landscape && styles.landscapeContent]}
-      testID={initial ? "initials-capture-screen" : "signature-capture-screen"}
+      testID={
+        initial
+          ? "initials-capture-screen"
+          : signaturePart === "first"
+            ? "signature-capture-screen"
+            : "last-name-capture-screen"
+      }
     >
       <View style={[styles.back, landscape && styles.landscapeBack]}>
         <FlowBackButton
@@ -131,8 +222,15 @@ export default function CaptureScreen() {
           style={[styles.heroTitle, landscape && styles.landscapeTitle]}
           layoutId={`${layerPrefix}.title`}
         >
-          {initial ? "Add your initials" : "Add your signature"}
+          {initial ? "Add your initials" : `Add your ${signaturePart} name`}
         </FlowHeading>
+        {!initial ? (
+          <LayoutSlot id={`${layerPrefix}.step`}>
+            <Text selectable style={styles.stepPill}>
+              {signaturePart === "first" ? "Step 1 of 2" : "Step 2 of 2"}
+            </Text>
+          </LayoutSlot>
+        ) : null}
         {landscape ? (
           <Text selectable style={styles.landscapeInstruction}>
             Fine ink follows the center of your fingertip across the canvas.
@@ -145,7 +243,9 @@ export default function CaptureScreen() {
             >
               {initial
                 ? "Write your initials in the space below."
-                : "Use the center of your fingertip and write naturally."}
+                : signaturePart === "first"
+                  ? "Sign only your first name. We’ll join it to your last name next."
+                  : "Sign only your last name. We’ll align and join both parts for you."}
             </FlowBody>
             <View style={styles.rotate}>
               <LayoutSlot id={`${layerPrefix}.rotate.icon`}>
@@ -189,12 +289,18 @@ export default function CaptureScreen() {
           </View>
         ) : (
           <SignatureCanvas
-            key={`${kind}-${hasDrawing(drawableAsset) ? "drawn" : "empty"}`}
+            key={`${kind}-${signaturePart}-${hasDrawing(drawableAsset) ? "drawn" : "empty"}`}
             asset={drawableAsset}
             kind={kind}
-            onChange={(strokes, width, height, orientation) =>
-              updateAsset(kind, strokes, width, height, orientation)
+            prompt={
+              initial ? "Initial here" : `Sign your ${signaturePart} name here`
             }
+            drawingAccessibilityLabel={
+              initial
+                ? undefined
+                : `${signaturePart === "first" ? "First" : "Last"} name signature drawing area. Draw with one finger.`
+            }
+            onChange={updateDrawing}
           />
         )}
       </LayoutSlot>
@@ -202,7 +308,9 @@ export default function CaptureScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={
-            initial ? "Clear and redraw initials" : "Clear and redraw signature"
+            initial
+              ? "Clear and redraw initials"
+              : `Clear and redraw ${signaturePart} name`
           }
           disabled={immutable || saving || !hasDrawing(drawableAsset)}
           onPress={confirmRedo}
@@ -239,7 +347,13 @@ export default function CaptureScreen() {
         ]}
       >
         <FlowPrimaryButton
-          label={initial ? "Save Initials" : "Save Signature"}
+          label={
+            initial
+              ? "Save Initials"
+              : signaturePart === "first"
+                ? "Save First Name"
+                : "Save Last Name and Join"
+          }
           onPress={() => {
             void finishCapture();
           }}
@@ -315,6 +429,18 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   subtitle: { marginTop: 6, fontSize: 17, lineHeight: 24 },
+  stepPill: {
+    alignSelf: "flex-start",
+    color: "#071F5A",
+    backgroundColor: "#FFE2A0",
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: "800",
+    marginTop: 7,
+  },
   rotate: {
     flexDirection: "row",
     alignItems: "center",
