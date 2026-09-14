@@ -32,6 +32,7 @@ import { useAppState } from "@/state/AppStateProvider";
 
 type ReturnTarget = "review" | "saved" | "export";
 type SignaturePart = "first" | "last";
+type SignatureMode = "full" | SignaturePart;
 
 export default function CaptureScreen() {
   const { returnTo, fixture, namePart } = useLocalSearchParams<{
@@ -53,30 +54,36 @@ export default function CaptureScreen() {
   const [saving, setSaving] = useState(false);
   const kind = data.selectedAsset;
   const initial = kind === "initials";
-  const lastNameFixture =
-    namePart === "last" && isAuthorizedScreenshotFixture(fixture, "both");
-  const [signaturePart, setSignaturePart] = useState<SignaturePart>(
-    lastNameFixture ? "last" : "first",
+  const splitNameFixture =
+    (namePart === "first" || namePart === "last") &&
+    isAuthorizedScreenshotFixture(fixture, "both");
+  const [signatureMode, setSignatureMode] = useState<SignatureMode>(
+    splitNameFixture ? namePart : "full",
   );
-  const [firstNameAsset, setFirstNameAsset] = useState<DrawingAsset>(() =>
+  const [fullNameAsset, setFullNameAsset] = useState<DrawingAsset>(() =>
     !returnTo && hasDrawing(activeSet.signature)
       ? activeSet.signature
       : createEmptyAsset("signature"),
+  );
+  const [firstNameAsset, setFirstNameAsset] = useState<DrawingAsset>(() =>
+    createEmptyAsset("signature"),
   );
   const [lastNameAsset, setLastNameAsset] = useState<DrawingAsset>(() =>
     createEmptyAsset("signature"),
   );
   const layerPrefix = initial
     ? "initials"
-    : signaturePart === "first"
+    : signatureMode === "full"
       ? "signature"
-      : "signature-last";
+      : `signature-${signatureMode}`;
   const persistedAsset = activeSet[kind];
   const drawableAsset = initial
     ? (persistedAsset ?? createEmptyAsset(kind))
-    : signaturePart === "first"
-      ? firstNameAsset
-      : lastNameAsset;
+    : signatureMode === "full"
+      ? fullNameAsset
+      : signatureMode === "first"
+        ? firstNameAsset
+        : lastNameAsset;
   const immutable =
     Boolean(activeSet.pendingPurchaseId) ||
     activeSet.transactionFinishPending ||
@@ -89,18 +96,22 @@ export default function CaptureScreen() {
       setMessage(
         initial
           ? "Add your initials or skip for now."
-          : `Sign your ${signaturePart} name before continuing.`,
+          : signatureMode === "full"
+            ? "Sign your full name before continuing."
+            : `Sign your ${signatureMode} name before continuing.`,
       );
       return;
     }
     setMessage(null);
-    if (!initial && signaturePart === "first") {
-      setSignaturePart("last");
+    if (!initial && signatureMode === "first") {
+      setSignatureMode("last");
       return;
     }
     const completedAsset = initial
       ? drawableAsset
-      : fuseSignatureParts(firstNameAsset, lastNameAsset);
+      : signatureMode === "full"
+        ? fullNameAsset
+        : fuseSignatureParts(firstNameAsset, lastNameAsset);
     if (includedSlot) {
       setSaving(true);
       try {
@@ -135,8 +146,13 @@ export default function CaptureScreen() {
   };
 
   const goBack = () => {
-    if (!initial && signaturePart === "last") {
-      setSignaturePart("first");
+    if (!initial && signatureMode === "last") {
+      setSignatureMode("first");
+      setMessage(null);
+      return;
+    }
+    if (!initial && signatureMode === "first") {
+      setSignatureMode("full");
       setMessage(null);
       return;
     }
@@ -148,7 +164,11 @@ export default function CaptureScreen() {
   const confirmRedo = () => {
     if (!hasDrawing(drawableAsset)) return;
     Alert.alert(
-      initial ? "Redo these initials?" : `Redo your ${signaturePart} name?`,
+      initial
+        ? "Redo these initials?"
+        : signatureMode === "full"
+          ? "Redo your signature?"
+          : `Redo your ${signatureMode} name?`,
       "The drawing on this screen will be cleared.",
       [
         { text: "Keep Drawing", style: "cancel" },
@@ -157,7 +177,9 @@ export default function CaptureScreen() {
           style: "destructive",
           onPress: () => {
             if (initial) clearAsset(kind);
-            else if (signaturePart === "first")
+            else if (signatureMode === "full")
+              setFullNameAsset(createEmptyAsset("signature"));
+            else if (signatureMode === "first")
               setFirstNameAsset(createEmptyAsset("signature"));
             else setLastNameAsset(createEmptyAsset("signature"));
           },
@@ -185,7 +207,8 @@ export default function CaptureScreen() {
       renderingVersion: 1,
       finalizedHash: null,
     };
-    if (signaturePart === "first") setFirstNameAsset(next);
+    if (signatureMode === "full") setFullNameAsset(next);
+    else if (signatureMode === "first") setFirstNameAsset(next);
     else setLastNameAsset(next);
   };
 
@@ -196,9 +219,11 @@ export default function CaptureScreen() {
       testID={
         initial
           ? "initials-capture-screen"
-          : signaturePart === "first"
+          : signatureMode === "full"
             ? "signature-capture-screen"
-            : "last-name-capture-screen"
+            : signatureMode === "first"
+              ? "first-name-capture-screen"
+              : "last-name-capture-screen"
       }
     >
       <View style={[styles.back, landscape && styles.landscapeBack]}>
@@ -222,12 +247,16 @@ export default function CaptureScreen() {
           style={[styles.heroTitle, landscape && styles.landscapeTitle]}
           layoutId={`${layerPrefix}.title`}
         >
-          {initial ? "Add your initials" : `Add your ${signaturePart} name`}
+          {initial
+            ? "Add your initials"
+            : signatureMode === "full"
+              ? "Add your signature"
+              : `Add your ${signatureMode} name`}
         </FlowHeading>
-        {!initial ? (
+        {!initial && signatureMode !== "full" ? (
           <LayoutSlot id={`${layerPrefix}.step`}>
             <Text selectable style={styles.stepPill}>
-              {signaturePart === "first" ? "Step 1 of 2" : "Step 2 of 2"}
+              {signatureMode === "first" ? "Step 1 of 2" : "Step 2 of 2"}
             </Text>
           </LayoutSlot>
         ) : null}
@@ -243,9 +272,11 @@ export default function CaptureScreen() {
             >
               {initial
                 ? "Write your initials in the space below."
-                : signaturePart === "first"
-                  ? "Sign only your first name. We’ll join it to your last name next."
-                  : "Sign only your last name. We’ll align and join both parts for you."}
+                : signatureMode === "full"
+                  ? "Sign your full name on the line below."
+                  : signatureMode === "first"
+                    ? "Sign only your first name. We’ll join it to your last name next."
+                    : "Sign only your last name. We’ll align and join both parts for you."}
             </FlowBody>
             <View style={styles.rotate}>
               <LayoutSlot id={`${layerPrefix}.rotate.icon`}>
@@ -289,16 +320,20 @@ export default function CaptureScreen() {
           </View>
         ) : (
           <SignatureCanvas
-            key={`${kind}-${signaturePart}-${hasDrawing(drawableAsset) ? "drawn" : "empty"}`}
+            key={`${kind}-${signatureMode}-${hasDrawing(drawableAsset) ? "drawn" : "empty"}`}
             asset={drawableAsset}
             kind={kind}
             prompt={
-              initial ? "Initial here" : `Sign your ${signaturePart} name here`
+              initial
+                ? "Initial here"
+                : signatureMode === "full"
+                  ? "Sign your full name here"
+                  : `Sign your ${signatureMode} name here`
             }
             drawingAccessibilityLabel={
               initial
                 ? undefined
-                : `${signaturePart === "first" ? "First" : "Last"} name signature drawing area. Draw with one finger.`
+                : `${signatureMode === "full" ? "Full" : signatureMode === "first" ? "First" : "Last"} name signature drawing area. Draw with one finger.`
             }
             onChange={updateDrawing}
           />
@@ -310,7 +345,9 @@ export default function CaptureScreen() {
           accessibilityLabel={
             initial
               ? "Clear and redraw initials"
-              : `Clear and redraw ${signaturePart} name`
+              : signatureMode === "full"
+                ? "Clear and redraw full signature"
+                : `Clear and redraw ${signatureMode} name`
           }
           disabled={immutable || saving || !hasDrawing(drawableAsset)}
           onPress={confirmRedo}
@@ -350,9 +387,11 @@ export default function CaptureScreen() {
           label={
             initial
               ? "Save Initials"
-              : signaturePart === "first"
-                ? "Save First Name"
-                : "Save Last Name and Join"
+              : signatureMode === "full"
+                ? "Save Signature"
+                : signatureMode === "first"
+                  ? "Save First Name"
+                  : "Save Last Name and Join"
           }
           onPress={() => {
             void finishCapture();
@@ -361,6 +400,30 @@ export default function CaptureScreen() {
           layoutId={`${layerPrefix}.primary.button`}
           labelLayoutId={`${layerPrefix}.primary.label`}
         />
+        {!initial && signatureMode === "full" ? (
+          <FlowTextButton
+            label="Sign First and Last Separately"
+            onPress={() => {
+              setSignatureMode("first");
+              setMessage(null);
+            }}
+            disabled={immutable || saving}
+            layoutId="signature.split.button"
+            labelLayoutId="signature.split.label"
+          />
+        ) : null}
+        {!initial && signatureMode === "first" ? (
+          <FlowTextButton
+            label="Sign Full Name Instead"
+            onPress={() => {
+              setSignatureMode("full");
+              setMessage(null);
+            }}
+            disabled={immutable || saving}
+            layoutId="signature-first.full.button"
+            labelLayoutId="signature-first.full.label"
+          />
+        ) : null}
         {initial ? (
           <FlowTextButton
             label="Skip for Now"

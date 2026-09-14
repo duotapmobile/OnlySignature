@@ -60,5 +60,5 @@ jobs:
       build_id: ${{ needs.build_ios_production.outputs.build_id }}
       profile: production
       internal_groups: ["Only Signature Internal"]
-      changelog: Introduces the teal-and-paper redesign, an animated opening, the upper-right Only Signature wordmark, and a roomier two-step signing flow that captures first and last names separately, then joins and aligns them on one baseline while preserving stabilized ink.
+      changelog: Introduces the teal-and-paper redesign and animated opening, plus a full-name signature canvas with an optional two-step first-and-last-name capture that automatically aligns both parts on one baseline.
       submit_beta_review: false

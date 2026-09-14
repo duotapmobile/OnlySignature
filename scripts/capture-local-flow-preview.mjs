@@ -29,9 +29,20 @@ const screenshots = [
   },
   {
     id: "03-signature-capture",
-    headline: "First Name Capture",
+    headline: "Full Name Capture",
     route: "/draw?fixture=both",
     testId: "signature-capture-screen",
+    assertions: [
+      "Add your signature",
+      "Save Signature",
+      "Sign First and Last Separately",
+    ],
+  },
+  {
+    id: "03a-first-name-capture",
+    headline: "Optional First Name Capture",
+    route: "/draw?fixture=both&namePart=first",
+    testId: "first-name-capture-screen",
     assertions: ["Add your first name", "Save First Name"],
   },
   {

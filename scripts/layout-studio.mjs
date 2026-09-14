@@ -41,6 +41,10 @@ const slots = new Set([
   "signature.canvas",
   "signature.redo",
   "signature.actions",
+  "signature-first.header",
+  "signature-first.canvas",
+  "signature-first.redo",
+  "signature-first.actions",
   "signature-last.header",
   "signature-last.canvas",
   "signature-last.redo",
@@ -73,7 +77,7 @@ const slots = new Set([
 ]);
 
 const editableSlotPattern =
-  /^(splash|entry|signature|signature-last|initials|review|background|clear|warning|white-confirmation|transparent-confirmation|saved)\.[a-z0-9.-]+$/;
+  /^(splash|entry|signature|signature-first|signature-last|initials|review|background|clear|warning|white-confirmation|transparent-confirmation|saved)\.[a-z0-9.-]+$/;
 
 const screens = [
   {
@@ -84,8 +88,13 @@ const screens = [
   { id: "entry", label: "Entry", route: "/?fixture=landing" },
   {
     id: "signature",
-    label: "First Name Capture",
+    label: "Full Name Capture",
     route: "/draw?fixture=both",
+  },
+  {
+    id: "signature-first",
+    label: "Optional First Name Capture",
+    route: "/draw?fixture=both&namePart=first",
   },
   {
     id: "signature-last",

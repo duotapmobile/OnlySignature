@@ -1,5 +1,5 @@
 {
-  "purpose": "Route and assertion contract for the eleven in-app states in the founder-approved twelve-screen flow; the native splash is governed separately by app.config.ts",
+  "purpose": "Route and assertion contract for the twelve in-app states in the founder-approved thirteen-screen flow; the native splash is governed separately by app.config.ts",
   "evidenceStatus": "No native evidence is created by this file; provenance is written only by the EAS capture runtime",
   "screenshots": [
     {
@@ -11,7 +11,17 @@
     {
       "id": "03-signature-capture",
       "route": "/draw?fixture=both",
-      "headline": "First Name Capture",
+      "headline": "Full Name Capture",
+      "assertions": [
+        "Add your signature",
+        "Save Signature",
+        "Sign First and Last Separately"
+      ]
+    },
+    {
+      "id": "03a-first-name-capture",
+      "route": "/draw?fixture=both&namePart=first",
+      "headline": "Optional First Name Capture",
       "assertions": ["Add your first name", "Save First Name"]
     },
     {

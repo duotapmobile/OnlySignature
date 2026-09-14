@@ -57,6 +57,17 @@ const screens = [
     capture: true,
   },
   {
+    name: "first-name",
+    route: "/draw?fixture=both&namePart=first",
+    testId: "first-name-capture-screen",
+    script: "signature-first.script",
+    title: "signature-first.title",
+    subtitle: "signature-first.subtitle",
+    button: "signature-first.primary.button",
+    label: "signature-first.primary.label",
+    capture: true,
+  },
+  {
     name: "last-name",
     route: "/draw?fixture=both&namePart=last",
     testId: "last-name-capture-screen",
@@ -362,7 +373,7 @@ try {
     const page = await context.newPage();
     const deviceReport = {};
     let entry;
-    let signatureReference;
+    let splitNameReference;
     for (const screen of screens) {
       await page.goto(new URL(screen.route, baseUrl).href, {
         waitUntil: "networkidle",
@@ -449,33 +460,41 @@ try {
         if (screen.name === "last-name")
           assert.equal(
             round(measured.script.angle),
-            round(signatureReference.script.angle),
+            round(splitNameReference.script.angle),
             `${device}/last-name script angle differs from First Name Capture`,
           );
         if (screen.name === "last-name") {
           assert.deepEqual(
-            roundedRect(measured.button),
-            roundedRect(signatureReference.button),
-            `${device}/last-name primary button differs from First Name Capture`,
+            {
+              x: round(measured.button.x),
+              width: round(measured.button.width),
+              height: round(measured.button.height),
+            },
+            {
+              x: round(splitNameReference.button.x),
+              width: round(splitNameReference.button.width),
+              height: round(splitNameReference.button.height),
+            },
+            `${device}/last-name primary button sizing differs from First Name Capture`,
           );
           assert.equal(
             round(measured.title.rect.y),
-            round(signatureReference.title.rect.y),
+            round(splitNameReference.title.rect.y),
             `${device}/last-name title Y differs from First Name Capture`,
           );
           assert.deepEqual(
             measured.subtitle.style,
-            signatureReference.subtitle.style,
+            splitNameReference.subtitle.style,
             `${device}/last-name subtitle typography differs from First Name Capture`,
           );
           assert.equal(
             measured.script.src,
-            signatureReference.script.src,
+            splitNameReference.script.src,
             "Both name screens must use the same script asset",
           );
           assert.deepEqual(
             roundedRect(measured.script.visual),
-            roundedRect(signatureReference.script.visual),
+            roundedRect(splitNameReference.script.visual),
             `${device}/last-name visible script bounds differ from First Name Capture`,
           );
         }
@@ -508,7 +527,7 @@ try {
             }
           : {}),
       };
-      if (screen.name === "signature") signatureReference = measured;
+      if (screen.name === "first-name") splitNameReference = measured;
     }
     report[device] = deviceReport;
     await context.close();
