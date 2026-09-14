@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
-const tealTexture = require("../../assets/brand/teal-paper-texture.png");
+const tealTexture = require("../../assets/brand/dark-teal-background.jpg");
 const paperTexture = require("../../assets/brand/warm-paper-texture.png");
 
 export function TealTexture({
@@ -18,11 +18,10 @@ export function TealTexture({
   return (
     <ImageBackground
       source={tealTexture}
-      resizeMode="repeat"
+      resizeMode="cover"
       style={[styles.fill, style]}
       imageStyle={styles.tealImage}
     >
-      <View pointerEvents="none" style={styles.tealWash} />
       {children}
     </ImageBackground>
   );
@@ -80,11 +79,7 @@ export function PaperFold() {
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  tealImage: { opacity: 0.92 },
-  tealWash: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(0, 74, 81, 0.12)",
-  },
+  tealImage: { opacity: 1 },
   paper: {
     overflow: "hidden",
     backgroundColor: "#F8F6EF",

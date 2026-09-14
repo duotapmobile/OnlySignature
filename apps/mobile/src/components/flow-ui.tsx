@@ -63,14 +63,9 @@ export function FlowScreen({
       style={[styles.safe, light && styles.lightSafe]}
       edges={["top", "right", "bottom", "left"]}
     >
-      <TealTexture style={[styles.background, light && styles.lightBackground]}>
-        {light ? null : (
-          <>
-            <View style={styles.depthGlowTop} />
-            <View style={styles.depthGlowBottom} />
-          </>
-        )}
-      </TealTexture>
+      <TealTexture
+        style={[styles.background, light && styles.lightBackground]}
+      />
       {scroll ? (
         <ScrollView
           style={styles.screenScroll}
@@ -606,24 +601,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   lightBackground: { backgroundColor: "#F8F6EF" },
-  depthGlowTop: {
-    position: "absolute",
-    width: 520,
-    height: 520,
-    borderRadius: 260,
-    top: -250,
-    right: -285,
-    backgroundColor: "rgba(255, 226, 160, 0.08)",
-  },
-  depthGlowBottom: {
-    position: "absolute",
-    width: 560,
-    height: 560,
-    borderRadius: 280,
-    bottom: -330,
-    left: -290,
-    backgroundColor: "rgba(0, 54, 61, 0.2)",
-  },
   screenScroll: { flex: 1 },
   sheetScroll: { flex: 1 },
   scroll: { flexGrow: 1 },

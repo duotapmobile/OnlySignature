@@ -501,7 +501,7 @@ test("the animated opening stages tactile paper, brand, and signature motion", a
   assert.match(opening, /PaperSurface folded/);
   assert.match(opening, /only-signature-wordmark-paper\.png/);
   assert.match(opening, /taylor-brooks-signature\.png/);
-  assert.match(paper, /teal-paper-texture\.png/);
+  assert.match(paper, /dark-teal-background\.jpg/);
   assert.match(paper, /warm-paper-texture\.png/);
   assert.ok(entry.indexOf("No Account") < entry.indexOf("No Subscription"));
   assert.ok(
