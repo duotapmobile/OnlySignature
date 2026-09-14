@@ -42,7 +42,7 @@ test("audited routes preserve the complete white and transparent branches", asyn
 
   assert.match(entry, /Create My Signing Set/);
   assert.match(draw, /Save Signature/);
-  assert.match(draw, /Sign First and Last Separately/);
+  assert.match(draw, /Sign first \+ last separately/);
   assert.match(draw, /Save First Name/);
   assert.match(draw, /Save Last Name and Join/);
   assert.match(draw, /Save Initials/);
@@ -273,7 +273,7 @@ test("signature capture defaults to full name and offers baseline-aligned split 
   assert.match(draw, /splitNameFixture \? namePart : "full"/);
   assert.match(draw, /setSignatureMode\("last"\)/);
   assert.match(draw, /Add your signature/);
-  assert.match(draw, /Sign First and Last Separately/);
+  assert.match(draw, /Sign first \+ last separately/);
   assert.match(draw, /Add your \$\{signatureMode\} name/);
   assert.match(draw, /Save Signature/);
   assert.match(draw, /Save First Name/);
@@ -352,8 +352,8 @@ test("review and background are fixed full screens while saved actions remain in
 test("capture geometry responds to iPhone portrait and landscape", async () => {
   const draw = await read("../src/app/draw.tsx");
   assert.match(draw, /landscape = windowWidth > windowHeight/);
-  assert.match(draw, /Math\.max\(190, windowHeight - 195\)/);
-  assert.match(draw, /Math\.max\(190, windowHeight \* 0\.26\)/);
+  assert.match(draw, /Math\.max\(205, windowHeight - 180\)/);
+  assert.match(draw, /Math\.max\(240, windowHeight \* 0\.31\)/);
   assert.match(draw, /maxWidth: 1100/);
   assert.match(draw, /function RotateIcon\(\)/);
   assert.doesNotMatch(draw, /↻/);

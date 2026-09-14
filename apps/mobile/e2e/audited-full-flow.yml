@@ -7,7 +7,7 @@ appId: com.duotap.onlysignature
 - tapOn: "Create My Signing Set"
 - assertVisible: "Add your signature"
 - openLink: "onlysignature:///draw?fixture=both"
-- tapOn: "Sign First and Last Separately"
+- tapOn: "Sign first + last separately"
 - assertVisible: "Add your first name"
 - tapOn: "Save First Name"
 - assertVisible: "Add your last name"

@@ -10,6 +10,7 @@ import {
 import { router, useLocalSearchParams } from "expo-router";
 import Svg, { Path } from "react-native-svg";
 import { SignatureCanvas } from "@/components/SignatureCanvas";
+import { SignatureModeOption } from "@/components/signature-mode-option";
 import { LayoutSlot } from "@/components/layout-slot";
 import {
   FlowBackButton,
@@ -243,6 +244,22 @@ export default function CaptureScreen() {
             layoutId={`${layerPrefix}.script`}
           />
         )}
+        {!initial && signatureMode !== "full" ? (
+          <LayoutSlot id={`${layerPrefix}.step`} style={styles.stepRow}>
+            <Text selectable style={styles.stepLabel}>
+              {signatureMode === "first" ? "STEP 1 OF 2" : "STEP 2 OF 2"}
+            </Text>
+            <View style={styles.progressTrack}>
+              <View style={styles.progressActive} />
+              <View
+                style={[
+                  styles.progressSegment,
+                  signatureMode === "last" && styles.progressActive,
+                ]}
+              />
+            </View>
+          </LayoutSlot>
+        ) : null}
         <FlowHeading
           style={[styles.heroTitle, landscape && styles.landscapeTitle]}
           layoutId={`${layerPrefix}.title`}
@@ -253,13 +270,6 @@ export default function CaptureScreen() {
               ? "Add your signature"
               : `Add your ${signatureMode} name`}
         </FlowHeading>
-        {!initial && signatureMode !== "full" ? (
-          <LayoutSlot id={`${layerPrefix}.step`}>
-            <Text selectable style={styles.stepPill}>
-              {signatureMode === "first" ? "Step 1 of 2" : "Step 2 of 2"}
-            </Text>
-          </LayoutSlot>
-        ) : null}
         {landscape ? (
           <Text selectable style={styles.landscapeInstruction}>
             Fine ink follows the center of your fingertip across the canvas.
@@ -297,10 +307,10 @@ export default function CaptureScreen() {
           styles.canvas,
           landscape
             ? {
-                height: Math.min(230, Math.max(190, windowHeight - 195)),
+                height: Math.min(250, Math.max(205, windowHeight - 180)),
               }
             : {
-                height: Math.min(250, Math.max(190, windowHeight * 0.26)),
+                height: Math.min(310, Math.max(240, windowHeight * 0.31)),
               },
         ]}
       >
@@ -368,6 +378,30 @@ export default function CaptureScreen() {
           </View>
         </Pressable>
       </LayoutSlot>
+      {!initial && signatureMode === "full" ? (
+        <SignatureModeOption
+          title="Sign first + last separately"
+          detail="More room for each name. We’ll align them for you."
+          onPress={() => {
+            setSignatureMode("first");
+            setMessage(null);
+          }}
+          disabled={immutable || saving}
+          layoutId="signature.split-option"
+        />
+      ) : null}
+      {!initial && signatureMode === "first" ? (
+        <SignatureModeOption
+          title="Use one full-name canvas"
+          detail="Return to the original signing space."
+          onPress={() => {
+            setSignatureMode("full");
+            setMessage(null);
+          }}
+          disabled={immutable || saving}
+          layoutId="signature-first.full-option"
+        />
+      ) : null}
       {message ? (
         <LayoutSlot id={`${layerPrefix}.error`}>
           <Text accessibilityRole="alert" style={styles.error}>
@@ -400,30 +434,6 @@ export default function CaptureScreen() {
           layoutId={`${layerPrefix}.primary.button`}
           labelLayoutId={`${layerPrefix}.primary.label`}
         />
-        {!initial && signatureMode === "full" ? (
-          <FlowTextButton
-            label="Sign First and Last Separately"
-            onPress={() => {
-              setSignatureMode("first");
-              setMessage(null);
-            }}
-            disabled={immutable || saving}
-            layoutId="signature.split.button"
-            labelLayoutId="signature.split.label"
-          />
-        ) : null}
-        {!initial && signatureMode === "first" ? (
-          <FlowTextButton
-            label="Sign Full Name Instead"
-            onPress={() => {
-              setSignatureMode("full");
-              setMessage(null);
-            }}
-            disabled={immutable || saving}
-            layoutId="signature-first.full.button"
-            labelLayoutId="signature-first.full.label"
-          />
-        ) : null}
         {initial ? (
           <FlowTextButton
             label="Skip for Now"
@@ -456,16 +466,16 @@ function RotateIcon() {
   );
 }
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: 12, paddingTop: 32, paddingBottom: 24 },
+  content: { paddingHorizontal: 18, paddingTop: 32, paddingBottom: 24 },
   landscapeContent: {
     maxWidth: 1100,
-    paddingHorizontal: 12,
+    paddingHorizontal: 18,
     paddingTop: 10,
     paddingBottom: 14,
   },
   back: { position: "absolute", top: 24, left: 14, zIndex: 4 },
   landscapeBack: { top: 2, left: 24 },
-  header: { marginTop: 36, marginBottom: 16 },
+  header: { marginTop: 30, marginBottom: 10 },
   landscapeHeader: {
     minHeight: 44,
     marginTop: 0,
@@ -475,7 +485,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 14,
   },
-  script: { width: 152, height: 72, marginLeft: 6, marginBottom: -12 },
+  script: { width: 138, height: 62, marginLeft: 4, marginBottom: -8 },
   compactScript: {
     width: 154,
     height: 60,
@@ -492,18 +502,27 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   subtitle: { marginTop: 6, fontSize: 17, lineHeight: 24 },
-  stepPill: {
-    alignSelf: "flex-start",
-    color: "#071F5A",
-    backgroundColor: "#FFE2A0",
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    fontSize: 12,
-    lineHeight: 17,
-    fontWeight: "800",
-    marginTop: 7,
+  stepRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 5,
   },
+  stepLabel: {
+    color: "#FFE2A0",
+    fontSize: 11,
+    lineHeight: 15,
+    fontWeight: "900",
+    letterSpacing: 1.1,
+  },
+  progressTrack: { flexDirection: "row", gap: 5 },
+  progressSegment: {
+    width: 30,
+    height: 3,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.24)",
+  },
+  progressActive: { backgroundColor: "#FFE2A0" },
   rotate: {
     flexDirection: "row",
     alignItems: "center",
@@ -514,25 +533,30 @@ const styles = StyleSheet.create({
   rotateText: { color: "#E5ECEF", fontSize: 15, lineHeight: 21 },
   canvas: {
     minHeight: 190,
-    borderRadius: 18,
+    borderRadius: 24,
+    borderCurve: "continuous",
     backgroundColor: "#F7F7F7",
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: "rgba(216,182,106,0.72)",
     overflow: "hidden",
-    boxShadow: "0 18px 38px rgba(0, 38, 43, 0.38)",
+    boxShadow: "0 22px 48px rgba(0, 30, 36, 0.38)",
   },
-  redoSlot: { alignItems: "center" },
+  redoSlot: { alignItems: "flex-end" },
   redo: {
     minHeight: 40,
-    marginTop: 12,
-    paddingHorizontal: 14,
+    marginTop: 10,
+    paddingHorizontal: 16,
     alignItems: "center",
     justifyContent: "center",
-    alignSelf: "center",
+    alignSelf: "flex-end",
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
+    backgroundColor: "rgba(0, 48, 55, 0.46)",
   },
   redoContent: { flexDirection: "row", alignItems: "center", gap: 6 },
   redoText: { color: flowColors.white, fontSize: 14, lineHeight: 20 },
-  actions: { marginTop: "auto", paddingTop: 28, gap: 6 },
+  actions: { marginTop: "auto", paddingTop: 18, gap: 6 },
   landscapeActions: { paddingTop: 4 },
   signatureActions: { marginBottom: 18 },
   initialActions: { marginBottom: 18 },

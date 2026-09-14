@@ -5,7 +5,7 @@ appId: com.duotap.onlysignature
 - assertVisible: "Without the sign-up."
 - tapOn: "Create My Signing Set"
 - assertVisible: "Add your signature"
-- tapOn: "Sign First and Last Separately"
+- tapOn: "Sign first + last separately"
 - assertVisible: "Add your first name"
 - swipe:
     start: "20%, 45%"

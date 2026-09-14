@@ -35,7 +35,7 @@ const screenshots = [
     assertions: [
       "Add your signature",
       "Save Signature",
-      "Sign First and Last Separately",
+      "Sign first + last separately",
     ],
   },
   {
