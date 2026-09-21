@@ -380,7 +380,8 @@ export default function CaptureScreen() {
       </LayoutSlot>
       {!initial && signatureMode === "full" ? (
         <SignatureModeOption
-          title="Sign first + last separately"
+          eyebrow="Want More Room?"
+          title="Sign First and Last Separately"
           detail="More room for each name. We’ll align them for you."
           onPress={() => {
             setSignatureMode("first");
@@ -497,7 +498,7 @@ const styles = StyleSheet.create({
   landscapeTitle: { fontSize: 24, lineHeight: 30 },
   landscapeInstruction: {
     flex: 1,
-    color: "#E5ECEF",
+    color: flowColors.bodyText,
     fontSize: 14,
     lineHeight: 20,
   },
@@ -509,7 +510,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   stepLabel: {
-    color: "#FFE2A0",
+    color: flowColors.goldText,
     fontSize: 11,
     lineHeight: 15,
     fontWeight: "900",
@@ -522,7 +523,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: "rgba(255,255,255,0.24)",
   },
-  progressActive: { backgroundColor: "#FFE2A0" },
+  progressActive: { backgroundColor: flowColors.goldText },
   rotate: {
     flexDirection: "row",
     alignItems: "center",
@@ -530,12 +531,12 @@ const styles = StyleSheet.create({
     marginTop: 12,
     marginBottom: 22,
   },
-  rotateText: { color: "#E5ECEF", fontSize: 15, lineHeight: 21 },
+  rotateText: { color: flowColors.bodyText, fontSize: 15, lineHeight: 21 },
   canvas: {
     minHeight: 190,
     borderRadius: 24,
     borderCurve: "continuous",
-    backgroundColor: "#F8F6EF",
+    backgroundColor: flowColors.paper,
     borderWidth: 1.5,
     borderColor: "rgba(216,182,106,0.72)",
     overflow: "hidden",
@@ -552,7 +553,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.54)",
-    backgroundColor: "#071F5A",
+    backgroundColor: flowColors.ink,
   },
   redoContent: { flexDirection: "row", alignItems: "center", gap: 6 },
   redoText: { color: flowColors.white, fontSize: 14, lineHeight: 20 },

@@ -6,7 +6,7 @@
       "id": "02-entry",
       "route": "/?fixture=landing",
       "headline": "Entry",
-      "assertions": ["Without the sign-up.", "Create My Signing Set"]
+      "assertions": ["Without the sign-up.", "Create My FREE Signing Set"]
     },
     {
       "id": "03-signature-capture",
@@ -15,7 +15,7 @@
       "assertions": [
         "Add your signature",
         "Save Signature",
-        "Sign first + last separately"
+        "Sign First and Last Separately"
       ]
     },
     {

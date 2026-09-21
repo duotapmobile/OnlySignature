@@ -136,9 +136,7 @@ const styles = StyleSheet.create({
   },
   whiteBox: {
     backgroundColor: "#FFFFFF",
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
+    boxShadow: "0 2px 5px rgba(2,4,10,0.10)",
   },
   drawing: { height: "100%", minHeight: 0, minWidth: 0 },
 });

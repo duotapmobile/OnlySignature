@@ -27,7 +27,7 @@ const screenshots = [
     headline: "Entry",
     route: "/?fixture=landing",
     testId: "entry-screen",
-    assertions: ["Without the sign-up.", "Create My Signing Set"],
+    assertions: ["Without the sign-up.", "Create My FREE Signing Set"],
   },
   {
     id: "03-signature-capture",

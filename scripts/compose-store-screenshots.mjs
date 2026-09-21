@@ -105,13 +105,13 @@ for (const device of devices) {
     const left = Math.round((output.width - screenWidth) / 2);
     const raw = await sharp(rawPath)
       .resize(screenWidth, screenHeight, { fit: "cover", position: "top" })
-      .flatten({ background: "#F5F3EE" })
+      .flatten({ background: "#F8F6EF" })
       .png()
       .toBuffer();
     const composed = await sharp(frameSvg)
       .png()
       .composite([{ input: raw, left, top }])
-      .flatten({ background: "#133A50" })
+      .flatten({ background: "#071F5A" })
       .png()
       .toBuffer();
     const finalPath = path.join(finalDir, `${shot.id}.png`);
@@ -170,7 +170,7 @@ for (const device of devices) {
         fit: "cover",
         position: "center",
       })
-      .flatten({ background: "#133A50" })
+      .flatten({ background: "#071F5A" })
       .removeAlpha()
       .png()
       .toFile(reviewOutput);

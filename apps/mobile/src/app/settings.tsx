@@ -99,12 +99,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.68)",
     backgroundColor: flowColors.card,
-    boxShadow: "0 14px 30px rgba(0, 38, 43, 0.28)",
+    boxShadow: "0 14px 30px rgba(2,4,10,0.34)",
   },
   row: {
     minHeight: 58,
     borderBottomWidth: 1,
-    borderBottomColor: "#D9E2E5",
+    borderBottomColor: "rgba(216,182,106,0.28)",
     paddingVertical: 12,
     paddingHorizontal: 4,
     flexDirection: "row",
@@ -119,7 +119,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     flex: 1,
   },
-  delete: { color: "#8F2727", fontSize: 16, lineHeight: 22, fontWeight: "700" },
+  delete: {
+    color: flowColors.destructive,
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: "700",
+  },
   version: {
     color: flowColors.muted,
     fontSize: 12,

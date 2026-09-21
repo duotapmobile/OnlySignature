@@ -57,7 +57,6 @@ export default function EntryScreen() {
       <LayoutSlot id="entry.hero">
         <WelcomeFoldedPanel
           disabled={!data.hydrated}
-          hasSavedWork={hasSavedWork}
           onBegin={begin}
           onOpenSaved={() => router.push("/saved")}
         />

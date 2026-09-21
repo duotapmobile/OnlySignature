@@ -45,7 +45,7 @@ export function SegmentedControl<T extends string>({
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
-    backgroundColor: "#DCE7EA",
+    backgroundColor: "#EEE8D9",
     borderRadius: theme.radii.md,
     padding: 4,
   },
@@ -59,10 +59,7 @@ const styles = StyleSheet.create({
   },
   selected: {
     backgroundColor: theme.colors.primary,
-    shadowColor: "#000",
-    shadowOpacity: 0.16,
-    shadowRadius: 5,
-    elevation: 2,
+    boxShadow: "0 6px 14px rgba(2,4,10,0.24)",
   },
   text: { color: theme.colors.text, fontSize: 17, fontWeight: "700" },
   selectedText: { color: theme.colors.white },

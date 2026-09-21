@@ -19,7 +19,13 @@ import { AppBackdrop, PaperSurface } from "@/components/paper-ui";
 export const flowColors = {
   night: "#02040A",
   ink: "#071F5A",
+  inkPlate: "#081A35",
   inkRaised: "#10234D",
+  action: "#0A3D78",
+  gold: "#D8B66A",
+  goldText: "#FFE2A0",
+  paper: "#F8F6EF",
+  bodyText: "#E9E6DC",
   cyan: "#D8B66A",
   cyanText: "#FFE2A0",
   white: "#FBFAF5",
@@ -29,6 +35,7 @@ export const flowColors = {
   cardMuted: "#425269",
   outline: "#AFA58C",
   accessibleLink: "#17386D",
+  destructive: "#A32626",
 } as const;
 
 const brandSources = {

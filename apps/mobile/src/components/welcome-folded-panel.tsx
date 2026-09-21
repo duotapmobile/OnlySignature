@@ -23,12 +23,10 @@ const benefits = [
 
 export function WelcomeFoldedPanel({
   disabled,
-  hasSavedWork,
   onBegin,
   onOpenSaved,
 }: {
   disabled: boolean;
-  hasSavedWork: boolean;
   onBegin(): void;
   onOpenSaved(): void;
 }) {
@@ -111,13 +109,26 @@ export function WelcomeFoldedPanel({
                 </LayoutSlot>
               </View>
             ))}
+
+            <View style={styles.privacyLine}>
+              <LayoutSlot id="entry.privacy.icon">
+                <Text selectable style={styles.lock}>
+                  ●
+                </Text>
+              </LayoutSlot>
+              <LayoutSlot id="entry.privacy.label">
+                <Text selectable style={styles.privacyText}>
+                  Saved privately on your device.
+                </Text>
+              </LayoutSlot>
+            </View>
           </LayoutSlot>
 
           <LayoutSlot id="entry.actions" style={styles.actions}>
             <LayoutSlot id="entry.create.button">
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Create My Signing Set — Free"
+                accessibilityLabel="Create My FREE Signing Set"
                 accessibilityHint="Opens the signature drawing screen"
                 accessibilityState={{ disabled }}
                 disabled={disabled}
@@ -137,7 +148,7 @@ export function WelcomeFoldedPanel({
                     selectable
                     style={styles.primaryLabel}
                   >
-                    Create My Signing Set — FREE
+                    Create My FREE Signing Set
                   </Text>
                 </LayoutSlot>
                 <View style={styles.buttonArrow}>
@@ -148,35 +159,20 @@ export function WelcomeFoldedPanel({
               </Pressable>
             </LayoutSlot>
 
-            {hasSavedWork ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="My Signing Sets"
-                disabled={disabled}
-                onPress={onOpenSaved}
-                style={({ pressed }) => [
-                  styles.savedButton,
-                  pressed && styles.buttonPressed,
-                ]}
-              >
-                <Text selectable style={styles.savedButtonText}>
-                  My Signing Sets
-                </Text>
-              </Pressable>
-            ) : null}
-
-            <View style={styles.privacyLine}>
-              <LayoutSlot id="entry.privacy.icon">
-                <Text selectable style={styles.lock}>
-                  ●
-                </Text>
-              </LayoutSlot>
-              <LayoutSlot id="entry.privacy.label">
-                <Text selectable style={styles.privacyText}>
-                  Saved privately on your device.
-                </Text>
-              </LayoutSlot>
-            </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="View my Signing Sets"
+              disabled={disabled}
+              onPress={onOpenSaved}
+              style={({ pressed }) => [
+                styles.savedButton,
+                pressed && styles.buttonPressed,
+              ]}
+            >
+              <Text selectable style={styles.savedButtonText}>
+                View my Signing Sets
+              </Text>
+            </Pressable>
           </LayoutSlot>
         </PaperSurface>
       </View>
@@ -379,7 +375,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: -0.2,
   },
-  actions: { gap: 9, marginTop: 21 },
+  actions: { gap: 8, marginTop: 18 },
   primaryButton: {
     width: "100%",
     minHeight: 60,
@@ -431,10 +427,10 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   privacyLine: {
-    minHeight: 24,
+    minHeight: 28,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    paddingLeft: 4,
     gap: 7,
   },
   lock: {

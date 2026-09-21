@@ -1,14 +1,17 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { LayoutSlot } from "@/components/layout-slot";
+import { flowColors } from "@/components/flow-ui";
 
 export function SignatureModeOption({
+  eyebrow,
   title,
   detail,
   onPress,
   disabled = false,
   layoutId,
 }: {
+  eyebrow?: string;
   title: string;
   detail: string;
   onPress: () => void;
@@ -17,6 +20,11 @@ export function SignatureModeOption({
 }) {
   return (
     <LayoutSlot id={layoutId} style={styles.slot}>
+      {eyebrow ? (
+        <Text selectable style={styles.eyebrow}>
+          {eyebrow}
+        </Text>
+      ) : null}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${title}. ${detail}`}
@@ -50,7 +58,7 @@ export function SignatureModeOption({
           <Path
             d="m6.75 3.75 5.25 5.25-5.25 5.25"
             fill="none"
-            stroke="#071F5A"
+            stroke={flowColors.white}
             strokeWidth={1.8}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -62,9 +70,17 @@ export function SignatureModeOption({
 }
 
 const styles = StyleSheet.create({
-  slot: { marginTop: 14 },
+  slot: { marginTop: 18, gap: 9 },
+  eyebrow: {
+    color: flowColors.goldText,
+    fontFamily: "Georgia",
+    fontSize: 20,
+    lineHeight: 25,
+    fontWeight: "700",
+    letterSpacing: -0.3,
+  },
   card: {
-    minHeight: 72,
+    minHeight: 70,
     flexDirection: "row",
     alignItems: "center",
     gap: 13,
@@ -73,9 +89,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderCurve: "continuous",
     borderWidth: 1,
-    borderColor: "rgba(216,182,106,0.72)",
-    backgroundColor: "#FBFAF5",
-    boxShadow: "0 12px 28px rgba(7,31,90,0.18)",
+    borderColor: "rgba(255,255,255,0.24)",
+    backgroundColor: flowColors.action,
+    boxShadow:
+      "0 14px 28px rgba(2,4,10,0.34), inset 0 1px 0 rgba(255,255,255,0.18)",
   },
   numberMark: {
     width: 42,
@@ -83,10 +100,10 @@ const styles = StyleSheet.create({
     borderRadius: 21,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#D8B66A",
+    backgroundColor: flowColors.gold,
   },
   numberText: {
-    color: "#071F5A",
+    color: flowColors.ink,
     fontSize: 12,
     lineHeight: 16,
     fontWeight: "900",
@@ -94,12 +111,12 @@ const styles = StyleSheet.create({
   },
   copy: { flex: 1, gap: 2 },
   title: {
-    color: "#10234D",
+    color: flowColors.white,
     fontSize: 16,
     lineHeight: 21,
     fontWeight: "800",
   },
-  detail: { color: "#425269", fontSize: 13, lineHeight: 18 },
+  detail: { color: flowColors.bodyText, fontSize: 13, lineHeight: 18 },
   pressed: { opacity: 0.78, transform: [{ scale: 0.992 }] },
   disabled: { opacity: 0.42 },
 });

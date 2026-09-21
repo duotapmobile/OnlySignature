@@ -101,14 +101,14 @@ function SigningSetCard({
               style={styles.signature}
             />
           ) : (
-            <Text style={styles.empty}>—</Text>
+            <Text style={styles.empty}>Not added</Text>
           )}
         </LayoutSlot>
         <LayoutSlot id={`${layerPrefix}.initials`} style={styles.initialsSlot}>
           {initialsExists && item.initials ? (
             <DrawingPreview asset={item.initials} style={styles.initials} />
           ) : (
-            <Text style={styles.empty}>—</Text>
+            <Text style={styles.empty}>Not added</Text>
           )}
         </LayoutSlot>
       </View>
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
   card: {
     minHeight: 146,
     borderRadius: 18,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: flowColors.card,
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.62)",
     paddingHorizontal: 14,
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.62)",
-    backgroundColor: "#FAFAFA",
+    backgroundColor: flowColors.card,
     padding: 18,
     boxShadow: "0 12px 26px rgba(7,31,90,0.18)",
   },

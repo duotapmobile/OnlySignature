@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   diyTitle: { color: "#FFAAA1" },
   resultCopy: {
     flexShrink: 1,
-    color: "#DDE5E8",
+    color: flowColors.bodyText,
     fontSize: 11,
     lineHeight: 15,
     textAlign: "right",

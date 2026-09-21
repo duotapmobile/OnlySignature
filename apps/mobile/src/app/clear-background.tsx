@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   subtitle: {
-    color: "#DCE5E8",
+    color: flowColors.bodyText,
     fontSize: 14,
     lineHeight: 20,
     textAlign: "center",
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
   document: { flex: 1, marginTop: 8, position: "relative" },
   documentLabel: {
     color: "#1C2023",
-    fontFamily: "serif",
+    fontFamily: "Georgia",
     fontSize: 11,
     lineHeight: 15,
   },
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   obstructedDate: { zIndex: 1 },
   dateText: {
     color: "#1C2023",
-    fontFamily: "serif",
+    fontFamily: "Georgia",
     fontSize: 12,
     lineHeight: 16,
   },

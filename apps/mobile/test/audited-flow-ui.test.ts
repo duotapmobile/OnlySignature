@@ -42,9 +42,11 @@ test("audited routes preserve the complete white and transparent branches", asyn
     read("../src/components/ExportFlow.tsx"),
   ]);
 
-  assert.match(entry + welcome, /Create My Signing Set/);
+  assert.match(entry + welcome, /Create My FREE Signing Set/);
+  assert.match(entry + welcome, /View my Signing Sets/);
   assert.match(draw, /Save Signature/);
-  assert.match(draw, /Sign first \+ last separately/);
+  assert.match(draw, /Sign First and Last Separately/);
+  assert.match(draw, /Want More Room\?/);
   assert.match(draw, /Save First Name/);
   assert.match(draw, /Save Last Name and Join/);
   assert.match(draw, /Save Initials/);
@@ -282,7 +284,7 @@ test("signature capture defaults to full name and offers baseline-aligned split 
   assert.match(draw, /splitNameFixture \? namePart : "full"/);
   assert.match(draw, /setSignatureMode\("last"\)/);
   assert.match(draw, /Write your full name/);
-  assert.match(draw, /Sign first \+ last separately/);
+  assert.match(draw, /Sign First and Last Separately/);
   assert.match(draw, /Write your \$\{signatureMode\} name/);
   assert.match(draw, /Save Signature/);
   assert.match(draw, /Save First Name/);
@@ -522,6 +524,41 @@ test("home uses the ink, paper, and gold material system without legacy teal or 
   assert.ok(welcome.indexOf("No Account") < welcome.indexOf("No Subscription"));
   assert.ok(
     welcome.indexOf("No Subscription") < welcome.indexOf("No Document Upload"),
+  );
+});
+
+test("shared visual tokens keep every control family on the navy paper and gold system", async () => {
+  const [tokens, flow, legacyUi, segmented, settings, draw, clear] =
+    await Promise.all([
+      read("../../../packages/design-tokens/src/index.ts"),
+      read("../src/components/flow-ui.tsx"),
+      read("../src/components/ui.tsx"),
+      read("../src/components/SegmentedControl.tsx"),
+      read("../src/app/settings.tsx"),
+      read("../src/app/draw.tsx"),
+      read("../src/app/clear-background.tsx"),
+    ]);
+  const system = [
+    tokens,
+    flow,
+    legacyUi,
+    segmented,
+    settings,
+    draw,
+    clear,
+  ].join("\n");
+
+  assert.match(tokens, /primary: "#0A3D78"/);
+  assert.match(tokens, /primaryDark: "#071F5A"/);
+  assert.match(tokens, /offWhite: "#F8F6EF"/);
+  assert.match(tokens, /focus: "#D8B66A"/);
+  assert.match(tokens, /fontFamily: "Georgia"/);
+  assert.match(flow, /action: "#0A3D78"/);
+  assert.match(flow, /gold: "#D8B66A"/);
+  assert.match(flow, /bodyText: "#E9E6DC"/);
+  assert.doesNotMatch(
+    system,
+    /#133A50|#0A2637|#3B6478|#DCE7EA|#DCE5E8|#DDE5E8|#E5ECEF|fontFamily: "serif"|shadowColor:|elevation:/,
   );
 });
 

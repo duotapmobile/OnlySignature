@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     right: 8,
     bottom: 9,
     height: 1,
-    backgroundColor: "#AEB8BD",
+    backgroundColor: flowColors.outline,
   },
   signature: { width: "92%", height: 58, alignSelf: "center", marginBottom: 9 },
   initials: { width: "58%", height: 66 },
