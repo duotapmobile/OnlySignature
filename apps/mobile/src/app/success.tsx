@@ -90,10 +90,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 10,
   },
-  title: { marginTop: 18 },
-  headingText: { fontSize: 31, lineHeight: 37, textAlign: "center" },
+  title: { width: "100%", maxWidth: 330, marginTop: 18 },
+  headingText: {
+    color: "#071F5A",
+    fontSize: 31,
+    lineHeight: 37,
+    textAlign: "center",
+  },
   copy: {
-    color: "#E3EAED",
+    color: "#425269",
     fontSize: 18,
     lineHeight: 26,
     textAlign: "center",

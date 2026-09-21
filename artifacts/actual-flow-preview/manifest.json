@@ -1,15 +1,16 @@
 {
   "source": "Expo web static build with screenshot fixture mode enabled",
   "classification": "Local reference-matched app rendering; phone frames are presentation-only and this is not native iOS or App Store evidence",
-  "capturedOn": "2026-09-14",
+  "capturedOn": "2026-09-21",
   "referenceFlow": "11-screen founder-directed flow",
   "screenshots": [
     {
       "id": "01-splash",
-      "headline": "Splash",
-      "kind": "splash",
+      "route": "/?fixture=opening",
+      "headline": "Animated opening",
       "assertions": [
-        "Only Signature"
+        "Without the sign-up.",
+        "Private by design."
       ]
     },
     {
@@ -26,7 +27,7 @@
       "route": "/draw?fixture=both",
       "headline": "Full Name Capture",
       "assertions": [
-        "Add your signature",
+        "Write your full name",
         "Save Signature",
         "Sign first + last separately"
       ]
@@ -36,7 +37,7 @@
       "route": "/draw?fixture=both&namePart=first",
       "headline": "Optional First Name Capture",
       "assertions": [
-        "Add your first name",
+        "Write your first name",
         "Save First Name"
       ]
     },
@@ -45,7 +46,7 @@
       "route": "/draw?fixture=both&namePart=last",
       "headline": "Last Name Capture",
       "assertions": [
-        "Add your last name",
+        "Write your last name",
         "Save Last Name and Join"
       ]
     },
@@ -54,7 +55,7 @@
       "route": "/draw?fixture=initials",
       "headline": "Initials Capture",
       "assertions": [
-        "Add your initials",
+        "Write your initials",
         "Save Initials",
         "Skip for Now"
       ]
@@ -64,7 +65,7 @@
       "route": "/preview?fixture=both",
       "headline": "Review popup",
       "assertions": [
-        "Confirm Your Signing Set",
+        "Review your signing set",
         "Confirm and Choose Background"
       ]
     },
@@ -73,7 +74,7 @@
       "route": "/purchase?fixture=both",
       "headline": "Background popup",
       "assertions": [
-        "Choose Your Background",
+        "Choose a background",
         "Transparent Background",
         "White Background"
       ]
@@ -83,8 +84,8 @@
       "route": "/clear-background?fixture=both",
       "headline": "Clear Background",
       "assertions": [
-        "Clear Background",
-        "Looks natural on any document.",
+        "See the difference",
+        "A transparent signature sits naturally on any document.",
         "White box",
         "No Thanks"
       ]

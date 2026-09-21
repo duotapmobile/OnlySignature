@@ -208,7 +208,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       package: "com.duotap.onlysignature",
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
-        backgroundColor: "#133A50",
+        backgroundColor: "#071F5A",
       },
     },
     web: { output: "static", favicon: "./assets/icon.png" },
@@ -219,8 +219,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       [
         "expo-splash-screen",
         {
-          backgroundColor: "#006971",
-          image: "./assets/brand/only-signature-wordmark-paper.png",
+          backgroundColor: "#02040A",
+          image: "./assets/brand/only-signature-wordmark.png",
           imageWidth: 170,
         },
       ],

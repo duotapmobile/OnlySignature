@@ -1,6 +1,7 @@
 const elements = {
   workspace: document.querySelector("#workspace"),
   viewport: document.querySelector("#previewViewport"),
+  deviceShell: document.querySelector("#deviceShell"),
   surface: document.querySelector("#previewSurface"),
   frame: document.querySelector("#appFrame"),
   screenSelect: document.querySelector("#screenSelect"),
@@ -25,6 +26,10 @@ const elements = {
   saveStatus: document.querySelector("#saveStatus"),
 };
 
+const query = new URLSearchParams(window.location.search);
+const presentMode = query.get("present") === "1";
+document.body.classList.toggle("present-mode", presentMode);
+
 const state = {
   screens: [],
   profiles: { iphone: {}, ipad: {} },
@@ -39,8 +44,20 @@ const state = {
 };
 
 const deviceSizes = {
-  iphone: { width: 430, height: 932 },
-  ipad: { width: 1032, height: 1376 },
+  iphone: {
+    width: 430,
+    height: 932,
+    inset: 21,
+    shellWidth: 472,
+    shellHeight: 974,
+  },
+  ipad: {
+    width: 1032,
+    height: 1376,
+    inset: 24,
+    shellWidth: 1080,
+    shellHeight: 1424,
+  },
 };
 
 function cloneProfiles(value = state.profiles) {
@@ -332,9 +349,10 @@ function attachFrame() {
   const slotFor = (node) =>
     node.getAttribute("data-testid").slice("layout-slot:".length);
   state.visibleSlots = [...new Set(nodes.map(slotFor))];
+  if (presentMode) return;
+  applyAllValues();
   bindFrameHover(frameDocument);
   bindFrameDrag(frameDocument);
-  applyAllValues();
   renderLayers();
   clearSelectionOutline();
   selectSlot(state.visibleSlots[0] ?? null);
@@ -343,16 +361,22 @@ function attachFrame() {
 function fitPreview() {
   const size = deviceSizes[state.device];
   const bounds = elements.workspace.getBoundingClientRect();
+  const horizontalMargin = presentMode ? 36 : 70;
+  const verticalMargin = presentMode ? 36 : 60;
   const scale = Math.min(
-    (bounds.width - 70) / size.width,
-    (bounds.height - 60) / size.height,
+    (bounds.width - horizontalMargin) / size.shellWidth,
+    (bounds.height - verticalMargin) / size.shellHeight,
     1,
   );
-  elements.viewport.style.width = `${size.width * scale}px`;
-  elements.viewport.style.height = `${size.height * scale}px`;
+  elements.viewport.style.width = `${size.shellWidth * scale}px`;
+  elements.viewport.style.height = `${size.shellHeight * scale}px`;
+  elements.deviceShell.style.width = `${size.shellWidth}px`;
+  elements.deviceShell.style.height = `${size.shellHeight}px`;
+  elements.deviceShell.style.transform = `scale(${scale})`;
+  elements.surface.style.left = `${size.inset}px`;
+  elements.surface.style.top = `${size.inset}px`;
   elements.surface.style.width = `${size.width}px`;
   elements.surface.style.height = `${size.height}px`;
-  elements.surface.style.transform = `scale(${scale})`;
 }
 
 function loadScreen() {
@@ -361,7 +385,9 @@ function loadScreen() {
   renderLayers();
   const screen = currentScreen();
   if (!screen) return;
-  elements.frame.src = `${screen.route}${screen.route.includes("?") ? "&" : "?"}layoutStudio=1&device=${state.device}`;
+  elements.frame.src = presentMode
+    ? screen.route
+    : `${screen.route}${screen.route.includes("?") ? "&" : "?"}layoutStudio=1&device=${state.device}`;
 }
 
 function setDevice(device) {
@@ -369,6 +395,8 @@ function setDevice(device) {
   elements.iphoneButton.classList.toggle("active", device === "iphone");
   elements.ipadButton.classList.toggle("active", device === "ipad");
   const size = deviceSizes[device];
+  elements.deviceShell.classList.toggle("iphone-shell", device === "iphone");
+  elements.deviceShell.classList.toggle("ipad-shell", device === "ipad");
   elements.frame.width = size.width;
   elements.frame.height = size.height;
   fitPreview();
@@ -510,9 +538,7 @@ for (const screen of state.screens) {
   option.textContent = screen.label;
   elements.screenSelect.append(option);
 }
-const requestedScreen = new URLSearchParams(window.location.search).get(
-  "screen",
-);
+const requestedScreen = query.get("screen");
 if (state.screens.some((screen) => screen.id === requestedScreen))
   elements.screenSelect.value = requestedScreen;
 elements.saveStatus.textContent = "Saved";

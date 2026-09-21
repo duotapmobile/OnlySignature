@@ -262,101 +262,6 @@ async function textMetrics(page, id) {
   });
 }
 
-async function imageBoxModel(cdp, selector) {
-  const { root: documentRoot } = await cdp.send("DOM.getDocument", {
-    depth: -1,
-    pierce: true,
-  });
-  const { nodeId } = await cdp.send("DOM.querySelector", {
-    nodeId: documentRoot.nodeId,
-    selector,
-  });
-  assert(nodeId, `Image not found: ${selector}`);
-  return (await cdp.send("DOM.getBoxModel", { nodeId })).model;
-}
-
-async function imageMetrics(page, cdp, id) {
-  const selector = `[data-testid="layout-slot:${id}"] img`;
-  const image = page.locator(selector);
-  await image.waitFor({ state: "visible", timeout: 30000 });
-  await image.evaluate(async (node) => {
-    if (!node.complete || !node.naturalWidth) await node.decode();
-  });
-  const model = await imageBoxModel(cdp, selector);
-  return image.evaluate((node, modelData) => {
-    const quad = modelData.content;
-    const p1 = { x: quad[0], y: quad[1] };
-    const p2 = { x: quad[2], y: quad[3] };
-    const p4 = { x: quad[6], y: quad[7] };
-    const boxWidth = modelData.width;
-    const boxHeight = modelData.height;
-    const naturalRatio = node.naturalWidth / node.naturalHeight;
-    const boxRatio = boxWidth / boxHeight;
-    const containedWidth =
-      naturalRatio > boxRatio ? boxWidth : boxHeight * naturalRatio;
-    const containedHeight =
-      naturalRatio > boxRatio ? boxWidth / naturalRatio : boxHeight;
-    const containX = (boxWidth - containedWidth) / 2;
-    const containY = (boxHeight - containedHeight) / 2;
-    const sx = containedWidth / node.naturalWidth;
-    const sy = containedHeight / node.naturalHeight;
-    const canvas = document.createElement("canvas");
-    canvas.width = node.naturalWidth;
-    canvas.height = node.naturalHeight;
-    const context = canvas.getContext("2d", { willReadFrequently: true });
-    context.drawImage(node, 0, 0);
-    const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
-    const points = [];
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
-    const mapPoint = (x, y) => {
-      const u = (containX + x * sx) / boxWidth;
-      const v = (containY + y * sy) / boxHeight;
-      return {
-        x: p1.x + u * (p2.x - p1.x) + v * (p4.x - p1.x),
-        y: p1.y + u * (p2.y - p1.y) + v * (p4.y - p1.y),
-      };
-    };
-    for (let y = 0; y < canvas.height; y++) {
-      for (let x = 0; x < canvas.width; x++) {
-        if (pixels[(y * canvas.width + x) * 4 + 3] < 24) continue;
-        const point = mapPoint(x + 0.5, y + 0.5);
-        minX = Math.min(minX, point.x);
-        minY = Math.min(minY, point.y);
-        maxX = Math.max(maxX, point.x);
-        maxY = Math.max(maxY, point.y);
-        if ((x + y) % 5 === 0) points.push(point);
-      }
-    }
-    const meanX =
-      points.reduce((sum, point) => sum + point.x, 0) / points.length;
-    const meanY =
-      points.reduce((sum, point) => sum + point.y, 0) / points.length;
-    let xx = 0;
-    let yy = 0;
-    let xy = 0;
-    for (const point of points) {
-      xx += (point.x - meanX) ** 2;
-      yy += (point.y - meanY) ** 2;
-      xy += (point.x - meanX) * (point.y - meanY);
-    }
-    return {
-      src: node.currentSrc.split("/").at(-1),
-      visual: {
-        x: minX,
-        y: minY,
-        width: maxX - minX,
-        height: maxY - minY,
-        right: maxX,
-        bottom: maxY,
-      },
-      angle: (Math.atan2(2 * xy, xx - yy) * 90) / Math.PI,
-    };
-  }, model);
-}
-
 const browser = await chromium.launch({
   headless: true,
   executablePath: process.env.ONLY_SIGNATURE_BROWSER_EXECUTABLE || undefined,
@@ -393,8 +298,6 @@ try {
         ids.length,
         `${device}/${screen.name} contains duplicate layer IDs`,
       );
-      const cdp = await context.newCDPSession(page);
-      await cdp.send("DOM.enable");
       const measured = {
         button: await elementRect(page, screen.button),
         label: await textMetrics(page, screen.label),
@@ -402,9 +305,7 @@ try {
         subtitle: screen.subtitle
           ? await textMetrics(page, screen.subtitle)
           : null,
-        script: screen.script
-          ? await imageMetrics(page, cdp, screen.script)
-          : null,
+        script: screen.script ? await textMetrics(page, screen.script) : null,
       };
       if (screen.name === "clear") {
         const whiteBox = await elementRect(page, "clear.bad.white-box");
@@ -458,10 +359,10 @@ try {
           `${device}/${screen.name} button-label typography differs from Entry`,
         );
         if (screen.name === "last-name")
-          assert.equal(
-            round(measured.script.angle),
-            round(splitNameReference.script.angle),
-            `${device}/last-name script angle differs from First Name Capture`,
+          assert.deepEqual(
+            measured.script.style,
+            splitNameReference.script.style,
+            `${device}/last-name script typography differs from First Name Capture`,
           );
         if (screen.name === "last-name") {
           assert.deepEqual(
@@ -487,15 +388,10 @@ try {
             splitNameReference.subtitle.style,
             `${device}/last-name subtitle typography differs from First Name Capture`,
           );
-          assert.equal(
-            measured.script.src,
-            splitNameReference.script.src,
-            "Both name screens must use the same script asset",
-          );
           assert.deepEqual(
-            roundedRect(measured.script.visual),
-            roundedRect(splitNameReference.script.visual),
-            `${device}/last-name visible script bounds differ from First Name Capture`,
+            roundedRect(measured.script.rect),
+            roundedRect(splitNameReference.script.rect),
+            `${device}/last-name script-label bounds differ from First Name Capture`,
           );
         }
         if (screen.popup) {
@@ -520,9 +416,8 @@ try {
         ...(measured.script
           ? {
               script: {
-                ...roundedRect(measured.script.visual),
-                angle: round(measured.script.angle),
-                src: measured.script.src,
+                ...roundedRect(measured.script.rect),
+                ...measured.script.style,
               },
             }
           : {}),

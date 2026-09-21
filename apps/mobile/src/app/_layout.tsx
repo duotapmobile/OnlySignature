@@ -69,7 +69,7 @@ function ApplicationShell({ reduceMotion }: { reduceMotion: boolean }) {
         screenOptions={{
           headerShown: false,
           animation: reduceMotion ? "none" : "slide_from_right",
-          contentStyle: { backgroundColor: "#006971" },
+          contentStyle: { backgroundColor: "#02040A" },
         }}
       >
         <Stack.Screen
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   cover: {
     ...StyleSheet.absoluteFill,
     zIndex: 9999,
-    backgroundColor: "#006971",
+    backgroundColor: "#02040A",
     justifyContent: "center",
     alignItems: "center",
     padding: 28,

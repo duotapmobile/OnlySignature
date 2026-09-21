@@ -7,7 +7,7 @@ const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 test("audited flow keeps one shared spacing and control system", async () => {
   const source = await read("../src/components/flow-ui.tsx");
   assert.match(source, /paddingHorizontal: 26/);
-  assert.match(source, /minHeight: 59/);
+  assert.match(source, /minHeight: 60/);
   assert.match(source, /minHeight: 44/);
   assert.match(source, /borderRadius: 14/);
   assert.match(source, /borderTopLeftRadius: 26/);
@@ -20,6 +20,7 @@ test("audited flow keeps one shared spacing and control system", async () => {
 test("audited routes preserve the complete white and transparent branches", async () => {
   const [
     entry,
+    welcome,
     draw,
     review,
     background,
@@ -30,6 +31,7 @@ test("audited routes preserve the complete white and transparent branches", asyn
     exportFlow,
   ] = await Promise.all([
     read("../src/app/index.tsx"),
+    read("../src/components/welcome-folded-panel.tsx"),
     read("../src/app/draw.tsx"),
     read("../src/app/preview.tsx"),
     read("../src/app/purchase.tsx"),
@@ -40,21 +42,24 @@ test("audited routes preserve the complete white and transparent branches", asyn
     read("../src/components/ExportFlow.tsx"),
   ]);
 
-  assert.match(entry, /Create My Signing Set/);
+  assert.match(entry + welcome, /Create My Signing Set/);
   assert.match(draw, /Save Signature/);
   assert.match(draw, /Sign first \+ last separately/);
   assert.match(draw, /Save First Name/);
   assert.match(draw, /Save Last Name and Join/);
   assert.match(draw, /Save Initials/);
   assert.match(draw, /Skip for Now/);
-  assert.match(review, /Confirm Your Signing Set/);
+  assert.match(review, /Review your signing set/);
   assert.match(review, /Confirm and Choose Background/);
-  assert.match(background, /Choose Your Background/);
+  assert.match(background, /Choose a background/);
   assert.match(background, /Continue With White Background/);
   assert.match(background, /clear-background/);
   assert.match(background, /useTransparentPurchase/);
-  assert.match(clear, /Clear Background/);
-  assert.match(clear, /Looks natural on any document\./);
+  assert.match(clear, /See the difference/);
+  assert.match(
+    clear,
+    /A transparent signature sits naturally on any document\./,
+  );
   assert.match(clear, /router\.push\("\/free-export"\)/);
   assert.match(clear, /purchase\.beginPurchase/);
   assert.match(clear, /clear\.bad\.white-box/);
@@ -72,28 +77,32 @@ test("audited routes preserve the complete white and transparent branches", asyn
   assert.match(saved, /Create New Signing Set/);
 });
 
-test("native launch frame flows into the teal animated opening without simulated phone chrome", async () => {
+test("native launch frame flows directly into the dark home without simulated phone chrome", async () => {
   const [config, layout] = await Promise.all([
     read("../app.config.ts"),
     read("../src/app/_layout.tsx"),
   ]);
-  assert.match(config, /assets\/brand\/only-signature-wordmark-paper\.png/);
-  assert.match(config, /backgroundColor: "#006971"/);
+  assert.match(config, /assets\/brand\/only-signature-wordmark\.png/);
+  assert.match(config, /backgroundColor: "#02040A"/);
   assert.match(layout, /<StatusBar style="light"/);
   assert.doesNotMatch(layout, /<StatusBar hidden/);
   assert.doesNotMatch(layout, /9:41|island|homebar/i);
 });
 
-test("the exact flow uses crisp script labels and professional fictional handwriting", async () => {
+test("the exact flow uses native editorial labels and professional fictional handwriting", async () => {
   const [flowUi, sample, fixture] = await Promise.all([
     read("../src/components/flow-ui.tsx"),
     read("../src/components/SampleDrawing.tsx"),
     read("../src/domain/fixtures.ts"),
   ]);
   assert.match(flowUi, /only-signature-wordmark\.png/);
-  assert.match(flowUi, /sign-label\.png/);
-  assert.match(flowUi, /initial-label\.png/);
-  assert.match(flowUi, /review-label\.png/);
+  assert.match(flowUi, /YOUR SIGNATURE/);
+  assert.match(flowUi, /YOUR INITIALS/);
+  assert.match(flowUi, /REVIEW YOUR SET/);
+  assert.doesNotMatch(
+    flowUi,
+    /sign-label\.png|initial-label\.png|review-label\.png/,
+  );
   assert.doesNotMatch(flowUi, /Snell Roundhand/);
   assert.match(sample, /taylor-brooks-signature\.png/);
   assert.match(sample, /taylor-brooks-initials\.png/);
@@ -272,9 +281,9 @@ test("signature capture defaults to full name and offers baseline-aligned split 
   assert.match(draw, /type SignatureMode = "full" \| SignaturePart/);
   assert.match(draw, /splitNameFixture \? namePart : "full"/);
   assert.match(draw, /setSignatureMode\("last"\)/);
-  assert.match(draw, /Add your signature/);
+  assert.match(draw, /Write your full name/);
   assert.match(draw, /Sign first \+ last separately/);
-  assert.match(draw, /Add your \$\{signatureMode\} name/);
+  assert.match(draw, /Write your \$\{signatureMode\} name/);
   assert.match(draw, /Save Signature/);
   assert.match(draw, /Save First Name/);
   assert.match(draw, /Save Last Name and Join/);
@@ -306,20 +315,21 @@ test("finish-pending purchases cannot announce success or export", async () => {
   assert.match(saved, /&& !purchaseLocked/);
 });
 
-test("returning-user hydration, animated opening, and terminal navigation fail closed", async () => {
-  const [entry, opening, success] = await Promise.all([
+test("entry hydration and terminal navigation fail closed", async () => {
+  const [entry, opening, welcome, success] = await Promise.all([
     read("../src/app/index.tsx"),
     read("../src/components/animated-opening.tsx"),
+    read("../src/components/welcome-folded-panel.tsx"),
     read("../src/app/success.tsx"),
   ]);
   assert.match(entry, /if \(!data\.hydrated\) return/);
   assert.match(entry, /disabled=\{!data\.hydrated\}/);
   assert.match(entry, /AnimatedOpening/);
-  assert.match(entry, /only-signature-wordmark-paper\.png/);
-  assert.match(opening, /opening-splash-screen/);
-  assert.match(opening, /openingDurationMs = 2_750/);
-  assert.match(opening, /AccessibilityInfo\.isReduceMotionEnabled/);
-  assert.match(opening, /Tap to continue/);
+  assert.match(entry, /openingFixture/);
+  assert.match(opening, /openingDurationMs = 3_400/);
+  assert.match(opening, /scaleX: progress\.interpolate/);
+  assert.match(opening, /Private by design\. Ready when you are\./);
+  assert.match(welcome, /<Wordmark style=\{styles\.wordmark\} \/>/);
   assert.doesNotMatch(entry, /router\.replace\("\/saved"\)/);
   assert.match(success, /router\.dismissAll\(\)/);
   assert.match(success, /router\.replace\("\/saved"\)/);
@@ -447,6 +457,7 @@ test("layout studio slots are backed by persisted device profiles", async () => 
     slot,
     values,
     entry,
+    welcome,
     draw,
     review,
     purchase,
@@ -458,6 +469,7 @@ test("layout studio slots are backed by persisted device profiles", async () => 
     read("../src/components/layout-slot.tsx"),
     read("../src/design/layout-studio-values.ts"),
     read("../src/app/index.tsx"),
+    read("../src/components/welcome-folded-panel.tsx"),
     read("../src/app/draw.tsx"),
     read("../src/app/preview.tsx"),
     read("../src/app/purchase.tsx"),
@@ -469,7 +481,8 @@ test("layout studio slots are backed by persisted device profiles", async () => 
 
   assert.match(slot, /useWindowDimensions\(\)/);
   assert.match(slot, /width >= 768 \? "ipad" : "iphone"/);
-  assert.match(slot, /Platform\.OS === "web" && layoutStudioMode/);
+  assert.match(slot, /Platform\.OS !== "web"/);
+  assert.match(slot, /layoutStudioMode && layoutStudioRequested\(\)/);
   assert.match(slot, /if \(!studioEnabled\) return slot/);
   assert.match(slot, /`layout-slot:\$\{id\}`/);
   assert.match(values, /(?:["']iphone["']|iphone):/);
@@ -479,7 +492,7 @@ test("layout studio slots are backed by persisted device profiles", async () => 
   assert.doesNotMatch(values, /["']capture\./);
   assert.doesNotMatch(values, /["']confirmation\./);
   for (const [source, expected] of [
-    [entry, /id="entry\.hero"/],
+    [entry + welcome, /id="entry\.hero"/],
     [draw, /\$\{layerPrefix\}\.canvas/],
     [review, /id="review\.signature"/],
     [purchase, /id="background\.transparent"/],
@@ -491,21 +504,24 @@ test("layout studio slots are backed by persisted device profiles", async () => 
     assert.match(source, expected);
 });
 
-test("the animated opening stages tactile paper, brand, and signature motion", async () => {
-  const [opening, paper, entry] = await Promise.all([
-    read("../src/components/animated-opening.tsx"),
+test("home uses the ink, paper, and gold material system without legacy teal or purple", async () => {
+  const [paper, welcome, config] = await Promise.all([
     read("../src/components/paper-ui.tsx"),
-    read("../src/app/index.tsx"),
+    read("../src/components/welcome-folded-panel.tsx"),
+    read("../app.config.ts"),
   ]);
-  assert.match(opening, /Animated\.timing/);
-  assert.match(opening, /PaperSurface folded/);
-  assert.match(opening, /only-signature-wordmark-paper\.png/);
-  assert.match(opening, /taylor-brooks-signature\.png/);
-  assert.match(paper, /dark-teal-background\.jpg/);
+  assert.match(paper, /backgroundColor: "#02040A"/);
   assert.match(paper, /warm-paper-texture\.png/);
-  assert.ok(entry.indexOf("No Account") < entry.indexOf("No Subscription"));
+  assert.match(welcome, /backgroundColor: "#0A3D78"/);
+  assert.match(welcome, /backgroundColor: "#D8B66A"/);
+  assert.match(config, /backgroundColor: "#02040A"/);
+  assert.doesNotMatch(
+    `${paper}\n${welcome}\n${config}`,
+    /purple|teal|#006971|#302B67|#DEDDF5|#B9B5FF|#ECEAFA/i,
+  );
+  assert.ok(welcome.indexOf("No Account") < welcome.indexOf("No Subscription"));
   assert.ok(
-    entry.indexOf("No Subscription") < entry.indexOf("No Document Upload"),
+    welcome.indexOf("No Subscription") < welcome.indexOf("No Document Upload"),
   );
 });
 
@@ -513,6 +529,7 @@ test("layout studio exposes individual text, icon, artwork, and action layers", 
   const [
     flow,
     entry,
+    welcome,
     draw,
     review,
     background,
@@ -524,6 +541,7 @@ test("layout studio exposes individual text, icon, artwork, and action layers", 
   ] = await Promise.all([
     read("../src/components/flow-ui.tsx"),
     read("../src/app/index.tsx"),
+    read("../src/components/welcome-folded-panel.tsx"),
     read("../src/app/draw.tsx"),
     read("../src/app/preview.tsx"),
     read("../src/app/purchase.tsx"),
@@ -540,7 +558,7 @@ test("layout studio exposes individual text, icon, artwork, and action layers", 
   for (const [sourceName, screen, markers] of [
     [
       "entry",
-      entry,
+      entry + welcome,
       [
         "entry.sign",
         "entry.title",
@@ -628,4 +646,28 @@ test("layout studio exposes individual text, icon, artwork, and action layers", 
   }
   assert.ok(studio.includes(`closest('[data-testid^="layout-slot:"]')`));
   assert.ok(studio.includes("1px dashed transparent"));
+});
+
+test("layout studio can present the live app inside a coded device mockup", async () => {
+  const [markup, styles, studio, slot] = await Promise.all([
+    read("../../../tools/layout-studio/index.html"),
+    read("../../../tools/layout-studio/studio.css"),
+    read("../../../tools/layout-studio/studio.js"),
+    read("../src/components/layout-slot.tsx"),
+  ]);
+
+  assert.match(markup, /id="deviceShell" class="device-shell iphone-shell"/);
+  assert.match(markup, /id="appFrame"/);
+  assert.match(markup, /class="dynamic-island"/);
+  assert.match(markup, /Live code · Interactive/);
+  assert.match(styles, /body\.present-mode \.studio/);
+  assert.match(styles, /\.device-shell/);
+  assert.match(studio, /query\.get\("present"\) === "1"/);
+  assert.match(studio, /elements\.deviceShell\.style\.transform/);
+  assert.match(studio, /presentMode\s*\?\s*screen\.route/);
+  assert.match(
+    studio,
+    /state\.visibleSlots[\s\S]*if \(presentMode\) return;[\s\S]*applyAllValues\(\)/,
+  );
+  assert.match(slot, /get\("layoutStudio"\) === "1"/);
 });

@@ -3,6 +3,7 @@ const recognizedFixtures = new Set([
   "comparison",
   "signature",
   "landing",
+  "opening",
   "privacy",
   "purchased",
   "saved-home",

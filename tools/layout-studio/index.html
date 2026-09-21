@@ -54,22 +54,41 @@
 
       <section id="workspace" class="workspace">
         <div class="workspace-grid"></div>
+        <div class="live-code-badge" aria-hidden="true">
+          <span></span>
+          Live code · Interactive
+        </div>
         <div id="previewViewport" class="preview-viewport">
-          <div id="previewSurface" class="preview-surface">
-            <iframe
-              id="appFrame"
-              title="Editable Only Signature screen"
-            ></iframe>
-            <div class="alignment-guides" aria-hidden="true">
-              <span class="guide safe-left"></span>
-              <span class="guide safe-right"></span>
-              <span class="guide center-vertical"></span>
-              <span class="guide quarter-horizontal"></span>
-              <span class="guide center-horizontal"></span>
-              <span class="guide three-quarter-horizontal"></span>
-              <span class="guide moving-vertical"></span>
-              <span class="guide moving-horizontal"></span>
+          <div id="deviceShell" class="device-shell iphone-shell">
+            <span
+              class="hardware-button action-button"
+              aria-hidden="true"
+            ></span>
+            <span class="hardware-button volume-up" aria-hidden="true"></span>
+            <span class="hardware-button volume-down" aria-hidden="true"></span>
+            <span class="hardware-button side-button" aria-hidden="true"></span>
+            <div id="previewSurface" class="preview-surface">
+              <iframe
+                id="appFrame"
+                title="Live Only Signature app preview"
+              ></iframe>
+              <div class="alignment-guides" aria-hidden="true">
+                <span class="guide safe-left"></span>
+                <span class="guide safe-right"></span>
+                <span class="guide center-vertical"></span>
+                <span class="guide quarter-horizontal"></span>
+                <span class="guide center-horizontal"></span>
+                <span class="guide three-quarter-horizontal"></span>
+                <span class="guide moving-vertical"></span>
+                <span class="guide moving-horizontal"></span>
+              </div>
             </div>
+            <div class="dynamic-island" aria-hidden="true">
+              <span class="island-speaker"></span>
+              <span class="island-camera"></span>
+            </div>
+            <span class="tablet-camera" aria-hidden="true"></span>
+            <span class="home-indicator" aria-hidden="true"></span>
           </div>
         </div>
       </section>

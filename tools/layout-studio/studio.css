@@ -268,20 +268,84 @@ button:disabled {
   background-size: 24px 24px;
 }
 
-.preview-viewport {
-  position: relative;
-  filter: drop-shadow(0 26px 42px rgba(0, 0, 0, 0.55));
+.live-code-badge {
+  display: none;
+  position: absolute;
+  top: 22px;
+  left: 24px;
+  z-index: 5;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(216, 182, 106, 0.3);
+  border-radius: 999px;
+  background: rgba(5, 10, 18, 0.72);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+  color: #ead9ad;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  backdrop-filter: blur(14px);
 }
 
-.preview-surface {
+.live-code-badge span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #77d49a;
+  box-shadow: 0 0 0 4px rgba(119, 212, 154, 0.12);
+}
+
+.preview-viewport {
+  position: relative;
+}
+
+.device-shell {
   position: absolute;
   left: 0;
   top: 0;
   transform-origin: top left;
-  border-radius: 46px;
+  border-radius: 68px;
+  background: linear-gradient(
+    104deg,
+    #11151a 0%,
+    #a7adb1 4%,
+    #24292d 9%,
+    #050607 48%,
+    #30363a 91%,
+    #9da4a8 96%,
+    #111419 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  box-shadow:
+    0 54px 92px rgba(0, 0, 0, 0.7),
+    0 16px 32px rgba(0, 0, 0, 0.52),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.86),
+    inset 3px 0 3px rgba(255, 255, 255, 0.2),
+    inset -3px 0 3px rgba(255, 255, 255, 0.12);
+}
+
+.device-shell::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  z-index: 1;
+  border-radius: 61px;
+  background: #010203;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.05),
+    0 0 0 1px rgba(0, 0, 0, 0.95);
+  pointer-events: none;
+}
+
+.preview-surface {
+  position: absolute;
+  z-index: 2;
   overflow: hidden;
-  outline: 1px solid #7c654f;
+  border-radius: 48px;
   background: #020b12;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07);
 }
 
 #appFrame {
@@ -290,6 +354,164 @@ button:disabled {
   border: 0;
   display: block;
   background: #020b12;
+}
+
+.hardware-button {
+  position: absolute;
+  z-index: 0;
+  display: block;
+  width: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: linear-gradient(90deg, #090b0d, #777d81 55%, #16191c);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+}
+
+.action-button,
+.volume-up,
+.volume-down {
+  left: -4px;
+  border-radius: 4px 0 0 4px;
+}
+
+.action-button {
+  top: 142px;
+  height: 35px;
+}
+
+.volume-up {
+  top: 205px;
+  height: 64px;
+}
+
+.volume-down {
+  top: 285px;
+  height: 64px;
+}
+
+.side-button {
+  right: -4px;
+  top: 222px;
+  height: 105px;
+  border-radius: 0 4px 4px 0;
+}
+
+.dynamic-island {
+  position: absolute;
+  top: 31px;
+  left: 50%;
+  z-index: 6;
+  width: 126px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-right: 12px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #000;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.025),
+    0 1px 2px rgba(255, 255, 255, 0.04);
+  pointer-events: none;
+}
+
+.island-speaker {
+  width: 32px;
+  height: 4px;
+  border-radius: 999px;
+  background: #080d13;
+}
+
+.island-camera,
+.tablet-camera {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 35%,
+    #35598a,
+    #07101e 42%,
+    #000 72%
+  );
+  box-shadow: inset 0 0 0 1px rgba(73, 121, 169, 0.3);
+}
+
+.tablet-camera {
+  display: none;
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  z-index: 6;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.home-indicator {
+  position: absolute;
+  bottom: 27px;
+  left: 50%;
+  z-index: 6;
+  width: 132px;
+  height: 5px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.84);
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+
+.device-shell.ipad-shell {
+  border-radius: 48px;
+}
+
+.device-shell.ipad-shell::before {
+  border-radius: 41px;
+}
+
+.device-shell.ipad-shell .preview-surface {
+  border-radius: 32px;
+}
+
+.device-shell.ipad-shell .dynamic-island,
+.device-shell.ipad-shell .hardware-button,
+.device-shell.ipad-shell .home-indicator {
+  display: none;
+}
+
+.device-shell.ipad-shell .tablet-camera {
+  display: block;
+}
+
+body.present-mode .topbar,
+body.present-mode .layers-panel,
+body.present-mode .properties-panel {
+  display: none;
+}
+
+body.present-mode .studio {
+  height: 100%;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+body.present-mode .workspace {
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      rgba(33, 65, 104, 0.88),
+      transparent 40%
+    ),
+    linear-gradient(145deg, #0c1828 0%, #040811 55%, #010204 100%);
+}
+
+body.present-mode .workspace-grid {
+  opacity: 0.06;
+  background-size: 42px 42px;
+}
+
+body.present-mode .live-code-badge {
+  display: flex;
 }
 
 .alignment-guides {

@@ -14,12 +14,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle, Path, Rect } from "react-native-svg";
 import { LayoutSlot } from "@/components/layout-slot";
-import { PaperSurface, TealTexture } from "@/components/paper-ui";
+import { AppBackdrop, PaperSurface } from "@/components/paper-ui";
 
 export const flowColors = {
-  night: "#006971",
+  night: "#02040A",
   ink: "#071F5A",
-  inkRaised: "#004F57",
+  inkRaised: "#10234D",
   cyan: "#D8B66A",
   cyanText: "#FFE2A0",
   white: "#FBFAF5",
@@ -28,16 +28,11 @@ export const flowColors = {
   cardText: "#071F5A",
   cardMuted: "#425269",
   outline: "#AFA58C",
-  accessibleLink: "#075E69",
+  accessibleLink: "#17386D",
 } as const;
 
 const brandSources = {
   wordmark: require("../../assets/brand/only-signature-wordmark.png"),
-  sign: require("../../assets/brand/sign-label.png"),
-  initial: require("../../assets/brand/initial-label.png"),
-  review: require("../../assets/brand/review-label.png"),
-  select: require("../../assets/brand/select-label.png"),
-  before: require("../../assets/brand/before-label.png"),
 } as const;
 
 export type ScriptAsset = "sign" | "initial" | "review" | "select" | "before";
@@ -48,24 +43,54 @@ export function FlowScreen({
   contentStyle,
   testID,
   tone = "dark",
+  chrome = "stacked",
 }: PropsWithChildren<{
   scroll?: boolean;
   contentStyle?: StyleProp<ViewStyle>;
   testID?: string;
   tone?: "dark" | "light";
+  chrome?: "stacked" | "none";
 }>) {
   const light = tone === "light";
+  const branded = !light && chrome === "stacked";
   const content = (
-    <View style={[styles.screenContent, contentStyle]}>{children}</View>
+    <View
+      style={[
+        styles.screenContent,
+        contentStyle,
+        branded && styles.brandedContent,
+      ]}
+    >
+      {children}
+    </View>
   );
   return (
     <SafeAreaView
       style={[styles.safe, light && styles.lightSafe]}
       edges={["top", "right", "bottom", "left"]}
     >
-      <TealTexture
+      <AppBackdrop
         style={[styles.background, light && styles.lightBackground]}
       />
+      {branded ? (
+        <View
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          pointerEvents="none"
+          style={styles.flowChrome}
+        >
+          <View style={styles.flowRearPlate} />
+          <PaperSurface style={styles.flowPaperStage} />
+          <View style={styles.flowInkStage}>
+            <View style={styles.flowTopHighlight} />
+            <View style={styles.flowSignatureMotif}>
+              <View style={styles.flowSignatureDot} />
+              <View style={styles.flowSignatureLine} />
+            </View>
+          </View>
+          <Wordmark accessibilityLabel="" style={styles.flowWordmark} />
+        </View>
+      ) : null}
       {scroll ? (
         <ScrollView
           style={styles.screenScroll}
@@ -109,31 +134,20 @@ export function ScriptLabel({
   layoutId,
 }: {
   asset: ScriptAsset;
-  style?: StyleProp<ImageStyle>;
+  style?: StyleProp<TextStyle>;
   layoutId?: string;
 }) {
   const labels: Record<ScriptAsset, string> = {
-    sign: "Sign.",
-    initial: "Initial.",
-    review: "Review.",
-    select: "Select.",
-    before: "Before You Download",
+    sign: "YOUR SIGNATURE",
+    initial: "YOUR INITIALS",
+    review: "REVIEW YOUR SET",
+    select: "CHOOSE A BACKGROUND",
+    before: "BEFORE YOU DOWNLOAD",
   };
   const label = (
-    <Image
-      source={brandSources[asset]}
-      accessibilityLabel={labels[asset]}
-      resizeMode="contain"
-      style={[
-        styles.scriptLabel,
-        asset === "sign" && styles.signLabel,
-        asset === "initial" && styles.initialLabel,
-        asset === "review" && styles.reviewLabel,
-        asset === "select" && styles.selectLabel,
-        asset === "before" && styles.beforeLabel,
-        style,
-      ]}
-    />
+    <Text selectable style={[styles.scriptLabel, style]}>
+      {labels[asset]}
+    </Text>
   );
   return layoutId ? <LayoutSlot id={layoutId}>{label}</LayoutSlot> : label;
 }
@@ -218,11 +232,16 @@ export function FlowPrimaryButton({
         disabled && styles.disabled,
       ]}
     >
-      {labelLayoutId ? (
-        <LayoutSlot id={labelLayoutId}>{labelNode}</LayoutSlot>
-      ) : (
-        labelNode
-      )}
+      <View style={styles.primaryLabelWrap}>
+        {labelLayoutId ? (
+          <LayoutSlot id={labelLayoutId}>{labelNode}</LayoutSlot>
+        ) : (
+          labelNode
+        )}
+      </View>
+      <View accessibilityElementsHidden style={styles.primaryArrow}>
+        <Text style={styles.primaryArrowText}>→</Text>
+      </View>
     </Pressable>
   );
   return layoutId ? <LayoutSlot id={layoutId}>{button}</LayoutSlot> : button;
@@ -391,9 +410,9 @@ export function CaptureBackdrop({ initial = false }: { initial?: boolean }) {
     >
       <ScriptLabel asset={initial ? "initial" : "sign"} />
       <FlowHeading>
-        {initial ? "Add your initials" : "Add your signature"}
+        {initial ? "Write your initials" : "Write your full name"}
       </FlowHeading>
-      <FlowBody>Write in the space below.</FlowBody>
+      <FlowBody>Use the line to keep your writing straight.</FlowBody>
       <View style={styles.backdropCanvas} />
     </View>
   );
@@ -595,13 +614,13 @@ export function CheckMark({ layoutId }: { layoutId?: string } = {}) {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: flowColors.night },
   lightSafe: { backgroundColor: "#F8F6EF" },
-  fill: { flex: 1 },
+  fill: { flex: 1, zIndex: 2 },
   background: {
     ...StyleSheet.absoluteFill,
     overflow: "hidden",
   },
   lightBackground: { backgroundColor: "#F8F6EF" },
-  screenScroll: { flex: 1 },
+  screenScroll: { flex: 1, zIndex: 2 },
   sheetScroll: { flex: 1 },
   scroll: { flexGrow: 1 },
   screenContent: {
@@ -613,40 +632,158 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: 28,
   },
+  brandedContent: {
+    position: "relative",
+    zIndex: 3,
+    paddingHorizontal: 32,
+    paddingTop: 82,
+    paddingBottom: 28,
+  },
+  flowChrome: {
+    ...StyleSheet.absoluteFill,
+    zIndex: 1,
+  },
+  flowRearPlate: {
+    position: "absolute",
+    left: 24,
+    right: 8,
+    top: 25,
+    bottom: 7,
+    borderRadius: 46,
+    borderCurve: "continuous",
+    borderWidth: 1,
+    borderColor: "rgba(216,182,106,0.34)",
+    backgroundColor: "#081A35",
+    boxShadow: "0 38px 72px rgba(0,0,0,0.72), 0 12px 24px rgba(0,0,0,0.58)",
+  },
+  flowInkStage: {
+    position: "absolute",
+    left: 12,
+    right: 12,
+    top: 7,
+    height: 252,
+    overflow: "hidden",
+    borderRadius: 44,
+    borderCurve: "continuous",
+    borderWidth: 1,
+    borderColor: "rgba(216,182,106,0.58)",
+    backgroundColor: "#0A3D78",
+    boxShadow:
+      "0 30px 46px rgba(0,0,0,0.60), 0 9px 16px rgba(0,0,0,0.34), inset 0 2px 0 rgba(255,255,255,0.20), inset 0 -2px 0 rgba(2,4,10,0.34)",
+  },
+  flowPaperStage: {
+    position: "absolute",
+    left: 12,
+    right: 12,
+    top: 205,
+    bottom: 7,
+    borderRadius: 44,
+    borderCurve: "continuous",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.96)",
+    backgroundColor: "#F8F6EF",
+    boxShadow:
+      "0 28px 50px rgba(0,0,0,0.50), inset 0 2px 0 rgba(255,255,255,0.98), inset 0 -2px 0 rgba(7,31,90,0.12)",
+  },
+  flowTopHighlight: {
+    position: "absolute",
+    left: 36,
+    right: 36,
+    top: 1,
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.30)",
+  },
+  flowWordmark: {
+    position: "absolute",
+    right: 36,
+    top: 18,
+    zIndex: 4,
+    width: 112,
+    height: 44,
+  },
+  flowSignatureMotif: {
+    position: "absolute",
+    left: 29,
+    right: 29,
+    bottom: 29,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+  },
+  flowSignatureDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: "#D8B66A",
+    boxShadow: "0 0 12px rgba(216,182,106,0.72)",
+  },
+  flowSignatureLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "rgba(216,182,106,0.46)",
+  },
   wordmark: { width: 244, height: 134, alignSelf: "center" },
-  scriptLabel: { alignSelf: "flex-start" },
-  signLabel: { width: 152, height: 72 },
-  initialLabel: { width: 154, height: 54 },
-  reviewLabel: { width: 148, height: 54 },
-  selectLabel: { width: 122, height: 54 },
-  beforeLabel: { width: 250, height: 43 },
+  scriptLabel: {
+    alignSelf: "flex-start",
+    color: "#FFE2A0",
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "800",
+    letterSpacing: 1.35,
+  },
   heading: {
     color: flowColors.white,
-    fontSize: 30,
-    lineHeight: 36,
-    fontWeight: "800",
-    letterSpacing: -0.55,
+    fontFamily: "Georgia",
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: "700",
+    letterSpacing: -1.1,
   },
-  body: { color: "#EDF5F2", fontSize: 22, lineHeight: 31 },
+  body: { color: "#E9E6DC", fontSize: 17, lineHeight: 24 },
   primaryButton: {
     width: "100%",
-    minHeight: 59,
-    paddingHorizontal: 20,
-    justifyContent: "center",
+    minHeight: 60,
+    paddingLeft: 22,
+    paddingRight: 9,
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    borderRadius: 999,
+    borderRadius: 30,
     borderWidth: 1,
-    borderColor: flowColors.cyan,
-    backgroundColor: flowColors.card,
+    borderColor: "rgba(255,255,255,0.22)",
+    backgroundColor: "#0A3D78",
     boxShadow:
-      "0 14px 32px rgba(0, 37, 43, 0.38), inset 0 1px 0 rgba(255,255,255,0.75)",
+      "0 14px 26px rgba(7,31,90,0.30), inset 0 1px 0 rgba(255,255,255,0.18)",
   },
   primaryButtonText: {
-    color: "#064957",
+    flexShrink: 1,
+    color: "#FFFFFF",
     fontSize: 17,
     lineHeight: 23,
     fontWeight: "700",
     textAlign: "center",
+  },
+  primaryArrow: {
+    width: 42,
+    height: 42,
+    marginLeft: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 21,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.38)",
+    backgroundColor: "rgba(216,182,106,0.24)",
+  },
+  primaryLabelWrap: {
+    flex: 1,
+    alignItems: "center",
+    paddingLeft: 4,
+  },
+  primaryArrowText: {
+    color: "#FFFFFF",
+    fontSize: 23,
+    lineHeight: 25,
+    fontWeight: "500",
   },
   primaryButtonTextCompact: { fontSize: 22, lineHeight: 29 },
   textButton: {
@@ -657,19 +794,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   textButtonText: {
-    color: "#FFF2C8",
+    color: "#17386D",
     fontSize: 15,
     lineHeight: 21,
-    fontWeight: "600",
+    fontWeight: "700",
     textAlign: "center",
   },
-  pressed: { opacity: 0.76, transform: [{ scale: 0.99 }] },
+  pressed: { opacity: 0.8, transform: [{ scale: 0.985 }] },
   disabled: { opacity: 0.46 },
   backButton: {
     width: 44,
     height: 44,
     marginLeft: -12,
     borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "rgba(216,182,106,0.44)",
+    backgroundColor: "rgba(8,26,53,0.72)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -688,7 +828,7 @@ const styles = StyleSheet.create({
     borderColor: "#D8B66A",
     backgroundColor: "#FBFAF5",
     boxShadow:
-      "0 -22px 54px rgba(0, 37, 43, 0.45), 0 -1px 0 rgba(216, 182, 106, 0.35)",
+      "0 -22px 54px rgba(2, 4, 10, 0.45), 0 -1px 0 rgba(216, 182, 106, 0.35)",
   },
   sheetContent: {
     flexGrow: 1,
@@ -729,7 +869,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.58)",
-    boxShadow: "0 16px 34px rgba(0, 38, 43, 0.3)",
+    boxShadow: "0 16px 34px rgba(2, 4, 10, 0.3)",
   },
   previewLabel: {
     color: flowColors.cardText,

@@ -50,7 +50,7 @@ export function SignatureModeOption({
           <Path
             d="m6.75 3.75 5.25 5.25-5.25 5.25"
             fill="none"
-            stroke="#FFE2A0"
+            stroke="#071F5A"
             strokeWidth={1.8}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -73,9 +73,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderCurve: "continuous",
     borderWidth: 1,
-    borderColor: "rgba(255, 226, 160, 0.72)",
-    backgroundColor: "rgba(0, 51, 58, 0.78)",
-    boxShadow: "0 12px 28px rgba(0, 34, 40, 0.24)",
+    borderColor: "rgba(216,182,106,0.72)",
+    backgroundColor: "#FBFAF5",
+    boxShadow: "0 12px 28px rgba(7,31,90,0.18)",
   },
   numberMark: {
     width: 42,
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     borderRadius: 21,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FFE2A0",
+    backgroundColor: "#D8B66A",
   },
   numberText: {
     color: "#071F5A",
@@ -94,12 +94,12 @@ const styles = StyleSheet.create({
   },
   copy: { flex: 1, gap: 2 },
   title: {
-    color: "#FFFFFF",
+    color: "#10234D",
     fontSize: 16,
     lineHeight: 21,
     fontWeight: "800",
   },
-  detail: { color: "#C8DADC", fontSize: 13, lineHeight: 18 },
+  detail: { color: "#425269", fontSize: 13, lineHeight: 18 },
   pressed: { opacity: 0.78, transform: [{ scale: 0.992 }] },
   disabled: { opacity: 0.42 },
 });

@@ -16,9 +16,11 @@ const { chromium } = playwright;
 const screenshots = [
   {
     id: "01-splash",
-    headline: "Splash",
-    kind: "splash",
-    assertions: ["Only Signature"],
+    headline: "Animated opening",
+    route: "/?fixture=opening",
+    testId: "opening-splash-screen",
+    assertions: ["Without the sign-up.", "Private by design."],
+    waitMs: 2_800,
   },
   {
     id: "02-entry",
@@ -33,7 +35,7 @@ const screenshots = [
     route: "/draw?fixture=both",
     testId: "signature-capture-screen",
     assertions: [
-      "Add your signature",
+      "Write your full name",
       "Save Signature",
       "Sign first + last separately",
     ],
@@ -43,28 +45,28 @@ const screenshots = [
     headline: "Optional First Name Capture",
     route: "/draw?fixture=both&namePart=first",
     testId: "first-name-capture-screen",
-    assertions: ["Add your first name", "Save First Name"],
+    assertions: ["Write your first name", "Save First Name"],
   },
   {
     id: "03b-last-name-capture",
     headline: "Last Name Capture",
     route: "/draw?fixture=both&namePart=last",
     testId: "last-name-capture-screen",
-    assertions: ["Add your last name", "Save Last Name and Join"],
+    assertions: ["Write your last name", "Save Last Name and Join"],
   },
   {
     id: "04-initials-capture",
     headline: "Initials Capture",
     route: "/draw?fixture=initials",
     testId: "initials-capture-screen",
-    assertions: ["Add your initials", "Save Initials", "Skip for Now"],
+    assertions: ["Write your initials", "Save Initials", "Skip for Now"],
   },
   {
     id: "05-review-popup",
     headline: "Review popup",
     route: "/preview?fixture=both",
     testId: "review-screen",
-    assertions: ["Confirm Your Signing Set", "Confirm and Choose Background"],
+    assertions: ["Review your signing set", "Confirm and Choose Background"],
   },
   {
     id: "06-background-popup",
@@ -72,7 +74,7 @@ const screenshots = [
     route: "/purchase?fixture=both",
     testId: "background-screen",
     assertions: [
-      "Choose Your Background",
+      "Choose a background",
       "Transparent Background",
       "White Background",
     ],
@@ -83,8 +85,8 @@ const screenshots = [
     route: "/clear-background?fixture=both",
     testId: "clear-background-screen",
     assertions: [
-      "Clear Background",
-      "Looks natural on any document.",
+      "See the difference",
+      "A transparent signature sits naturally on any document.",
       "White box",
       "No Thanks",
     ],
@@ -132,30 +134,11 @@ const devices = {
   ipad: { width: 1032, height: 1376 },
 };
 
-const splashArtwork = path.join(
-  root,
-  "apps",
-  "mobile",
-  "assets",
-  "brand",
-  "only-signature-wordmark-paper.png",
-);
-
 await mkdir(outputRoot, { recursive: true });
 for (const device of Object.keys(devices)) {
   const directory = path.join(outputRoot, device);
   await rm(directory, { recursive: true, force: true });
   await mkdir(directory, { recursive: true });
-}
-
-async function createSplash(outputPath, size) {
-  await sharp(splashArtwork)
-    .resize(size.width, size.height, {
-      fit: "contain",
-      background: "#006971",
-    })
-    .png()
-    .toFile(outputPath);
 }
 
 const browser = await chromium.launch({
@@ -173,10 +156,6 @@ try {
     const page = await context.newPage();
     for (const shot of screenshots) {
       const outputPath = path.join(outputRoot, device, `${shot.id}.png`);
-      if (shot.kind === "splash") {
-        await createSplash(outputPath, size);
-        continue;
-      }
       await page.goto(new URL(shot.route, baseUrl).href, {
         waitUntil: "networkidle",
       });
@@ -190,7 +169,24 @@ try {
           assertion,
         );
       }
-      await page.waitForTimeout(350);
+      if (shot.id === "01-splash") {
+        await page.evaluate(() => {
+          const show = (testId, transform = "none") => {
+            const element = document.querySelector(`[data-testid="${testId}"]`);
+            if (!(element instanceof HTMLElement)) return;
+            element.style.opacity = "1";
+            element.style.transform = transform;
+          };
+          show("opening-paper", "rotate(-3deg)");
+          show("opening-ink-card");
+          show("opening-wordmark");
+          show("opening-copy");
+          show("opening-signature");
+          show("opening-line");
+          show("opening-footer");
+        });
+      }
+      await page.waitForTimeout(shot.waitMs ?? 350);
       await page.screenshot({ path: outputPath, fullPage: false });
     }
     await context.close();
@@ -229,7 +225,7 @@ async function phoneFrame(inputPath) {
   const frame =
     Buffer.from(`<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <rect x="1.5" y="1.5" width="${width - 3}" height="${height - 3}" rx="25" fill="#02070B" stroke="#7C6A57" stroke-width="3"/>
-    <rect x="${screenX}" y="${screenY}" width="${screenWidth}" height="${height - 24}" rx="18" fill="#006971"/>
+    <rect x="${screenX}" y="${screenY}" width="${screenWidth}" height="${height - 24}" rx="18" fill="#02040A"/>
     <text x="19" y="23" font-family="Arial, sans-serif" font-size="8" font-weight="700" fill="#F7FBFD">9:41</text>
     <rect x="135" y="16" width="12" height="6" rx="3" fill="#F7FBFD" opacity=".9"/>
     <circle cx="153" cy="19" r="3" fill="#F7FBFD" opacity=".9"/>
@@ -328,11 +324,10 @@ const manifest = {
     "Local reference-matched app rendering; phone frames are presentation-only and this is not native iOS or App Store evidence",
   capturedOn: new Date().toISOString().slice(0, 10),
   referenceFlow: "11-screen founder-directed flow",
-  screenshots: screenshots.map(({ id, route, headline, assertions, kind }) => ({
+  screenshots: screenshots.map(({ id, route, headline, assertions }) => ({
     id,
     ...(route ? { route } : {}),
     headline,
-    ...(kind ? { kind } : {}),
     assertions,
   })),
   outputs: devices,

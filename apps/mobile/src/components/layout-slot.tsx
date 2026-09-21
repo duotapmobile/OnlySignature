@@ -40,6 +40,13 @@ function normalized(value: LayoutStudioValue | undefined) {
   };
 }
 
+function layoutStudioRequested(): boolean {
+  if (Platform.OS !== "web" || typeof window === "undefined") return false;
+  return (
+    new URLSearchParams(window.location.search).get("layoutStudio") === "1"
+  );
+}
+
 function valueStyle(
   value: LayoutStudioValue | undefined,
 ): ViewStyle | undefined {
@@ -85,7 +92,7 @@ export function LayoutSlot({
 }: LayoutSlotProps) {
   const { width } = useWindowDimensions();
   const device = width >= 768 ? "ipad" : "iphone";
-  const studioEnabled = Platform.OS === "web" && layoutStudioMode;
+  const studioEnabled = layoutStudioMode && layoutStudioRequested();
   const phoneValue = studioEnabled ? layoutStudioValues.iphone[id] : undefined;
   const ipadValue = studioEnabled ? layoutStudioValues.ipad[id] : undefined;
   const slot = (

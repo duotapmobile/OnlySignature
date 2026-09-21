@@ -280,9 +280,11 @@ const styles = StyleSheet.create({
   titleSlot: { flex: 1, minWidth: 0 },
   headingText: {
     color: flowColors.white,
-    fontSize: 28,
-    lineHeight: 34,
-    fontWeight: "800",
+    fontFamily: "Georgia",
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: "700",
+    letterSpacing: -1.1,
   },
   content: { paddingTop: 28, paddingBottom: 20 },
   header: {
@@ -312,7 +314,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 10,
     overflow: "hidden",
-    boxShadow: "0 14px 30px rgba(0, 38, 43, 0.3)",
+    boxShadow: "0 14px 30px rgba(7,31,90,0.22)",
   },
   cardTop: { height: 78, flexDirection: "row", alignItems: "center" },
   signatureSlot: { flex: 1, height: 70 },
@@ -371,7 +373,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(216,182,106,0.62)",
     backgroundColor: "#FAFAFA",
     padding: 18,
-    boxShadow: "0 12px 26px rgba(0, 38, 43, 0.24)",
+    boxShadow: "0 12px 26px rgba(7,31,90,0.18)",
   },
   emptyTitle: {
     color: flowColors.cardText,

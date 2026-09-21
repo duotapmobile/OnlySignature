@@ -9,6 +9,7 @@ test("fixture query parameters are inert when fixture mode is disabled", () => {
 
 test("fixture mode accepts only recognized fixtures and expected routes", () => {
   assert.equal(isAuthorizedFixture("landing", "landing", true), true);
+  assert.equal(isAuthorizedFixture("opening", "opening", true), true);
   assert.equal(isAuthorizedFixture("unknown", undefined, true), false);
   assert.equal(
     isAuthorizedFixture("purchased", ["both", "signature"], true),

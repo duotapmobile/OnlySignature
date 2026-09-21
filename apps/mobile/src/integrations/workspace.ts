@@ -51,13 +51,13 @@ const tokenRadii = radii as unknown as Record<string, number>;
 
 export const theme = {
   colors: {
-    primary: tokenColors.primary ?? "#133A50",
-    primaryDark: tokenColors.primaryDark ?? "#0A2636",
-    primaryLight: tokenColors.primaryLight ?? "#DCEBF0",
+    primary: tokenColors.primary ?? "#071F5A",
+    primaryDark: tokenColors.primaryDark ?? "#02040A",
+    primaryLight: tokenColors.primaryLight ?? "#EEE8D9",
     white: tokenColors.white ?? "#FFFFFF",
     offWhite: tokenColors.offWhite ?? "#F5F8F7",
-    text: tokenColors.darkText ?? "#102733",
-    muted: tokenColors.mutedText ?? "#536873",
+    text: tokenColors.darkText ?? "#10234D",
+    muted: tokenColors.mutedText ?? "#686052",
     success: tokenColors.success ?? "#20714B",
     warning: tokenColors.warning ?? "#8A5A08",
     destructive: tokenColors.destructive ?? "#A32626",

@@ -8,22 +8,18 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
-const tealTexture = require("../../assets/brand/dark-teal-background.jpg");
 const paperTexture = require("../../assets/brand/warm-paper-texture.png");
 
-export function TealTexture({
+export function AppBackdrop({
   children,
   style,
 }: PropsWithChildren<{ style?: StyleProp<ViewStyle> }>) {
   return (
-    <ImageBackground
-      source={tealTexture}
-      resizeMode="cover"
-      style={[styles.fill, style]}
-      imageStyle={styles.tealImage}
-    >
+    <View style={[styles.fill, styles.backdrop, style]}>
+      <View pointerEvents="none" style={styles.inkGlow} />
+      <View pointerEvents="none" style={styles.goldGlow} />
       {children}
-    </ImageBackground>
+    </View>
   );
 }
 
@@ -79,7 +75,28 @@ export function PaperFold() {
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  tealImage: { opacity: 1 },
+  backdrop: {
+    overflow: "hidden",
+    backgroundColor: "#02040A",
+  },
+  inkGlow: {
+    position: "absolute",
+    width: 520,
+    height: 520,
+    left: -310,
+    top: 80,
+    borderRadius: 260,
+    backgroundColor: "rgba(7,31,90,0.42)",
+  },
+  goldGlow: {
+    position: "absolute",
+    width: 360,
+    height: 360,
+    right: -260,
+    bottom: -120,
+    borderRadius: 180,
+    backgroundColor: "rgba(216,182,106,0.08)",
+  },
   paper: {
     overflow: "hidden",
     backgroundColor: "#F8F6EF",

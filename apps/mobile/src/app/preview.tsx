@@ -47,7 +47,7 @@ export default function ReviewScreen() {
           layoutId="review.script"
         />
         <FlowHeading style={styles.headingText} layoutId="review.title">
-          Confirm Your Signing Set
+          Review your signing set
         </FlowHeading>
         <FlowBody style={styles.copy} layoutId="review.subtitle">
           Check both before choosing a background.
@@ -119,12 +119,12 @@ const styles = StyleSheet.create({
   content: { paddingTop: 18, paddingBottom: 18 },
   back: { position: "absolute", top: 8, left: 20, zIndex: 3 },
   header: { marginTop: 28 },
-  script: { width: 126, height: 48, marginLeft: 30, marginBottom: -4 },
+  script: { marginBottom: 7 },
   headingText: { fontSize: 27, lineHeight: 32 },
   copy: {
     fontSize: 15,
     lineHeight: 21,
-    color: "#DDE4E7",
+    color: "#E9E6DC",
     marginTop: 5,
     marginBottom: 12,
   },

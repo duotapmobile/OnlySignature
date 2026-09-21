@@ -149,10 +149,10 @@ export default function ClearBackgroundScreen() {
       </View>
       <LayoutSlot id="clear.header" style={styles.header}>
         <FlowHeading style={styles.title} layoutId="clear.title">
-          Clear Background
+          See the difference
         </FlowHeading>
         <FlowBody style={styles.subtitle} layoutId="clear.subtitle">
-          Looks natural on any document.
+          A transparent signature sits naturally on any document.
         </FlowBody>
       </LayoutSlot>
       <LayoutSlot id="clear.comparison" style={styles.comparison}>
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(216,182,106,0.62)",
     paddingHorizontal: 10,
     paddingTop: 12,
-    boxShadow: "0 14px 34px rgba(0, 38, 43, 0.3)",
+    boxShadow: "0 14px 34px rgba(7,31,90,0.22)",
   },
   tabletCard: { height: 210, paddingHorizontal: 20, paddingTop: 14 },
   statusRow: { flexDirection: "row", alignItems: "center", gap: 7 },

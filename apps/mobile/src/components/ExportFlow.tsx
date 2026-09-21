@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
   error: { color: "#FFD8D2", fontSize: 14, lineHeight: 20, fontWeight: "700" },
   modalShade: {
     flex: 1,
-    backgroundColor: "rgba(0,37,43,0.74)",
+    backgroundColor: "rgba(2,4,10,0.78)",
     alignItems: "center",
     justifyContent: "center",
     padding: 22,
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
     backgroundColor: flowColors.card,
     padding: 20,
     gap: 12,
-    boxShadow: "0 22px 54px rgba(0,30,35,0.52)",
+    boxShadow: "0 22px 54px rgba(2,4,10,0.52)",
   },
   destinationTitle: {
     color: flowColors.cardText,
@@ -395,8 +395,8 @@ const styles = StyleSheet.create({
     minHeight: 46,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#0A6670",
-    backgroundColor: "#075A63",
+    borderColor: "#17386D",
+    backgroundColor: "#071F5A",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 12,

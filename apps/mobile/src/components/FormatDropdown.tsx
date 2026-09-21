@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0,37,43,0.74)",
+    backgroundColor: "rgba(2,4,10,0.78)",
     justifyContent: "center",
     padding: 24,
   },
@@ -170,8 +170,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   selected: {
-    backgroundColor: "#075A63",
-    borderColor: "#075A63",
+    backgroundColor: "#071F5A",
+    borderColor: "#071F5A",
   },
   optionText: {
     color: flowColors.cardText,

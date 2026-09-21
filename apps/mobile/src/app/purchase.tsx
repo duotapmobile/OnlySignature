@@ -160,7 +160,7 @@ export default function BackgroundScreen() {
           layoutId="background.script"
         />
         <FlowHeading style={styles.headingText} layoutId="background.title">
-          Choose Your Background
+          Choose a background
         </FlowHeading>
       </LayoutSlot>
       <View
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   content: { paddingTop: 18, paddingBottom: 18 },
   back: { position: "absolute", top: 8, left: 20, zIndex: 3 },
   header: { marginTop: 32 },
-  script: { width: 106, height: 44, marginLeft: 30, marginBottom: -3 },
+  script: { marginBottom: 7 },
   headingText: { fontSize: 27, lineHeight: 32 },
   options: { gap: 12, marginTop: 18 },
   choice: {
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     gap: 13,
     alignItems: "center",
     backgroundColor: flowColors.card,
-    boxShadow: "0 14px 30px rgba(0, 38, 43, 0.3)",
+    boxShadow: "0 14px 30px rgba(7,31,90,0.22)",
   },
   choiceSelected: { borderColor: flowColors.cyan, backgroundColor: "#FFF9E8" },
   pressed: { opacity: 0.76 },

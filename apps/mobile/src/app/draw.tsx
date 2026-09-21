@@ -96,10 +96,10 @@ export default function CaptureScreen() {
     if (!hasDrawing(drawableAsset)) {
       setMessage(
         initial
-          ? "Add your initials or skip for now."
+          ? "Write your initials or skip for now."
           : signatureMode === "full"
-            ? "Sign your full name before continuing."
-            : `Sign your ${signatureMode} name before continuing.`,
+            ? "Write your full name before continuing."
+            : `Write your ${signatureMode} name before continuing.`,
       );
       return;
     }
@@ -265,10 +265,10 @@ export default function CaptureScreen() {
           layoutId={`${layerPrefix}.title`}
         >
           {initial
-            ? "Add your initials"
+            ? "Write your initials"
             : signatureMode === "full"
-              ? "Add your signature"
-              : `Add your ${signatureMode} name`}
+              ? "Write your full name"
+              : `Write your ${signatureMode} name`}
         </FlowHeading>
         {landscape ? (
           <Text selectable style={styles.landscapeInstruction}>
@@ -281,12 +281,12 @@ export default function CaptureScreen() {
               layoutId={`${layerPrefix}.subtitle`}
             >
               {initial
-                ? "Write your initials in the space below."
+                ? "Write your initials along the line below."
                 : signatureMode === "full"
-                  ? "Sign your full name on the line below."
+                  ? "Write your full name along the line below."
                   : signatureMode === "first"
-                    ? "Sign only your first name. We’ll join it to your last name next."
-                    : "Sign only your last name. We’ll align and join both parts for you."}
+                    ? "Write only your first name. We’ll join it to your last name next."
+                    : "Write only your last name. We’ll align and join both parts for you."}
             </FlowBody>
             <View style={styles.rotate}>
               <LayoutSlot id={`${layerPrefix}.rotate.icon`}>
@@ -335,10 +335,10 @@ export default function CaptureScreen() {
             kind={kind}
             prompt={
               initial
-                ? "Initial here"
+                ? "Write your initials here"
                 : signatureMode === "full"
-                  ? "Sign your full name here"
-                  : `Sign your ${signatureMode} name here`
+                  ? "Write your full name here"
+                  : `Write your ${signatureMode} name here`
             }
             drawingAccessibilityLabel={
               initial
@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 14,
   },
-  script: { width: 138, height: 62, marginLeft: 4, marginBottom: -8 },
+  script: { marginLeft: 4, marginBottom: 8 },
   compactScript: {
     width: 154,
     height: 60,
@@ -535,11 +535,11 @@ const styles = StyleSheet.create({
     minHeight: 190,
     borderRadius: 24,
     borderCurve: "continuous",
-    backgroundColor: "#F7F7F7",
+    backgroundColor: "#F8F6EF",
     borderWidth: 1.5,
     borderColor: "rgba(216,182,106,0.72)",
     overflow: "hidden",
-    boxShadow: "0 22px 48px rgba(0, 30, 36, 0.38)",
+    boxShadow: "0 22px 48px rgba(2, 4, 10, 0.34)",
   },
   redoSlot: { alignItems: "flex-end" },
   redo: {
@@ -551,8 +551,8 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
-    backgroundColor: "rgba(0, 48, 55, 0.46)",
+    borderColor: "rgba(216,182,106,0.54)",
+    backgroundColor: "#071F5A",
   },
   redoContent: { flexDirection: "row", alignItems: "center", gap: 6 },
   redoText: { color: flowColors.white, fontSize: 14, lineHeight: 20 },
