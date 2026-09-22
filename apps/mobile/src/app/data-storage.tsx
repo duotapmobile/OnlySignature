@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { InfoPage, Section } from "@/components/InfoPage";
 import { FlowTextButton } from "@/components/flow-ui";
 import { useAppState } from "@/state/AppStateProvider";
+import { hapticError, hapticSuccess, hapticWarning } from "@/services/haptics";
 
 export default function DataStorageScreen() {
   const { deleteAll } = useAppState();
@@ -16,14 +17,19 @@ export default function DataStorageScreen() {
           text: "Delete All Local Data",
           style: "destructive",
           onPress: () => {
+            void hapticWarning();
             void deleteAll()
-              .then(() => router.replace("/"))
-              .catch(() =>
+              .then(() => {
+                void hapticSuccess();
+                router.replace("/");
+              })
+              .catch(() => {
+                void hapticError();
                 Alert.alert(
                   "Purchase recovery in progress",
                   "Wait for Apple purchase recovery to finish before deleting local data.",
-                ),
-              );
+                );
+              });
           },
         },
       ],

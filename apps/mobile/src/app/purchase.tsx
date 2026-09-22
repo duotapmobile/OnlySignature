@@ -13,6 +13,8 @@ import {
 } from "@/components/flow-ui";
 import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 import { useTransparentPurchase } from "@/hooks/use-transparent-purchase";
+import { hapticSelection } from "@/services/haptics";
+import { InlineStatus } from "@/components/feedback-ui";
 
 type Background = "transparent" | "white";
 
@@ -177,6 +179,7 @@ export default function BackgroundScreen() {
             price={displayPrice}
             layerPrefix="background.transparent"
             onSelect={() => {
+              void hapticSelection();
               setBackground("transparent");
               clearError();
             }}
@@ -190,12 +193,23 @@ export default function BackgroundScreen() {
             description="May cover anything behind your signature."
             layerPrefix="background.white"
             onSelect={() => {
+              void hapticSelection();
               setBackground("white");
               clearError();
             }}
           />
         </LayoutSlot>
       </View>
+      {busy ? (
+        <InlineStatus
+          message={
+            unboundPurchase
+              ? "Checking your Apple purchase"
+              : "Opening Apple purchase"
+          }
+          tone="light"
+        />
+      ) : null}
       {error ? (
         <LayoutSlot id="background.error">
           <Text accessibilityRole="alert" style={styles.error}>
@@ -220,6 +234,7 @@ export default function BackgroundScreen() {
           disabled={
             busy || (background === "transparent" && transparentUnavailable)
           }
+          loading={busy}
           layoutId="background.primary.button"
           labelLayoutId="background.primary.label"
         />
@@ -232,7 +247,10 @@ export default function BackgroundScreen() {
           onPress={() => {
             if (background === "transparent")
               router.push("/clear-background" as never);
-            else setBackground("transparent");
+            else {
+              void hapticSelection();
+              setBackground("transparent");
+            }
           }}
           disabled={busy}
           layoutId="background.secondary.button"
@@ -249,9 +267,9 @@ const styles = StyleSheet.create({
   header: { marginTop: 32 },
   script: { marginBottom: 7 },
   headingText: { fontSize: 27, lineHeight: 32 },
-  options: { gap: 12, marginTop: 18 },
+  options: { flex: 1, gap: 14, marginTop: 18 },
   choice: {
-    minHeight: 116,
+    minHeight: 126,
     borderWidth: 1,
     borderColor: flowColors.outline,
     borderRadius: 20,
@@ -331,7 +349,7 @@ const styles = StyleSheet.create({
     backgroundColor: flowColors.cyan,
   },
   error: {
-    color: "#FFD8D2",
+    color: flowColors.destructive,
     fontSize: 13,
     lineHeight: 18,
     marginTop: 8,

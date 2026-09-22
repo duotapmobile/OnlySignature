@@ -23,6 +23,8 @@ export default function ConfirmationScreen() {
 
   return (
     <FlowScreen
+      chrome="none"
+      tone="light"
       scroll={false}
       contentStyle={styles.content}
       testID={
@@ -80,8 +82,8 @@ export default function ConfirmationScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    paddingTop: 72,
-    paddingBottom: 28,
+    paddingTop: 28,
+    paddingBottom: 18,
     justifyContent: "space-between",
   },
   success: {

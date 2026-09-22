@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState, type ComponentRef } from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { router } from "expo-router";
 import { ExportSurface } from "./ExportSurface";
 import { FormatDropdown } from "./FormatDropdown";
@@ -26,6 +33,15 @@ import {
   addConfirmedKind,
   everyGeneratedFileConfirmed,
 } from "@/services/exportConfirmation";
+import {
+  OperationOverlay,
+  useDelayedVisibility,
+} from "@/components/feedback-ui";
+import {
+  hapticError,
+  hapticLightImpact,
+  hapticSuccess,
+} from "@/services/haptics";
 
 const paidFormats: ExportFormat[] = [
   "png-transparent",
@@ -72,6 +88,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
   const [generated, setGenerated] = useState<GeneratedFile[]>([]);
   const generatedRef = useRef<GeneratedFile[]>([]);
   const [busy, setBusy] = useState(false);
+  const [workingMessage, setWorkingMessage] = useState("Preparing your files");
   const [saveModalVisible, setSaveModalVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmedKinds, setConfirmedKinds] = useState<AssetKind[]>([]);
@@ -81,6 +98,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
     Number(hasDrawing(activeSet.signature)) +
     Number(hasDrawing(activeSet.initials));
   const allSaved = everyGeneratedFileConfirmed(generated, confirmedKinds);
+  const showOperation = useDelayedVisibility(busy);
 
   useEffect(() => {
     generatedRef.current = generated;
@@ -94,6 +112,8 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
   );
 
   const prepare = async () => {
+    void hapticLightImpact();
+    setWorkingMessage("Preparing your files");
     setBusy(true);
     setError(null);
     try {
@@ -117,6 +137,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
       setConfirmedKinds([]);
       setSaveModalVisible(true);
     } catch {
+      void hapticError();
       setError(
         "We could not create the export file. Your saved drawing is unchanged.",
       );
@@ -139,13 +160,19 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
     file: GeneratedFile,
     destination: "photos" | "share",
   ) => {
+    void hapticLightImpact();
+    setWorkingMessage(
+      destination === "photos" ? "Saving to Photos" : "Opening sharing options",
+    );
     setBusy(true);
     setError(null);
     try {
       if (destination === "photos") await saveFileToPhotos(file);
       else await shareFile(file);
       setConfirmedKinds((current) => addConfirmedKind(current, file.kind));
+      void hapticSuccess();
     } catch {
+      void hapticError();
       setError(
         destination === "photos"
           ? "Photo access was not granted or the image could not be saved."
@@ -226,6 +253,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
               : "Download"
         }
         disabled={busy || assetCount === 0}
+        loading={busy}
         onPress={() => {
           if (generated.length > 0) setSaveModalVisible(true);
           else void prepare();
@@ -248,10 +276,12 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
         onRequestClose={() => setSaveModalVisible(false)}
       >
         <View style={styles.modalShade}>
-          <View
+          <ScrollView
             accessibilityViewIsModal
             accessibilityLabel="Choose where to save"
             style={styles.modalCard}
+            contentContainerStyle={styles.modalContent}
+            showsVerticalScrollIndicator={false}
           >
             <Text accessibilityRole="header" style={styles.destinationTitle}>
               Choose where to save
@@ -314,7 +344,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
                 labelStyle={styles.modalSecondary}
               />
             )}
-          </View>
+          </ScrollView>
         </View>
       </Modal>
 
@@ -332,6 +362,7 @@ export function ExportFlow({ purchased }: { purchased: boolean }) {
           white={initialsFormat !== "png-transparent"}
         />
       ) : null}
+      <OperationOverlay visible={showOperation} message={workingMessage} />
     </FlowScreen>
   );
 }
@@ -359,14 +390,14 @@ const styles = StyleSheet.create({
   modalCard: {
     width: "100%",
     maxWidth: 440,
+    maxHeight: "88%",
     borderRadius: 24,
     borderWidth: 1,
     borderColor: "#D8B66A",
     backgroundColor: flowColors.card,
-    padding: 20,
-    gap: 12,
     boxShadow: "0 22px 54px rgba(2,4,10,0.52)",
   },
+  modalContent: { padding: 20, gap: 12 },
   destinationTitle: {
     color: flowColors.cardText,
     fontSize: 24,

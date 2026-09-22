@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { router } from "expo-router";
 import { hasPurchaseRecoveryInProgress } from "@/domain/purchaseState";
 import { useAppState } from "@/state/AppStateProvider";
+import {
+  hapticError,
+  hapticLightImpact,
+  hapticSuccess,
+  hapticWarning,
+} from "@/services/haptics";
 
 const purchaseErrorCopy = (error: unknown): string => {
   const detail =
@@ -48,6 +54,7 @@ export function useTransparentPurchase({
   ]);
 
   const beginPurchase = async () => {
+    void hapticLightImpact();
     setBusy(true);
     setError(null);
     try {
@@ -55,17 +62,20 @@ export function useTransparentPurchase({
         ? await recoverUnboundPurchase()
         : await purchaseActiveSet();
       if (result.state === "pending") {
+        void hapticWarning();
         setError(
           "Your purchase is pending with Apple. This set will unlock automatically after approval.",
         );
       } else if (result.state === "cancelled") {
         setError("Purchase cancelled. You were not charged.");
       } else if (result.state !== "purchased") {
+        void hapticError();
         setError(
           "Apple did not report a completed purchase. This frozen set stays saved while Only Signature checks again.",
         );
-      }
+      } else void hapticSuccess();
     } catch (caught) {
+      void hapticError();
       setError(purchaseErrorCopy(caught));
     } finally {
       setBusy(false);

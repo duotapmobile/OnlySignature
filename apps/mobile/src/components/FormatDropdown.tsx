@@ -7,6 +7,7 @@ import {
   type ExportFormat,
 } from "@/domain/models";
 import { flowColors } from "./flow-ui";
+import { hapticSelection } from "@/services/haptics";
 
 function Chevron({ up = false }: { up?: boolean }) {
   return (
@@ -80,6 +81,7 @@ export function FormatDropdown({
                 accessibilityRole="radio"
                 accessibilityState={{ checked: format === value }}
                 onPress={() => {
+                  void hapticSelection();
                   onChange(format);
                   setOpen(false);
                 }}

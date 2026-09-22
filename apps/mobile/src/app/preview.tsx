@@ -128,10 +128,10 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 12,
   },
-  previews: { gap: 0 },
+  previews: { flex: 1, gap: 12, paddingTop: 4 },
   signatureStage: {
     width: "94%",
-    height: 76,
+    height: 92,
     justifyContent: "flex-end",
     position: "relative",
   },
@@ -143,8 +143,8 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: flowColors.outline,
   },
-  signature: { width: "92%", height: 58, alignSelf: "center", marginBottom: 9 },
-  initials: { width: "58%", height: 66 },
+  signature: { width: "94%", height: 72, alignSelf: "center", marginBottom: 9 },
+  initials: { width: "62%", height: 82 },
   missing: { color: flowColors.cardMuted, fontSize: 14, lineHeight: 20 },
   continue: { marginTop: "auto", paddingTop: 6, marginBottom: 2 },
 });

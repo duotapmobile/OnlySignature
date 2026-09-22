@@ -11,6 +11,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import Svg, { Path } from "react-native-svg";
 import { SignatureCanvas } from "@/components/SignatureCanvas";
 import { SignatureModeOption } from "@/components/signature-mode-option";
+import { OperationOverlay } from "@/components/feedback-ui";
 import { LayoutSlot } from "@/components/layout-slot";
 import {
   FlowBackButton,
@@ -30,6 +31,12 @@ import {
 import { fuseSignatureParts } from "@/domain/signature-composition";
 import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 import { useAppState } from "@/state/AppStateProvider";
+import {
+  hapticError,
+  hapticLightImpact,
+  hapticSelection,
+  hapticSuccess,
+} from "@/services/haptics";
 
 type ReturnTarget = "review" | "saved" | "export";
 type SignaturePart = "first" | "last";
@@ -51,6 +58,7 @@ export default function CaptureScreen() {
   } = useAppState();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const landscape = windowWidth > windowHeight;
+  const compactPortrait = !landscape && windowHeight <= 700;
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const kind = data.selectedAsset;
@@ -91,8 +99,21 @@ export default function CaptureScreen() {
     (activeSet.status === "purchased" && activeSet.unclaimedSlot !== kind);
   const includedSlot =
     activeSet.status === "purchased" && activeSet.unclaimedSlot === kind;
+  const primaryLabel = initial
+    ? "Save Initials"
+    : signatureMode === "full"
+      ? "Save Signature"
+      : signatureMode === "first"
+        ? "Save First Name"
+        : "Save Last Name and Join";
+  const workingMessage = initial
+    ? "Saving your initials"
+    : signatureMode === "last"
+      ? "Aligning your signature"
+      : "Saving your signature";
 
   const finishCapture = async () => {
+    void hapticLightImpact();
     if (!hasDrawing(drawableAsset)) {
       setMessage(
         initial
@@ -101,10 +122,12 @@ export default function CaptureScreen() {
             ? "Write your full name before continuing."
             : `Write your ${signatureMode} name before continuing.`,
       );
+      void hapticError();
       return;
     }
     setMessage(null);
     if (!initial && signatureMode === "first") {
+      void hapticSelection();
       setSignatureMode("last");
       return;
     }
@@ -122,6 +145,7 @@ export default function CaptureScreen() {
           "This included drawing could not be finalized. Your saved set is unchanged.",
         );
         setSaving(false);
+        void hapticError();
         return;
       }
       setSaving(false);
@@ -135,6 +159,7 @@ export default function CaptureScreen() {
         completedAsset.orientation,
       );
     }
+    void hapticSuccess();
     if (returnTo || includedSlot) {
       router.back();
       return;
@@ -177,6 +202,7 @@ export default function CaptureScreen() {
           text: "Redo",
           style: "destructive",
           onPress: () => {
+            void hapticSelection();
             if (initial) clearAsset(kind);
             else if (signatureMode === "full")
               setFullNameAsset(createEmptyAsset("signature"));
@@ -213,10 +239,107 @@ export default function CaptureScreen() {
     else setLastNameAsset(next);
   };
 
+  if (landscape) {
+    return (
+      <FlowScreen
+        chrome="none"
+        scroll={false}
+        contentStyle={styles.landscapeContent}
+        testID={
+          initial
+            ? "initials-capture-screen"
+            : signatureMode === "full"
+              ? "signature-capture-screen"
+              : signatureMode === "first"
+                ? "first-name-capture-screen"
+                : "last-name-capture-screen"
+        }
+      >
+        <View style={styles.landscapeCanvas}>
+          {immutable ? (
+            <View style={styles.locked}>
+              <Text style={styles.lockedTitle}>
+                This saved drawing stays unchanged.
+              </Text>
+              <Text style={styles.lockedBody}>
+                Duplicate the set from My Signing Sets to make a changed
+                version.
+              </Text>
+            </View>
+          ) : (
+            <SignatureCanvas
+              key={`${kind}-${signatureMode}-landscape-${hasDrawing(drawableAsset) ? "drawn" : "empty"}`}
+              asset={drawableAsset}
+              kind={kind}
+              presentation="fullBleed"
+              prompt={
+                initial
+                  ? "Write your initials"
+                  : signatureMode === "full"
+                    ? "Write your full name"
+                    : `Write your ${signatureMode} name`
+              }
+              drawingAccessibilityLabel={
+                initial
+                  ? undefined
+                  : `${signatureMode === "full" ? "Full" : signatureMode === "first" ? "First" : "Last"} name signature drawing area. Draw with one finger.`
+              }
+              onChange={updateDrawing}
+            />
+          )}
+        </View>
+        <View style={styles.landscapeToolbar}>
+          <FlowBackButton onPress={goBack} />
+          <View style={styles.landscapeMode}>
+            <Text numberOfLines={1} style={styles.landscapeModeTitle}>
+              {initial
+                ? "Your initials"
+                : signatureMode === "full"
+                  ? "Your full signature"
+                  : signatureMode === "first"
+                    ? "First name, step 1 of 2"
+                    : "Last name, step 2 of 2"}
+            </Text>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Clear and redraw"
+            disabled={immutable || saving || !hasDrawing(drawableAsset)}
+            onPress={confirmRedo}
+            style={({ pressed }) => [
+              styles.landscapeRedo,
+              pressed && styles.pressed,
+              (immutable || saving || !hasDrawing(drawableAsset)) &&
+                styles.disabled,
+            ]}
+          >
+            <RotateIcon />
+            <Text style={styles.landscapeRedoText}>Redo</Text>
+          </Pressable>
+        </View>
+        {message ? (
+          <Text accessibilityRole="alert" style={styles.landscapeError}>
+            {message}
+          </Text>
+        ) : null}
+        <View style={styles.landscapeSave}>
+          <FlowPrimaryButton
+            label={primaryLabel}
+            onPress={() => void finishCapture()}
+            disabled={immutable || saving}
+            loading={saving}
+          />
+        </View>
+        <OperationOverlay visible={saving} message={workingMessage} />
+      </FlowScreen>
+    );
+  }
+
   return (
     <FlowScreen
+      chrome="none"
       scroll={false}
-      contentStyle={[styles.content, landscape && styles.landscapeContent]}
+      contentStyle={[styles.content, compactPortrait && styles.compactContent]}
       testID={
         initial
           ? "initials-capture-screen"
@@ -227,7 +350,11 @@ export default function CaptureScreen() {
               : "last-name-capture-screen"
       }
     >
-      <View style={[styles.back, landscape && styles.landscapeBack]}>
+      <View pointerEvents="none" style={styles.portraitFrame}>
+        <View style={styles.portraitPaper} />
+        <View style={styles.portraitInk} />
+      </View>
+      <View style={styles.back}>
         <FlowBackButton
           onPress={goBack}
           layoutId={`${layerPrefix}.back.icon`}
@@ -235,15 +362,16 @@ export default function CaptureScreen() {
       </View>
       <LayoutSlot
         id={`${layerPrefix}.header`}
-        style={[styles.header, landscape && styles.landscapeHeader]}
+        style={[styles.header, compactPortrait && styles.compactHeader]}
       >
-        {landscape ? null : (
-          <ScriptLabel
-            asset={initial ? "initial" : "sign"}
-            style={styles.script}
-            layoutId={`${layerPrefix}.script`}
-          />
-        )}
+        <ScriptLabel
+          asset={initial ? "initial" : "sign"}
+          style={[
+            styles.script,
+            compactPortrait && styles.compactPortraitScript,
+          ]}
+          layoutId={`${layerPrefix}.script`}
+        />
         {!initial && signatureMode !== "full" ? (
           <LayoutSlot id={`${layerPrefix}.step`} style={styles.stepRow}>
             <Text selectable style={styles.stepLabel}>
@@ -261,7 +389,7 @@ export default function CaptureScreen() {
           </LayoutSlot>
         ) : null}
         <FlowHeading
-          style={[styles.heroTitle, landscape && styles.landscapeTitle]}
+          style={[styles.heroTitle, compactPortrait && styles.compactHeroTitle]}
           layoutId={`${layerPrefix}.title`}
         >
           {initial
@@ -270,48 +398,43 @@ export default function CaptureScreen() {
               ? "Write your full name"
               : `Write your ${signatureMode} name`}
         </FlowHeading>
-        {landscape ? (
-          <Text selectable style={styles.landscapeInstruction}>
-            Fine ink follows the center of your fingertip across the canvas.
-          </Text>
-        ) : (
-          <>
-            <FlowBody
-              style={styles.subtitle}
-              layoutId={`${layerPrefix}.subtitle`}
-            >
-              {initial
-                ? "Write your initials along the line below."
-                : signatureMode === "full"
-                  ? "Write your full name along the line below."
-                  : signatureMode === "first"
-                    ? "Write only your first name. We’ll join it to your last name next."
-                    : "Write only your last name. We’ll align and join both parts for you."}
-            </FlowBody>
-            <View style={styles.rotate}>
-              <LayoutSlot id={`${layerPrefix}.rotate.icon`}>
-                <RotateIcon />
-              </LayoutSlot>
-              <LayoutSlot id={`${layerPrefix}.rotate.label`}>
-                <Text selectable style={styles.rotateText}>
-                  Rotate for more room
-                </Text>
-              </LayoutSlot>
-            </View>
-          </>
-        )}
+        <>
+          <FlowBody
+            style={[styles.subtitle, compactPortrait && styles.compactSubtitle]}
+            layoutId={`${layerPrefix}.subtitle`}
+          >
+            {initial
+              ? "Write your initials along the line below."
+              : signatureMode === "full"
+                ? "Write your full name along the line below."
+                : signatureMode === "first"
+                  ? "Write only your first name. We’ll join it to your last name next."
+                  : "Write only your last name. We’ll align and join both parts for you."}
+          </FlowBody>
+          <View
+            style={[styles.rotate, compactPortrait && styles.compactRotate]}
+          >
+            <LayoutSlot id={`${layerPrefix}.rotate.icon`}>
+              <RotateIcon />
+            </LayoutSlot>
+            <LayoutSlot id={`${layerPrefix}.rotate.label`}>
+              <Text selectable style={styles.rotateText}>
+                Rotate for more room
+              </Text>
+            </LayoutSlot>
+          </View>
+        </>
       </LayoutSlot>
       <LayoutSlot
         id={`${layerPrefix}.canvas`}
         style={[
           styles.canvas,
-          landscape
-            ? {
-                height: Math.min(250, Math.max(205, windowHeight - 180)),
-              }
-            : {
-                height: Math.min(310, Math.max(240, windowHeight * 0.31)),
-              },
+          compactPortrait && styles.compactCanvas,
+          {
+            height: compactPortrait
+              ? 156
+              : Math.min(310, Math.max(210, windowHeight * 0.29)),
+          },
         ]}
       >
         {immutable ? (
@@ -349,7 +472,10 @@ export default function CaptureScreen() {
           />
         )}
       </LayoutSlot>
-      <LayoutSlot id={`${layerPrefix}.redo`} style={styles.redoSlot}>
+      <LayoutSlot
+        id={`${layerPrefix}.redo`}
+        style={[styles.redoSlot, compactPortrait && styles.compactRedoSlot]}
+      >
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={
@@ -384,11 +510,13 @@ export default function CaptureScreen() {
           title="Sign First and Last Separately"
           detail="More room for each name. We’ll align them for you."
           onPress={() => {
+            void hapticSelection();
             setSignatureMode("first");
             setMessage(null);
           }}
           disabled={immutable || saving}
           layoutId="signature.split-option"
+          compact={compactPortrait}
         />
       ) : null}
       {!initial && signatureMode === "first" ? (
@@ -396,11 +524,13 @@ export default function CaptureScreen() {
           title="Use one full-name canvas"
           detail="Return to the original signing space."
           onPress={() => {
+            void hapticSelection();
             setSignatureMode("full");
             setMessage(null);
           }}
           disabled={immutable || saving}
           layoutId="signature-first.full-option"
+          compact={compactPortrait}
         />
       ) : null}
       {message ? (
@@ -414,24 +544,17 @@ export default function CaptureScreen() {
         id={`${layerPrefix}.actions`}
         style={[
           styles.actions,
-          landscape && styles.landscapeActions,
           initial ? styles.initialActions : styles.signatureActions,
+          compactPortrait && styles.compactActions,
         ]}
       >
         <FlowPrimaryButton
-          label={
-            initial
-              ? "Save Initials"
-              : signatureMode === "full"
-                ? "Save Signature"
-                : signatureMode === "first"
-                  ? "Save First Name"
-                  : "Save Last Name and Join"
-          }
+          label={primaryLabel}
           onPress={() => {
             void finishCapture();
           }}
           disabled={immutable || saving}
+          loading={saving}
           layoutId={`${layerPrefix}.primary.button`}
           labelLayoutId={`${layerPrefix}.primary.label`}
         />
@@ -448,6 +571,7 @@ export default function CaptureScreen() {
           />
         ) : null}
       </LayoutSlot>
+      <OperationOverlay visible={saving} message={workingMessage} />
     </FlowScreen>
   );
 }
@@ -467,42 +591,128 @@ function RotateIcon() {
   );
 }
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: 18, paddingTop: 32, paddingBottom: 24 },
-  landscapeContent: {
-    maxWidth: 1100,
-    paddingHorizontal: 18,
-    paddingTop: 10,
-    paddingBottom: 14,
+  content: {
+    paddingHorizontal: 26,
+    paddingTop: 26,
+    paddingBottom: 18,
   },
-  back: { position: "absolute", top: 24, left: 14, zIndex: 4 },
-  landscapeBack: { top: 2, left: 24 },
-  header: { marginTop: 30, marginBottom: 10 },
-  landscapeHeader: {
-    minHeight: 44,
-    marginTop: 0,
-    marginBottom: 8,
-    paddingLeft: 48,
+  compactContent: {
+    paddingHorizontal: 18,
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
+  portraitFrame: {
+    position: "absolute",
+    left: 8,
+    right: 8,
+    top: 8,
+    bottom: 8,
+    overflow: "hidden",
+    borderRadius: 42,
+    borderCurve: "continuous",
+    borderWidth: 1,
+    borderColor: "rgba(216,182,106,0.58)",
+    backgroundColor: flowColors.paper,
+    boxShadow: "0 28px 58px rgba(0,0,0,0.55)",
+  },
+  portraitInk: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 238,
+    backgroundColor: flowColors.action,
+    borderBottomLeftRadius: 36,
+    borderBottomRightRadius: 36,
+    boxShadow: "0 20px 36px rgba(2,4,10,0.38)",
+  },
+  portraitPaper: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: flowColors.paper,
+  },
+  landscapeContent: {
+    width: "100%",
+    maxWidth: 1400,
+    paddingHorizontal: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+  },
+  landscapeCanvas: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: flowColors.paper,
+  },
+  landscapeToolbar: {
+    position: "absolute",
+    left: 14,
+    right: 14,
+    top: 8,
+    minHeight: 52,
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    gap: 10,
+    zIndex: 5,
   },
-  script: { marginLeft: 4, marginBottom: 8 },
-  compactScript: {
-    width: 154,
-    height: 60,
-    marginTop: 22,
-    marginLeft: 18,
-    marginBottom: -10,
-  },
-  heroTitle: { fontSize: 32, lineHeight: 38 },
-  landscapeTitle: { fontSize: 24, lineHeight: 30 },
-  landscapeInstruction: {
+  landscapeMode: {
     flex: 1,
-    color: flowColors.bodyText,
-    fontSize: 14,
-    lineHeight: 20,
+    minHeight: 44,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 22,
+    backgroundColor: "rgba(7,31,90,0.90)",
   },
+  landscapeModeTitle: {
+    color: flowColors.white,
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: "800",
+    textAlign: "center",
+  },
+  landscapeRedo: {
+    minWidth: 86,
+    height: 44,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    borderRadius: 22,
+    backgroundColor: "rgba(7,31,90,0.90)",
+  },
+  landscapeRedoText: {
+    color: flowColors.white,
+    fontSize: 14,
+    lineHeight: 19,
+    fontWeight: "700",
+  },
+  landscapeSave: {
+    position: "absolute",
+    right: 18,
+    bottom: 14,
+    width: 300,
+    zIndex: 5,
+  },
+  landscapeError: {
+    position: "absolute",
+    left: 120,
+    right: 334,
+    bottom: 28,
+    zIndex: 5,
+    color: flowColors.destructive,
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  back: { position: "absolute", top: 24, left: 14, zIndex: 4 },
+  header: { marginTop: 30, marginBottom: 10, zIndex: 2 },
+  compactHeader: { marginTop: 18, marginBottom: 4 },
+  script: { marginLeft: 4, marginBottom: 8 },
+  compactPortraitScript: { width: 116, height: 42, marginBottom: 2 },
+  heroTitle: { fontSize: 32, lineHeight: 38 },
+  compactHeroTitle: { fontSize: 26, lineHeight: 31 },
   subtitle: { marginTop: 6, fontSize: 17, lineHeight: 24 },
+  compactSubtitle: { marginTop: 2, fontSize: 14, lineHeight: 18 },
   stepRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -531,6 +741,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     marginBottom: 22,
   },
+  compactRotate: { marginTop: 4, marginBottom: 7 },
   rotateText: { color: flowColors.bodyText, fontSize: 15, lineHeight: 21 },
   canvas: {
     minHeight: 190,
@@ -542,7 +753,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     boxShadow: "0 22px 48px rgba(2, 4, 10, 0.34)",
   },
+  compactCanvas: { minHeight: 156, borderRadius: 20 },
   redoSlot: { alignItems: "flex-end" },
+  compactRedoSlot: { height: 48 },
   redo: {
     minHeight: 40,
     marginTop: 10,
@@ -558,11 +771,11 @@ const styles = StyleSheet.create({
   redoContent: { flexDirection: "row", alignItems: "center", gap: 6 },
   redoText: { color: flowColors.white, fontSize: 14, lineHeight: 20 },
   actions: { marginTop: "auto", paddingTop: 18, gap: 6 },
-  landscapeActions: { paddingTop: 4 },
+  compactActions: { paddingTop: 6, marginBottom: 0 },
   signatureActions: { marginBottom: 18 },
   initialActions: { marginBottom: 18 },
   error: {
-    color: "#FFD8D2",
+    color: flowColors.destructive,
     fontSize: 15,
     lineHeight: 21,
     textAlign: "center",

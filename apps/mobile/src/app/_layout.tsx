@@ -8,11 +8,14 @@ import {
   View,
 } from "react-native";
 import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AppStateProvider, useAppState } from "@/state/AppStateProvider";
 import { theme } from "@/integrations/workspace";
+
+void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 function PrivacyCover() {
   const [covered, setCovered] = useState(false);
@@ -59,6 +62,9 @@ function GlobalErrorBanner() {
 
 function ApplicationShell({ reduceMotion }: { reduceMotion: boolean }) {
   const { data } = useAppState();
+  useEffect(() => {
+    if (data.hydrated) void SplashScreen.hideAsync().catch(() => undefined);
+  }, [data.hydrated]);
   return (
     <View
       style={styles.application}

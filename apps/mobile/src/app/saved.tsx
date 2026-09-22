@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { LayoutSlot } from "@/components/layout-slot";
 import * as StoreReview from "expo-store-review";
@@ -14,6 +14,7 @@ import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 import { screenshotFixtureSetsFor } from "@/domain/fixtures";
 import { hasDrawing, type SignatureSet } from "@/domain/models";
 import { useAppState } from "@/state/AppStateProvider";
+import { InlineStatus } from "@/components/feedback-ui";
 
 function GearIcon() {
   return (
@@ -119,13 +120,16 @@ function SigningSetCard({
           style={styles.metaCopy}
         >
           <LayoutSlot id={`${layerPrefix}.status`}>
-            <Text selectable numberOfLines={1} style={styles.setStatus}>
-              {purchaseLocked
-                ? "Apple purchase finishing"
-                : transparent
-                  ? "Transparent Unlocked"
-                  : "White Background"}
-            </Text>
+            {purchaseLocked ? (
+              <InlineStatus
+                message="Checking your Apple purchase"
+                tone="light"
+              />
+            ) : (
+              <Text selectable numberOfLines={1} style={styles.setStatus}>
+                {transparent ? "Transparent Unlocked" : "White Background"}
+              </Text>
+            )}
           </LayoutSlot>
           {!initialsExists ? (
             <LayoutSlot id={`${layerPrefix}.missing-initials`}>
@@ -210,8 +214,8 @@ export default function SavedSetsScreen() {
     return () => clearTimeout(timer);
   }, [data.reviewPrompted, data.sets, markReviewPrompted, savedHomeFixture]);
 
-  return (
-    <FlowScreen contentStyle={styles.content} testID="saved-sets-screen">
+  const listHeader = (
+    <>
       <LayoutSlot id="saved.header" style={styles.header}>
         <LayoutSlot id="saved.title" style={styles.titleSlot}>
           <Text
@@ -248,29 +252,44 @@ export default function SavedSetsScreen() {
           }}
         />
       </LayoutSlot>
+    </>
+  );
+
+  return (
+    <FlowScreen
+      scroll={false}
+      contentStyle={styles.content}
+      testID="saved-sets-screen"
+    >
       <LayoutSlot id="saved.list" style={styles.list}>
-        {visible.length ? (
-          visible.map((item, index) => (
+        <FlatList
+          data={visible}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item, index }) => (
             <SigningSetCard
-              key={item.id}
               item={item}
               layerPrefix={`saved.card-${index + 1}`}
             />
-          ))
-        ) : (
-          <View style={styles.emptyCard}>
-            <LayoutSlot id="saved.empty.title">
-              <Text selectable style={styles.emptyTitle}>
-                No saved signing sets yet
-              </Text>
-            </LayoutSlot>
-            <LayoutSlot id="saved.empty.subtitle">
-              <Text selectable style={styles.emptyBody}>
-                Create a reusable signature when you are ready.
-              </Text>
-            </LayoutSlot>
-          </View>
-        )}
+          )}
+          ListHeaderComponent={listHeader}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ListEmptyComponent={
+            <View style={styles.emptyCard}>
+              <LayoutSlot id="saved.empty.title">
+                <Text selectable style={styles.emptyTitle}>
+                  No saved signing sets yet
+                </Text>
+              </LayoutSlot>
+              <LayoutSlot id="saved.empty.subtitle">
+                <Text selectable style={styles.emptyBody}>
+                  Create a reusable signature when you are ready.
+                </Text>
+              </LayoutSlot>
+            </View>
+          }
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        />
       </LayoutSlot>
     </FlowScreen>
   );
@@ -286,7 +305,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: -1.1,
   },
-  content: { paddingTop: 28, paddingBottom: 20 },
+  content: { paddingTop: 18, paddingBottom: 8 },
   header: {
     minHeight: 52,
     flexDirection: "row",
@@ -303,7 +322,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   settingsIcon: { color: flowColors.white, fontSize: 24, lineHeight: 28 },
-  list: { gap: 14 },
+  list: { flex: 1 },
+  listContent: { paddingBottom: 20 },
+  separator: { height: 14 },
   card: {
     minHeight: 146,
     borderRadius: 18,

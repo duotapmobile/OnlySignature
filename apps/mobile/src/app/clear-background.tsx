@@ -177,6 +177,7 @@ export default function ClearBackgroundScreen() {
           }
           onPress={() => void purchase.beginPurchase()}
           disabled={purchase.busy || purchase.transparentUnavailable}
+          loading={purchase.busy}
           layoutId="clear.primary.button"
           labelLayoutId="clear.primary.label"
         />
@@ -210,10 +211,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 5,
   },
-  comparison: { flexDirection: "column", gap: 12, marginTop: 14 },
+  comparison: {
+    flex: 1,
+    flexDirection: "column",
+    gap: 12,
+    marginTop: 14,
+  },
   card: {
     width: "100%",
-    height: 196,
+    flex: 1,
+    minHeight: 148,
+    maxHeight: 220,
     borderRadius: 18,
     backgroundColor: "#FFFFFF",
     borderWidth: 1,
@@ -281,7 +289,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   error: {
-    color: "#FFD8D2",
+    color: flowColors.destructive,
     fontSize: 12,
     lineHeight: 17,
     textAlign: "center",

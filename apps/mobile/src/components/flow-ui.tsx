@@ -15,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle, Path, Rect } from "react-native-svg";
 import { LayoutSlot } from "@/components/layout-slot";
 import { AppBackdrop, PaperSurface } from "@/components/paper-ui";
+import { hapticLightImpact } from "@/services/haptics";
 
 export const flowColors = {
   night: "#02040A",
@@ -76,9 +77,11 @@ export function FlowScreen({
       style={[styles.safe, light && styles.lightSafe]}
       edges={["top", "right", "bottom", "left"]}
     >
-      <AppBackdrop
-        style={[styles.background, light && styles.lightBackground]}
-      />
+      {light ? (
+        <View style={[styles.background, styles.lightBackground]} />
+      ) : (
+        <AppBackdrop style={styles.background} />
+      )}
       {branded ? (
         <View
           accessibilityElementsHidden
@@ -200,6 +203,7 @@ export function FlowPrimaryButton({
   layoutId,
   labelLayoutId,
   labelStyle,
+  loading = false,
 }: {
   label: string;
   onPress(): void;
@@ -209,6 +213,7 @@ export function FlowPrimaryButton({
   layoutId?: string;
   labelLayoutId?: string;
   labelStyle?: StyleProp<TextStyle>;
+  loading?: boolean;
 }) {
   const labelNode = (
     <Text
@@ -231,7 +236,10 @@ export function FlowPrimaryButton({
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled }}
       disabled={disabled}
-      onPress={onPress}
+      onPress={() => {
+        void hapticLightImpact();
+        onPress();
+      }}
       testID={testID}
       style={({ pressed }) => [
         styles.primaryButton,
@@ -240,7 +248,17 @@ export function FlowPrimaryButton({
       ]}
     >
       <View style={styles.primaryLabelWrap}>
-        {labelLayoutId ? (
+        {loading ? (
+          <View
+            accessibilityRole="progressbar"
+            accessibilityLabel={label}
+            style={styles.buttonLoading}
+          >
+            <View style={styles.buttonLoadingDot} />
+            <View style={styles.buttonLoadingLine} />
+            {labelNode}
+          </View>
+        ) : labelLayoutId ? (
           <LayoutSlot id={labelLayoutId}>{labelNode}</LayoutSlot>
         ) : (
           labelNode
@@ -633,9 +651,9 @@ const styles = StyleSheet.create({
   screenContent: {
     flexGrow: 1,
     width: "100%",
-    maxWidth: 480,
+    maxWidth: 560,
     alignSelf: "center",
-    paddingHorizontal: 24,
+    paddingHorizontal: 26,
     paddingTop: 24,
     paddingBottom: 28,
   },
@@ -643,8 +661,8 @@ const styles = StyleSheet.create({
     position: "relative",
     zIndex: 3,
     paddingHorizontal: 32,
-    paddingTop: 82,
-    paddingBottom: 28,
+    paddingTop: 74,
+    paddingBottom: 18,
   },
   flowChrome: {
     ...StyleSheet.absoluteFill,
@@ -652,11 +670,11 @@ const styles = StyleSheet.create({
   },
   flowRearPlate: {
     position: "absolute",
-    left: 24,
-    right: 8,
-    top: 25,
-    bottom: 7,
-    borderRadius: 46,
+    left: 16,
+    right: 3,
+    top: 18,
+    bottom: 3,
+    borderRadius: 42,
     borderCurve: "continuous",
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.34)",
@@ -665,12 +683,12 @@ const styles = StyleSheet.create({
   },
   flowInkStage: {
     position: "absolute",
-    left: 12,
-    right: 12,
-    top: 7,
-    height: 252,
+    left: 6,
+    right: 6,
+    top: 3,
+    height: 238,
     overflow: "hidden",
-    borderRadius: 44,
+    borderRadius: 40,
     borderCurve: "continuous",
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.58)",
@@ -680,11 +698,11 @@ const styles = StyleSheet.create({
   },
   flowPaperStage: {
     position: "absolute",
-    left: 12,
-    right: 12,
-    top: 205,
-    bottom: 7,
-    borderRadius: 44,
+    left: 6,
+    right: 6,
+    top: 192,
+    bottom: 3,
+    borderRadius: 40,
     borderCurve: "continuous",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.96)",
@@ -702,8 +720,8 @@ const styles = StyleSheet.create({
   },
   flowWordmark: {
     position: "absolute",
-    right: 36,
-    top: 18,
+    right: 30,
+    top: 12,
     zIndex: 4,
     width: 112,
     height: 44,
@@ -785,6 +803,24 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingLeft: 4,
+  },
+  buttonLoading: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 7,
+  },
+  buttonLoadingDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: flowColors.gold,
+  },
+  buttonLoadingLine: {
+    width: 20,
+    height: 1.5,
+    borderRadius: 2,
+    backgroundColor: flowColors.gold,
   },
   primaryArrowText: {
     color: "#FFFFFF",
@@ -869,7 +905,7 @@ const styles = StyleSheet.create({
     marginTop: 18,
   },
   previewCard: {
-    minHeight: 132,
+    minHeight: 150,
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingTop: 14,

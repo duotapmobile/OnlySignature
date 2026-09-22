@@ -318,19 +318,33 @@ test("finish-pending purchases cannot announce success or export", async () => {
 });
 
 test("entry hydration and terminal navigation fail closed", async () => {
-  const [entry, opening, welcome, success] = await Promise.all([
-    read("../src/app/index.tsx"),
-    read("../src/components/animated-opening.tsx"),
-    read("../src/components/welcome-folded-panel.tsx"),
-    read("../src/app/success.tsx"),
-  ]);
+  const [entry, opening, layout, provider, welcome, success] =
+    await Promise.all([
+      read("../src/app/index.tsx"),
+      read("../src/components/animated-opening.tsx"),
+      read("../src/app/_layout.tsx"),
+      read("../src/state/AppStateProvider.tsx"),
+      read("../src/components/welcome-folded-panel.tsx"),
+      read("../src/app/success.tsx"),
+    ]);
   assert.match(entry, /if \(!data\.hydrated\) return/);
   assert.match(entry, /disabled=\{!data\.hydrated\}/);
   assert.match(entry, /AnimatedOpening/);
   assert.match(entry, /openingFixture/);
-  assert.match(opening, /openingDurationMs = 3_400/);
-  assert.match(opening, /scaleX: progress\.interpolate/);
+  assert.match(entry, /compact=\{data\.hasSeenFullOpening/);
+  assert.match(entry, /markOpeningSeen\(\)/);
+  assert.match(opening, /openingDurationMs = 2_200/);
+  assert.match(opening, /returningOpeningDurationMs = 650/);
+  assert.match(opening, /useSharedValue/);
+  assert.match(opening, /withTiming/);
+  assert.match(opening, /reducedMotion\s*\? 250/);
+  assert.match(opening, /setTimeout\(\(\) => setSkipReady\(true\), 300\)/);
+  assert.match(opening, /scaleX: interpolate/);
   assert.match(opening, /Private by design\. Ready when you are\./);
+  assert.match(layout, /SplashScreen\.preventAutoHideAsync\(\)/);
+  assert.match(layout, /SplashScreen\.hideAsync\(\)/);
+  assert.match(provider, /hasSeenFullOpening: false/);
+  assert.match(provider, /hasSeenFullOpening: true/);
   assert.match(welcome, /<Wordmark style=\{styles\.wordmark\} \/>/);
   assert.doesNotMatch(entry, /router\.replace\("\/saved"\)/);
   assert.match(success, /router\.dismissAll\(\)/);
@@ -364,12 +378,45 @@ test("review and background are fixed full screens while saved actions remain in
 test("capture geometry responds to iPhone portrait and landscape", async () => {
   const draw = await read("../src/app/draw.tsx");
   assert.match(draw, /landscape = windowWidth > windowHeight/);
-  assert.match(draw, /Math\.max\(205, windowHeight - 180\)/);
-  assert.match(draw, /Math\.max\(240, windowHeight \* 0\.31\)/);
-  assert.match(draw, /maxWidth: 1100/);
+  assert.match(draw, /presentation="fullBleed"/);
+  assert.match(draw, /styles\.landscapeCanvas/);
+  assert.match(draw, /chrome="none"/);
+  assert.match(draw, /Math\.max\(210, windowHeight \* 0\.29\)/);
+  assert.match(draw, /maxWidth: 1400/);
   assert.match(draw, /function RotateIcon\(\)/);
   assert.doesNotMatch(draw, /↻/);
-  assert.match(draw, /back: \{ position: "absolute"/);
+  assert.match(draw, /landscapeToolbar/);
+  assert.match(draw, /landscapeSave/);
+});
+
+test("loading and haptics use shared failure-safe native feedback", async () => {
+  const [feedback, haptics, controller, canvas, saved, exportFlow] =
+    await Promise.all([
+      read("../src/components/feedback-ui.tsx"),
+      read("../src/services/haptics.ts"),
+      read("../src/services/haptic-controller.ts"),
+      read("../src/components/SignatureCanvas.tsx"),
+      read("../src/app/saved.tsx"),
+      read("../src/components/ExportFlow.tsx"),
+    ]);
+  assert.match(feedback, /function AsyncActionButton/);
+  assert.match(feedback, /function OperationOverlay/);
+  assert.match(feedback, /function InlineStatus/);
+  assert.match(feedback, /function LoadingMark/);
+  assert.match(feedback, /delay = 300/);
+  assert.match(haptics, /DEBOUNCE_MS = 180/);
+  assert.match(haptics, /Haptics\.selectionAsync\(\)/);
+  assert.match(haptics, /ImpactFeedbackStyle\.Light/);
+  assert.match(haptics, /NotificationFeedbackType\.Success/);
+  assert.match(haptics, /NotificationFeedbackType\.Warning/);
+  assert.match(haptics, /NotificationFeedbackType\.Error/);
+  assert.match(controller, /createDebouncedHapticService/);
+  assert.match(controller, /lastPlayed/);
+  assert.doesNotMatch(canvas, /expo-haptics|selectionAsync|impactAsync/);
+  assert.match(saved, /FlatList/);
+  assert.match(exportFlow, /Preparing your files/);
+  assert.match(exportFlow, /Saving to Photos/);
+  assert.match(exportFlow, /Opening sharing options/);
 });
 
 test("drawing responder owns one continuous finger gesture", async () => {

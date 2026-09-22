@@ -32,6 +32,7 @@
     "preview:capture:ios": "node scripts/capture-app-preview.mjs",
     "layout:studio": "node scripts/layout-studio.mjs",
     "verify:flow-geometry": "node scripts/verify-flow-geometry.mjs",
+    "verify:responsive-layouts": "node scripts/verify-responsive-layouts.mjs",
     "sync:legal": "node scripts/sync-legal-content.mjs",
     "verify:exports": "vitest run tests/export",
     "verify:asc:live": "node scripts/verify-asc-record.mjs",

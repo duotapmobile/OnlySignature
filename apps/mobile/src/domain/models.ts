@@ -55,6 +55,7 @@ export interface AppStateData {
   selectedAsset: AssetKind;
   unboundPurchases: UnboundPurchase[];
   reviewPrompted: boolean;
+  hasSeenFullOpening: boolean;
   lastError: string | null;
 }
 

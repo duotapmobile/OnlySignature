@@ -76,6 +76,7 @@ interface AppActions {
   fillIncludedSlot(kind: AssetKind, asset: DrawingAsset): Promise<void>;
   recordExport(): void;
   markReviewPrompted(): void;
+  markOpeningSeen(): void;
   dismissError(): void;
 }
 
@@ -94,6 +95,7 @@ const initialData: AppStateData = {
   selectedAsset: "signature",
   unboundPurchases: [],
   reviewPrompted: false,
+  hasSeenFullOpening: false,
   lastError: null,
 };
 
@@ -1039,6 +1041,9 @@ export function AppStateProvider({ children }: PropsWithChildren) {
       },
       markReviewPrompted() {
         mutateData((current) => ({ ...current, reviewPrompted: true }));
+      },
+      markOpeningSeen() {
+        mutateData((current) => ({ ...current, hasSeenFullOpening: true }));
       },
       dismissError() {
         mutateData((current) => ({ ...current, lastError: null }));

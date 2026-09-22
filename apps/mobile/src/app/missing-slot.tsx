@@ -74,5 +74,5 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginTop: 5,
   },
-  actions: { marginTop: 22 },
+  actions: { marginTop: "auto", paddingTop: 22 },
 });

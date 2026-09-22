@@ -15,6 +15,7 @@ import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 import { hasDrawing } from "@/domain/models";
 import { useTransparentPurchase } from "@/hooks/use-transparent-purchase";
 import { useAppState } from "@/state/AppStateProvider";
+import { hapticWarning } from "@/services/haptics";
 
 export default function DiyWarningScreen() {
   const { activeSet } = useAppState();
@@ -125,12 +126,16 @@ export default function DiyWarningScreen() {
           }
           onPress={() => void purchase.beginPurchase()}
           disabled={purchase.busy || purchase.transparentUnavailable}
+          loading={purchase.busy}
           layoutId="warning.primary.button"
           labelLayoutId="warning.primary.label"
         />
         <FlowTextButton
           label="No Thanks, Download Free White Set"
-          onPress={() => router.push("/white-export" as never)}
+          onPress={() => {
+            void hapticWarning();
+            router.push("/white-export" as never);
+          }}
           disabled={purchase.busy}
           layoutId="warning.secondary.button"
           labelLayoutId="warning.secondary.label"
@@ -146,8 +151,8 @@ const styles = StyleSheet.create({
   warning: { marginTop: 34 },
   script: { marginBottom: 7 },
   headingText: { fontSize: 25, lineHeight: 30 },
-  comparison: { marginTop: 12, gap: 12 },
-  resultBlock: { width: "100%" },
+  comparison: { flex: 1, marginTop: 12, gap: 12 },
+  resultBlock: { flex: 1, width: "100%" },
   resultHeading: {
     minHeight: 31,
     paddingHorizontal: 4,
@@ -173,7 +178,9 @@ const styles = StyleSheet.create({
   },
   compareCard: {
     width: "100%",
-    height: 126,
+    flex: 1,
+    minHeight: 108,
+    maxHeight: 172,
     borderRadius: 16,
     backgroundColor: "#FFF",
     borderWidth: 1,
@@ -214,7 +221,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   error: {
-    color: "#FFD8D2",
+    color: flowColors.destructive,
     fontSize: 12,
     lineHeight: 17,
     textAlign: "center",

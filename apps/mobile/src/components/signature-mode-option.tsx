@@ -10,6 +10,7 @@ export function SignatureModeOption({
   onPress,
   disabled = false,
   layoutId,
+  compact = false,
 }: {
   eyebrow?: string;
   title: string;
@@ -17,11 +18,18 @@ export function SignatureModeOption({
   onPress: () => void;
   disabled?: boolean;
   layoutId: string;
+  compact?: boolean;
 }) {
   return (
-    <LayoutSlot id={layoutId} style={styles.slot}>
+    <LayoutSlot
+      id={layoutId}
+      style={[styles.slot, compact && styles.compactSlot]}
+    >
       {eyebrow ? (
-        <Text selectable style={styles.eyebrow}>
+        <Text
+          selectable
+          style={[styles.eyebrow, compact && styles.compactEyebrow]}
+        >
           {eyebrow}
         </Text>
       ) : null}
@@ -32,20 +40,30 @@ export function SignatureModeOption({
         onPress={onPress}
         style={({ pressed }) => [
           styles.card,
+          compact && styles.compactCard,
           pressed && styles.pressed,
           disabled && styles.disabled,
         ]}
       >
-        <View style={styles.numberMark} accessibilityElementsHidden>
+        <View
+          style={[styles.numberMark, compact && styles.compactNumberMark]}
+          accessibilityElementsHidden
+        >
           <Text selectable={false} style={styles.numberText}>
             1+2
           </Text>
         </View>
         <View style={styles.copy}>
-          <Text selectable style={styles.title}>
+          <Text
+            selectable
+            style={[styles.title, compact && styles.compactTitle]}
+          >
             {title}
           </Text>
-          <Text selectable style={styles.detail}>
+          <Text
+            selectable
+            style={[styles.detail, compact && styles.compactDetail]}
+          >
             {detail}
           </Text>
         </View>
@@ -71,6 +89,7 @@ export function SignatureModeOption({
 
 const styles = StyleSheet.create({
   slot: { marginTop: 18, gap: 9 },
+  compactSlot: { marginTop: 5, gap: 3 },
   eyebrow: {
     color: flowColors.goldText,
     fontFamily: "Georgia",
@@ -79,6 +98,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: -0.3,
   },
+  compactEyebrow: { fontSize: 17, lineHeight: 20 },
   card: {
     minHeight: 70,
     flexDirection: "row",
@@ -94,6 +114,13 @@ const styles = StyleSheet.create({
     boxShadow:
       "0 14px 28px rgba(2,4,10,0.34), inset 0 1px 0 rgba(255,255,255,0.18)",
   },
+  compactCard: {
+    minHeight: 54,
+    gap: 10,
+    paddingHorizontal: 13,
+    paddingVertical: 6,
+    borderRadius: 17,
+  },
   numberMark: {
     width: 42,
     height: 42,
@@ -102,6 +129,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: flowColors.gold,
   },
+  compactNumberMark: { width: 34, height: 34, borderRadius: 17 },
   numberText: {
     color: flowColors.ink,
     fontSize: 12,
@@ -116,7 +144,9 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     fontWeight: "800",
   },
+  compactTitle: { fontSize: 15, lineHeight: 18 },
   detail: { color: flowColors.bodyText, fontSize: 13, lineHeight: 18 },
+  compactDetail: { fontSize: 12, lineHeight: 15 },
   pressed: { opacity: 0.78, transform: [{ scale: 0.992 }] },
   disabled: { opacity: 0.42 },
 });

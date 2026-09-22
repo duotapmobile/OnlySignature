@@ -2,7 +2,6 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Svg, { Path } from "react-native-svg";
-import * as Haptics from "expo-haptics";
 import type {
   AssetKind,
   DrawingAsset,
@@ -24,6 +23,7 @@ interface Props {
   kind: AssetKind;
   prompt?: string;
   drawingAccessibilityLabel?: string | undefined;
+  presentation?: "framed" | "fullBleed";
   onChange(
     strokes: Stroke[],
     width: number,
@@ -37,6 +37,7 @@ export function SignatureCanvas({
   kind,
   prompt,
   drawingAccessibilityLabel,
+  presentation = "framed",
   onChange,
 }: Props) {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
@@ -110,7 +111,6 @@ export function SignatureCanvas({
       };
       current.current = stroke;
       updateLocal([...strokesRef.current, stroke]);
-      void Haptics.selectionAsync();
     },
     [pointFromEvent, updateLocal],
   );
@@ -178,7 +178,11 @@ export function SignatureCanvas({
               ? "Empty"
               : `${strokes.length} ${strokes.length === 1 ? "stroke" : "strokes"}`,
         }}
-        style={styles.canvas}
+        testID="signature-canvas"
+        style={[
+          styles.canvas,
+          presentation === "fullBleed" && styles.fullBleedCanvas,
+        ]}
         onLayout={(event) => {
           const nextSize = {
             width: event.nativeEvent.layout.width,
@@ -221,7 +225,7 @@ export function SignatureCanvas({
         collapsable={false}
       >
         <View pointerEvents="none" style={styles.guideLineLayer}>
-          <View style={styles.guideLine} />
+          <View testID="signature-guide-line" style={styles.guideLine} />
         </View>
         {sampleSource ? (
           <SampleDrawing
@@ -304,5 +308,9 @@ const styles = StyleSheet.create({
     bottom: "31%",
     alignItems: "center",
     transform: [{ translateY: -35 }],
+  },
+  fullBleedCanvas: {
+    borderWidth: 0,
+    borderRadius: 0,
   },
 });

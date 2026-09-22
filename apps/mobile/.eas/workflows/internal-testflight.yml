@@ -60,5 +60,5 @@ jobs:
       build_id: ${{ needs.build_ios_production.outputs.build_id }}
       profile: production
       internal_groups: ["Only Signature Internal"]
-      changelog: Introduces the cohesive ink, warm-paper, and gold redesign across the full signing journey; a layered animated opening; baseline-guided full-name capture; and optional two-step first-and-last-name capture that automatically aligns and joins both parts.
+      changelog: Full-screen responsive redesign across the signing journey with an animated launch, clearer loading and recovery feedback, subtle haptics, and full-bleed landscape signing. Full-name signing remains the default with optional aligned first-and-last capture.
       submit_beta_review: false

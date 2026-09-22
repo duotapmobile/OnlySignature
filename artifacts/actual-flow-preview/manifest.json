@@ -1,7 +1,7 @@
 {
   "source": "Expo web static build with screenshot fixture mode enabled",
   "classification": "Local reference-matched app rendering; phone frames are presentation-only and this is not native iOS or App Store evidence",
-  "capturedOn": "2026-09-21",
+  "capturedOn": "2026-09-22",
   "referenceFlow": "11-screen founder-directed flow",
   "screenshots": [
     {
@@ -19,7 +19,7 @@
       "headline": "Entry",
       "assertions": [
         "Without the sign-up.",
-        "Create My Signing Set"
+        "Create My FREE Signing Set"
       ]
     },
     {
@@ -29,7 +29,7 @@
       "assertions": [
         "Write your full name",
         "Save Signature",
-        "Sign first + last separately"
+        "Sign First and Last Separately"
       ]
     },
     {

@@ -1,4 +1,10 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { LayoutSlot } from "@/components/layout-slot";
 import { PaperSurface } from "@/components/paper-ui";
 import { Wordmark } from "@/components/flow-ui";
@@ -30,11 +36,20 @@ export function WelcomeFoldedPanel({
   onBegin(): void;
   onOpenSaved(): void;
 }) {
+  const { width, height } = useWindowDimensions();
+  const compact = height < 740 || width < 370;
+  const inkHeight = Math.min(360, Math.max(compact ? 250 : 280, height * 0.41));
   return (
-    <View style={styles.shell}>
+    <View style={[styles.shell, compact && styles.compactShell]}>
       <View pointerEvents="none" style={styles.rearPlate} />
       <View style={styles.deviceFrame}>
-        <View style={styles.inkPanel}>
+        <View
+          style={[
+            styles.inkPanel,
+            { height: inkHeight },
+            compact && styles.compactInkPanel,
+          ]}
+        >
           <View pointerEvents="none" style={styles.topEdgeHighlight} />
           <View style={styles.wordmarkStack}>
             <View
@@ -48,14 +63,20 @@ export function WelcomeFoldedPanel({
             <Wordmark style={styles.wordmark} />
           </View>
 
-          <View style={styles.copy}>
+          <View style={[styles.copy, compact && styles.compactCopy]}>
             <LayoutSlot id="entry.sign">
-              <Text selectable style={styles.sign}>
+              <Text
+                selectable
+                style={[styles.sign, compact && styles.compactSign]}
+              >
                 Sign.
               </Text>
             </LayoutSlot>
             <LayoutSlot id="entry.title">
-              <Text selectable style={styles.title}>
+              <Text
+                selectable
+                style={[styles.title, compact && styles.compactTitle]}
+              >
                 Without the sign-up.
               </Text>
             </LayoutSlot>
@@ -65,7 +86,7 @@ export function WelcomeFoldedPanel({
                 minimumFontScale={0.9}
                 numberOfLines={1}
                 selectable
-                style={styles.subtitle}
+                style={[styles.subtitle, compact && styles.compactSubtitle]}
               >
                 Create your signature and initials.
               </Text>
@@ -78,7 +99,9 @@ export function WelcomeFoldedPanel({
           </View>
         </View>
 
-        <PaperSurface style={styles.whitePanel}>
+        <PaperSurface
+          style={[styles.whitePanel, compact && styles.compactWhitePanel]}
+        >
           <View pointerEvents="none" style={styles.paperLip}>
             <View style={styles.paperLipHighlight} />
           </View>
@@ -162,6 +185,7 @@ export function WelcomeFoldedPanel({
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="View my Signing Sets"
+              testID="view-signing-sets"
               disabled={disabled}
               onPress={onOpenSaved}
               style={({ pressed }) => [
@@ -183,13 +207,14 @@ export function WelcomeFoldedPanel({
 
 const styles = StyleSheet.create({
   shell: {
+    flex: 1,
     width: "100%",
-    maxWidth: 430,
     alignSelf: "center",
-    paddingHorizontal: 5,
+    paddingHorizontal: 10,
     paddingTop: 8,
-    paddingBottom: 24,
+    paddingBottom: 8,
   },
+  compactShell: { paddingHorizontal: 8, paddingTop: 5, paddingBottom: 5 },
   rearPlate: {
     position: "absolute",
     left: 13,
@@ -204,16 +229,16 @@ const styles = StyleSheet.create({
     boxShadow: "0 38px 72px rgba(0,0,0,0.78), 0 12px 24px rgba(0,0,0,0.62)",
   },
   deviceFrame: {
+    flex: 1,
     width: "100%",
     borderRadius: 48,
     borderCurve: "continuous",
     boxShadow: "0 1px 0 rgba(255,255,255,0.12)",
   },
   inkPanel: {
-    minHeight: 365,
     paddingHorizontal: 27,
-    paddingTop: 22,
-    paddingBottom: 62,
+    paddingTop: 18,
+    paddingBottom: 48,
     overflow: "hidden",
     borderRadius: 48,
     borderCurve: "continuous",
@@ -224,6 +249,12 @@ const styles = StyleSheet.create({
       "0 32px 48px rgba(0,0,0,0.68), 0 9px 16px rgba(0,0,0,0.38), inset 0 2px 0 rgba(255,255,255,0.22), inset 0 -2px 0 rgba(2,4,10,0.34)",
     zIndex: 5,
   },
+  compactInkPanel: {
+    paddingHorizontal: 22,
+    paddingTop: 12,
+    paddingBottom: 38,
+    borderRadius: 38,
+  },
   topEdgeHighlight: {
     position: "absolute",
     left: 35,
@@ -233,8 +264,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.32)",
   },
   wordmarkStack: {
-    width: 148,
-    height: 58,
+    width: 132,
+    height: 50,
     alignSelf: "flex-end",
     zIndex: 3,
   },
@@ -245,38 +276,42 @@ const styles = StyleSheet.create({
     opacity: 0.78,
   },
   wordmark: {
-    width: 148,
-    height: 58,
+    width: 132,
+    height: 50,
   },
-  copy: { paddingTop: 42, zIndex: 3 },
+  copy: { paddingTop: 24, zIndex: 3 },
+  compactCopy: { paddingTop: 10 },
   sign: {
     color: "#FFFFFF",
     fontFamily: "Georgia",
-    fontSize: 60,
-    lineHeight: 66,
+    fontSize: 54,
+    lineHeight: 59,
     fontWeight: "700",
     letterSpacing: -2.4,
   },
+  compactSign: { fontSize: 46, lineHeight: 50 },
   title: {
     color: "#FFFFFF",
-    fontSize: 30,
-    lineHeight: 36,
+    fontSize: 28,
+    lineHeight: 34,
     fontWeight: "800",
     letterSpacing: -0.9,
-    marginTop: 8,
+    marginTop: 5,
   },
+  compactTitle: { fontSize: 24, lineHeight: 29, marginTop: 2 },
   subtitle: {
     maxWidth: 360,
     color: "#E9E6DC",
-    fontSize: 20,
-    lineHeight: 28,
-    marginTop: 13,
+    fontSize: 18,
+    lineHeight: 25,
+    marginTop: 9,
   },
+  compactSubtitle: { fontSize: 16, lineHeight: 22, marginTop: 5 },
   signatureMotif: {
     position: "absolute",
     left: 28,
     right: 28,
-    bottom: 34,
+    bottom: 26,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
@@ -294,11 +329,11 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(216,182,106,0.48)",
   },
   whitePanel: {
-    minHeight: 382,
+    flex: 1,
     paddingHorizontal: 28,
-    paddingTop: 76,
-    paddingBottom: 22,
-    marginTop: -50,
+    paddingTop: 62,
+    paddingBottom: 14,
+    marginTop: -42,
     borderRadius: 48,
     borderCurve: "continuous",
     borderWidth: 1,
@@ -308,11 +343,18 @@ const styles = StyleSheet.create({
       "0 30px 54px rgba(0,0,0,0.56), inset 0 2px 0 rgba(255,255,255,0.98), inset 0 -2px 0 rgba(7,31,90,0.12)",
     zIndex: 2,
   },
+  compactWhitePanel: {
+    paddingHorizontal: 22,
+    paddingTop: 50,
+    paddingBottom: 8,
+    marginTop: -34,
+    borderRadius: 38,
+  },
   paperLip: {
     position: "absolute",
     left: 47,
     right: 47,
-    top: 49,
+    top: 39,
     height: 5,
     borderRadius: 3,
     backgroundColor: "rgba(7,31,90,0.14)",
@@ -335,17 +377,17 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.62)",
     boxShadow: "0 2px 8px rgba(216,182,106,0.22)",
   },
-  benefits: { gap: 11 },
+  benefits: { gap: 7 },
   benefitsEyebrow: {
     color: "#766B55",
     fontSize: 13,
     lineHeight: 17,
     fontWeight: "800",
     letterSpacing: 1.35,
-    marginBottom: 4,
+    marginBottom: 1,
   },
   benefitRow: {
-    minHeight: 35,
+    minHeight: 31,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
@@ -375,10 +417,10 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: -0.2,
   },
-  actions: { gap: 8, marginTop: 18 },
+  actions: { gap: 2, marginTop: "auto" },
   primaryButton: {
     width: "100%",
-    minHeight: 60,
+    minHeight: 56,
     paddingLeft: 22,
     paddingRight: 9,
     flexDirection: "row",
@@ -416,7 +458,7 @@ const styles = StyleSheet.create({
   buttonPressed: { opacity: 0.8, transform: [{ scale: 0.985 }] },
   buttonDisabled: { opacity: 0.52 },
   savedButton: {
-    minHeight: 36,
+    minHeight: 44,
     alignItems: "center",
     justifyContent: "center",
   },

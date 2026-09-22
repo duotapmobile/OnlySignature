@@ -147,6 +147,7 @@ export const validateAndMigrateAppState = (value: unknown): AppStateData => {
     selectedAsset: source.selectedAsset as AppStateData["selectedAsset"],
     unboundPurchases,
     reviewPrompted: source.reviewPrompted,
+    hasSeenFullOpening: Boolean(source.hasSeenFullOpening),
     lastError: typeof source.lastError === "string" ? source.lastError : null,
   };
 };

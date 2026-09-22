@@ -15,6 +15,14 @@ const valid = () => ({
 test("semantic state validation migrates legacy purchase fields", () => {
   const result = validateAndMigrateAppState(valid());
   assert.equal(result.sets[0]!.purchaseIntentState, null);
+  assert.equal(result.hasSeenFullOpening, false);
+  assert.equal(
+    validateAndMigrateAppState({
+      ...valid(),
+      hasSeenFullOpening: true,
+    }).hasSeenFullOpening,
+    true,
+  );
 });
 
 test("semantic state validation rejects checksum-valid impossible state", () => {
