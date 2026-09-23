@@ -222,7 +222,7 @@ describe("native screenshot deep-link readiness", () => {
       "utf8",
     );
     const workflow = readFileSync(
-      "apps/mobile/.eas/workflows/native-ios-screenshots.yml",
+      "apps/mobile/.eas/workflows/native-ios-actual-flow.yml",
       "utf8",
     );
     const openUrl = source.indexOf("name,\n      step.command,");
