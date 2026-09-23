@@ -7,9 +7,10 @@ export const SIGNATURE_STROKE_WIDTH = 2.25;
 // A light 1 Euro filter removes slow finger tremor while keeping quick,
 // intentional changes responsive. It never invents points or reshapes a
 // completed signature; every output point is derived from the live touch.
-export const INK_STABILIZER_MIN_CUTOFF = 1.8;
-export const INK_STABILIZER_BETA = 0.015;
+export const INK_STABILIZER_MIN_CUTOFF = 5.2;
+export const INK_STABILIZER_BETA = 0.055;
 export const INK_STABILIZER_DERIVATIVE_CUTOFF = 10;
+export const INK_MIN_SAMPLE_DISTANCE = 1.5;
 
 export interface StrokeStabilizerState {
   raw: StrokePoint;
@@ -83,6 +84,17 @@ export const stabilizeStrokePoint = (
       derivativeY,
     },
   };
+};
+
+export const shouldRecordStrokePoint = (
+  previous: StrokePoint | undefined,
+  next: StrokePoint,
+): boolean => {
+  if (!previous) return true;
+  return (
+    Math.hypot(next.x - previous.x, next.y - previous.y) >=
+    INK_MIN_SAMPLE_DISTANCE
+  );
 };
 
 export interface Bounds {

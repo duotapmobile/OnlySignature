@@ -436,6 +436,8 @@ test("drawing responder owns one continuous finger gesture", async () => {
   assert.match(canvas, /Math\.max\(plane\.height, nextSize\.height\)/);
   assert.match(canvas, /prompt \?\? "Sign here"/);
   assert.match(canvas, /stabilizeStrokePoint/);
+  assert.match(canvas, /shouldRecordStrokePoint/);
+  assert.match(canvas, /move\(event\.x, event\.y\);\s*release\(\)/);
   assert.match(canvas, /style=\{styles\.guideLineLayer\}/);
   assert.ok(
     canvas.indexOf("style={styles.guideLineLayer}") <
@@ -474,13 +476,27 @@ test("purchase actions use stable customer copy and saved actions stay above the
     assert.match(source, /Purchase Transparent/);
     assert.doesNotMatch(source, /Try Transparent Purchase/);
   }
-  assert.match(purchaseHook, /Sandbox Apple Account/);
+  assert.match(purchaseHook, /temporarily unavailable/);
+  assert.doesNotMatch(purchaseHook, /Sandbox Apple Account/);
   assert.doesNotMatch(purchaseHook, /United States Media & Purchases/);
   assert.ok(
     saved.indexOf('id="saved.actions"') < saved.indexOf('id="saved.list"'),
   );
   assert.match(saved, /⚙︎/);
   assert.doesNotMatch(saved, /react-native-svg/);
+});
+
+test("brand headers constrain native display scaling and keep the wordmark below system chrome", async () => {
+  const [flow, draw] = await Promise.all([
+    read("../src/components/flow-ui.tsx"),
+    read("../src/app/draw.tsx"),
+  ]);
+  assert.match(flow, /maxFontSizeMultiplier=\{1\.08\}/);
+  assert.match(flow, /maxFontSizeMultiplier=\{1\.18\}/);
+  assert.match(flow, /flowInkStage:[\s\S]*height: 260/);
+  assert.match(flow, /flowPaperStage:[\s\S]*top: 214/);
+  assert.match(flow, /flowWordmark:[\s\S]*top: 42/);
+  assert.match(draw, /portraitInk:[\s\S]*height: 260/);
 });
 
 test("entry has no authorization interruption and StoreKit can retry", async () => {

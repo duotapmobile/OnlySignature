@@ -155,7 +155,11 @@ export function ScriptLabel({
     before: "BEFORE YOU DOWNLOAD",
   };
   const label = (
-    <Text selectable style={[styles.scriptLabel, style]}>
+    <Text
+      selectable
+      maxFontSizeMultiplier={1.1}
+      style={[styles.scriptLabel, style]}
+    >
       {labels[asset]}
     </Text>
   );
@@ -171,7 +175,12 @@ export function FlowHeading({
   style?: StyleProp<TextStyle>;
 }>) {
   const heading = (
-    <Text accessibilityRole="header" selectable style={[styles.heading, style]}>
+    <Text
+      accessibilityRole="header"
+      selectable
+      maxFontSizeMultiplier={1.08}
+      style={[styles.heading, style]}
+    >
       {children}
     </Text>
   );
@@ -187,7 +196,7 @@ export function FlowBody({
   layoutId?: string;
 }>) {
   const body = (
-    <Text selectable style={[styles.body, style]}>
+    <Text selectable maxFontSizeMultiplier={1.18} style={[styles.body, style]}>
       {children}
     </Text>
   );
@@ -218,6 +227,7 @@ export function FlowPrimaryButton({
   const labelNode = (
     <Text
       adjustsFontSizeToFit
+      maxFontSizeMultiplier={1.08}
       minimumFontScale={0.6}
       numberOfLines={1}
       style={[
@@ -290,7 +300,12 @@ export function FlowTextButton({
   labelStyle?: StyleProp<TextStyle>;
 }) {
   const labelNode = (
-    <Text style={[styles.textButtonText, labelStyle]}>{label}</Text>
+    <Text
+      maxFontSizeMultiplier={1.15}
+      style={[styles.textButtonText, labelStyle]}
+    >
+      {label}
+    </Text>
   );
   const button = (
     <Pressable
@@ -661,7 +676,7 @@ const styles = StyleSheet.create({
     position: "relative",
     zIndex: 3,
     paddingHorizontal: 32,
-    paddingTop: 74,
+    paddingTop: 58,
     paddingBottom: 18,
   },
   flowChrome: {
@@ -686,7 +701,7 @@ const styles = StyleSheet.create({
     left: 6,
     right: 6,
     top: 3,
-    height: 238,
+    height: 260,
     overflow: "hidden",
     borderRadius: 40,
     borderCurve: "continuous",
@@ -700,7 +715,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 6,
     right: 6,
-    top: 192,
+    top: 214,
     bottom: 3,
     borderRadius: 40,
     borderCurve: "continuous",
@@ -721,10 +736,10 @@ const styles = StyleSheet.create({
   flowWordmark: {
     position: "absolute",
     right: 30,
-    top: 12,
+    top: 42,
     zIndex: 4,
-    width: 112,
-    height: 44,
+    width: 104,
+    height: 40,
   },
   flowSignatureMotif: {
     position: "absolute",

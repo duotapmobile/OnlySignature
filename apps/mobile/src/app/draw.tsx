@@ -418,7 +418,11 @@ export default function CaptureScreen() {
               <RotateIcon />
             </LayoutSlot>
             <LayoutSlot id={`${layerPrefix}.rotate.label`}>
-              <Text selectable style={styles.rotateText}>
+              <Text
+                selectable
+                maxFontSizeMultiplier={1.12}
+                style={styles.rotateText}
+              >
                 Rotate for more room
               </Text>
             </LayoutSlot>
@@ -620,7 +624,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     top: 0,
-    height: 238,
+    height: 260,
     backgroundColor: flowColors.action,
     borderBottomLeftRadius: 36,
     borderBottomRightRadius: 36,
@@ -705,13 +709,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   back: { position: "absolute", top: 24, left: 14, zIndex: 4 },
-  header: { marginTop: 30, marginBottom: 10, zIndex: 2 },
+  header: { marginTop: 22, marginBottom: 6, zIndex: 2 },
   compactHeader: { marginTop: 18, marginBottom: 4 },
   script: { marginLeft: 48, marginBottom: 8 },
   compactPortraitScript: { width: 116, height: 42, marginBottom: 2 },
-  heroTitle: { fontSize: 32, lineHeight: 38 },
+  heroTitle: { fontSize: 29, lineHeight: 34 },
   compactHeroTitle: { fontSize: 26, lineHeight: 31 },
-  subtitle: { marginTop: 6, fontSize: 17, lineHeight: 24 },
+  subtitle: { marginTop: 4, fontSize: 16, lineHeight: 22 },
   compactSubtitle: { marginTop: 2, fontSize: 14, lineHeight: 18 },
   stepRow: {
     flexDirection: "row",
@@ -738,11 +742,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 7,
-    marginTop: 12,
-    marginBottom: 22,
+    marginTop: 8,
+    marginBottom: 12,
   },
   compactRotate: { marginTop: 4, marginBottom: 7 },
-  rotateText: { color: flowColors.bodyText, fontSize: 15, lineHeight: 21 },
+  rotateText: {
+    color: flowColors.bodyText,
+    fontSize: 14,
+    lineHeight: 19,
+  },
   canvas: {
     minHeight: 190,
     borderRadius: 24,

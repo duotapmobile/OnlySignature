@@ -2,12 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   INK_STABILIZER_BETA,
+  INK_MIN_SAMPLE_DISTANCE,
   INK_STABILIZER_MIN_CUTOFF,
   SIGNATURE_STROKE_WIDTH,
   exportDimensions,
   drawingBounds,
   paddedViewBox,
   pointToDrawingPlane,
+  shouldRecordStrokePoint,
   serializeSvg,
   smoothPath,
   stabilizeStrokePoint,
@@ -30,8 +32,8 @@ test("smooth path retains stroke endpoints and uses vector curves", () => {
 });
 
 test("adaptive ink stabilization removes slow finger wobble without flattening deliberate movement", () => {
-  assert.equal(INK_STABILIZER_MIN_CUTOFF, 1.8);
-  assert.equal(INK_STABILIZER_BETA, 0.015);
+  assert.equal(INK_STABILIZER_MIN_CUTOFF, 5.2);
+  assert.equal(INK_STABILIZER_BETA, 0.055);
   const makePoint = (x: number, y: number, t: number) => ({
     x,
     y,
@@ -63,11 +65,34 @@ test("adaptive ink stabilization removes slow finger wobble without flattening d
     return result.point;
   });
   const last = deliberate.at(-1)!;
-  assert.ok(last.x > 45);
-  assert.ok(last.y > 12);
+  assert.ok(last.x > 55);
+  assert.ok(last.y > 20);
   assert.ok(last.x <= 60);
   assert.ok(last.y <= 25);
   assert.equal(last.t, 32);
+});
+
+test("ink sampling ignores sub-point finger tremor but records intentional movement", () => {
+  const previous = { x: 100, y: 100, t: 0, pressure: null };
+  assert.equal(INK_MIN_SAMPLE_DISTANCE, 1.5);
+  assert.equal(
+    shouldRecordStrokePoint(previous, {
+      x: 100.45,
+      y: 99.55,
+      t: 16,
+      pressure: null,
+    }),
+    false,
+  );
+  assert.equal(
+    shouldRecordStrokePoint(previous, {
+      x: 101.6,
+      y: 100,
+      t: 16,
+      pressure: null,
+    }),
+    true,
+  );
 });
 
 test("marketing fixtures use multi-stroke fictional handwriting rather than abstract marks", () => {

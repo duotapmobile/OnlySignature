@@ -15,7 +15,7 @@ const purchaseErrorCopy = (error: unknown): string => {
       ? error.message.toLowerCase()
       : String(error).toLowerCase();
   if (detail.includes("product-not-found"))
-    return "Apple did not return the transparent product. Your signing set is safe. Check the Sandbox Apple Account on this iPhone, then tap Purchase Transparent again.";
+    return "Transparent Background is temporarily unavailable. Your signing set is safe. Try again in a moment or continue with a white background.";
   if (detail.includes("product-lookup-failed"))
     return "Apple could not load the transparent product. Check your connection, then tap Purchase Transparent again.";
   return "Apple could not open the transparent purchase. Your signing set is unchanged. Tap Purchase Transparent again or save the white version for free.";

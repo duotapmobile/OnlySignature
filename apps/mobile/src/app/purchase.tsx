@@ -212,7 +212,11 @@ export default function BackgroundScreen() {
       ) : null}
       {error ? (
         <LayoutSlot id="background.error">
-          <Text accessibilityRole="alert" style={styles.error}>
+          <Text
+            accessibilityRole="alert"
+            maxFontSizeMultiplier={1.12}
+            style={styles.error}
+          >
             {error}
           </Text>
         </LayoutSlot>
@@ -350,10 +354,14 @@ const styles = StyleSheet.create({
   },
   error: {
     color: flowColors.destructive,
-    fontSize: 13,
-    lineHeight: 18,
-    marginTop: 8,
-    textAlign: "center",
+    fontSize: 12,
+    lineHeight: 16,
+    marginTop: 7,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: "#FFF1F0",
+    textAlign: "left",
   },
   retryNote: {
     color: "#F0F5F2",

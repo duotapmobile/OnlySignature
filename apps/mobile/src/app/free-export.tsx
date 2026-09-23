@@ -110,7 +110,12 @@ export default function DiyWarningScreen() {
       </LayoutSlot>
       {purchase.error ? (
         <LayoutSlot id="warning.error">
-          <Text accessibilityRole="alert" selectable style={styles.error}>
+          <Text
+            accessibilityRole="alert"
+            selectable
+            maxFontSizeMultiplier={1.12}
+            style={styles.error}
+          >
             {purchase.error}
           </Text>
         </LayoutSlot>
@@ -223,9 +228,13 @@ const styles = StyleSheet.create({
   error: {
     color: flowColors.destructive,
     fontSize: 12,
-    lineHeight: 17,
-    textAlign: "center",
+    lineHeight: 16,
+    textAlign: "left",
     marginTop: 7,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: "#FFF1F0",
   },
   actions: { marginTop: "auto", paddingTop: 10, marginBottom: 1, gap: 2 },
 });

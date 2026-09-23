@@ -60,5 +60,5 @@ jobs:
       build_id: ${{ needs.build_ios_production.outputs.build_id }}
       profile: production
       internal_groups: ["Only Signature Internal"]
-      changelog: Full-screen responsive redesign across the signing journey with an animated launch, clearer loading and recovery feedback, subtle haptics, and full-bleed landscape signing. Full-name signing remains the default with optional aligned first-and-last capture.
+      changelog: Corrects signature touch tracking and finger-jitter sensitivity, keeps all native headings and instructions visible, clears the wordmark from system status controls, and improves purchase recovery feedback.
       submit_beta_review: false

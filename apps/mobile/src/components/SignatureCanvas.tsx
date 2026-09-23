@@ -10,6 +10,7 @@ import type {
 } from "@/domain/models";
 import {
   pointToDrawingPlane,
+  shouldRecordStrokePoint,
   SIGNATURE_STROKE_WIDTH,
   stabilizeStrokePoint,
   smoothPath,
@@ -123,6 +124,8 @@ export function SignatureCanvas({
       if (!point) return;
       const stabilized = stabilizeStrokePoint(stabilizer.current, point);
       stabilizer.current = stabilized.state;
+      const previous = current.current.points.at(-1);
+      if (!shouldRecordStrokePoint(previous, stabilized.point)) return;
       const updated = {
         ...current.current,
         points: [...current.current.points, stabilized.point],
@@ -156,7 +159,10 @@ export function SignatureCanvas({
         .runOnJS(true)
         .onBegin((event) => grant(event.x, event.y))
         .onUpdate((event) => move(event.x, event.y))
-        .onEnd(release)
+        .onEnd((event) => {
+          move(event.x, event.y);
+          release();
+        })
         .onFinalize(terminate),
     [grant, move, release, terminate],
   );
