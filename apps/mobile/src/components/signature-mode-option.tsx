@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   slot: { marginTop: 18, gap: 9 },
   compactSlot: { marginTop: 5, gap: 3 },
   eyebrow: {
-    color: flowColors.goldText,
+    color: flowColors.ink,
     fontFamily: "Georgia",
     fontSize: 20,
     lineHeight: 25,

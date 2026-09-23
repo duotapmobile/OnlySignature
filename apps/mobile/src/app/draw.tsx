@@ -707,7 +707,7 @@ const styles = StyleSheet.create({
   back: { position: "absolute", top: 24, left: 14, zIndex: 4 },
   header: { marginTop: 30, marginBottom: 10, zIndex: 2 },
   compactHeader: { marginTop: 18, marginBottom: 4 },
-  script: { marginLeft: 4, marginBottom: 8 },
+  script: { marginLeft: 48, marginBottom: 8 },
   compactPortraitScript: { width: 116, height: 42, marginBottom: 2 },
   heroTitle: { fontSize: 32, lineHeight: 38 },
   compactHeroTitle: { fontSize: 26, lineHeight: 31 },

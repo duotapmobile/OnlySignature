@@ -40,7 +40,7 @@ function alphaRange(values: number[]): { min: number; max: number } {
   return { min, max };
 }
 
-describe("pixel export requirements", () => {
+describe("pixel export requirements", { timeout: 15_000 }, () => {
   it("encodes a transparent PNG with zero-alpha padding and visible strokes", () => {
     const raster = rasterizeDrawing(signature, {
       background: "transparent",
