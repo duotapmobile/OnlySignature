@@ -177,6 +177,11 @@ test("native capture contract contains twelve in-app states matching the approve
       "11-saved-sets-home",
     ],
   );
+  assert.deepEqual(nativeManifest.screenshots[1]?.assertions, [
+    "Write your full name",
+    "Save Signature",
+    "Sign First and Last Separately. More room for each name. We’ll align them for you.",
+  ]);
   assert.deepEqual(nativeManifest.screenshots[7], {
     id: "07-clear-background",
     route: "/clear-background?fixture=both",
