@@ -442,7 +442,7 @@ test("drawing responder owns one continuous finger gesture", async () => {
   assert.match(canvas, /prompt \?\? "Sign here"/);
   assert.match(canvas, /stabilizeStrokePoint/);
   assert.match(canvas, /shouldRecordStrokePoint/);
-  assert.match(canvas, /move\(event\.x, event\.y\);\s*release\(\)/);
+  assert.match(canvas, /move\(event\.x, event\.y, true\);\s*release\(\)/);
   assert.match(canvas, /style=\{styles\.guideLineLayer\}/);
   assert.ok(
     canvas.indexOf("style={styles.guideLineLayer}") <

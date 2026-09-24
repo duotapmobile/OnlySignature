@@ -32,8 +32,8 @@ test("smooth path retains stroke endpoints and uses vector curves", () => {
 });
 
 test("adaptive ink stabilization removes slow finger wobble without flattening deliberate movement", () => {
-  assert.equal(INK_STABILIZER_MIN_CUTOFF, 5.2);
-  assert.equal(INK_STABILIZER_BETA, 0.055);
+  assert.equal(INK_STABILIZER_MIN_CUTOFF, 1.2);
+  assert.equal(INK_STABILIZER_BETA, 0.012);
   const makePoint = (x: number, y: number, t: number) => ({
     x,
     y,
@@ -65,16 +65,16 @@ test("adaptive ink stabilization removes slow finger wobble without flattening d
     return result.point;
   });
   const last = deliberate.at(-1)!;
-  assert.ok(last.x > 55);
-  assert.ok(last.y > 20);
+  assert.ok(last.x > 40);
+  assert.ok(last.y > 10);
   assert.ok(last.x <= 60);
   assert.ok(last.y <= 25);
   assert.equal(last.t, 32);
 });
 
-test("ink sampling ignores sub-point finger tremor but records intentional movement", () => {
+test("ink sampling ignores micro-jitter but records intentional movement", () => {
   const previous = { x: 100, y: 100, t: 0, pressure: null };
-  assert.equal(INK_MIN_SAMPLE_DISTANCE, 1.5);
+  assert.equal(INK_MIN_SAMPLE_DISTANCE, 2.25);
   assert.equal(
     shouldRecordStrokePoint(previous, {
       x: 100.45,
@@ -86,13 +86,34 @@ test("ink sampling ignores sub-point finger tremor but records intentional movem
   );
   assert.equal(
     shouldRecordStrokePoint(previous, {
-      x: 101.6,
+      x: 2.3 + previous.x,
       y: 100,
       t: 16,
       pressure: null,
     }),
     true,
   );
+});
+
+test("terminal stabilization lands exactly under the lifted finger", () => {
+  const previous = stabilizeStrokePoint(null, {
+    x: 10,
+    y: 20,
+    t: 0,
+    pressure: null,
+  });
+  const terminal = stabilizeStrokePoint(
+    previous.state,
+    { x: 40, y: 55, t: 16, pressure: null },
+    true,
+  );
+
+  assert.deepEqual(terminal.point, {
+    x: 40,
+    y: 55,
+    t: 16,
+    pressure: null,
+  });
 });
 
 test("marketing fixtures use multi-stroke fictional handwriting rather than abstract marks", () => {

@@ -117,18 +117,26 @@ export function SignatureCanvas({
   );
 
   const move = useCallback(
-    (x: number, y: number) => {
+    (x: number, y: number, terminal = false) => {
       if (!current.current) return;
       const timestamp = Date.now();
       const point = pointFromEvent(x, y, timestamp);
       if (!point) return;
-      const stabilized = stabilizeStrokePoint(stabilizer.current, point);
+      const stabilized = stabilizeStrokePoint(
+        stabilizer.current,
+        point,
+        terminal,
+      );
       stabilizer.current = stabilized.state;
       const previous = current.current.points.at(-1);
-      if (!shouldRecordStrokePoint(previous, stabilized.point)) return;
+      const shouldAppend = shouldRecordStrokePoint(previous, stabilized.point);
+      if (!shouldAppend && !terminal) return;
       const updated = {
         ...current.current,
-        points: [...current.current.points, stabilized.point],
+        points:
+          terminal && !shouldAppend
+            ? [...current.current.points.slice(0, -1), stabilized.point]
+            : [...current.current.points, stabilized.point],
       };
       current.current = updated;
       updateLocal([...strokesRef.current.slice(0, -1), updated]);
@@ -160,7 +168,7 @@ export function SignatureCanvas({
         .onBegin((event) => grant(event.x, event.y))
         .onUpdate((event) => move(event.x, event.y))
         .onEnd((event) => {
-          move(event.x, event.y);
+          move(event.x, event.y, true);
           release();
         })
         .onFinalize(terminate),
