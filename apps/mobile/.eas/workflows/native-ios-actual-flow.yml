@@ -62,4 +62,5 @@ jobs:
           path: |
             store-assets/screenshots/native/raw/**/*
             artifacts/native-export-verification/**/*
-            artifacts/native-screenshot-diagnostics/**/*
+            artifacts/native-screenshot-diagnostics/iphone/**/*
+            artifacts/native-screenshot-diagnostics/ipad/**/*

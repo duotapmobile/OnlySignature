@@ -103,6 +103,63 @@ const verifyNativeExportFile = async (file, mode) => {
   };
 };
 
+const verifyNativeTouchAlignment = async (file) => {
+  const image = sharp(file);
+  const metadata = await image.metadata();
+  const { data, info } = await image.ensureAlpha().raw().toBuffer({
+    resolveWithObject: true,
+  });
+  const expectedY = Math.round(info.height * 0.31);
+  const expectedStartX = Math.round(info.width * 0.25);
+  const expectedEndX = Math.round(info.width * 0.75);
+  const verticalTolerance = Math.round(info.height * 0.016);
+  const horizontalTolerance = Math.round(info.width * 0.035);
+  const darkPixels = [];
+  for (
+    let y = expectedY - verticalTolerance;
+    y <= expectedY + verticalTolerance;
+    y += 1
+  ) {
+    for (
+      let x = expectedStartX - horizontalTolerance;
+      x <= expectedEndX + horizontalTolerance;
+      x += 1
+    ) {
+      const index = (y * info.width + x) * 4;
+      if (
+        data[index] < 110 &&
+        data[index + 1] < 110 &&
+        data[index + 2] < 110 &&
+        data[index + 3] > 20
+      )
+        darkPixels.push({ x, y });
+    }
+  }
+  if (darkPixels.length < 500)
+    fail("The native touch probe did not produce a visible ink stroke.");
+  const minX = Math.min(...darkPixels.map(({ x }) => x));
+  const maxX = Math.max(...darkPixels.map(({ x }) => x));
+  const averageY =
+    darkPixels.reduce((sum, { y }) => sum + y, 0) / darkPixels.length;
+  if (
+    Math.abs(averageY - expectedY) > Math.round(info.height * 0.007) ||
+    minX > expectedStartX + horizontalTolerance ||
+    maxX < expectedEndX - horizontalTolerance * 2
+  )
+    fail("The native ink stroke is not centered on the simulated finger path.");
+  return {
+    width: metadata.width,
+    height: metadata.height,
+    expectedPath: {
+      start: { x: expectedStartX, y: expectedY },
+      end: { x: expectedEndX, y: expectedY },
+    },
+    measuredInk: { minX, maxX, averageY, darkPixelCount: darkPixels.length },
+    sha256: await hashFile(file),
+    result: "PASS",
+  };
+};
+
 if (process.platform !== "darwin")
   fail("Native iOS screenshot capture requires an EAS macOS worker.");
 
@@ -378,6 +435,53 @@ try {
     "100",
   ]);
   run("xcrun", ["simctl", "install", udid, appPath]);
+
+  if (device === "iphone") {
+    const touchDiagnosticDirectory = await coldLaunch(
+      "/draw?fixture=landing",
+      "native-touch-alignment",
+    );
+    const touchFlowPath = path.join(tempDir, "native-touch-alignment.yml");
+    await writeFile(
+      touchFlowPath,
+      [
+        `appId: ${screenshotAppId}`,
+        "---",
+        "- extendedWaitUntil:",
+        "    visible:",
+        `      id: ${JSON.stringify("app-ready")}`,
+        "    timeout: 30000",
+        "- extendedWaitUntil:",
+        "    visible:",
+        `      id: ${JSON.stringify("signature-canvas")}`,
+        "    timeout: 30000",
+        "- swipe:",
+        '    start: "25%, 31%"',
+        '    end: "75%, 31%"',
+        "    duration: 900",
+        "",
+      ].join("\n"),
+      "utf8",
+    );
+    run("maestro", [
+      "--device",
+      udid,
+      "test",
+      `--test-output-dir=${path.join(touchDiagnosticDirectory, "maestro")}`,
+      touchFlowPath,
+    ]);
+    const touchScreenshot = path.join(
+      touchDiagnosticDirectory,
+      "touch-alignment.png",
+    );
+    run("xcrun", ["simctl", "io", udid, "screenshot", touchScreenshot]);
+    const touchReport = await verifyNativeTouchAlignment(touchScreenshot);
+    await writeFile(
+      path.join(touchDiagnosticDirectory, "touch-alignment-verification.json"),
+      `${JSON.stringify(touchReport, null, 2)}\n`,
+      "utf8",
+    );
+  }
 
   for (const shot of manifest.screenshots) {
     const flowPath = path.join(tempDir, `${shot.id}.yml`);

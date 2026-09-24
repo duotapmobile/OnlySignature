@@ -13,7 +13,7 @@
       "route": "/draw?fixture=both",
       "headline": "Full Name Capture",
       "assertions": [
-        "Add your signature",
+        "Write your full name",
         "Save Signature",
         "Sign First and Last Separately"
       ]
@@ -22,35 +22,32 @@
       "id": "03a-first-name-capture",
       "route": "/draw?fixture=both&namePart=first",
       "headline": "Optional First Name Capture",
-      "assertions": ["Add your first name", "Save First Name"]
+      "assertions": ["Write your first name", "Save First Name"]
     },
     {
       "id": "03b-last-name-capture",
       "route": "/draw?fixture=both&namePart=last",
       "headline": "Last Name Capture",
-      "assertions": ["Add your last name", "Save Last Name and Join"]
+      "assertions": ["Write your last name", "Save Last Name and Join"]
     },
     {
       "id": "04-initials-capture",
       "route": "/draw?fixture=initials",
       "headline": "Initials Capture",
-      "assertions": ["Add your initials", "Save Initials", "Skip for Now"]
+      "assertions": ["Write your initials", "Save Initials", "Skip for Now"]
     },
     {
       "id": "05-review-popup",
       "route": "/preview?fixture=both",
       "headline": "Review popup",
-      "assertions": [
-        "Confirm Your Signing Set",
-        "Confirm and Choose Background"
-      ]
+      "assertions": ["Review your signing set", "Confirm and Choose Background"]
     },
     {
       "id": "06-background-popup",
       "route": "/purchase?fixture=both",
       "headline": "Background popup",
       "assertions": [
-        "Choose Your Background",
+        "Choose a background",
         "Transparent Background",
         "White Background"
       ]
@@ -58,10 +55,10 @@
     {
       "id": "07-clear-background",
       "route": "/clear-background?fixture=both",
-      "headline": "Clear Background",
+      "headline": "See the difference",
       "assertions": [
-        "Clear Background",
-        "Looks natural on any document.",
+        "See the difference",
+        "A transparent signature sits naturally on any document.",
         "White box",
         "No Thanks"
       ]

@@ -19,7 +19,7 @@ describe("native screenshot deep-link readiness", () => {
   const shot = {
     id: "01-signature-initials",
     route: "/preview?fixture=both",
-    assertions: ["Confirm Your Signing Set", "Signature", "Initials"],
+    assertions: ["Review your signing set", "Signature", "Initials"],
   };
 
   it("preserves the exact Expo Router fixture route", () => {
@@ -61,9 +61,9 @@ describe("native screenshot deep-link readiness", () => {
       JSON.stringify(iosOpenConfirmationPattern),
     );
     const appReady = flow.indexOf(`id: "${screenshotAppReadyTestId}"`);
-    const routeReady = flow.indexOf('visible: "Confirm Your Signing Set"');
+    const routeReady = flow.indexOf('visible: "Review your signing set"');
     const finalAssertion = flow.indexOf(
-      '- assertVisible: "Confirm Your Signing Set"',
+      '- assertVisible: "Review your signing set"',
     );
 
     expect(confirmation).toBeGreaterThan(-1);
@@ -92,8 +92,8 @@ describe("native screenshot deep-link readiness", () => {
     );
 
     expect(comparison.assertions).toEqual([
-      "Clear Background",
-      "Looks natural on any document.",
+      "See the difference",
+      "A transparent signature sits naturally on any document.",
       "White box",
       "No Thanks",
     ]);
@@ -111,10 +111,10 @@ describe("native screenshot deep-link readiness", () => {
     );
 
     expect(purchase.assertions).toEqual([
-      "Choose Your Background",
+      "Choose a background",
       "Transparent Background",
       "White Background",
-      "^Unlock Transparent Set · \\$1\\.99$",
+      "Purchase Transparent",
     ]);
   });
 
@@ -216,6 +216,22 @@ describe("native screenshot deep-link readiness", () => {
     expect(captureSource).not.toContain('"only-signature-exports",');
   });
 
+  it("proves native ink stays centered on the simulated finger path", () => {
+    const source = readFileSync(
+      "scripts/capture-native-ios-screenshots.mjs",
+      "utf8",
+    );
+
+    expect(source).toContain('"native-touch-alignment"');
+    expect(source).toContain('start: "25%, 31%"');
+    expect(source).toContain('end: "75%, 31%"');
+    expect(source).toContain("verifyNativeTouchAlignment");
+    expect(source).toContain("touch-alignment-verification.json");
+    expect(source).toContain(
+      "The native ink stroke is not centered on the simulated finger path.",
+    );
+  });
+
   it("preserves post-open launch diagnostics and uploads them on failure", () => {
     const source = readFileSync(
       "scripts/capture-native-ios-screenshots.mjs",
@@ -245,7 +261,12 @@ describe("native screenshot deep-link readiness", () => {
     expect(frontmost).toBeGreaterThan(processState);
     expect(launchLog).toBeGreaterThan(frontmost);
     expect(workflow).toContain("if: ${{ always() }}");
-    expect(workflow).toContain("artifacts/native-screenshot-diagnostics/**/*");
+    expect(workflow).toContain(
+      "artifacts/native-screenshot-diagnostics/iphone/**/*",
+    );
+    expect(workflow).toContain(
+      "artifacts/native-screenshot-diagnostics/ipad/**/*",
+    );
   });
 
   it("accepts fully opaque simulator PNGs even when they retain an alpha channel", async () => {

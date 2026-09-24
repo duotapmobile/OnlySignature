@@ -180,10 +180,10 @@ test("native capture contract contains twelve in-app states matching the approve
   assert.deepEqual(nativeManifest.screenshots[7], {
     id: "07-clear-background",
     route: "/clear-background?fixture=both",
-    headline: "Clear Background",
+    headline: "See the difference",
     assertions: [
-      "Clear Background",
-      "Looks natural on any document.",
+      "See the difference",
+      "A transparent signature sits naturally on any document.",
       "White box",
       "No Thanks",
     ],
@@ -196,7 +196,7 @@ test("native capture contract contains twelve in-app states matching the approve
   assert.match(marketingWorkflow, /Capture eight asserted iPad frames/);
   assert.match(
     auditedFullFlow,
-    /tapOn: "Confirm and Choose Background"[\s\S]*tapOn: "Continue With White Background"[\s\S]*assertVisible: "Clear Background"[\s\S]*tapOn: "No Thanks"[\s\S]*assertVisible: "Removing the background later can damage your signature\."[\s\S]*tapOn: "No Thanks, Download Free White Set"[\s\S]*assertVisible: "White Background Export"/,
+    /tapOn: "Confirm and Choose Background"[\s\S]*tapOn: "Continue With White Background"[\s\S]*assertVisible: "See the difference"[\s\S]*tapOn: "No Thanks"[\s\S]*assertVisible: "Removing the background later can damage your signature\."[\s\S]*tapOn: "No Thanks, Download Free White Set"[\s\S]*assertVisible: "White Background Export"/,
   );
   assert.doesNotMatch(auditedFullFlow, /tapOn: "Continue to Background"/);
 });

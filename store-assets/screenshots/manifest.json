@@ -5,15 +5,15 @@
       "id": "01-signature-initials",
       "route": "/preview?fixture=both",
       "headline": "Your Signature and Initials",
-      "assertions": ["Confirm Your Signing Set", "Signature", "Initials"]
+      "assertions": ["Review your signing set", "Signature", "Initials"]
     },
     {
       "id": "02-remove-white-box",
       "route": "/clear-background?fixture=both",
       "headline": "Remove the White Box",
       "assertions": [
-        "Clear Background",
-        "Looks natural on any document.",
+        "See the difference",
+        "A transparent signature sits naturally on any document.",
         "White box",
         "No Thanks"
       ]
@@ -23,10 +23,10 @@
       "route": "/purchase?fixture=both",
       "headline": "No Editing or Cropping",
       "assertions": [
-        "Choose Your Background",
+        "Choose a background",
         "Transparent Background",
         "White Background",
-        "^Unlock Transparent Set · \\$1\\.99$"
+        "Purchase Transparent"
       ]
     },
     {
@@ -34,7 +34,7 @@
       "route": "/purchase?fixture=signature",
       "headline": "Place It on Any Document",
       "assertions": [
-        "Choose Your Background",
+        "Choose a background",
         "Sits cleanly over lines, dates, and text.",
         "Continue With White Background"
       ]
