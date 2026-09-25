@@ -85,6 +85,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     "unavailable";
 
   if (production) {
+    if (!/^[0-9a-f]{40}$/i.test(sourceRevision))
+      throw new Error(
+        "Production requires an exact 40-character Git source revision.",
+      );
     const invalid = Object.entries(required).filter(
       ([, value]) =>
         value.includes(PLACEHOLDER) ||

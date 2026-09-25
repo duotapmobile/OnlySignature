@@ -1,7 +1,12 @@
 name: Verified internal TestFlight upload
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      source_revision:
+        type: string
+        description: Exact synchronized Git commit SHA to embed and inspect
+        required: true
 
 defaults:
   image: macos-tahoe-26.5-xcode-26.6
@@ -24,6 +29,8 @@ jobs:
     name: Build signed production archive
     needs: [source_acceptance]
     type: build
+    env:
+      ONLY_SIGNATURE_SOURCE_REVISION: ${{ inputs.source_revision }}
     params:
       platform: ios
       profile: production
@@ -36,6 +43,7 @@ jobs:
     env:
       ARCHIVE_BUILD_ID: ${{ needs.build_ios_production.outputs.build_id }}
       ARCHIVE_WORKFLOW_ID: ${{ workflow.id }}
+      ARCHIVE_SOURCE_REVISION: ${{ inputs.source_revision }}
     steps:
       - uses: eas/checkout
       - uses: eas/install_node_modules
@@ -45,7 +53,7 @@ jobs:
           build_id: ${{ needs.build_ios_production.outputs.build_id }}
           extensions: [ipa]
       - name: Inspect the exact signed archive
-        run: node scripts/inspect-ios-archive.mjs --ipa "${{ steps.production_archive.outputs.artifact_path }}" --report artifacts/ios-archive-inspection.json
+        run: node scripts/inspect-ios-archive.mjs --ipa "${{ steps.production_archive.outputs.artifact_path }}" --report artifacts/ios-archive-inspection.json --source-revision "$ARCHIVE_SOURCE_REVISION"
       - uses: eas/upload_artifact
         with:
           type: other
