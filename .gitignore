@@ -43,6 +43,8 @@ artifacts/native-screenshot-diagnostics/attempt-16-cloud/attempt-16-artifacts.ta
 artifacts/native-screenshot-diagnostics/attempt-16-cloud/extracted/
 artifacts/native-screenshot-diagnostics/attempt-17-cloud/attempt-17-artifacts.tar.gz
 artifacts/native-screenshot-diagnostics/attempt-17-cloud/extracted/
+# Local native capture evidence is retained outside the EAS build context.
+artifacts/native-screenshot-diagnostics/
 test-results/
 playwright-report/
 .DS_Store
