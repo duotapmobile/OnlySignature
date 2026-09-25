@@ -7,14 +7,29 @@ const read = (path: string) => readFile(new URL(path, import.meta.url), "utf8");
 test("audited flow keeps one shared spacing and control system", async () => {
   const source = await read("../src/components/flow-ui.tsx");
   assert.match(source, /paddingHorizontal: 26/);
-  assert.match(source, /minHeight: 60/);
+  assert.match(source, /minWidth: 220/);
+  assert.match(source, /minHeight: 56/);
+  assert.match(source, /fontSize: 18/);
   assert.match(source, /minHeight: 44/);
   assert.match(source, /borderRadius: 14/);
   assert.match(source, /borderTopLeftRadius: 26/);
   assert.match(source, /accessibilityViewIsModal/);
   assert.match(source, /minHeight: 96/);
   assert.doesNotMatch(source, /height: 96/);
+  assert.doesNotMatch(source, /primaryArrow|→/);
   assert.doesNotMatch(source, /9:41|dynamic island|homebar/i);
+});
+
+test("primary and row buttons do not add decorative right arrows", async () => {
+  const [welcome, signatureMode, settings] = await Promise.all([
+    read("../src/components/welcome-folded-panel.tsx"),
+    read("../src/components/signature-mode-option.tsx"),
+    read("../src/app/settings.tsx"),
+  ]);
+
+  assert.doesNotMatch(welcome, /buttonArrow|→/);
+  assert.doesNotMatch(signatureMode, /chevron|m6\.75/i);
+  assert.doesNotMatch(settings, /chevron|m9 5 7 7/i);
 });
 
 test("audited routes preserve the complete white and transparent branches", async () => {
@@ -112,7 +127,7 @@ test("the exact flow uses native editorial labels and professional fictional han
   assert.match(fixture, /fixture !== "saved-home"/);
   assert.match(fixture, /label: "Taylor Brooks"/);
 });
-test("reference rendering contract contains the complete thirteen-screen flow", async () => {
+test("reference rendering contract contains the complete fourteen-screen flow", async () => {
   const manifest = JSON.parse(
     await read("../../../artifacts/actual-flow-preview/manifest.json"),
   ) as { screenshots: { id: string }[] };
@@ -127,6 +142,7 @@ test("reference rendering contract contains the complete thirteen-screen flow", 
       "04-initials-capture",
       "05-review-popup",
       "06-background-popup",
+      "06a-purchase-error",
       "07-clear-background",
       "08-diy-warning-popup",
       "09-white-confirmation-popup",
@@ -263,10 +279,10 @@ test("clear-background comparison keeps ink on the line and the white box compac
     clear.indexOf("whiteBox:"),
     clear.indexOf("art: {"),
   );
-  assert.match(artLayer, /top: 10,/);
-  assert.match(artLayer, /height: 40,/);
-  assert.match(whiteBox, /top: 17,/);
-  assert.match(whiteBox, /height: 48,/);
+  assert.match(artLayer, /top: "12%",/);
+  assert.match(artLayer, /height: "38%",/);
+  assert.match(whiteBox, /top: "18%",/);
+  assert.match(whiteBox, /height: "42%",/);
   assert.doesNotMatch(preview, /baselineSample|translateY: 9/);
 });
 test("included purchased slots finalize once and return to their source route", async () => {
@@ -386,7 +402,10 @@ test("capture geometry responds to iPhone portrait and landscape", async () => {
   assert.match(draw, /presentation="fullBleed"/);
   assert.match(draw, /styles\.landscapeCanvas/);
   assert.match(draw, /chrome="none"/);
-  assert.match(draw, /Math\.max\(210, windowHeight \* 0\.29\)/);
+  assert.match(
+    draw,
+    /Math\.min\(360, Math\.max\(250, windowHeight \* 0\.35\)\)/,
+  );
   assert.match(draw, /maxWidth: 1400/);
   assert.match(draw, /function RotateIcon\(\)/);
   assert.doesNotMatch(draw, /↻/);
@@ -482,6 +501,8 @@ test("purchase actions use stable customer copy and saved actions stay above the
     assert.doesNotMatch(source, /Try Transparent Purchase/);
   }
   assert.match(purchaseHook, /temporarily unavailable/);
+  assert.match(purchaseHook, /product-unavailable/);
+  assert.match(purchaseHook, /Your signing set is safe/);
   assert.doesNotMatch(purchaseHook, /Sandbox Apple Account/);
   assert.doesNotMatch(purchaseHook, /United States Media & Purchases/);
   assert.ok(

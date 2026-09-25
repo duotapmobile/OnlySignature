@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: theme.radii.lg,
     padding: theme.spacing.lg,
-    boxShadow: "0 14px 30px rgba(2,4,10,0.34)",
+    boxShadow: "0 8px 20px rgba(2,4,10,0.16)",
   },
   heading: {
     color: theme.colors.white,
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.3)",
     boxShadow:
-      "0 14px 26px rgba(7,31,90,0.30), inset 0 1px 0 rgba(255,255,255,0.18)",
+      "0 7px 18px rgba(7,31,90,0.20), inset 0 1px 0 rgba(255,255,255,0.18)",
   },
   buttonText: {
     color: theme.colors.white,

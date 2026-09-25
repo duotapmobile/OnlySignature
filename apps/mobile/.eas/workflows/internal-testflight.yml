@@ -60,5 +60,5 @@ jobs:
       build_id: ${{ needs.build_ios_production.outputs.build_id }}
       profile: production
       internal_groups: ["Only Signature Internal"]
-      changelog: Corrects signature touch tracking and finger-jitter sensitivity, keeps all native headings and instructions visible, clears the wordmark from system status controls, and improves purchase recovery feedback.
+      changelog: Redesigns the full signing journey with readable full-screen layouts, compact arrow-free actions, improved signature touch alignment and jitter control, and clearer purchase recovery feedback.
       submit_beta_review: false

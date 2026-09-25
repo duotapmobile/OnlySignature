@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 10,
     overflow: "hidden",
-    boxShadow: "0 14px 30px rgba(7,31,90,0.22)",
+    boxShadow: "0 8px 20px rgba(7,31,90,0.14)",
   },
   cardTop: { height: 78, flexDirection: "row", alignItems: "center" },
   signatureSlot: { flex: 1, height: 70 },
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(216,182,106,0.62)",
     backgroundColor: flowColors.card,
     padding: 18,
-    boxShadow: "0 12px 26px rgba(7,31,90,0.18)",
+    boxShadow: "0 7px 18px rgba(7,31,90,0.12)",
   },
   emptyTitle: {
     color: flowColors.cardText,

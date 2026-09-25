@@ -1,7 +1,6 @@
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import Constants from "expo-constants";
 import { router } from "expo-router";
-import Svg, { Path } from "react-native-svg";
 import {
   FlowBackButton,
   FlowHeading,
@@ -65,16 +64,6 @@ export default function SettingsScreen() {
             style={styles.row}
           >
             <Text style={styles.rowLabel}>{row.label}</Text>
-            <Svg width={20} height={20} viewBox="0 0 24 24">
-              <Path
-                d="m9 5 7 7-7 7"
-                fill="none"
-                stroke={flowColors.accessibleLink}
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </Svg>
           </Pressable>
         ))}
         <Pressable
@@ -105,7 +94,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.68)",
     backgroundColor: flowColors.card,
-    boxShadow: "0 14px 30px rgba(2,4,10,0.34)",
+    boxShadow: "0 8px 20px rgba(2,4,10,0.16)",
   },
   row: {
     minHeight: 58,

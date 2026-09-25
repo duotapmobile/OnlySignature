@@ -39,6 +39,23 @@ export const flowColors = {
   destructive: "#A32626",
 } as const;
 
+export const flowRadii = {
+  shell: 42,
+  panel: 28,
+  card: 24,
+  control: 20,
+  pill: 999,
+} as const;
+
+export const flowShadows = {
+  shell: "0 22px 48px rgba(2,12,32,0.28), 0 6px 16px rgba(2,12,32,0.16)",
+  panel:
+    "0 15px 34px rgba(7,31,90,0.20), 0 3px 10px rgba(7,31,90,0.10), inset 0 1px 0 rgba(255,255,255,0.22)",
+  card: "0 10px 24px rgba(7,31,90,0.14), 0 2px 7px rgba(7,31,90,0.08), inset 0 1px 0 rgba(255,255,255,0.82)",
+  control:
+    "0 7px 18px rgba(7,31,90,0.18), inset 0 1px 0 rgba(255,255,255,0.18)",
+} as const;
+
 const brandSources = {
   wordmark: require("../../assets/brand/only-signature-wordmark.png"),
 } as const;
@@ -92,6 +109,8 @@ export function FlowScreen({
           <View style={styles.flowRearPlate} />
           <PaperSurface style={styles.flowPaperStage} />
           <View style={styles.flowInkStage}>
+            <View style={styles.flowInkGlowPrimary} />
+            <View style={styles.flowInkGlowSecondary} />
             <View style={styles.flowTopHighlight} />
             <View style={styles.flowSignatureMotif}>
               <View style={styles.flowSignatureDot} />
@@ -273,9 +292,6 @@ export function FlowPrimaryButton({
         ) : (
           labelNode
         )}
-      </View>
-      <View accessibilityElementsHidden style={styles.primaryArrow}>
-        <Text style={styles.primaryArrowText}>→</Text>
       </View>
     </Pressable>
   );
@@ -504,7 +520,9 @@ export function PreviewCard({
         actionNode
       )}
       {contentLayoutId ? (
-        <LayoutSlot id={contentLayoutId}>{contentNode}</LayoutSlot>
+        <LayoutSlot id={contentLayoutId} style={styles.previewContentSlot}>
+          {contentNode}
+        </LayoutSlot>
       ) : (
         contentNode
       )}
@@ -666,18 +684,18 @@ const styles = StyleSheet.create({
   screenContent: {
     flexGrow: 1,
     width: "100%",
-    maxWidth: 560,
+    maxWidth: 620,
     alignSelf: "center",
-    paddingHorizontal: 26,
-    paddingTop: 24,
-    paddingBottom: 28,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 20,
   },
   brandedContent: {
     position: "relative",
     zIndex: 3,
-    paddingHorizontal: 32,
-    paddingTop: 58,
-    paddingBottom: 18,
+    paddingHorizontal: 24,
+    paddingTop: 52,
+    paddingBottom: 14,
   },
   flowChrome: {
     ...StyleSheet.absoluteFill,
@@ -689,12 +707,12 @@ const styles = StyleSheet.create({
     right: 3,
     top: 18,
     bottom: 3,
-    borderRadius: 42,
+    borderRadius: flowRadii.shell,
     borderCurve: "continuous",
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.34)",
     backgroundColor: "#081A35",
-    boxShadow: "0 38px 72px rgba(0,0,0,0.72), 0 12px 24px rgba(0,0,0,0.58)",
+    boxShadow: flowShadows.shell,
   },
   flowInkStage: {
     position: "absolute",
@@ -703,13 +721,12 @@ const styles = StyleSheet.create({
     top: 3,
     height: 260,
     overflow: "hidden",
-    borderRadius: 40,
+    borderRadius: flowRadii.shell,
     borderCurve: "continuous",
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.58)",
     backgroundColor: "#0A3D78",
-    boxShadow:
-      "0 30px 46px rgba(0,0,0,0.60), 0 9px 16px rgba(0,0,0,0.34), inset 0 2px 0 rgba(255,255,255,0.20), inset 0 -2px 0 rgba(2,4,10,0.34)",
+    boxShadow: flowShadows.panel,
   },
   flowPaperStage: {
     position: "absolute",
@@ -717,13 +734,30 @@ const styles = StyleSheet.create({
     right: 6,
     top: 214,
     bottom: 3,
-    borderRadius: 40,
+    borderRadius: flowRadii.shell,
     borderCurve: "continuous",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.96)",
     backgroundColor: "#F8F6EF",
-    boxShadow:
-      "0 28px 50px rgba(0,0,0,0.50), inset 0 2px 0 rgba(255,255,255,0.98), inset 0 -2px 0 rgba(7,31,90,0.12)",
+    boxShadow: flowShadows.card,
+  },
+  flowInkGlowPrimary: {
+    position: "absolute",
+    width: 250,
+    height: 250,
+    left: -86,
+    top: 72,
+    borderRadius: 125,
+    backgroundColor: "rgba(19,106,190,0.24)",
+  },
+  flowInkGlowSecondary: {
+    position: "absolute",
+    width: 170,
+    height: 170,
+    right: -70,
+    top: -44,
+    borderRadius: 85,
+    backgroundColor: "rgba(216,182,106,0.10)",
   },
   flowTopHighlight: {
     position: "absolute",
@@ -781,43 +815,31 @@ const styles = StyleSheet.create({
   },
   body: { color: "#E9E6DC", fontSize: 17, lineHeight: 24 },
   primaryButton: {
-    width: "100%",
-    minHeight: 60,
-    paddingLeft: 22,
-    paddingRight: 9,
+    minWidth: 220,
+    maxWidth: "100%",
+    minHeight: 56,
+    paddingHorizontal: 24,
+    alignSelf: "center",
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
-    borderRadius: 30,
+    borderRadius: flowRadii.pill,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.22)",
     backgroundColor: "#0A3D78",
-    boxShadow:
-      "0 14px 26px rgba(7,31,90,0.30), inset 0 1px 0 rgba(255,255,255,0.18)",
+    boxShadow: flowShadows.control,
   },
   primaryButtonText: {
     flexShrink: 1,
     color: "#FFFFFF",
-    fontSize: 17,
-    lineHeight: 23,
-    fontWeight: "700",
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: "800",
     textAlign: "center",
   },
-  primaryArrow: {
-    width: 42,
-    height: 42,
-    marginLeft: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 21,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.38)",
-    backgroundColor: "rgba(216,182,106,0.24)",
-  },
   primaryLabelWrap: {
-    flex: 1,
+    flexShrink: 1,
     alignItems: "center",
-    paddingLeft: 4,
   },
   buttonLoading: {
     flexDirection: "row",
@@ -836,12 +858,6 @@ const styles = StyleSheet.create({
     height: 1.5,
     borderRadius: 2,
     backgroundColor: flowColors.gold,
-  },
-  primaryArrowText: {
-    color: "#FFFFFF",
-    fontSize: 23,
-    lineHeight: 25,
-    fontWeight: "500",
   },
   primaryButtonTextCompact: { fontSize: 22, lineHeight: 29 },
   textButton: {
@@ -886,7 +902,7 @@ const styles = StyleSheet.create({
     borderColor: "#D8B66A",
     backgroundColor: "#FBFAF5",
     boxShadow:
-      "0 -22px 54px rgba(2, 4, 10, 0.45), 0 -1px 0 rgba(216, 182, 106, 0.35)",
+      "0 -12px 30px rgba(2, 4, 10, 0.24), 0 -1px 0 rgba(216, 182, 106, 0.35)",
   },
   sheetContent: {
     flexGrow: 1,
@@ -920,14 +936,15 @@ const styles = StyleSheet.create({
     marginTop: 18,
   },
   previewCard: {
-    minHeight: 150,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingTop: 14,
-    marginBottom: 18,
+    flex: 1,
+    minHeight: 158,
+    borderRadius: flowRadii.card,
+    paddingHorizontal: 18,
+    paddingTop: 16,
+    paddingBottom: 12,
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.58)",
-    boxShadow: "0 16px 34px rgba(2, 4, 10, 0.3)",
+    boxShadow: flowShadows.card,
   },
   previewLabel: {
     color: flowColors.cardText,
@@ -952,10 +969,11 @@ const styles = StyleSheet.create({
   },
   previewContent: {
     flex: 1,
-    minHeight: 82,
+    minHeight: 96,
     justifyContent: "center",
     alignItems: "center",
   },
+  previewContentSlot: { flex: 1 },
   feature: {
     minWidth: 0,
     flexDirection: "row",

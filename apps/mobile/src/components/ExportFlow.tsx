@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#D8B66A",
     backgroundColor: flowColors.card,
-    boxShadow: "0 22px 54px rgba(2,4,10,0.52)",
+    boxShadow: "0 12px 30px rgba(2,4,10,0.24)",
   },
   modalContent: { padding: 20, gap: 12 },
   destinationTitle: {

@@ -11,6 +11,8 @@ import {
   PreviewCard,
   ScriptLabel,
   flowColors,
+  flowRadii,
+  flowShadows,
 } from "@/components/flow-ui";
 import { hasDrawing } from "@/domain/models";
 import { useAppState } from "@/state/AppStateProvider";
@@ -54,7 +56,7 @@ export default function ReviewScreen() {
         </FlowBody>
       </LayoutSlot>
       <View style={styles.previews}>
-        <LayoutSlot id="review.signature">
+        <LayoutSlot id="review.signature" style={styles.previewSlot}>
           <PreviewCard
             label="Signature"
             actionLabel="Edit"
@@ -80,7 +82,7 @@ export default function ReviewScreen() {
             )}
           </PreviewCard>
         </LayoutSlot>
-        <LayoutSlot id="review.initials">
+        <LayoutSlot id="review.initials" style={styles.previewSlot}>
           <PreviewCard
             label="Initials"
             actionLabel={initialsExists ? "Edit" : "Add"}
@@ -116,7 +118,7 @@ export default function ReviewScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingTop: 18, paddingBottom: 18 },
+  content: { paddingTop: 16, paddingBottom: 14 },
   back: { position: "absolute", top: 8, left: 20, zIndex: 3 },
   header: { marginTop: 28 },
   script: { marginBottom: 7 },
@@ -128,10 +130,12 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 12,
   },
-  previews: { flex: 1, gap: 12, paddingTop: 4 },
+  previews: { flex: 1, gap: 14, paddingTop: 4 },
+  previewSlot: { flex: 1 },
   signatureStage: {
     width: "94%",
-    height: 92,
+    flex: 1,
+    minHeight: 106,
     justifyContent: "flex-end",
     position: "relative",
   },
@@ -143,8 +147,21 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: flowColors.outline,
   },
-  signature: { width: "94%", height: 72, alignSelf: "center", marginBottom: 9 },
-  initials: { width: "62%", height: 82 },
+  signature: {
+    width: "96%",
+    height: "100%",
+    alignSelf: "center",
+    marginBottom: 9,
+  },
+  initials: { width: "70%", height: "100%" },
   missing: { color: flowColors.cardMuted, fontSize: 14, lineHeight: 20 },
-  continue: { marginTop: "auto", paddingTop: 6, marginBottom: 2 },
+  continue: {
+    marginTop: 14,
+    padding: 8,
+    borderRadius: flowRadii.card,
+    borderWidth: 1,
+    borderColor: "rgba(7,31,90,0.08)",
+    backgroundColor: "rgba(255,255,255,0.54)",
+    boxShadow: flowShadows.card,
+  },
 });

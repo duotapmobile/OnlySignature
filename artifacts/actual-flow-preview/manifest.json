@@ -1,7 +1,7 @@
 {
   "source": "Expo web static build with screenshot fixture mode enabled",
   "classification": "Local reference-matched app rendering; phone frames are presentation-only and this is not native iOS or App Store evidence",
-  "capturedOn": "2026-09-23",
+  "capturedOn": "2026-09-25",
   "referenceFlow": "11-screen founder-directed flow",
   "screenshots": [
     {
@@ -80,6 +80,16 @@
       ]
     },
     {
+      "id": "06a-purchase-error",
+      "route": "/purchase?fixture=purchase-error",
+      "headline": "Purchase recovery message",
+      "assertions": [
+        "Transparent Background is temporarily unavailable.",
+        "Your signing set is safe.",
+        "Continue With White Background"
+      ]
+    },
+    {
       "id": "07-clear-background",
       "route": "/clear-background?fixture=both",
       "headline": "Clear Background",
@@ -131,6 +141,10 @@
     }
   ],
   "outputs": {
+    "iphone-small": {
+      "width": 375,
+      "height": 667
+    },
     "iphone": {
       "width": 430,
       "height": 932

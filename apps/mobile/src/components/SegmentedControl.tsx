@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   },
   selected: {
     backgroundColor: theme.colors.primary,
-    boxShadow: "0 6px 14px rgba(2,4,10,0.24)",
+    boxShadow: "0 4px 10px rgba(2,4,10,0.16)",
   },
   text: { color: theme.colors.text, fontSize: 17, fontWeight: "700" },
   selectedText: { color: theme.colors.white },

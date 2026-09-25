@@ -6,6 +6,7 @@ const recognizedFixtures = new Set([
   "opening",
   "privacy",
   "purchased",
+  "purchase-error",
   "saved-home",
   "native-export",
 ]);

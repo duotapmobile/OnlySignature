@@ -10,6 +10,8 @@ import {
   FlowTextButton,
   ScriptLabel,
   flowColors,
+  flowRadii,
+  flowShadows,
 } from "@/components/flow-ui";
 import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 import { hasDrawing } from "@/domain/models";
@@ -151,7 +153,7 @@ export default function DiyWarningScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingTop: 18, paddingBottom: 18 },
+  content: { paddingTop: 16, paddingBottom: 14 },
   back: { position: "absolute", top: 8, left: 20, zIndex: 4 },
   warning: { marginTop: 34 },
   script: { marginBottom: 7 },
@@ -185,19 +187,18 @@ const styles = StyleSheet.create({
     width: "100%",
     flex: 1,
     minHeight: 108,
-    maxHeight: 172,
-    borderRadius: 16,
+    borderRadius: flowRadii.card,
     backgroundColor: "#FFF",
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.62)",
     overflow: "hidden",
-    boxShadow: "0 14px 28px rgba(7,31,90,0.22)",
+    boxShadow: flowShadows.card,
     alignItems: "center",
     justifyContent: "center",
   },
   checker: { backgroundColor: "#EEF1F2" },
   previewLayer: { width: "100%", alignItems: "center" },
-  preview: { width: "92%", height: 94 },
+  preview: { width: "96%", height: "82%" },
   damaged: { opacity: 0.58 },
   damageGapOne: {
     position: "absolute",
@@ -236,5 +237,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: "#FFF1F0",
   },
-  actions: { marginTop: "auto", paddingTop: 10, marginBottom: 1, gap: 2 },
+  actions: {
+    marginTop: 12,
+    padding: 8,
+    paddingBottom: 2,
+    borderRadius: flowRadii.card,
+    borderWidth: 1,
+    borderColor: "rgba(7,31,90,0.08)",
+    backgroundColor: "rgba(255,255,255,0.54)",
+    boxShadow: flowShadows.card,
+    gap: 0,
+  },
 });

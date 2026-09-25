@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { router, useGlobalSearchParams } from "expo-router";
 import { AnimatedOpening } from "@/components/animated-opening";
 import { FlowScreen } from "@/components/flow-ui";
@@ -13,6 +13,8 @@ import { useAppState } from "@/state/AppStateProvider";
 let hasShownOpening = false;
 
 export default function EntryScreen() {
+  const { width } = useWindowDimensions();
+  const tablet = width >= 768;
   const { data, createNew, setSelectedAsset, markOpeningSeen } = useAppState();
   const { fixture } = useGlobalSearchParams<{ fixture?: string | string[] }>();
   const fixtureName = Array.isArray(fixture) ? fixture[0] : fixture;
@@ -67,7 +69,10 @@ export default function EntryScreen() {
       contentStyle={styles.content}
       testID="entry-screen"
     >
-      <LayoutSlot id="entry.hero" style={styles.heroSlot}>
+      <LayoutSlot
+        id="entry.hero"
+        style={[styles.heroSlot, tablet && styles.tabletHeroSlot]}
+      >
         <WelcomeFoldedPanel
           disabled={!data.hydrated}
           onBegin={begin}
@@ -86,6 +91,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
   },
   heroSlot: { flex: 1 },
+  tabletHeroSlot: { justifyContent: "center" },
   startup: {
     flex: 1,
     alignItems: "center",

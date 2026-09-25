@@ -1,6 +1,13 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import { DrawingPreview } from "@/components/DrawingPreview";
 import { LayoutSlot } from "@/components/layout-slot";
 import {
   FlowBackButton,
@@ -10,11 +17,15 @@ import {
   FlowTextButton,
   ScriptLabel,
   flowColors,
+  flowRadii,
+  flowShadows,
 } from "@/components/flow-ui";
 import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 import { useTransparentPurchase } from "@/hooks/use-transparent-purchase";
 import { hapticSelection } from "@/services/haptics";
 import { InlineStatus } from "@/components/feedback-ui";
+import { hasDrawing, type DrawingAsset } from "@/domain/models";
+import { useAppState } from "@/state/AppStateProvider";
 
 type Background = "transparent" | "white";
 
@@ -45,6 +56,8 @@ function BackgroundChoice({
   title,
   description,
   price,
+  asset,
+  compact,
   onSelect,
   layerPrefix,
 }: {
@@ -53,6 +66,8 @@ function BackgroundChoice({
   title: string;
   description: string;
   price?: string;
+  asset?: DrawingAsset | null;
+  compact?: boolean;
   onSelect(): void;
   layerPrefix: string;
 }) {
@@ -64,70 +79,106 @@ function BackgroundChoice({
       onPress={onSelect}
       style={({ pressed }) => [
         styles.choice,
+        compact && styles.choiceCompact,
         selected && styles.choiceSelected,
         pressed && styles.pressed,
       ]}
     >
-      <LayoutSlot id={`${layerPrefix}.swatch`}>
-        {value === "transparent" ? (
-          <CheckerSwatch />
-        ) : (
-          <View
-            accessibilityElementsHidden
-            style={[styles.swatch, styles.whiteSwatch]}
-          />
-        )}
-      </LayoutSlot>
-      <View style={styles.choiceCopy}>
-        <View style={styles.choiceTitleRow}>
-          <LayoutSlot id={`${layerPrefix}.title`}>
-            <Text selectable style={styles.choiceTitle}>
-              {title}
-            </Text>
-          </LayoutSlot>
+      <View
+        style={[styles.choiceHeader, compact && styles.choiceHeaderCompact]}
+      >
+        <LayoutSlot id={`${layerPrefix}.swatch`}>
           {value === "transparent" ? (
-            <LayoutSlot id={`${layerPrefix}.tag`}>
-              <Text style={styles.tag}>Recommended</Text>
-            </LayoutSlot>
-          ) : null}
-        </View>
-        <View style={styles.descriptionRow}>
-          <LayoutSlot
-            id={`${layerPrefix}.description`}
-            style={styles.descriptionSlot}
-          >
-            <Text selectable style={styles.choiceDescription}>
-              {description}
-            </Text>
-          </LayoutSlot>
-          {price ? (
-            <LayoutSlot id={`${layerPrefix}.price`}>
-              <Text selectable style={styles.price}>
-                {price}
+            <CheckerSwatch />
+          ) : (
+            <View
+              accessibilityElementsHidden
+              style={[styles.swatch, styles.whiteSwatch]}
+            />
+          )}
+        </LayoutSlot>
+        <View style={styles.choiceCopy}>
+          <View style={styles.choiceTitleRow}>
+            <LayoutSlot id={`${layerPrefix}.title`}>
+              <Text selectable style={styles.choiceTitle}>
+                {title}
               </Text>
             </LayoutSlot>
-          ) : null}
+            {value === "transparent" ? (
+              <LayoutSlot id={`${layerPrefix}.tag`}>
+                <Text style={styles.tag}>Recommended</Text>
+              </LayoutSlot>
+            ) : null}
+          </View>
+          <View style={styles.descriptionRow}>
+            <LayoutSlot
+              id={`${layerPrefix}.description`}
+              style={styles.descriptionSlot}
+            >
+              <Text selectable style={styles.choiceDescription}>
+                {description}
+              </Text>
+            </LayoutSlot>
+            {price ? (
+              <LayoutSlot id={`${layerPrefix}.price`}>
+                <Text selectable style={styles.price}>
+                  {price}
+                </Text>
+              </LayoutSlot>
+            ) : null}
+          </View>
         </View>
+        <LayoutSlot id={`${layerPrefix}.radio`}>
+          <View
+            accessibilityElementsHidden
+            style={[styles.radio, selected && styles.radioSelected]}
+          >
+            {selected ? <View style={styles.radioDot} /> : null}
+          </View>
+        </LayoutSlot>
       </View>
-      <LayoutSlot id={`${layerPrefix}.radio`}>
-        <View
-          accessibilityElementsHidden
-          style={[styles.radio, selected && styles.radioSelected]}
-        >
-          {selected ? <View style={styles.radioDot} /> : null}
-        </View>
-      </LayoutSlot>
+      <View
+        accessibilityElementsHidden
+        style={[
+          styles.optionPreview,
+          compact && styles.optionPreviewCompact,
+          value === "transparent"
+            ? styles.transparentPreview
+            : styles.whitePreview,
+        ]}
+      >
+        <View style={styles.previewRule} />
+        {asset ? (
+          <DrawingPreview
+            asset={asset}
+            align="baseline"
+            style={styles.optionArt}
+          />
+        ) : null}
+        <View style={styles.previewDateRule} />
+      </View>
     </Pressable>
   );
 }
 
 export default function BackgroundScreen() {
+  const { height } = useWindowDimensions();
+  const compact = height <= 700;
+  const { activeSet } = useAppState();
   const { fixture } = useLocalSearchParams<{ fixture?: string }>();
+  const purchaseErrorFixture = isAuthorizedScreenshotFixture(
+    fixture,
+    "purchase-error",
+  );
   const purchaseFixture = isAuthorizedScreenshotFixture(fixture, [
     "both",
     "signature",
+    "purchase-error",
   ]);
   const [background, setBackground] = useState<Background>("transparent");
+  const optionAsset = hasDrawing(activeSet.signature)
+    ? activeSet.signature
+    : activeSet.initials;
   const {
     beginPurchase,
     busy,
@@ -136,7 +187,12 @@ export default function BackgroundScreen() {
     error,
     transparentUnavailable,
     unboundPurchase,
-  } = useTransparentPurchase({ suppressSuccessRedirect: purchaseFixture });
+  } = useTransparentPurchase({
+    initialError: purchaseErrorFixture
+      ? "Transparent Background is temporarily unavailable. Your signing set is safe. Try again or continue with white."
+      : null,
+    suppressSuccessRedirect: purchaseFixture,
+  });
 
   const continueFlow = () => {
     if (background === "white") router.push("/clear-background" as never);
@@ -168,15 +224,17 @@ export default function BackgroundScreen() {
       <View
         accessibilityRole="radiogroup"
         accessibilityLabel="Background format"
-        style={styles.options}
+        style={[styles.options, compact && styles.optionsCompact]}
       >
-        <LayoutSlot id="background.transparent">
+        <LayoutSlot id="background.transparent" style={styles.choiceSlot}>
           <BackgroundChoice
             value="transparent"
             selected={background === "transparent"}
             title="Transparent Background"
             description="Sits cleanly over lines, dates, and text."
             price={displayPrice}
+            asset={optionAsset}
+            compact={compact}
             layerPrefix="background.transparent"
             onSelect={() => {
               void hapticSelection();
@@ -185,12 +243,14 @@ export default function BackgroundScreen() {
             }}
           />
         </LayoutSlot>
-        <LayoutSlot id="background.white">
+        <LayoutSlot id="background.white" style={styles.choiceSlot}>
           <BackgroundChoice
             value="white"
             selected={background === "white"}
             title="White Background"
             description="May cover anything behind your signature."
+            asset={optionAsset}
+            compact={compact}
             layerPrefix="background.white"
             onSelect={() => {
               void hapticSelection();
@@ -221,7 +281,10 @@ export default function BackgroundScreen() {
           </Text>
         </LayoutSlot>
       ) : null}
-      <LayoutSlot id="background.actions" style={styles.actions}>
+      <LayoutSlot
+        id="background.actions"
+        style={[styles.actions, compact && styles.actionsCompact]}
+      >
         <FlowPrimaryButton
           label={
             busy
@@ -266,30 +329,42 @@ export default function BackgroundScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingTop: 18, paddingBottom: 18 },
+  content: { paddingTop: 16, paddingBottom: 14 },
   back: { position: "absolute", top: 8, left: 20, zIndex: 3 },
   header: { marginTop: 32 },
   script: { marginBottom: 7 },
   headingText: { fontSize: 27, lineHeight: 32 },
-  options: { flex: 1, gap: 14, marginTop: 18 },
+  options: { flex: 1, gap: 14, marginTop: 14, paddingBottom: 10 },
+  optionsCompact: { gap: 8, marginTop: 8, paddingBottom: 2 },
+  choiceSlot: { flex: 1 },
   choice: {
-    minHeight: 126,
+    flex: 1,
+    minHeight: 124,
     borderWidth: 1,
     borderColor: flowColors.outline,
-    borderRadius: 20,
-    padding: 14,
+    borderRadius: flowRadii.card,
+    padding: 17,
+    gap: 12,
+    backgroundColor: flowColors.card,
+    boxShadow: flowShadows.card,
+  },
+  choiceCompact: { minHeight: 106, padding: 12, gap: 7 },
+  choiceHeader: {
     flexDirection: "row",
     gap: 13,
     alignItems: "center",
-    backgroundColor: flowColors.card,
-    boxShadow: "0 14px 30px rgba(7,31,90,0.22)",
   },
-  choiceSelected: { borderColor: flowColors.cyan, backgroundColor: "#FFF9E8" },
+  choiceHeaderCompact: { gap: 10 },
+  choiceSelected: {
+    borderWidth: 1.5,
+    borderColor: flowColors.cyan,
+    backgroundColor: "#FFF9E8",
+  },
   pressed: { opacity: 0.76 },
   swatch: {
-    width: 54,
-    height: 54,
-    borderRadius: 7,
+    width: 62,
+    height: 62,
+    borderRadius: 11,
     borderWidth: 1,
     borderColor: "#CCD3D6",
     overflow: "hidden",
@@ -297,7 +372,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   checker: { backgroundColor: "#FFF" },
-  checkerSquare: { width: 13.5, height: 13.5 },
+  checkerSquare: { width: 15.5, height: 15.5 },
   whiteSwatch: { backgroundColor: "#FFF" },
   choiceCopy: { flex: 1, minWidth: 0 },
   choiceTitleRow: {
@@ -352,6 +427,36 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: flowColors.cyan,
   },
+  optionPreview: {
+    flex: 1,
+    minHeight: 74,
+    overflow: "hidden",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(7,31,90,0.10)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  optionPreviewCompact: { minHeight: 46 },
+  transparentPreview: { backgroundColor: "#E9EEF0" },
+  whitePreview: { backgroundColor: "#FFFFFF" },
+  previewRule: {
+    position: "absolute",
+    left: 18,
+    right: 18,
+    top: "54%",
+    height: 1,
+    backgroundColor: "rgba(7,31,90,0.54)",
+  },
+  previewDateRule: {
+    position: "absolute",
+    left: 18,
+    width: "38%",
+    bottom: 13,
+    height: 1,
+    backgroundColor: "rgba(7,31,90,0.26)",
+  },
+  optionArt: { width: "84%", height: "82%" },
   error: {
     color: flowColors.destructive,
     fontSize: 12,
@@ -370,5 +475,16 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: "center",
   },
-  actions: { marginTop: "auto", paddingTop: 10, marginBottom: 2, gap: 2 },
+  actions: {
+    marginTop: 4,
+    padding: 8,
+    paddingBottom: 2,
+    borderRadius: flowRadii.card,
+    borderWidth: 1,
+    borderColor: "rgba(7,31,90,0.08)",
+    backgroundColor: "rgba(255,255,255,0.54)",
+    boxShadow: flowShadows.card,
+    gap: 0,
+  },
+  actionsCompact: { marginTop: 2, paddingTop: 4, paddingBottom: 0 },
 });

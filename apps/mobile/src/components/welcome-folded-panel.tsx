@@ -1,4 +1,5 @@
 import {
+  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -8,6 +9,8 @@ import {
 import { LayoutSlot } from "@/components/layout-slot";
 import { PaperSurface } from "@/components/paper-ui";
 import { Wordmark } from "@/components/flow-ui";
+
+const sampleSignature = require("../../assets/samples/taylor-brooks-signature.png");
 
 const benefits = [
   {
@@ -38,9 +41,16 @@ export function WelcomeFoldedPanel({
 }) {
   const { width, height } = useWindowDimensions();
   const compact = height < 740 || width < 370;
+  const tablet = width >= 768;
   const inkHeight = Math.min(360, Math.max(compact ? 250 : 280, height * 0.41));
   return (
-    <View style={[styles.shell, compact && styles.compactShell]}>
+    <View
+      style={[
+        styles.shell,
+        compact && styles.compactShell,
+        tablet && styles.tabletShell,
+      ]}
+    >
       <View pointerEvents="none" style={styles.rearPlate} />
       <View style={styles.deviceFrame}>
         <View
@@ -93,6 +103,20 @@ export function WelcomeFoldedPanel({
             </LayoutSlot>
           </View>
 
+          <View
+            accessibilityLabel="Sample signature"
+            style={[
+              styles.signatureTicket,
+              compact && styles.compactSignatureTicket,
+            ]}
+          >
+            <View pointerEvents="none" style={styles.ticketBaseline} />
+            <Image
+              source={sampleSignature}
+              resizeMode="contain"
+              style={styles.sampleSignature}
+            />
+          </View>
           <View pointerEvents="none" style={styles.signatureMotif}>
             <View style={styles.signatureDot} />
             <View style={styles.signatureLine} />
@@ -107,14 +131,17 @@ export function WelcomeFoldedPanel({
           </View>
           <LayoutSlot
             id="entry.features"
-            style={styles.benefits}
+            style={[styles.benefits, compact && styles.compactBenefits]}
             accessibilityLabel="Privacy benefits"
           >
             <Text selectable style={styles.benefitsEyebrow}>
               SIMPLE BY DESIGN
             </Text>
             {benefits.map((benefit) => (
-              <View key={benefit.label} style={styles.benefitRow}>
+              <View
+                key={benefit.label}
+                style={[styles.benefitRow, compact && styles.compactBenefitRow]}
+              >
                 <LayoutSlot id={benefit.iconLayoutId}>
                   <View style={styles.checkCircle}>
                     <Text selectable style={styles.checkMark}>
@@ -126,7 +153,13 @@ export function WelcomeFoldedPanel({
                   id={benefit.labelLayoutId}
                   style={styles.benefitLabelSlot}
                 >
-                  <Text selectable style={styles.benefitLabel}>
+                  <Text
+                    selectable
+                    style={[
+                      styles.benefitLabel,
+                      compact && styles.compactBenefitLabel,
+                    ]}
+                  >
                     {benefit.label}
                   </Text>
                 </LayoutSlot>
@@ -174,11 +207,6 @@ export function WelcomeFoldedPanel({
                     Create My FREE Signing Set
                   </Text>
                 </LayoutSlot>
-                <View style={styles.buttonArrow}>
-                  <Text selectable style={styles.buttonArrowText}>
-                    →
-                  </Text>
-                </View>
               </Pressable>
             </LayoutSlot>
 
@@ -215,6 +243,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   compactShell: { paddingHorizontal: 8, paddingTop: 5, paddingBottom: 5 },
+  tabletShell: { maxHeight: 1120 },
   rearPlate: {
     position: "absolute",
     left: 13,
@@ -226,7 +255,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.34)",
     backgroundColor: "#081A35",
-    boxShadow: "0 38px 72px rgba(0,0,0,0.78), 0 12px 24px rgba(0,0,0,0.62)",
+    boxShadow: "0 24px 50px rgba(2,12,32,0.34), 0 7px 18px rgba(2,12,32,0.20)",
   },
   deviceFrame: {
     flex: 1,
@@ -246,7 +275,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(216, 182, 106, 0.58)",
     backgroundColor: "#0A3D78",
     boxShadow:
-      "0 32px 48px rgba(0,0,0,0.68), 0 9px 16px rgba(0,0,0,0.38), inset 0 2px 0 rgba(255,255,255,0.22), inset 0 -2px 0 rgba(2,4,10,0.34)",
+      "0 18px 38px rgba(2,12,32,0.28), 0 4px 12px rgba(2,12,32,0.16), inset 0 2px 0 rgba(255,255,255,0.22), inset 0 -2px 0 rgba(2,4,10,0.24)",
     zIndex: 5,
   },
   compactInkPanel: {
@@ -307,6 +336,42 @@ const styles = StyleSheet.create({
     marginTop: 9,
   },
   compactSubtitle: { fontSize: 16, lineHeight: 22, marginTop: 5 },
+  signatureTicket: {
+    position: "absolute",
+    left: 36,
+    right: 36,
+    bottom: 34,
+    height: 88,
+    overflow: "hidden",
+    borderRadius: 19,
+    borderWidth: 1,
+    borderColor: "rgba(216,182,106,0.62)",
+    backgroundColor: "#F8F6EF",
+    boxShadow:
+      "0 10px 22px rgba(2,12,32,0.24), inset 0 1px 0 rgba(255,255,255,0.98)",
+    zIndex: 2,
+  },
+  compactSignatureTicket: {
+    left: 30,
+    right: 30,
+    bottom: 29,
+    height: 66,
+    borderRadius: 15,
+  },
+  ticketBaseline: {
+    position: "absolute",
+    left: 18,
+    right: 18,
+    bottom: 19,
+    height: 1,
+    backgroundColor: "rgba(7,31,90,0.42)",
+  },
+  sampleSignature: {
+    width: "92%",
+    height: "88%",
+    alignSelf: "center",
+    marginTop: 2,
+  },
   signatureMotif: {
     position: "absolute",
     left: 28,
@@ -340,7 +405,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.96)",
     backgroundColor: "#F8F6EF",
     boxShadow:
-      "0 30px 54px rgba(0,0,0,0.56), inset 0 2px 0 rgba(255,255,255,0.98), inset 0 -2px 0 rgba(7,31,90,0.12)",
+      "0 18px 40px rgba(2,12,32,0.24), inset 0 2px 0 rgba(255,255,255,0.98), inset 0 -2px 0 rgba(7,31,90,0.10)",
     zIndex: 2,
   },
   compactWhitePanel: {
@@ -377,7 +442,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.62)",
     boxShadow: "0 2px 8px rgba(216,182,106,0.22)",
   },
-  benefits: { gap: 7 },
+  benefits: { flex: 1, justifyContent: "space-between", gap: 12 },
+  compactBenefits: { justifyContent: "center", gap: 10 },
   benefitsEyebrow: {
     color: "#766B55",
     fontSize: 13,
@@ -387,10 +453,24 @@ const styles = StyleSheet.create({
     marginBottom: 1,
   },
   benefitRow: {
-    minHeight: 31,
+    minHeight: 58,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 19,
+    borderWidth: 1,
+    borderColor: "rgba(7,31,90,0.10)",
+    backgroundColor: "rgba(255,255,255,0.66)",
+    boxShadow:
+      "0 8px 18px rgba(7,31,90,0.10), inset 0 1px 0 rgba(255,255,255,0.92)",
+  },
+  compactBenefitRow: {
+    minHeight: 42,
+    paddingHorizontal: 11,
+    paddingVertical: 5,
+    borderRadius: 15,
   },
   checkCircle: {
     width: 27,
@@ -417,43 +497,29 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: -0.2,
   },
-  actions: { gap: 2, marginTop: "auto" },
+  compactBenefitLabel: { fontSize: 15, lineHeight: 19 },
+  actions: { gap: 2, paddingTop: 10 },
   primaryButton: {
-    width: "100%",
+    minWidth: 272,
+    maxWidth: "100%",
     minHeight: 56,
-    paddingLeft: 22,
-    paddingRight: 9,
+    paddingHorizontal: 24,
+    alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     borderRadius: 30,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.22)",
     backgroundColor: "#0A3D78",
     boxShadow:
-      "0 14px 26px rgba(7,31,90,0.30), inset 0 1px 0 rgba(255,255,255,0.18)",
+      "0 8px 20px rgba(7,31,90,0.20), inset 0 1px 0 rgba(255,255,255,0.18)",
   },
   primaryLabel: {
     color: "#FFFFFF",
-    fontSize: 17,
-    lineHeight: 23,
-    fontWeight: "700",
-  },
-  buttonArrow: {
-    width: 42,
-    height: 42,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 21,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.38)",
-    backgroundColor: "rgba(216,182,106,0.24)",
-  },
-  buttonArrowText: {
-    color: "#FFFFFF",
-    fontSize: 23,
-    lineHeight: 25,
-    fontWeight: "500",
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: "800",
   },
   buttonPressed: { opacity: 0.8, transform: [{ scale: 0.985 }] },
   buttonDisabled: { opacity: 0.52 },

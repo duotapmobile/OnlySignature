@@ -80,6 +80,17 @@ const screenshots = [
     ],
   },
   {
+    id: "06a-purchase-error",
+    headline: "Purchase recovery message",
+    route: "/purchase?fixture=purchase-error",
+    testId: "background-screen",
+    assertions: [
+      "Transparent Background is temporarily unavailable.",
+      "Your signing set is safe.",
+      "Continue With White Background",
+    ],
+  },
+  {
     id: "07-clear-background",
     headline: "Clear Background",
     route: "/clear-background?fixture=both",
@@ -130,6 +141,7 @@ const screenshots = [
 ];
 
 const devices = {
+  "iphone-small": { width: 375, height: 667 },
   iphone: { width: 430, height: 932 },
   ipad: { width: 1032, height: 1376 },
 };

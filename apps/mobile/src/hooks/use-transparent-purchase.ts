@@ -14,16 +14,21 @@ const purchaseErrorCopy = (error: unknown): string => {
     error instanceof Error
       ? error.message.toLowerCase()
       : String(error).toLowerCase();
-  if (detail.includes("product-not-found"))
-    return "Transparent Background is temporarily unavailable. Your signing set is safe. Try again in a moment or continue with a white background.";
+  if (
+    detail.includes("product-not-found") ||
+    detail.includes("product-unavailable")
+  )
+    return "Transparent Background is temporarily unavailable. Your signing set is safe. Try again or continue with white.";
   if (detail.includes("product-lookup-failed"))
-    return "Apple could not load the transparent product. Check your connection, then tap Purchase Transparent again.";
-  return "Apple could not open the transparent purchase. Your signing set is unchanged. Tap Purchase Transparent again or save the white version for free.";
+    return "Couldn’t load Transparent Background. Check your connection and try again.";
+  return "Purchase couldn’t open. Your signing set is safe. Try again or continue with white.";
 };
 
 export function useTransparentPurchase({
+  initialError = null,
   suppressSuccessRedirect = false,
 }: {
+  initialError?: string | null;
   suppressSuccessRedirect?: boolean;
 } = {}) {
   const {
@@ -35,7 +40,7 @@ export function useTransparentPurchase({
     recoverUnboundPurchase,
   } = useAppState();
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialError);
   const purchasePending = hasPurchaseRecoveryInProgress(data);
   const unboundPurchase = data.unboundPurchases[0];
   const displayPrice = product.displayPrice;

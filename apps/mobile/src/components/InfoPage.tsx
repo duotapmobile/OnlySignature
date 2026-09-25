@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(216,182,106,0.68)",
     backgroundColor: flowColors.card,
     padding: 18,
-    boxShadow: "0 14px 30px rgba(2,4,10,0.34)",
+    boxShadow: "0 8px 20px rgba(2,4,10,0.16)",
   },
   title: {
     color: flowColors.cardText,

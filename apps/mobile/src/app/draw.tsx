@@ -436,8 +436,8 @@ export default function CaptureScreen() {
           compactPortrait && styles.compactCanvas,
           {
             height: compactPortrait
-              ? 156
-              : Math.min(310, Math.max(210, windowHeight * 0.29)),
+              ? 205
+              : Math.min(360, Math.max(250, windowHeight * 0.35)),
           },
         ]}
       >
@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.58)",
     backgroundColor: flowColors.paper,
-    boxShadow: "0 28px 58px rgba(0,0,0,0.55)",
+    boxShadow: "0 14px 34px rgba(0,0,0,0.28)",
   },
   portraitInk: {
     position: "absolute",
@@ -628,7 +628,7 @@ const styles = StyleSheet.create({
     backgroundColor: flowColors.action,
     borderBottomLeftRadius: 36,
     borderBottomRightRadius: 36,
-    boxShadow: "0 20px 36px rgba(2,4,10,0.38)",
+    boxShadow: "0 10px 24px rgba(2,4,10,0.20)",
   },
   portraitPaper: {
     ...StyleSheet.absoluteFill,
@@ -752,6 +752,8 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
   canvas: {
+    flexGrow: 1,
+    maxHeight: 420,
     minHeight: 190,
     borderRadius: 24,
     borderCurve: "continuous",
@@ -759,9 +761,9 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: "rgba(216,182,106,0.72)",
     overflow: "hidden",
-    boxShadow: "0 22px 48px rgba(2, 4, 10, 0.34)",
+    boxShadow: "0 10px 24px rgba(2, 4, 10, 0.16)",
   },
-  compactCanvas: { minHeight: 156, borderRadius: 20 },
+  compactCanvas: { minHeight: 205, borderRadius: 20 },
   redoSlot: { alignItems: "flex-end" },
   compactRedoSlot: { height: 48 },
   redo: {

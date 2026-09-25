@@ -1,5 +1,4 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import Svg, { Path } from "react-native-svg";
 import { LayoutSlot } from "@/components/layout-slot";
 import { flowColors } from "@/components/flow-ui";
 
@@ -67,21 +66,6 @@ export function SignatureModeOption({
             {detail}
           </Text>
         </View>
-        <Svg
-          accessibilityElementsHidden
-          width={18}
-          height={18}
-          viewBox="0 0 18 18"
-        >
-          <Path
-            d="m6.75 3.75 5.25 5.25-5.25 5.25"
-            fill="none"
-            stroke={flowColors.white}
-            strokeWidth={1.8}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </Svg>
       </Pressable>
     </LayoutSlot>
   );
@@ -112,7 +96,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.24)",
     backgroundColor: flowColors.action,
     boxShadow:
-      "0 14px 28px rgba(2,4,10,0.34), inset 0 1px 0 rgba(255,255,255,0.18)",
+      "0 7px 18px rgba(2,4,10,0.18), inset 0 1px 0 rgba(255,255,255,0.18)",
   },
   compactCard: {
     minHeight: 54,

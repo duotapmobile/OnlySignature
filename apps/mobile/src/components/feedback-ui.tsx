@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.72)",
     backgroundColor: flowColors.ink,
-    boxShadow: "0 24px 60px rgba(0,0,0,0.56)",
+    boxShadow: "0 14px 34px rgba(0,0,0,0.30)",
   },
   overlayText: {
     color: flowColors.white,
