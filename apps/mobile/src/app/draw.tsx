@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   Alert,
-  Pressable,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -10,6 +9,7 @@ import {
 import { router, useLocalSearchParams } from "expo-router";
 import Svg, { Path } from "react-native-svg";
 import { SignatureCanvas } from "@/components/SignatureCanvas";
+import { FocusPressable as Pressable } from "@/components/FocusPressable";
 import { SignatureModeOption } from "@/components/signature-mode-option";
 import { OperationOverlay } from "@/components/feedback-ui";
 import { LayoutSlot } from "@/components/layout-slot";
@@ -20,7 +20,6 @@ import {
   FlowPrimaryButton,
   FlowScreen,
   FlowTextButton,
-  ScriptLabel,
   flowColors,
 } from "@/components/flow-ui";
 import {
@@ -33,7 +32,6 @@ import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 import { useAppState } from "@/state/AppStateProvider";
 import {
   hapticError,
-  hapticLightImpact,
   hapticSelection,
   hapticSuccess,
 } from "@/services/haptics";
@@ -58,7 +56,7 @@ export default function CaptureScreen() {
   } = useAppState();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const landscape = windowWidth > windowHeight;
-  const compactPortrait = !landscape && windowHeight <= 700;
+  const compactPortrait = !landscape && windowHeight <= 860;
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const kind = data.selectedAsset;
@@ -113,7 +111,6 @@ export default function CaptureScreen() {
       : "Saving your signature";
 
   const finishCapture = async () => {
-    void hapticLightImpact();
     if (!hasDrawing(drawableAsset)) {
       setMessage(
         initial
@@ -186,6 +183,10 @@ export default function CaptureScreen() {
     else if (initial) setSelectedAsset("signature");
     else router.back();
   };
+  const skipInitials = () => {
+    if (returnTo || includedSlot) router.back();
+    else router.push("/preview");
+  };
 
   const confirmRedo = () => {
     if (!hasDrawing(drawableAsset)) return;
@@ -243,7 +244,9 @@ export default function CaptureScreen() {
     return (
       <FlowScreen
         chrome="none"
+        tone="light"
         scroll={false}
+        scrollContainer="child"
         contentStyle={styles.landscapeContent}
         testID={
           initial
@@ -255,7 +258,7 @@ export default function CaptureScreen() {
                 : "last-name-capture-screen"
         }
       >
-        <View style={styles.landscapeCanvas}>
+        <View testID="landscape-drawing-region" style={styles.landscapeCanvas}>
           {immutable ? (
             <View style={styles.locked}>
               <Text style={styles.lockedTitle}>
@@ -288,14 +291,17 @@ export default function CaptureScreen() {
             />
           )}
         </View>
-        <View style={styles.landscapeToolbar}>
+        <View
+          testID="landscape-drawing-toolbar"
+          style={styles.landscapeToolbar}
+        >
           <FlowBackButton onPress={goBack} />
           <View style={styles.landscapeMode}>
-            <Text numberOfLines={1} style={styles.landscapeModeTitle}>
+            <Text style={styles.landscapeModeTitle}>
               {initial
                 ? "Your initials"
                 : signatureMode === "full"
-                  ? "Your full signature"
+                  ? "Full name"
                   : signatureMode === "first"
                     ? "First name, step 1 of 2"
                     : "Last name, step 2 of 2"}
@@ -322,7 +328,7 @@ export default function CaptureScreen() {
             {message}
           </Text>
         ) : null}
-        <View style={styles.landscapeSave}>
+        <View testID="landscape-drawing-save" style={styles.landscapeSave}>
           <FlowPrimaryButton
             label={primaryLabel}
             onPress={() => void finishCapture()}
@@ -330,6 +336,15 @@ export default function CaptureScreen() {
             loading={saving}
           />
         </View>
+        {initial ? (
+          <View style={styles.landscapeSkip}>
+            <FlowTextButton
+              label="Skip for Now"
+              onPress={skipInitials}
+              disabled={immutable || saving}
+            />
+          </View>
+        ) : null}
         <OperationOverlay visible={saving} message={workingMessage} />
       </FlowScreen>
     );
@@ -337,7 +352,6 @@ export default function CaptureScreen() {
 
   return (
     <FlowScreen
-      chrome="none"
       scroll={false}
       contentStyle={[styles.content, compactPortrait && styles.compactContent]}
       testID={
@@ -349,95 +363,106 @@ export default function CaptureScreen() {
               ? "first-name-capture-screen"
               : "last-name-capture-screen"
       }
-    >
-      <View pointerEvents="none" style={styles.portraitFrame}>
-        <View style={styles.portraitPaper} />
-        <View style={styles.portraitInk} />
-      </View>
-      <View style={styles.back}>
+      navigation={
         <FlowBackButton
           onPress={goBack}
           layoutId={`${layerPrefix}.back.icon`}
         />
-      </View>
-      <LayoutSlot
-        id={`${layerPrefix}.header`}
-        style={[styles.header, compactPortrait && styles.compactHeader]}
-      >
-        <ScriptLabel
-          asset={initial ? "initial" : "sign"}
+      }
+      header={
+        <LayoutSlot
+          id={`${layerPrefix}.header`}
           style={[
-            styles.script,
-            compactPortrait && styles.compactPortraitScript,
+            styles.header,
+            compactPortrait && styles.compactHeader,
+            styles.captureHeader,
           ]}
-          layoutId={`${layerPrefix}.script`}
-        />
-        {!initial && signatureMode !== "full" ? (
-          <LayoutSlot id={`${layerPrefix}.step`} style={styles.stepRow}>
-            <Text selectable style={styles.stepLabel}>
-              {signatureMode === "first" ? "STEP 1 OF 2" : "STEP 2 OF 2"}
-            </Text>
-            <View style={styles.progressTrack}>
-              <View style={styles.progressActive} />
-              <View
-                style={[
-                  styles.progressSegment,
-                  signatureMode === "last" && styles.progressActive,
-                ]}
-              />
-            </View>
-          </LayoutSlot>
-        ) : null}
-        <FlowHeading
-          style={[styles.heroTitle, compactPortrait && styles.compactHeroTitle]}
-          layoutId={`${layerPrefix}.title`}
         >
-          {initial
-            ? "Write your initials"
-            : signatureMode === "full"
-              ? "Write your full name"
-              : `Write your ${signatureMode} name`}
-        </FlowHeading>
-        <>
-          <FlowBody
-            style={[styles.subtitle, compactPortrait && styles.compactSubtitle]}
-            layoutId={`${layerPrefix}.subtitle`}
+          {!initial && signatureMode !== "full" ? (
+            <LayoutSlot id={`${layerPrefix}.step`} style={styles.stepRow}>
+              <Text selectable style={styles.stepLabel}>
+                {signatureMode === "first" ? "STEP 1 OF 2" : "STEP 2 OF 2"}
+              </Text>
+              <View style={styles.progressTrack}>
+                <View style={styles.progressActive} />
+                <View
+                  style={[
+                    styles.progressSegment,
+                    signatureMode === "last" && styles.progressActive,
+                  ]}
+                />
+              </View>
+            </LayoutSlot>
+          ) : null}
+          <FlowHeading
+            style={[
+              styles.heroTitle,
+              compactPortrait && styles.compactHeroTitle,
+            ]}
+            layoutId={`${layerPrefix}.title`}
           >
             {initial
-              ? "Write your initials along the line below."
+              ? "Initials"
               : signatureMode === "full"
-                ? "Write your full name along the line below."
+                ? "Sign"
                 : signatureMode === "first"
-                  ? "Write only your first name. We’ll join it to your last name next."
-                  : "Write only your last name. We’ll align and join both parts for you."}
-          </FlowBody>
-          <View
-            style={[styles.rotate, compactPortrait && styles.compactRotate]}
-          >
-            <LayoutSlot id={`${layerPrefix}.rotate.icon`}>
-              <RotateIcon />
-            </LayoutSlot>
-            <LayoutSlot id={`${layerPrefix}.rotate.label`}>
-              <Text
-                selectable
-                maxFontSizeMultiplier={1.12}
-                style={styles.rotateText}
+                  ? "First name"
+                  : "Last name"}
+          </FlowHeading>
+          {initial || signatureMode !== "full" ? (
+            <>
+              <FlowBody
+                style={[
+                  styles.subtitle,
+                  compactPortrait && styles.compactSubtitle,
+                ]}
+                layoutId={`${layerPrefix}.subtitle`}
               >
-                Rotate for more room
-              </Text>
-            </LayoutSlot>
-          </View>
-        </>
-      </LayoutSlot>
+                {initial
+                  ? "Write your initials along the line below."
+                  : signatureMode === "first"
+                    ? "Write only your first name. We’ll join it to your last name next."
+                    : "Write only your last name. We’ll align and join both parts for you."}
+              </FlowBody>
+              <View
+                style={[styles.rotate, compactPortrait && styles.compactRotate]}
+              >
+                <LayoutSlot id={`${layerPrefix}.rotate.icon`}>
+                  <RotateIcon />
+                </LayoutSlot>
+                <LayoutSlot id={`${layerPrefix}.rotate.label`}>
+                  <Text selectable style={styles.rotateText}>
+                    Rotate for more room
+                  </Text>
+                </LayoutSlot>
+              </View>
+            </>
+          ) : (
+            <View
+              style={[styles.rotate, compactPortrait && styles.compactRotate]}
+            >
+              <LayoutSlot id={`${layerPrefix}.rotate.icon`}>
+                <RotateIcon />
+              </LayoutSlot>
+              <LayoutSlot id={`${layerPrefix}.rotate.label`}>
+                <Text selectable style={styles.rotateText}>
+                  Rotate for more room
+                </Text>
+              </LayoutSlot>
+            </View>
+          )}
+        </LayoutSlot>
+      }
+    >
       <LayoutSlot
         id={`${layerPrefix}.canvas`}
         style={[
           styles.canvas,
           compactPortrait && styles.compactCanvas,
           {
-            height: compactPortrait
-              ? 205
-              : Math.min(360, Math.max(250, windowHeight * 0.35)),
+            flex: 1,
+            minHeight: compactPortrait ? 180 : 300,
+            maxHeight: 620,
           },
         ]}
       >
@@ -523,20 +548,6 @@ export default function CaptureScreen() {
           compact={compactPortrait}
         />
       ) : null}
-      {!initial && signatureMode === "first" ? (
-        <SignatureModeOption
-          title="Use one full-name canvas"
-          detail="Return to the original signing space."
-          onPress={() => {
-            void hapticSelection();
-            setSignatureMode("full");
-            setMessage(null);
-          }}
-          disabled={immutable || saving}
-          layoutId="signature-first.full-option"
-          compact={compactPortrait}
-        />
-      ) : null}
       {message ? (
         <LayoutSlot id={`${layerPrefix}.error`}>
           <Text accessibilityRole="alert" style={styles.error}>
@@ -565,10 +576,7 @@ export default function CaptureScreen() {
         {initial ? (
           <FlowTextButton
             label="Skip for Now"
-            onPress={() => {
-              if (returnTo || includedSlot) router.back();
-              else router.push("/preview");
-            }}
+            onPress={skipInitials}
             disabled={immutable || saving}
             layoutId={`${layerPrefix}.skip.button`}
             labelLayoutId={`${layerPrefix}.skip.label`}
@@ -596,6 +604,7 @@ function RotateIcon() {
 }
 const styles = StyleSheet.create({
   content: {
+    flex: 1,
     paddingHorizontal: 26,
     paddingTop: 26,
     paddingBottom: 18,
@@ -617,18 +626,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.58)",
     backgroundColor: flowColors.paper,
-    boxShadow: "0 14px 34px rgba(0,0,0,0.28)",
+    boxShadow: "0 12px 28px rgba(0,0,0,0.20)",
   },
   portraitInk: {
     position: "absolute",
     left: 0,
     right: 0,
     top: 0,
-    height: 260,
+    height: 224,
     backgroundColor: flowColors.action,
     borderBottomLeftRadius: 36,
     borderBottomRightRadius: 36,
-    boxShadow: "0 10px 24px rgba(2,4,10,0.20)",
+    boxShadow: "0 8px 18px rgba(2,4,10,0.15)",
   },
   portraitPaper: {
     ...StyleSheet.absoluteFill,
@@ -643,6 +652,10 @@ const styles = StyleSheet.create({
   },
   landscapeCanvas: {
     ...StyleSheet.absoluteFill,
+    // Keep ink and touch input outside the navigation and action rows. The
+    // paper still fills the screen; stored stroke coordinates stay unchanged.
+    top: 72,
+    bottom: 84,
     backgroundColor: flowColors.paper,
   },
   landscapeToolbar: {
@@ -693,9 +706,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 18,
     bottom: 14,
-    width: 300,
+    alignItems: "flex-end",
     zIndex: 5,
   },
+  landscapeSkip: { position: "absolute", left: 18, bottom: 14, zIndex: 5 },
   landscapeError: {
     position: "absolute",
     left: 120,
@@ -709,10 +723,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   back: { position: "absolute", top: 24, left: 14, zIndex: 4 },
-  header: { marginTop: 22, marginBottom: 6, zIndex: 2 },
-  compactHeader: { marginTop: 18, marginBottom: 4 },
-  script: { marginLeft: 48, marginBottom: 8 },
-  compactPortraitScript: { width: 116, height: 42, marginBottom: 2 },
+  header: { marginBottom: 0 },
+  compactHeader: { marginBottom: 0 },
+  captureHeader: {},
   heroTitle: { fontSize: 29, lineHeight: 34 },
   compactHeroTitle: { fontSize: 26, lineHeight: 31 },
   subtitle: { marginTop: 4, fontSize: 16, lineHeight: 22 },
@@ -753,7 +766,8 @@ const styles = StyleSheet.create({
   },
   canvas: {
     flexGrow: 1,
-    maxHeight: 420,
+    flexShrink: 1,
+    maxHeight: 600,
     minHeight: 190,
     borderRadius: 24,
     borderCurve: "continuous",
@@ -761,13 +775,13 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: "rgba(216,182,106,0.72)",
     overflow: "hidden",
-    boxShadow: "0 10px 24px rgba(2, 4, 10, 0.16)",
+    boxShadow: "0 6px 16px rgba(2, 4, 10, 0.12)",
   },
-  compactCanvas: { minHeight: 205, borderRadius: 20 },
+  compactCanvas: { borderRadius: 20 },
   redoSlot: { alignItems: "flex-end" },
-  compactRedoSlot: { height: 48 },
+  compactRedoSlot: { height: 44 },
   redo: {
-    minHeight: 40,
+    minHeight: 44,
     marginTop: 10,
     paddingHorizontal: 16,
     alignItems: "center",
@@ -780,10 +794,10 @@ const styles = StyleSheet.create({
   },
   redoContent: { flexDirection: "row", alignItems: "center", gap: 6 },
   redoText: { color: flowColors.white, fontSize: 14, lineHeight: 20 },
-  actions: { marginTop: "auto", paddingTop: 18, gap: 6 },
-  compactActions: { paddingTop: 6, marginBottom: 0 },
-  signatureActions: { marginBottom: 18 },
-  initialActions: { marginBottom: 18 },
+  actions: { marginTop: 8, paddingTop: 4, gap: 4 },
+  compactActions: { paddingTop: 4, marginBottom: 0 },
+  signatureActions: { marginBottom: 8 },
+  initialActions: { marginBottom: 8 },
   error: {
     color: flowColors.destructive,
     fontSize: 15,

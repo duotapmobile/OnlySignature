@@ -54,6 +54,11 @@ import {
   type StoreKitTransaction,
 } from "@/services/storekit";
 import { createSerialQueue } from "@/services/serialQueue";
+import { createProductRequest } from "@/services/productCatalog";
+import {
+  purchaseResultForState,
+  type PurchaseResult,
+} from "@/domain/purchase-result-feedback";
 
 interface AppActions {
   setSelectedAsset(kind: AssetKind): void;
@@ -71,8 +76,9 @@ interface AppActions {
   duplicateSet(id: string): boolean;
   deleteSet(id: string): void;
   deleteAll(): Promise<void>;
-  purchaseActiveSet(): Promise<StoreKitTransaction>;
-  recoverUnboundPurchase(): Promise<StoreKitTransaction>;
+  purchaseActiveSet(): Promise<PurchaseResult>;
+  refreshProduct(): Promise<ProductInfo>;
+  recoverUnboundPurchase(): Promise<PurchaseResult>;
   fillIncludedSlot(kind: AssetKind, asset: DrawingAsset): Promise<void>;
   recordExport(): void;
   markReviewPrompted(): void;
@@ -154,6 +160,28 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     )?.screenshotFixtureMode,
   );
 
+  const requestProduct = useMemo(
+    () =>
+      createProductRequest(
+        () => storeKit.loadProduct(),
+        configuredStoreKitProductId,
+      ),
+    [],
+  );
+  const refreshProduct = useCallback(async (): Promise<ProductInfo> => {
+    setProductStatus("loading");
+    try {
+      const loaded = await requestProduct();
+      setProduct(loaded);
+      setProductStatus("available");
+      return loaded;
+    } catch (error) {
+      setProduct({ productId: "", displayPrice: "" });
+      setProductStatus("unavailable");
+      throw error;
+    }
+  }, [requestProduct]);
+
   useEffect(() => {
     dataRef.current = data;
   }, [data]);
@@ -199,8 +227,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
         dataRef.current = fixtureData;
         if (mounted) setData(fixtureData);
         if (mounted) {
-          setProduct(await storeKit.loadProduct());
-          setProductStatus("available");
+          void refreshProduct().catch(() => undefined);
         }
         hydrating = false;
         return;
@@ -234,12 +261,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
         hydrating = false;
         return;
       }
-      try {
-        setProduct(await storeKit.loadProduct());
-        setProductStatus("available");
-      } catch {
-        setProductStatus("unavailable");
-      }
+      if (mounted) void refreshProduct().catch(() => undefined);
       hydrating = false;
     };
     void hydrate();
@@ -250,7 +272,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
       mounted = false;
       subscription.remove();
     };
-  }, [screenshotFixtureMode]);
+  }, [screenshotFixtureMode, refreshProduct]);
 
   useEffect(() => {
     if (!screenshotFixtureMode) return;
@@ -501,13 +523,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
       (state) => {
         if (state === "active") {
           void recover();
-          void storeKit
-            .loadProduct()
-            .then((loaded) => {
-              setProduct(loaded);
-              setProductStatus("available");
-            })
-            .catch(() => setProductStatus("unavailable"));
+          void refreshProduct().catch(() => undefined);
         }
       },
     );
@@ -521,6 +537,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     processTransaction,
     reconcile,
     recoverFinishedBindings,
+    refreshProduct,
     screenshotFixtureMode,
   ]);
 
@@ -541,6 +558,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 
   const actions = useMemo<AppActions>(
     () => ({
+      refreshProduct,
       setSelectedAsset(kind) {
         mutateData((current) => ({ ...current, selectedAsset: kind }));
       },
@@ -630,6 +648,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
             transactionFinishPending: false,
             unclaimedSlot: null,
             label: source.label ? `${source.label} copy` : "",
+            createdAt: new Date().toISOString(),
             lastUsedAt: new Date().toISOString(),
             exportCount: 0,
             signature: source.signature
@@ -720,25 +739,24 @@ export function AppStateProvider({ children }: PropsWithChildren) {
           initialData.sets.find((set) => set.id === initialData.activeSetId) ??
           activeSet;
         if (initialTarget.status === "purchased" && initialTarget.transactionId)
-          return {
-            transactionId: initialTarget.transactionId,
-            productId: configuredStoreKitProductId,
-            appAccountToken: initialTarget.id,
-            state: "purchased",
-            verified: true,
-          };
+          return purchaseResultForState(
+            initialData,
+            {
+              transactionId: initialTarget.transactionId,
+              productId: configuredStoreKitProductId,
+              appAccountToken: initialTarget.id,
+              state: "purchased",
+              verified: true,
+            },
+            configuredStoreKitProductId,
+          );
         purchaseSingleFlight.current = true;
         try {
           let availableProduct = product;
           if (productStatus !== "available" || !availableProduct.productId) {
             setProductStatus("loading");
             try {
-              availableProduct = await withTimeout(
-                storeKit.loadProduct(),
-                15_000,
-              );
-              setProduct(availableProduct);
-              setProductStatus("available");
+              availableProduct = await refreshProduct();
             } catch (error) {
               setProductStatus("unavailable");
               throw error;
@@ -748,13 +766,18 @@ export function AppStateProvider({ children }: PropsWithChildren) {
           let pendingId = "";
           await enqueueOperation(async () => {
             const currentData = dataRef.current;
-            target =
-              currentData.sets.find(
-                (set) => set.id === currentData.activeSetId,
-              ) ?? initialTarget;
+            const selectedTarget = currentData.sets.find(
+              (set) => set.id === initialTarget.id,
+            );
+            if (!selectedTarget || currentData.activeSetId !== initialTarget.id)
+              throw new Error("purchase-target-changed");
+            target = selectedTarget;
             if (!hasDrawing(target.signature) && !hasDrawing(target.initials))
               throw new Error("no-drawing");
-            if (!availableProduct.productId)
+            if (
+              availableProduct.productId !== configuredStoreKitProductId ||
+              !availableProduct.displayPrice.trim()
+            )
               throw new Error("product-unavailable");
             if (hasPurchaseRecoveryInProgress(currentData))
               throw new Error("purchase-recovery-in-progress");
@@ -850,7 +873,12 @@ export function AppStateProvider({ children }: PropsWithChildren) {
               setData(interrupted);
               return null;
             });
-            if (recovered) return recovered;
+            if (recovered)
+              return purchaseResultForState(
+                dataRef.current,
+                recovered,
+                configuredStoreKitProductId,
+              );
             throw error;
           }
           if (transaction.state === "purchased" && transaction.verified) {
@@ -944,9 +972,18 @@ export function AppStateProvider({ children }: PropsWithChildren) {
               setData(interrupted);
               return null;
             });
-            if (recovered) return recovered;
+            if (recovered)
+              return purchaseResultForState(
+                dataRef.current,
+                recovered,
+                configuredStoreKitProductId,
+              );
           }
-          return transaction;
+          return purchaseResultForState(
+            dataRef.current,
+            transaction,
+            configuredStoreKitProductId,
+          );
         } finally {
           purchaseSingleFlight.current = false;
         }
@@ -1011,7 +1048,11 @@ export function AppStateProvider({ children }: PropsWithChildren) {
           );
           if (!recovered)
             throw new Error("unbound-purchase-recovery-incomplete");
-          return transaction;
+          return purchaseResultForState(
+            dataRef.current,
+            transaction,
+            configuredStoreKitProductId,
+          );
         });
       },
       async fillIncludedSlot(kind, asset) {
@@ -1059,6 +1100,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
       product,
       productStatus,
       reconcile,
+      refreshProduct,
       updateSet,
     ],
   );

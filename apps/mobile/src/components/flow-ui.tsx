@@ -1,10 +1,10 @@
 import type { PropsWithChildren, ReactNode } from "react";
 import {
   Image,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
   type ImageStyle,
   type StyleProp,
@@ -16,6 +16,7 @@ import Svg, { Circle, Path, Rect } from "react-native-svg";
 import { LayoutSlot } from "@/components/layout-slot";
 import { AppBackdrop, PaperSurface } from "@/components/paper-ui";
 import { hapticLightImpact } from "@/services/haptics";
+import { FocusPressable as Pressable } from "./FocusPressable";
 
 export const flowColors = {
   night: "#02040A",
@@ -48,12 +49,14 @@ export const flowRadii = {
 } as const;
 
 export const flowShadows = {
-  shell: "0 22px 48px rgba(2,12,32,0.28), 0 6px 16px rgba(2,12,32,0.16)",
+  shell: "0 16px 34px rgba(2,12,32,0.20), 0 4px 12px rgba(2,12,32,0.12)",
   panel:
-    "0 15px 34px rgba(7,31,90,0.20), 0 3px 10px rgba(7,31,90,0.10), inset 0 1px 0 rgba(255,255,255,0.22)",
-  card: "0 10px 24px rgba(7,31,90,0.14), 0 2px 7px rgba(7,31,90,0.08), inset 0 1px 0 rgba(255,255,255,0.82)",
+    "0 11px 26px rgba(7,31,90,0.15), 0 3px 8px rgba(7,31,90,0.09), inset 0 1px 0 rgba(255,255,255,0.22)",
+  card: "0 6px 16px rgba(7,31,90,0.10), 0 2px 5px rgba(7,31,90,0.06), inset 0 1px 0 rgba(255,255,255,0.82)",
   control:
-    "0 7px 18px rgba(7,31,90,0.18), inset 0 1px 0 rgba(255,255,255,0.18)",
+    "0 5px 13px rgba(7,31,90,0.15), inset 0 1px 0 rgba(255,255,255,0.18)",
+  controlPressed:
+    "0 2px 5px rgba(7,31,90,0.12), inset 0 1px 2px rgba(2,12,32,0.12)",
 } as const;
 
 const brandSources = {
@@ -69,25 +72,95 @@ export function FlowScreen({
   testID,
   tone = "dark",
   chrome = "stacked",
+  header,
+  navigation,
+  scrollContainer = "screen",
 }: PropsWithChildren<{
   scroll?: boolean;
   contentStyle?: StyleProp<ViewStyle>;
   testID?: string;
   tone?: "dark" | "light";
   chrome?: "stacked" | "none";
+  header?: ReactNode;
+  navigation?: ReactNode;
+  scrollContainer?: "screen" | "child";
 }>) {
   const light = tone === "light";
+  const { fontScale, height, width } = useWindowDimensions();
+  const shouldScroll =
+    scrollContainer === "screen" &&
+    (scroll || fontScale > 1.15 || height < 500);
+  const scrollHeader = scrollContainer === "screen" && fontScale > 1.15;
   const branded = !light && chrome === "stacked";
+  if (branded) {
+    const navigationHeader = (
+      <View style={styles.flowHeader}>
+        <View style={styles.flowNavigation}>
+          <View>{navigation}</View>
+          <Wordmark style={styles.headerWordmark} />
+        </View>
+        {header}
+      </View>
+    );
+    const paperBody = (
+      <View
+        style={[
+          styles.screenContent,
+          styles.paperContent,
+          !shouldScroll && styles.fill,
+          contentStyle,
+          scrollHeader && styles.intrinsicContent,
+        ]}
+      >
+        {children}
+      </View>
+    );
+    return (
+      <SafeAreaView
+        style={[styles.safe, styles.centerFrame]}
+        edges={["top", "right", "bottom", "left"]}
+      >
+        <AppBackdrop style={styles.background} />
+        <View
+          testID={testID}
+          style={[
+            styles.flowFrame,
+            width >= 768 && height > width && styles.tabletFrame,
+          ]}
+        >
+          {scrollHeader ? (
+            <ScrollView
+              style={styles.screenScroll}
+              contentContainerStyle={styles.scroll}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              {navigationHeader}
+              {paperBody}
+            </ScrollView>
+          ) : (
+            <>
+              {navigationHeader}
+              {shouldScroll ? (
+                <ScrollView
+                  style={styles.screenScroll}
+                  contentContainerStyle={styles.scroll}
+                  keyboardShouldPersistTaps="handled"
+                  showsVerticalScrollIndicator={false}
+                >
+                  {paperBody}
+                </ScrollView>
+              ) : (
+                paperBody
+              )}
+            </>
+          )}
+        </View>
+      </SafeAreaView>
+    );
+  }
   const content = (
-    <View
-      style={[
-        styles.screenContent,
-        contentStyle,
-        branded && styles.brandedContent,
-      ]}
-    >
-      {children}
-    </View>
+    <View style={[styles.screenContent, contentStyle]}>{children}</View>
   );
   return (
     <SafeAreaView
@@ -99,28 +172,7 @@ export function FlowScreen({
       ) : (
         <AppBackdrop style={styles.background} />
       )}
-      {branded ? (
-        <View
-          accessibilityElementsHidden
-          importantForAccessibility="no-hide-descendants"
-          pointerEvents="none"
-          style={styles.flowChrome}
-        >
-          <View style={styles.flowRearPlate} />
-          <PaperSurface style={styles.flowPaperStage} />
-          <View style={styles.flowInkStage}>
-            <View style={styles.flowInkGlowPrimary} />
-            <View style={styles.flowInkGlowSecondary} />
-            <View style={styles.flowTopHighlight} />
-            <View style={styles.flowSignatureMotif}>
-              <View style={styles.flowSignatureDot} />
-              <View style={styles.flowSignatureLine} />
-            </View>
-          </View>
-          <Wordmark accessibilityLabel="" style={styles.flowWordmark} />
-        </View>
-      ) : null}
-      {scroll ? (
+      {shouldScroll ? (
         <ScrollView
           style={styles.screenScroll}
           testID={testID}
@@ -174,11 +226,7 @@ export function ScriptLabel({
     before: "BEFORE YOU DOWNLOAD",
   };
   const label = (
-    <Text
-      selectable
-      maxFontSizeMultiplier={1.1}
-      style={[styles.scriptLabel, style]}
-    >
+    <Text selectable style={[styles.scriptLabel, style]}>
       {labels[asset]}
     </Text>
   );
@@ -194,12 +242,7 @@ export function FlowHeading({
   style?: StyleProp<TextStyle>;
 }>) {
   const heading = (
-    <Text
-      accessibilityRole="header"
-      selectable
-      maxFontSizeMultiplier={1.08}
-      style={[styles.heading, style]}
-    >
+    <Text accessibilityRole="header" selectable style={[styles.heading, style]}>
       {children}
     </Text>
   );
@@ -215,7 +258,7 @@ export function FlowBody({
   layoutId?: string;
 }>) {
   const body = (
-    <Text selectable maxFontSizeMultiplier={1.18} style={[styles.body, style]}>
+    <Text selectable style={[styles.body, style]}>
       {children}
     </Text>
   );
@@ -232,6 +275,7 @@ export function FlowPrimaryButton({
   labelLayoutId,
   labelStyle,
   loading = false,
+  haptic = true,
 }: {
   label: string;
   onPress(): void;
@@ -242,18 +286,16 @@ export function FlowPrimaryButton({
   labelLayoutId?: string;
   labelStyle?: StyleProp<TextStyle>;
   loading?: boolean;
+  haptic?: boolean;
 }) {
+  const { fontScale } = useWindowDimensions();
+  const blocked = disabled || loading;
   const labelNode = (
     <Text
-      adjustsFontSizeToFit
-      maxFontSizeMultiplier={1.08}
-      minimumFontScale={0.6}
-      numberOfLines={1}
-      style={[
-        styles.primaryButtonText,
-        label.length > 24 && { transform: [{ scaleX: 0.91 }] },
-        labelStyle,
-      ]}
+      adjustsFontSizeToFit={fontScale <= 1.15}
+      minimumFontScale={0.85}
+      numberOfLines={fontScale > 1.15 ? undefined : 1}
+      style={[styles.primaryButtonText, labelStyle]}
     >
       {label}
     </Text>
@@ -263,17 +305,17 @@ export function FlowPrimaryButton({
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled }}
-      disabled={disabled}
+      accessibilityState={{ disabled: blocked, busy: loading }}
+      disabled={blocked}
       onPress={() => {
-        void hapticLightImpact();
+        if (haptic) void hapticLightImpact();
         onPress();
       }}
       testID={testID}
       style={({ pressed }) => [
         styles.primaryButton,
-        pressed && styles.pressed,
-        disabled && styles.disabled,
+        pressed && styles.primaryPressed,
+        blocked && styles.disabled,
       ]}
     >
       <View style={styles.primaryLabelWrap}>
@@ -315,9 +357,12 @@ export function FlowTextButton({
   labelLayoutId?: string;
   labelStyle?: StyleProp<TextStyle>;
 }) {
+  const { fontScale } = useWindowDimensions();
   const labelNode = (
     <Text
-      maxFontSizeMultiplier={1.15}
+      numberOfLines={fontScale > 1.15 ? undefined : 1}
+      adjustsFontSizeToFit={fontScale <= 1.15}
+      minimumFontScale={0.82}
       style={[styles.textButtonText, labelStyle]}
     >
       {label}
@@ -358,6 +403,7 @@ export function FlowBackButton({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel="Go back"
+      focusTone="navy"
       hitSlop={8}
       onPress={onPress}
       style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
@@ -509,16 +555,18 @@ export function PreviewCard({
   const contentNode = <View style={styles.previewContent}>{children}</View>;
   return (
     <PaperSurface style={styles.previewCard}>
-      {labelLayoutId ? (
-        <LayoutSlot id={labelLayoutId}>{labelNode}</LayoutSlot>
-      ) : (
-        labelNode
-      )}
-      {actionNode && actionLayoutId ? (
-        <LayoutSlot id={actionLayoutId}>{actionNode}</LayoutSlot>
-      ) : (
-        actionNode
-      )}
+      <View style={styles.previewHeader}>
+        {labelLayoutId ? (
+          <LayoutSlot id={labelLayoutId}>{labelNode}</LayoutSlot>
+        ) : (
+          labelNode
+        )}
+        {actionNode && actionLayoutId ? (
+          <LayoutSlot id={actionLayoutId}>{actionNode}</LayoutSlot>
+        ) : (
+          actionNode
+        )}
+      </View>
       {contentLayoutId ? (
         <LayoutSlot id={contentLayoutId} style={styles.previewContentSlot}>
           {contentNode}
@@ -672,7 +720,45 @@ export function CheckMark({ layoutId }: { layoutId?: string } = {}) {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: flowColors.night },
   lightSafe: { backgroundColor: "#F8F6EF" },
+  centerFrame: { justifyContent: "center" },
+  tabletFrame: { maxHeight: 1000 },
+  flowFrame: {
+    flex: 1,
+    width: "100%",
+    maxWidth: 780,
+    alignSelf: "center",
+    marginVertical: 6,
+    borderRadius: 32,
+    borderCurve: "continuous",
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(216,182,106,0.42)",
+    backgroundColor: flowColors.paper,
+  },
+  flowHeader: {
+    paddingHorizontal: 24,
+    paddingTop: 10,
+    paddingBottom: 16,
+    backgroundColor: flowColors.action,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(216,182,106,0.44)",
+  },
+  flowNavigation: {
+    minHeight: 44,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  headerWordmark: { width: 88, height: 34 },
+  paperContent: {
+    maxWidth: 780,
+    paddingHorizontal: 18,
+    paddingTop: 14,
+    paddingBottom: 14,
+  },
   fill: { flex: 1, zIndex: 2 },
+  intrinsicContent: { flexGrow: 0, flexShrink: 0, flexBasis: "auto" },
   background: {
     ...StyleSheet.absoluteFill,
     overflow: "hidden",
@@ -690,112 +776,6 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 20,
   },
-  brandedContent: {
-    position: "relative",
-    zIndex: 3,
-    paddingHorizontal: 24,
-    paddingTop: 52,
-    paddingBottom: 14,
-  },
-  flowChrome: {
-    ...StyleSheet.absoluteFill,
-    zIndex: 1,
-  },
-  flowRearPlate: {
-    position: "absolute",
-    left: 16,
-    right: 3,
-    top: 18,
-    bottom: 3,
-    borderRadius: flowRadii.shell,
-    borderCurve: "continuous",
-    borderWidth: 1,
-    borderColor: "rgba(216,182,106,0.34)",
-    backgroundColor: "#081A35",
-    boxShadow: flowShadows.shell,
-  },
-  flowInkStage: {
-    position: "absolute",
-    left: 6,
-    right: 6,
-    top: 3,
-    height: 260,
-    overflow: "hidden",
-    borderRadius: flowRadii.shell,
-    borderCurve: "continuous",
-    borderWidth: 1,
-    borderColor: "rgba(216,182,106,0.58)",
-    backgroundColor: "#0A3D78",
-    boxShadow: flowShadows.panel,
-  },
-  flowPaperStage: {
-    position: "absolute",
-    left: 6,
-    right: 6,
-    top: 214,
-    bottom: 3,
-    borderRadius: flowRadii.shell,
-    borderCurve: "continuous",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.96)",
-    backgroundColor: "#F8F6EF",
-    boxShadow: flowShadows.card,
-  },
-  flowInkGlowPrimary: {
-    position: "absolute",
-    width: 250,
-    height: 250,
-    left: -86,
-    top: 72,
-    borderRadius: 125,
-    backgroundColor: "rgba(19,106,190,0.24)",
-  },
-  flowInkGlowSecondary: {
-    position: "absolute",
-    width: 170,
-    height: 170,
-    right: -70,
-    top: -44,
-    borderRadius: 85,
-    backgroundColor: "rgba(216,182,106,0.10)",
-  },
-  flowTopHighlight: {
-    position: "absolute",
-    left: 36,
-    right: 36,
-    top: 1,
-    height: 1,
-    backgroundColor: "rgba(255,255,255,0.30)",
-  },
-  flowWordmark: {
-    position: "absolute",
-    right: 30,
-    top: 42,
-    zIndex: 4,
-    width: 104,
-    height: 40,
-  },
-  flowSignatureMotif: {
-    position: "absolute",
-    left: 29,
-    right: 29,
-    bottom: 29,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 9,
-  },
-  flowSignatureDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: "#D8B66A",
-    boxShadow: "0 0 12px rgba(216,182,106,0.72)",
-  },
-  flowSignatureLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "rgba(216,182,106,0.46)",
-  },
   wordmark: { width: 244, height: 134, alignSelf: "center" },
   scriptLabel: {
     alignSelf: "flex-start",
@@ -808,17 +788,18 @@ const styles = StyleSheet.create({
   heading: {
     color: flowColors.white,
     fontFamily: "Georgia",
-    fontSize: 34,
-    lineHeight: 40,
+    fontSize: 28,
+    lineHeight: 34,
     fontWeight: "700",
     letterSpacing: -1.1,
   },
   body: { color: "#E9E6DC", fontSize: 17, lineHeight: 24 },
   primaryButton: {
-    minWidth: 220,
+    minWidth: 0,
     maxWidth: "100%",
     minHeight: 56,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     alignSelf: "center",
     flexDirection: "row",
     justifyContent: "center",
@@ -832,7 +813,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     flexShrink: 1,
     color: "#FFFFFF",
-    fontSize: 18,
+    fontSize: 19,
     lineHeight: 24,
     fontWeight: "800",
     textAlign: "center",
@@ -874,7 +855,11 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textAlign: "center",
   },
-  pressed: { opacity: 0.8, transform: [{ scale: 0.985 }] },
+  primaryPressed: {
+    backgroundColor: "#083367",
+    boxShadow: flowShadows.controlPressed,
+  },
+  pressed: { opacity: 0.8 },
   disabled: { opacity: 0.46 },
   backButton: {
     width: 44,
@@ -953,9 +938,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   previewAction: {
-    position: "absolute",
-    right: 6,
-    top: 2,
     minWidth: 60,
     minHeight: 44,
     alignItems: "center",
@@ -974,6 +956,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   previewContentSlot: { flex: 1 },
+  previewHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    minHeight: 44,
+  },
   feature: {
     minWidth: 0,
     flexDirection: "row",

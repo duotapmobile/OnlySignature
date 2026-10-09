@@ -45,6 +45,26 @@ button {
   cursor: pointer;
 }
 
+.review-link {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 13px;
+  border: 1px solid #6f5c32;
+  border-radius: 9px;
+  background: #262213;
+  color: #f0d797;
+  font-size: 12px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.review-link:hover {
+  border-color: #d8b66a;
+  background: #312a17;
+}
+
 button:hover:not(:disabled) {
   border-color: #00b8d0;
   background: #1c2830;

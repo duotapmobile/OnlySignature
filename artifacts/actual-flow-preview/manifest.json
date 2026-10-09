@@ -1,8 +1,12 @@
 {
   "source": "Expo web static build with screenshot fixture mode enabled",
   "classification": "Local reference-matched app rendering; phone frames are presentation-only and this is not native iOS or App Store evidence",
-  "capturedOn": "2026-09-25",
-  "referenceFlow": "11-screen founder-directed flow",
+  "capturedOn": "2026-10-04",
+  "capturedAt": "2026-10-04T22:29:09.078Z",
+  "complete": true,
+  "bundle": "http://127.0.0.1:4176/_expo/static/js/web/entry-0642c0a34f1ac1df0726511813e6bf4a.js",
+  "runtimeErrors": [],
+  "referenceFlow": "15-screen founder-directed flow",
   "screenshots": [
     {
       "id": "01-splash",
@@ -27,7 +31,7 @@
       "route": "/draw?fixture=both",
       "headline": "Full Name Capture",
       "assertions": [
-        "Write your full name",
+        "Sign",
         "Save Signature",
         "Sign First and Last Separately"
       ]
@@ -105,8 +109,29 @@
       "route": "/free-export?fixture=both",
       "headline": "DIY warning popup",
       "assertions": [
+        "Download a Quality Signature",
         "Removing the background later can damage your signature.",
         "No Thanks, Download Free White Set"
+      ]
+    },
+    {
+      "id": "08a-white-export",
+      "route": "/white-export?fixture=both",
+      "headline": "White Background Export",
+      "assertions": [
+        "White Background Export",
+        "Choose your export format.",
+        "Download"
+      ]
+    },
+    {
+      "id": "08b-transparent-export",
+      "route": "/export?fixture=purchased",
+      "headline": "Transparent Export",
+      "assertions": [
+        "Export Transparent Set",
+        "Choose your export format.",
+        "Download"
       ]
     },
     {
@@ -115,16 +140,6 @@
       "headline": "White confirmation popup",
       "assertions": [
         "White Background Set Saved",
-        "Done"
-      ]
-    },
-    {
-      "id": "10-transparent-confirmation-popup",
-      "route": "/success?fixture=purchased&mode=transparent",
-      "headline": "Transparent confirmation popup",
-      "assertions": [
-        "Transparent Set Unlocked",
-        "Save or Share Files",
         "Done"
       ]
     },

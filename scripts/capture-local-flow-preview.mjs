@@ -1,4 +1,5 @@
-import { copyFile, mkdir, rm, writeFile } from "node:fs/promises";
+import assert from "node:assert/strict";
+import { copyFile, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import sharp from "sharp";
@@ -13,6 +14,56 @@ const playwright = playwrightEntry
   : await import("playwright");
 const { chromium } = playwright;
 
+async function capturePaintedPage(page, outputPath) {
+  const back = page.getByRole("button", { name: "Go back", exact: true });
+  const hasBack = (await back.count()) > 0;
+  if (hasBack) await back.waitFor({ state: "visible" });
+  await page.waitForFunction(() =>
+    [...document.images].every(
+      (image) => image.complete && image.naturalWidth > 0,
+    ),
+  );
+  for (let attempt = 0; attempt < 3; attempt++) {
+    await page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        ),
+    );
+    const pixels = await page.screenshot({ fullPage: false });
+    if (!hasBack) {
+      await writeFile(outputPath, pixels);
+      return;
+    }
+    const bounds = await back.boundingBox();
+    assert(bounds && bounds.y >= 0, "Back is outside the capture viewport");
+    const { data, info } = await sharp(pixels)
+      .extract({
+        left: Math.round(bounds.x + 10),
+        top: Math.round(bounds.y + 10),
+        width: 24,
+        height: 24,
+      })
+      .removeAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    let darkSurface = 0;
+    let lightIcon = 0;
+    for (let i = 0; i < data.length; i += info.channels) {
+      if (data[i] < 20 && data[i + 1] < 45 && data[i + 2] < 85) darkSurface++;
+      if (data[i] > 200 && data[i + 1] > 200 && data[i + 2] > 200) lightIcon++;
+    }
+    if (darkSurface >= 250 && lightIcon >= 20) {
+      await writeFile(outputPath, pixels);
+      return;
+    }
+    assert(
+      attempt < 2,
+      `Back did not paint in ${outputPath}: ${JSON.stringify({ bounds, darkSurface, lightIcon })}`,
+    );
+  }
+}
+
 const screenshots = [
   {
     id: "01-splash",
@@ -20,7 +71,6 @@ const screenshots = [
     route: "/?fixture=opening",
     testId: "opening-splash-screen",
     assertions: ["Without the sign-up.", "Private by design."],
-    waitMs: 2_800,
   },
   {
     id: "02-entry",
@@ -34,11 +84,7 @@ const screenshots = [
     headline: "Full Name Capture",
     route: "/draw?fixture=both",
     testId: "signature-capture-screen",
-    assertions: [
-      "Write your full name",
-      "Save Signature",
-      "Sign First and Last Separately",
-    ],
+    assertions: ["Sign", "Save Signature", "Sign First and Last Separately"],
   },
   {
     id: "03a-first-name-capture",
@@ -108,8 +154,31 @@ const screenshots = [
     route: "/free-export?fixture=both",
     testId: "diy-warning-screen",
     assertions: [
+      "Download a Quality Signature",
       "Removing the background later can damage your signature.",
       "No Thanks, Download Free White Set",
+    ],
+  },
+  {
+    id: "08a-white-export",
+    headline: "White Background Export",
+    route: "/white-export?fixture=both",
+    testId: "free-export-screen",
+    assertions: [
+      "White Background Export",
+      "Choose your export format.",
+      "Download",
+    ],
+  },
+  {
+    id: "08b-transparent-export",
+    headline: "Transparent Export",
+    route: "/export?fixture=purchased",
+    testId: "paid-export-screen",
+    assertions: [
+      "Export Transparent Set",
+      "Choose your export format.",
+      "Download",
     ],
   },
   {
@@ -118,13 +187,6 @@ const screenshots = [
     route: "/success?fixture=both&mode=white",
     testId: "white-confirmation-screen",
     assertions: ["White Background Set Saved", "Done"],
-  },
-  {
-    id: "10-transparent-confirmation-popup",
-    headline: "Transparent confirmation popup",
-    route: "/success?fixture=purchased&mode=transparent",
-    testId: "transparent-confirmation-screen",
-    assertions: ["Transparent Set Unlocked", "Save or Share Files", "Done"],
   },
   {
     id: "11-saved-sets-home",
@@ -149,7 +211,8 @@ const devices = {
 await mkdir(outputRoot, { recursive: true });
 for (const device of Object.keys(devices)) {
   const directory = path.join(outputRoot, device);
-  await rm(directory, { recursive: true, force: true });
+  // Replace only named generated captures. Never clear the directory before
+  // the browser is ready or discard other files during a failed capture run.
   await mkdir(directory, { recursive: true });
 }
 
@@ -157,6 +220,8 @@ const browser = await chromium.launch({
   headless: true,
   executablePath: process.env.ONLY_SIGNATURE_BROWSER_EXECUTABLE || undefined,
 });
+let bundle = null;
+const runtimeErrors = [];
 try {
   for (const [device, size] of Object.entries(devices)) {
     const context = await browser.newContext({
@@ -165,8 +230,11 @@ try {
       colorScheme: "dark",
       reducedMotion: "reduce",
     });
-    const page = await context.newPage();
     for (const shot of screenshots) {
+      const page = await context.newPage();
+      page.on("pageerror", (error) =>
+        runtimeErrors.push(`${device}/${shot.id}: ${error.message}`),
+      );
       const outputPath = path.join(outputRoot, device, `${shot.id}.png`);
       await page.goto(new URL(shot.route, baseUrl).href, {
         waitUntil: "networkidle",
@@ -175,37 +243,30 @@ try {
         state: "visible",
       });
       await page.evaluate(() => document.fonts?.ready);
+      const currentBundle = await page.evaluate(() =>
+        [...document.scripts]
+          .map((script) => script.src)
+          .find((src) => /entry-[a-f0-9]+\.js/.test(src)),
+      );
+      assert(currentBundle, "Capture has no identifiable Expo web bundle");
+      if (bundle)
+        assert.equal(currentBundle, bundle, "Bundle changed during capture");
+      else bundle = currentBundle;
       for (const assertion of shot.assertions) {
         await page.waitForFunction(
           (expected) => document.body.innerText.includes(expected),
           assertion,
         );
       }
-      if (shot.id === "01-splash") {
-        await page.evaluate(() => {
-          const show = (testId, transform = "none") => {
-            const element = document.querySelector(`[data-testid="${testId}"]`);
-            if (!(element instanceof HTMLElement)) return;
-            element.style.opacity = "1";
-            element.style.transform = transform;
-          };
-          show("opening-paper", "rotate(-3deg)");
-          show("opening-ink-card");
-          show("opening-wordmark");
-          show("opening-copy");
-          show("opening-signature");
-          show("opening-line");
-          show("opening-footer");
-        });
-      }
-      await page.waitForTimeout(shot.waitMs ?? 350);
-      await page.screenshot({ path: outputPath, fullPage: false });
+      await capturePaintedPage(page, outputPath);
+      await page.close();
     }
     await context.close();
   }
 } finally {
   await browser.close();
 }
+assert.deepEqual(runtimeErrors, [], "Runtime errors during main-flow capture");
 
 const xml = (value) =>
   value
@@ -223,7 +284,7 @@ async function phoneFrame(inputPath) {
   const appY = 29;
   const appHeight = 340;
   const roundedShot = await sharp(inputPath)
-    .resize(screenWidth, appHeight, { fit: "fill" })
+    .resize(screenWidth, appHeight, { fit: "contain", background: "#02040A" })
     .composite([
       {
         input: Buffer.from(
@@ -335,7 +396,11 @@ const manifest = {
   classification:
     "Local reference-matched app rendering; phone frames are presentation-only and this is not native iOS or App Store evidence",
   capturedOn: new Date().toISOString().slice(0, 10),
-  referenceFlow: "11-screen founder-directed flow",
+  capturedAt: new Date().toISOString(),
+  complete: true,
+  bundle,
+  runtimeErrors,
+  referenceFlow: `${screenshots.length}-screen founder-directed flow`,
   screenshots: screenshots.map(({ id, route, headline, assertions }) => ({
     id,
     ...(route ? { route } : {}),
@@ -351,5 +416,5 @@ await writeFile(
 );
 
 process.stdout.write(
-  `Captured ${screenshots.length} iPhone and ${screenshots.length} iPad reference-flow screens.\n`,
+  `Captured ${screenshots.length} screens across ${Object.keys(devices).length} preview sizes (${screenshots.length * Object.keys(devices).length} screenshots).\n`,
 );

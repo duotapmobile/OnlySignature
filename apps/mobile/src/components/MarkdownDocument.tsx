@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import { theme } from "@/integrations/workspace";
+import { legalDisplayText } from "@/domain/markdown-presentation";
 
 export function MarkdownDocument({ markdown }: { markdown: string }) {
   const blocks = markdown.replace(/\r/g, "").split("\n");
@@ -16,7 +17,7 @@ export function MarkdownDocument({ markdown }: { markdown: string }) {
               selectable
               style={heading[1]?.length === 1 ? styles.h1 : styles.heading}
             >
-              {heading[2]}
+              {legalDisplayText(heading[2] ?? "")}
             </Text>
           );
         if (/^[-*]\s+/.test(line))
@@ -24,13 +25,13 @@ export function MarkdownDocument({ markdown }: { markdown: string }) {
             <View key={index} style={styles.bulletRow}>
               <Text style={styles.bullet}>•</Text>
               <Text selectable style={styles.body}>
-                {line.replace(/^[-*]\s+/, "")}
+                {legalDisplayText(line.replace(/^[-*]\s+/, ""))}
               </Text>
             </View>
           );
         return (
           <Text key={index} selectable style={styles.body}>
-            {line.replace(/\*\*/g, "").replace(/`/g, "")}
+            {legalDisplayText(line)}
           </Text>
         );
       })}

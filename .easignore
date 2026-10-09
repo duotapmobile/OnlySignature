@@ -1,3 +1,6 @@
+# Founder review data stays local; CI uses a synthetic structural fixture.
+/artifacts/actual-flow-preview/review-feedback.json
+/artifacts/actual-flow-preview/SCREEN-FEEDBACK.md
 node_modules/
 .expo/
 .git/

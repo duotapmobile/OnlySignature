@@ -1,0 +1,230 @@
+{
+  "version": 1,
+  "updatedOn": "2026-10-04",
+  "evidence": "Five new annotation edits are implemented on entry-0642c0a34f1ac1df0726511813e6bf4a.js. Before/after comparisons and tablet renders inspected; 50 targeted layouts and responsive checks passed. All 45 review captures refreshed at 2026-10-04T22:29:09.078Z. Native validation is not established. Founder feedback and approval statuses are unchanged.",
+  "screens": {
+    "01-splash": {
+      "status": "Browser inspected; founder review and native verification pending",
+      "changes": [
+        "Uses the cleaned Taylor Brooks artwork without its separate underline.",
+        "Measured artwork baseline aligns to the gold guide, preserving descenders.",
+        "Copy and signature are now one centered composition with a 28-point gap instead of pushing the signature to the bottom.",
+        "Tablet opening is capped at 620 by 860 points instead of stretching a sparse panel across the entire iPad.",
+        "New supporting copy: Your signature and initials. Ready to reuse."
+      ],
+      "markupCount": 1,
+      "sources": [
+        "apps/mobile/src/components/animated-opening.tsx",
+        "apps/mobile/src/components/SampleDrawing.tsx"
+      ],
+      "screenshot": "01-splash.png"
+    },
+    "02-entry": {
+      "status": "Browser inspected; founder review and native verification pending",
+      "changes": [
+        "Headline, tagline, signature ticket, benefits, privacy line and actions occupy normal layout, not overlapping layers.",
+        "View my Signing Sets remains a quiet secondary link with a 44-point target.",
+        "The three blank pins identify the hero, signature and lower content regions; they are not additional written requirements.",
+        "Tall-screen benefit rows stay grouped at a fixed gap; tablet Home is capped at 860 points."
+      ],
+      "markupCount": 3,
+      "sources": ["apps/mobile/src/components/welcome-folded-panel.tsx"],
+      "screenshot": "02-entry.png"
+    },
+    "03-signature-capture": {
+      "status": "Browser inspected; founder review and native verification pending",
+      "changes": [
+        "Title is Sign, without the redundant Your Signature label or repeated full-name instruction.",
+        "Landscape handwriting now stays between navigation and Save instead of underneath their controls.",
+        "Save Signature is a content-sized, arrowless control; portrait retains the split-name option.",
+        "Finger-coordinate filtering uses screen points; real iPhone drawing feel remains unverified."
+      ],
+      "markupCount": 3,
+      "sources": [
+        "apps/mobile/src/app/draw.tsx",
+        "apps/mobile/src/components/SignatureCanvas.tsx"
+      ],
+      "screenshot": "03-signature-capture.png"
+    },
+    "03a-first-name-capture": {
+      "status": "Browser inspected; founder review and native verification pending",
+      "changes": [
+        "Only the active first-name canvas is shown; the full-name/split-name option is absent.",
+        "Back returns to full-name mode. Redo and Save First Name stay separate from the canvas.",
+        "All four blank pins require a regional visual check, not invented replacement copy."
+      ],
+      "markupCount": 4,
+      "sources": ["apps/mobile/src/app/draw.tsx"],
+      "screenshot": "03a-first-name-capture.png"
+    },
+    "03b-last-name-capture": {
+      "status": "Browser inspected; founder review and native verification pending",
+      "changes": [
+        "Matches the first-name canvas, progress and action treatment.",
+        "Back returns to first-name mode; joining still uses the existing signature composition logic."
+      ],
+      "markupCount": 3,
+      "sources": ["apps/mobile/src/app/draw.tsx"],
+      "screenshot": "03b-last-name-capture.png"
+    },
+    "04-initials-capture": {
+      "status": "Browser inspected; founder review and native verification pending",
+      "changes": [
+        "Uses the same navy navigation, paper canvas and arrowless Save action as signature capture.",
+        "Skip for Now remains available in portrait and landscape.",
+        "Landscape ink stays outside the toolbar and Save row; the oversized sample no longer sits underneath navigation.",
+        "The general aesthetic rejection has no specific markup; it is not treated as approved."
+      ],
+      "markupCount": 0,
+      "sources": [
+        "apps/mobile/src/app/draw.tsx",
+        "apps/mobile/src/components/SignatureCanvas.tsx"
+      ],
+      "screenshot": "04-initials-capture.png"
+    },
+    "05-review-popup": {
+      "status": "Browser inspected; founder review and native verification pending",
+      "changes": [
+        "Review your signing set is the title; the redundant eyebrow is absent.",
+        "Actual stored ink, not a substituted sample, uses a capture-baseline presentation transform.",
+        "Shared header blue and top-right wordmark match the other routes. Edit controls are outside the artwork.",
+        "The confirm button has no separate decorative action dock.",
+        "The bounded review group is centered on taller screens; short-screen actions remain visible."
+      ],
+      "markupCount": 3,
+      "sources": [
+        "apps/mobile/src/app/preview.tsx",
+        "apps/mobile/src/components/DrawingPreview.tsx",
+        "apps/mobile/src/components/flow-ui.tsx"
+      ],
+      "screenshot": "05-review-popup.png"
+    },
+    "06-background-popup": {
+      "status": "Browser inspected; founder review and native verification pending",
+      "changes": [
+        "Both options use the same document layout, signature line and date line.",
+        "Transparent reveals the document; white intentionally obscures part of the date. No gray checkerboard is used.",
+        "Purchase Transparent Signature has Apple-localized pricing when the catalog is available.",
+        "Actions have no extra box behind them; the updated founder pin is retained.",
+        "Apple-localized price is 21-point bold inside a quiet gold highlight; one-time purchase information remains visible."
+      ],
+      "markupCount": 1,
+      "sources": [
+        "apps/mobile/src/app/purchase.tsx",
+        "apps/mobile/src/components/document-signature-preview.tsx",
+        "apps/mobile/src/components/purchase-action.tsx"
+      ],
+      "screenshot": "06-background-popup.png"
+    },
+    "06a-purchase-error": {
+      "status": "Browser inspected; founder review and native verification pending",
+      "changes": [
+        "Recovery messaging distinguishes pending, cancelled, interrupted and failed outcomes without deleting the set.",
+        "Price retry does not purchase or freeze a set; the free path stays available during catalog-only loading.",
+        "Compact recovery spacing accommodates the larger localized-price highlight without hiding the free option or reducing message text.",
+        "Live Apple availability and native transactions have not been verified."
+      ],
+      "markupCount": 2,
+      "sources": [
+        "apps/mobile/src/components/purchase-feedback.tsx",
+        "apps/mobile/src/hooks/use-transparent-purchase.ts"
+      ],
+      "screenshot": "06a-purchase-error.png"
+    },
+    "07-clear-background": {
+      "status": "Browser inspected; founder review and native verification pending",
+      "changes": [
+        "See the difference and its supporting sentence use the shared header.",
+        "Signature and date are in a shared document layout rather than floating independent labels.",
+        "Compact purchase and decline actions have no decorative dock."
+      ],
+      "markupCount": 5,
+      "sources": [
+        "apps/mobile/src/app/clear-background.tsx",
+        "apps/mobile/src/components/document-signature-preview.tsx"
+      ],
+      "screenshot": "07-clear-background.png"
+    },
+    "08-diy-warning-popup": {
+      "status": "Browser inspected; founder review and native verification pending",
+      "changes": [
+        "Title is Download a Quality Signature; the damage warning is supporting copy.",
+        "Original Transparent, All fine strokes intact, DIY Removal and Missing strokes use readable paper-surface colors.",
+        "The free-white action retains its full wording, without an extra action dock.",
+        "Both comparison images center their ink; an invisible baseline no longer pushes handwriting to the bottom.",
+        "The new pin targets damaged ink, not page spacing: three proportional erased bands make the missing strokes clearer."
+      ],
+      "markupCount": 4,
+      "sources": ["apps/mobile/src/app/free-export.tsx"],
+      "screenshot": "08-diy-warning-popup.png"
+    },
+    "08a-white-export": {
+      "status": "Browser inspected; founder review and native verification pending",
+      "changes": [
+        "Shared Back placement and visible Choose your export format subtitle.",
+        "Both selectors share the same trailing chevron position, with actual signature and initials previews.",
+        "Hidden raster export surfaces do not add empty scrolling space.",
+        "Tall-screen previews grow within a 104-to-160-point range; the centered group uses the shared card radius, edge and shadow."
+      ],
+      "markupCount": 2,
+      "sources": [
+        "apps/mobile/src/components/ExportFlow.tsx",
+        "apps/mobile/src/components/FormatDropdown.tsx"
+      ],
+      "screenshot": "08a-white-export.png"
+    },
+    "08b-transparent-export": {
+      "status": "Browser inspected; founder review and native verification pending",
+      "changes": [
+        "Uses the same Back, subtitle, selector, artwork and Download recipe as White Export.",
+        "Transparent export formats and entitlement checks are unchanged.",
+        "Tall-screen previews grow within a 104-to-160-point range; the centered group uses the shared card radius, edge and shadow."
+      ],
+      "markupCount": 2,
+      "sources": ["apps/mobile/src/components/ExportFlow.tsx"],
+      "screenshot": "08b-transparent-export.png"
+    },
+    "09-white-confirmation-popup": {
+      "status": "Browser inspected; founder review and native verification pending",
+      "changes": [
+        "Shared navy header and paper body with baseline-aligned saved ink.",
+        "Compact Done control, without the separate decorative button dock.",
+        "The saved-message, signature and Done group is centered instead of leaving an unexplained lower tail.",
+        "The second confirmation sentence starts on a deliberate new line."
+      ],
+      "markupCount": 4,
+      "sources": ["apps/mobile/src/app/success.tsx"],
+      "screenshot": "09-white-confirmation-popup.png"
+    },
+    "11-saved-sets-home": {
+      "status": "Browser inspected; founder review and native verification pending",
+      "changes": [
+        "Saved Sets owns its scrolling through one FlatList.",
+        "Text-only rows show the existing set label, creation date, background status and actions; handwriting previews are removed.",
+        "New sets record an immutable creation date. Legacy records without that field say Creation date unavailable rather than using a changing usage date.",
+        "Title and navigation use the shared header; no approval is inferred from source checks."
+      ],
+      "markupCount": 1,
+      "sources": [
+        "apps/mobile/src/app/saved.tsx",
+        "apps/mobile/src/domain/saved-set-presentation.ts",
+        "apps/mobile/src/domain/models.ts",
+        "apps/mobile/src/domain/appStateValidation.ts"
+      ],
+      "screenshot": "11-saved-sets-home.png"
+    }
+  },
+  "archivedScreens": {
+    "10-transparent-confirmation-popup": {
+      "status": "Removed from the flow as requested; original feedback retained",
+      "changes": [
+        "Successful transparent purchase proceeds directly to Transparent Export."
+      ],
+      "markupCount": 1,
+      "sources": ["apps/mobile/src/hooks/use-transparent-purchase.ts"]
+    }
+  },
+  "browserBundle": "entry-0642c0a34f1ac1df0726511813e6bf4a.js",
+  "audit": "docs/audits/21-minor-feedback-2026-10-04.md",
+  "captureRoot": "artifacts/actual-flow-preview"
+}

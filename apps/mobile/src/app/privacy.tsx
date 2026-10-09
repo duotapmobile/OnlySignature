@@ -1,4 +1,5 @@
-import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Linking, StyleSheet, Text, View } from "react-native";
+import { FocusPressable as Pressable } from "@/components/FocusPressable";
 import Constants from "expo-constants";
 import { useLocalSearchParams } from "expo-router";
 import { InfoPage } from "@/components/InfoPage";

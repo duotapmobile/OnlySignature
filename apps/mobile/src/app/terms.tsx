@@ -1,4 +1,5 @@
-import { Linking, Pressable, StyleSheet, Text } from "react-native";
+import { Linking, StyleSheet, Text } from "react-native";
+import { FocusPressable as Pressable } from "@/components/FocusPressable";
 import Constants from "expo-constants";
 import { InfoPage } from "@/components/InfoPage";
 import { MarkdownDocument } from "@/components/MarkdownDocument";

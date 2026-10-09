@@ -1,14 +1,14 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { DrawingPreview } from "@/components/DrawingPreview";
 import { LayoutSlot } from "@/components/layout-slot";
+import { PurchaseAction } from "@/components/purchase-action";
+import { PurchaseFeedback } from "@/components/purchase-feedback";
 import {
   FlowBackButton,
   FlowHeading,
-  FlowPrimaryButton,
   FlowScreen,
   FlowTextButton,
-  ScriptLabel,
   flowColors,
   flowRadii,
   flowShadows,
@@ -20,11 +20,19 @@ import { useAppState } from "@/state/AppStateProvider";
 import { hapticWarning } from "@/services/haptics";
 
 export default function DiyWarningScreen() {
+  const { height } = useWindowDimensions();
+  const compact = height <= 700;
   const { activeSet } = useAppState();
   const { fixture } = useLocalSearchParams<{ fixture?: string }>();
   const screenshotFixture = isAuthorizedScreenshotFixture(fixture, [
     "both",
     "signature",
+    "purchase-pending",
+    "purchase-interrupted",
+    "purchase-finishing",
+    "purchase-other-set",
+    "product-loading",
+    "product-unavailable",
   ]);
   const purchase = useTransparentPurchase({
     suppressSuccessRedirect: screenshotFixture,
@@ -35,27 +43,41 @@ export default function DiyWarningScreen() {
 
   return (
     <FlowScreen
-      scroll={false}
-      contentStyle={styles.content}
+      scroll={Boolean(purchase.feedback)}
+      contentStyle={[styles.content, compact && styles.compactContent]}
       testID="diy-warning-screen"
-    >
-      <View style={styles.back}>
+      navigation={
         <FlowBackButton
           onPress={() => router.back()}
           layoutId="warning.back.icon"
         />
-      </View>
-      <LayoutSlot id="warning.header" style={styles.warning}>
-        <ScriptLabel
-          asset="before"
-          style={styles.script}
-          layoutId="warning.script"
-        />
-        <FlowHeading style={styles.headingText} layoutId="warning.title">
-          Removing the background later can damage your signature.
-        </FlowHeading>
-      </LayoutSlot>
-      <LayoutSlot id="warning.comparison" style={styles.comparison}>
+      }
+      header={
+        <LayoutSlot
+          id="warning.header"
+          style={[styles.warning, compact && styles.compactWarning]}
+        >
+          <FlowHeading
+            style={[styles.headingText, compact && styles.compactHeadingText]}
+            layoutId="warning.title"
+          >
+            Download a Quality Signature
+          </FlowHeading>
+          <LayoutSlot id="warning.subtitle">
+            <Text
+              selectable
+              style={[styles.warningCopy, compact && styles.compactWarningCopy]}
+            >
+              Removing the background later can damage your signature.
+            </Text>
+          </LayoutSlot>
+        </LayoutSlot>
+      }
+    >
+      <LayoutSlot
+        id="warning.comparison"
+        style={[styles.comparison, compact && styles.compactComparison]}
+      >
         <LayoutSlot id="warning.original.card" style={styles.resultBlock}>
           <View style={styles.resultHeading}>
             <LayoutSlot id="warning.original.label">
@@ -67,13 +89,18 @@ export default function DiyWarningScreen() {
               All fine strokes intact
             </Text>
           </View>
-          <View style={[styles.compareCard, styles.checker]}>
+          <View
+            style={[
+              styles.compareCard,
+              styles.checker,
+              compact && styles.compactCompareCard,
+            ]}
+          >
             {asset ? (
               <LayoutSlot id="warning.original.art" style={styles.previewLayer}>
                 <DrawingPreview
                   asset={asset}
                   accessibilityLabel="Original transparent signature with all strokes intact"
-                  align="baseline"
                   style={styles.preview}
                 />
               </LayoutSlot>
@@ -93,13 +120,14 @@ export default function DiyWarningScreen() {
               </Text>
             </LayoutSlot>
           </View>
-          <View style={styles.compareCard}>
+          <View
+            style={[styles.compareCard, compact && styles.compactCompareCard]}
+          >
             {asset ? (
               <LayoutSlot id="warning.diy.art" style={styles.previewLayer}>
                 <DrawingPreview
                   asset={asset}
                   accessibilityLabel="DIY background removal result with erased signature strokes"
-                  align="baseline"
                   color="#586167"
                   style={[styles.preview, styles.damaged]}
                 />
@@ -107,35 +135,29 @@ export default function DiyWarningScreen() {
             ) : null}
             <View accessibilityElementsHidden style={styles.damageGapOne} />
             <View accessibilityElementsHidden style={styles.damageGapTwo} />
+            <View accessibilityElementsHidden style={styles.damageGapThree} />
           </View>
         </LayoutSlot>
       </LayoutSlot>
-      {purchase.error ? (
-        <LayoutSlot id="warning.error">
-          <Text
-            accessibilityRole="alert"
-            selectable
-            maxFontSizeMultiplier={1.12}
-            style={styles.error}
-          >
-            {purchase.error}
-          </Text>
-        </LayoutSlot>
-      ) : null}
-      <LayoutSlot id="warning.actions" style={styles.actions}>
-        <FlowPrimaryButton
-          label={
-            purchase.busy
-              ? purchase.unboundPurchase
-                ? "Applying Apple Purchase..."
-                : "Opening Apple Purchase..."
-              : "Purchase Transparent"
-          }
+      <PurchaseFeedback
+        busy={purchase.busy}
+        unboundPurchase={purchase.unboundPurchase}
+        feedback={purchase.feedback}
+        layoutId="warning.error"
+      />
+      <LayoutSlot
+        id="warning.actions"
+        style={[styles.actions, compact && styles.compactActions]}
+      >
+        <PurchaseAction
+          displayPrice={purchase.displayPrice}
+          productStatus={purchase.productStatus}
+          onRetry={() => void purchase.retryProduct()}
+          busy={purchase.busy}
+          unboundPurchase={purchase.unboundPurchase}
           onPress={() => void purchase.beginPurchase()}
           disabled={purchase.busy || purchase.transparentUnavailable}
-          loading={purchase.busy}
-          layoutId="warning.primary.button"
-          labelLayoutId="warning.primary.label"
+          layoutPrefix="warning.primary"
         />
         <FlowTextButton
           label="No Thanks, Download Free White Set"
@@ -153,34 +175,50 @@ export default function DiyWarningScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingTop: 16, paddingBottom: 14 },
+  content: {
+    paddingTop: 16,
+    paddingBottom: 14,
+    justifyContent: "center",
+  },
+  compactContent: { paddingTop: 12, paddingBottom: 5 },
   back: { position: "absolute", top: 8, left: 20, zIndex: 4 },
-  warning: { marginTop: 34 },
-  script: { marginBottom: 7 },
-  headingText: { fontSize: 25, lineHeight: 30 },
-  comparison: { flex: 1, marginTop: 12, gap: 12 },
+  warning: {},
+  compactWarning: {},
+  headingText: { fontSize: 24, lineHeight: 29 },
+  compactHeadingText: { fontSize: 22, lineHeight: 26 },
+  warningCopy: {
+    color: flowColors.bodyText,
+    fontSize: 14,
+    lineHeight: 19,
+    marginTop: 5,
+  },
+  compactWarningCopy: { fontSize: 13, lineHeight: 18, marginTop: 3 },
+  comparison: { flex: 1, maxHeight: 540, gap: 12 },
+  compactComparison: { gap: 10 },
   resultBlock: { flex: 1, width: "100%" },
   resultHeading: {
-    minHeight: 31,
-    paddingHorizontal: 4,
-    paddingBottom: 6,
+    minHeight: 34,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 10,
+    borderRadius: 12,
+    backgroundColor: "rgba(248,246,239,0.96)",
   },
   resultTitle: {
-    color: flowColors.white,
-    fontSize: 13,
-    lineHeight: 18,
+    color: flowColors.cardText,
+    fontSize: 14,
+    lineHeight: 19,
     fontWeight: "800",
   },
-  diyTitle: { color: "#FFAAA1" },
+  diyTitle: { color: flowColors.destructive },
   resultCopy: {
     flexShrink: 1,
-    color: flowColors.bodyText,
-    fontSize: 11,
-    lineHeight: 15,
+    color: flowColors.cardMuted,
+    fontSize: 12,
+    lineHeight: 16,
     textAlign: "right",
   },
   compareCard: {
@@ -196,8 +234,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  checker: { backgroundColor: "#EEF1F2" },
-  previewLayer: { width: "100%", alignItems: "center" },
+  compactCompareCard: { minHeight: 88 },
+  checker: { backgroundColor: "#FFFDF8" },
+  previewLayer: {
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   preview: { width: "96%", height: "82%" },
   damaged: { opacity: 0.58 },
   damageGapOne: {
@@ -205,7 +249,7 @@ const styles = StyleSheet.create({
     left: "36%",
     top: 0,
     bottom: 0,
-    width: 12,
+    width: "7%",
     backgroundColor: "#FFF",
   },
   damageGapTwo: {
@@ -213,7 +257,15 @@ const styles = StyleSheet.create({
     left: "68%",
     top: 0,
     bottom: 0,
-    width: 9,
+    width: "6%",
+    backgroundColor: "#FFF",
+  },
+  damageGapThree: {
+    position: "absolute",
+    left: "23%",
+    top: 0,
+    bottom: 0,
+    width: "5%",
     backgroundColor: "#FFF",
   },
   damagePill: {
@@ -226,26 +278,9 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     fontWeight: "800",
   },
-  error: {
-    color: flowColors.destructive,
-    fontSize: 12,
-    lineHeight: 16,
-    textAlign: "left",
-    marginTop: 7,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    backgroundColor: "#FFF1F0",
-  },
   actions: {
-    marginTop: 12,
-    padding: 8,
-    paddingBottom: 2,
-    borderRadius: flowRadii.card,
-    borderWidth: 1,
-    borderColor: "rgba(7,31,90,0.08)",
-    backgroundColor: "rgba(255,255,255,0.54)",
-    boxShadow: flowShadows.card,
-    gap: 0,
+    marginTop: 10,
+    gap: 2,
   },
+  compactActions: { marginTop: 4, gap: 0 },
 });

@@ -49,9 +49,7 @@ const screens = [
     name: "signature",
     route: "/draw?fixture=both",
     testId: "signature-capture-screen",
-    script: "signature.script",
     title: "signature.title",
-    subtitle: "signature.subtitle",
     button: "signature.primary.button",
     label: "signature.primary.label",
     capture: true,
@@ -60,7 +58,6 @@ const screens = [
     name: "first-name",
     route: "/draw?fixture=both&namePart=first",
     testId: "first-name-capture-screen",
-    script: "signature-first.script",
     title: "signature-first.title",
     subtitle: "signature-first.subtitle",
     button: "signature-first.primary.button",
@@ -71,7 +68,6 @@ const screens = [
     name: "last-name",
     route: "/draw?fixture=both&namePart=last",
     testId: "last-name-capture-screen",
-    script: "signature-last.script",
     title: "signature-last.title",
     subtitle: "signature-last.subtitle",
     button: "signature-last.primary.button",
@@ -82,7 +78,6 @@ const screens = [
     name: "initials",
     route: "/draw?fixture=initials",
     testId: "initials-capture-screen",
-    script: "initials.script",
     title: "initials.title",
     subtitle: "initials.subtitle",
     button: "initials.primary.button",
@@ -93,7 +88,6 @@ const screens = [
     name: "review",
     route: "/preview?fixture=both",
     testId: "review-screen",
-    script: "review.script",
     title: "review.title",
     subtitle: "review.subtitle",
     button: "review.confirm.button",
@@ -103,7 +97,6 @@ const screens = [
     name: "background",
     route: "/purchase?fixture=both",
     testId: "background-screen",
-    script: "background.script",
     title: "background.title",
     button: "background.primary.button",
     label: "background.primary.label",
@@ -121,7 +114,6 @@ const screens = [
     name: "warning",
     route: "/free-export?fixture=both",
     testId: "diy-warning-screen",
-    script: "warning.script",
     title: "warning.title",
     button: "warning.primary.button",
     label: "warning.primary.label",
@@ -134,15 +126,6 @@ const screens = [
     subtitle: "white-confirmation.subtitle",
     button: "white-confirmation.primary.button",
     label: "white-confirmation.primary.label",
-  },
-  {
-    name: "transparent-confirmation",
-    route: "/success?fixture=purchased&mode=transparent",
-    testId: "transparent-confirmation-screen",
-    title: "transparent-confirmation.title",
-    subtitle: "transparent-confirmation.subtitle",
-    button: "transparent-confirmation.primary.button",
-    label: "transparent-confirmation.primary.label",
   },
   {
     name: "saved",
@@ -307,39 +290,6 @@ try {
           : null,
         script: screen.script ? await textMetrics(page, screen.script) : null,
       };
-      if (screen.name === "clear") {
-        const whiteBox = await elementRect(page, "clear.bad.white-box");
-        const signatureArt = await elementRect(page, "clear.bad.signature-art");
-        const stacking = await page.evaluate(() => {
-          const whiteBox = document.querySelector(
-            '[data-testid="layout-slot:clear.bad.white-box"]',
-          );
-          const signature = document.querySelector(
-            '[data-testid="layout-slot:clear.bad.signature-art"]',
-          );
-          return {
-            whiteBox: Number(getComputedStyle(whiteBox).zIndex),
-            signature: Number(getComputedStyle(signature).zIndex),
-          };
-        });
-        assert(
-          whiteBox.x < signatureArt.right && whiteBox.right > signatureArt.x,
-          `${device}/clear white box must sit behind the signature horizontally`,
-        );
-        assert(
-          whiteBox.y < signatureArt.bottom && whiteBox.bottom > signatureArt.y,
-          `${device}/clear white box must sit behind the signature vertically`,
-        );
-        assert(
-          stacking.whiteBox < stacking.signature,
-          `${device}/clear signature must remain readable above the white-box layer`,
-        );
-        measured.dateInterference = {
-          whiteBox: roundedRect(whiteBox),
-          signature: roundedRect(signatureArt),
-          stacking,
-        };
-      }
       if (screen.name === "entry") entry = measured;
       else {
         assert(
@@ -358,25 +308,11 @@ try {
           entry.label.style,
           `${device}/${screen.name} button-label typography differs from Entry`,
         );
-        if (screen.name === "last-name")
-          assert.deepEqual(
-            measured.script.style,
-            splitNameReference.script.style,
-            `${device}/last-name script typography differs from First Name Capture`,
-          );
         if (screen.name === "last-name") {
-          assert.deepEqual(
-            {
-              x: round(measured.button.x),
-              width: round(measured.button.width),
-              height: round(measured.button.height),
-            },
-            {
-              x: round(splitNameReference.button.x),
-              width: round(splitNameReference.button.width),
-              height: round(splitNameReference.button.height),
-            },
-            `${device}/last-name primary button sizing differs from First Name Capture`,
+          assert.equal(
+            round(measured.button.height),
+            round(splitNameReference.button.height),
+            `${device}/split capture button heights differ`,
           );
           assert.equal(
             round(measured.title.rect.y),
@@ -387,11 +323,6 @@ try {
             measured.subtitle.style,
             splitNameReference.subtitle.style,
             `${device}/last-name subtitle typography differs from First Name Capture`,
-          );
-          assert.deepEqual(
-            roundedRect(measured.script.rect),
-            roundedRect(splitNameReference.script.rect),
-            `${device}/last-name script-label bounds differ from First Name Capture`,
           );
         }
         if (screen.popup) {

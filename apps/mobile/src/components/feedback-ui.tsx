@@ -10,6 +10,8 @@ import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
+  useReducedMotion,
+  cancelAnimation,
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
@@ -26,16 +28,22 @@ export function useDelayedVisibility(active: boolean, delay = 300) {
 
 export function LoadingMark({ compact = false }: { compact?: boolean }) {
   const progress = useSharedValue(0.22);
+  const reducedMotion = useReducedMotion();
   useEffect(() => {
+    if (reducedMotion) {
+      progress.value = 1;
+      return;
+    }
     progress.value = withRepeat(
       withTiming(1, { duration: 720, easing: Easing.inOut(Easing.ease) }),
       -1,
       true,
     );
-  }, [progress]);
+    return () => cancelAnimation(progress);
+  }, [progress, reducedMotion]);
   const lineStyle = useAnimatedStyle(() => ({
     opacity: 0.45 + progress.value * 0.55,
-    transform: [{ scaleX: progress.value }],
+    transform: reducedMotion ? [] : [{ scaleX: progress.value }],
   }));
   return (
     <View
@@ -169,7 +177,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.72)",
     backgroundColor: flowColors.ink,
-    boxShadow: "0 14px 34px rgba(0,0,0,0.30)",
+    boxShadow: "0 10px 24px rgba(7,31,90,0.18)",
   },
   overlayText: {
     color: flowColors.white,

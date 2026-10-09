@@ -1,4 +1,5 @@
-import { Linking, Platform, Pressable, StyleSheet, Text } from "react-native";
+import { Linking, Platform, StyleSheet, Text } from "react-native";
+import { FocusPressable as Pressable } from "@/components/FocusPressable";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import { InfoPage, Section } from "@/components/InfoPage";
@@ -31,7 +32,11 @@ export default function SupportScreen() {
         non-sensitive status categories. They never include drawings, stroke
         points, local labels, or file contents.
       </Section>
-      <Text selectable accessibilityLabel="Diagnostic information">
+      <Text
+        selectable
+        accessibilityLabel="Diagnostic information"
+        style={styles.diagnostics}
+      >
         {diagnostics}
       </Text>
       {extra?.supportUrl ? (
@@ -49,6 +54,7 @@ export default function SupportScreen() {
   );
 }
 const styles = StyleSheet.create({
+  diagnostics: { color: theme.colors.muted, fontSize: 16, lineHeight: 23 },
   linkButton: { minHeight: 52, justifyContent: "center" },
   link: {
     color: theme.colors.primary,

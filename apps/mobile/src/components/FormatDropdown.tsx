@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import Svg, { Path } from "react-native-svg";
 import {
   formatControlAccessibilityLabel,
@@ -8,6 +15,8 @@ import {
 } from "@/domain/models";
 import { flowColors } from "./flow-ui";
 import { hapticSelection } from "@/services/haptics";
+import { useReducedMotion } from "react-native-reanimated";
+import { FocusPressable as Pressable } from "./FocusPressable";
 
 function Chevron({ up = false }: { up?: boolean }) {
   return (
@@ -44,13 +53,17 @@ export function FormatDropdown({
   value,
   formats,
   onChange,
+  disabled = false,
 }: {
   label: string;
   value: ExportFormat;
   formats: ExportFormat[];
   onChange(value: ExportFormat): void;
+  disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const reducedMotion = useReducedMotion();
+  const { fontScale } = useWindowDimensions();
   return (
     <View style={styles.group}>
       <Text style={styles.label}>{label}</Text>
@@ -58,20 +71,39 @@ export function FormatDropdown({
         accessibilityRole="button"
         accessibilityLabel={formatControlAccessibilityLabel(label, value)}
         accessibilityHint="Opens the format choices"
+        accessibilityState={{ expanded: open, disabled }}
+        disabled={disabled}
         onPress={() => setOpen(true)}
-        style={styles.trigger}
+        style={({ pressed }) => [
+          styles.trigger,
+          pressed && styles.pressed,
+          disabled && styles.disabled,
+        ]}
       >
-        <Text style={styles.triggerText}>{formatLabel[value]}</Text>
-        <Chevron />
+        <Text
+          numberOfLines={fontScale > 1.15 ? undefined : 1}
+          adjustsFontSizeToFit={fontScale <= 1.15}
+          minimumFontScale={0.86}
+          style={styles.triggerText}
+        >
+          {formatLabel[value]}
+        </Text>
+        <View style={styles.chevron}>
+          <Chevron />
+        </View>
       </Pressable>
       <Modal
         visible={open}
         transparent
-        animationType="fade"
+        animationType={reducedMotion ? "none" : "fade"}
         onRequestClose={() => setOpen(false)}
       >
         <View style={styles.backdrop}>
-          <View accessibilityViewIsModal style={styles.dialog}>
+          <ScrollView
+            accessibilityViewIsModal
+            style={styles.dialog}
+            contentContainerStyle={styles.dialogContent}
+          >
             <Text accessibilityRole="header" style={styles.dialogTitle}>
               Choose {label.toLowerCase()} format
             </Text>
@@ -85,7 +117,11 @@ export function FormatDropdown({
                   onChange(format);
                   setOpen(false);
                 }}
-                style={[styles.option, format === value && styles.selected]}
+                style={({ pressed }) => [
+                  styles.option,
+                  format === value && styles.selected,
+                  pressed && styles.pressed,
+                ]}
               >
                 <Text
                   style={[
@@ -105,7 +141,7 @@ export function FormatDropdown({
             >
               <Text style={styles.cancelText}>Cancel</Text>
             </Pressable>
-          </View>
+          </ScrollView>
         </View>
       </Modal>
     </View>
@@ -126,16 +162,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 15,
+    paddingVertical: 12,
     borderWidth: 1,
     borderColor: "#BDB295",
     borderRadius: 14,
     backgroundColor: flowColors.card,
   },
   triggerText: {
+    flex: 1,
     color: flowColors.cardText,
     fontSize: 16,
     lineHeight: 21,
     fontWeight: "600",
+  },
+  chevron: {
+    width: 24,
+    marginLeft: 10,
+    alignItems: "flex-end",
   },
   backdrop: {
     flex: 1,
@@ -144,16 +187,17 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   dialog: {
+    flexGrow: 0,
     width: "100%",
     maxWidth: 480,
+    maxHeight: "90%",
     alignSelf: "center",
     backgroundColor: flowColors.card,
     borderRadius: 22,
     borderWidth: 1,
     borderColor: flowColors.cyan,
-    padding: 18,
-    gap: 8,
   },
+  dialogContent: { padding: 18, gap: 8 },
   dialogTitle: {
     color: flowColors.cardText,
     fontSize: 22,
@@ -164,6 +208,7 @@ const styles = StyleSheet.create({
   option: {
     minHeight: 54,
     paddingHorizontal: 14,
+    paddingVertical: 12,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#CFC6AD",
@@ -176,12 +221,15 @@ const styles = StyleSheet.create({
     borderColor: "#071F5A",
   },
   optionText: {
+    flexShrink: 1,
     color: flowColors.cardText,
     fontSize: 16,
     lineHeight: 21,
     fontWeight: "600",
   },
   selectedText: { color: flowColors.white },
+  pressed: { opacity: 0.85 },
+  disabled: { opacity: 0.55 },
   cancel: {
     minHeight: 48,
     justifyContent: "center",

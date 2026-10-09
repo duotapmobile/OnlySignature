@@ -7,10 +7,10 @@ export const SIGNATURE_STROKE_WIDTH = 2.25;
 // A light 1 Euro filter removes slow finger tremor while keeping quick,
 // intentional changes responsive. It never invents points or reshapes a
 // completed signature; every output point is derived from the live touch.
-export const INK_STABILIZER_MIN_CUTOFF = 1.2;
-export const INK_STABILIZER_BETA = 0.012;
-export const INK_STABILIZER_DERIVATIVE_CUTOFF = 10;
-export const INK_MIN_SAMPLE_DISTANCE = 2.25;
+export const INK_STABILIZER_MIN_CUTOFF = 0.55;
+export const INK_STABILIZER_BETA = 0.006;
+export const INK_STABILIZER_DERIVATIVE_CUTOFF = 5;
+export const INK_MIN_SAMPLE_DISTANCE = 5.5;
 
 export interface StrokeStabilizerState {
   raw: StrokePoint;
@@ -71,13 +71,12 @@ export const stabilizeStrokePoint = (
     INK_STABILIZER_MIN_CUTOFF + INK_STABILIZER_BETA * Math.abs(derivativeY),
     elapsedSeconds,
   );
-  const filtered = terminal
-    ? { ...point }
-    : {
-        ...point,
-        x: blend(state.filtered.x, point.x, xAlpha),
-        y: blend(state.filtered.y, point.y, yAlpha),
-      };
+  const terminalAlpha = 0.65;
+  const filtered = {
+    ...point,
+    x: blend(state.filtered.x, point.x, terminal ? terminalAlpha : xAlpha),
+    y: blend(state.filtered.y, point.y, terminal ? terminalAlpha : yAlpha),
+  };
   return {
     point: filtered,
     state: {
@@ -92,10 +91,11 @@ export const stabilizeStrokePoint = (
 export const shouldRecordStrokePoint = (
   previous: StrokePoint | undefined,
   next: StrokePoint,
+  displayScale = 1,
 ): boolean => {
   if (!previous) return true;
   return (
-    Math.hypot(next.x - previous.x, next.y - previous.y) >=
+    Math.hypot(next.x - previous.x, next.y - previous.y) * displayScale >=
     INK_MIN_SAMPLE_DISTANCE
   );
 };
@@ -134,6 +134,31 @@ export const pointToDrawingPlane = (
     x: Math.max(0, Math.min(planeWidth, (x - offsetX) / scale)),
     y: Math.max(0, Math.min(planeHeight, (y - offsetY) / scale)),
   };
+};
+
+/** Filter physical screen points, not the scaled stored drawing plane. */
+export const stabilizeDrawingTouch = (
+  state: StrokeStabilizerState | null,
+  touch: StrokePoint,
+  viewport: { width: number; height: number },
+  plane: { width: number; height: number },
+  terminal = false,
+): { point: StrokePoint; state: StrokeStabilizerState } | null => {
+  const map = (point: StrokePoint) =>
+    pointToDrawingPlane(
+      point.x,
+      point.y,
+      viewport.width,
+      viewport.height,
+      plane.width,
+      plane.height,
+    );
+  if (!map(touch)) return null;
+  const stabilized = stabilizeStrokePoint(state, touch, terminal);
+  const mapped = map(stabilized.point);
+  return mapped
+    ? { point: { ...stabilized.point, ...mapped }, state: stabilized.state }
+    : null;
 };
 
 export const smoothPath = (points: StrokePoint[]): string => {

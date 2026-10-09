@@ -79,6 +79,12 @@ const signatureSet = (value: unknown): SignatureSet => {
     throw new Error("local-state-invalid");
   return {
     ...candidate,
+    // Never substitute mutable lastUsedAt for a missing historical creation date.
+    createdAt:
+      typeof candidate.createdAt === "string" &&
+      Number.isFinite(Date.parse(candidate.createdAt))
+        ? candidate.createdAt
+        : null,
     pendingPurchaseId,
     signature: asset(candidate.signature, "signature"),
     initials: asset(candidate.initials, "initials"),

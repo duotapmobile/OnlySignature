@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Only Signature Screen Review</title>
+    <link rel="stylesheet" href="/studio/review.css" />
+  </head>
+  <body>
+    <header class="review-topbar">
+      <div class="review-brand">
+        <span class="review-brand-mark">OS</span>
+        <div>
+          <strong>Screen Review</strong>
+          <span>Zoom, mark up, and save feedback screen by screen</span>
+        </div>
+      </div>
+      <div class="review-progress" aria-live="polite">
+        <span id="progressLabel">0 of 0 reviewed</span>
+        <div class="progress-track"><span id="progressBar"></span></div>
+      </div>
+      <nav class="review-nav" aria-label="Review actions">
+        <a class="button-link" href="/studio/">Edit layout</a>
+        <button id="copyButton" type="button">Copy all feedback</button>
+        <button id="exportButton" type="button">Download copy</button>
+        <button id="submitButton" class="primary" type="button">
+          Submit all feedback
+        </button>
+      </nav>
+    </header>
+
+    <main class="review-shell">
+      <aside class="screen-rail" aria-label="Screens">
+        <div class="rail-heading">
+          <div>
+            <span>Captured screens</span>
+            <small id="captureDate"></small>
+          </div>
+          <button
+            id="collapseRailButton"
+            type="button"
+            aria-label="Collapse screen list"
+          >
+            ‹
+          </button>
+        </div>
+        <div id="screenList" class="screen-list"></div>
+      </aside>
+
+      <section class="review-canvas-column">
+        <div class="screen-toolbar">
+          <div class="screen-navigation">
+            <button
+              id="previousButton"
+              type="button"
+              aria-label="Previous screen"
+            >
+              ‹
+            </button>
+            <div>
+              <strong id="screenTitle">Loading screens</strong>
+              <span id="screenPosition"></span>
+            </div>
+            <button id="nextButton" type="button" aria-label="Next screen">
+              ›
+            </button>
+          </div>
+
+          <div class="view-controls">
+            <button id="refreshCapturesButton" type="button">
+              Refresh screens
+            </button>
+            <button id="focusButton" type="button">Focus</button>
+            <button id="feedbackToggleButton" type="button">Feedback</button>
+          </div>
+
+          <div
+            id="deviceSwitch"
+            class="segmented"
+            aria-label="Screenshot size"
+          ></div>
+
+          <div class="zoom-controls" aria-label="Zoom controls">
+            <button id="zoomOutButton" type="button" aria-label="Zoom out">
+              −
+            </button>
+            <button id="zoomLabel" type="button" title="Reset to fit">
+              100%
+            </button>
+            <button id="zoomInButton" type="button" aria-label="Zoom in">
+              +
+            </button>
+            <button id="fitButton" type="button">Fit</button>
+          </div>
+        </div>
+
+        <div class="markup-toolbar" aria-label="Markup tools">
+          <div id="toolSwitch" class="tool-switch">
+            <button type="button" data-tool="pan" class="active">Pan</button>
+            <button type="button" data-tool="pin">Pin note</button>
+            <button type="button" data-tool="box">Box</button>
+            <button type="button" data-tool="draw">Draw</button>
+            <button type="button" data-tool="erase">Erase</button>
+          </div>
+          <label class="color-control">
+            <span>Markup</span>
+            <input id="colorInput" type="color" value="#ff3b30" />
+          </label>
+          <button
+            id="markupVisibilityButton"
+            type="button"
+            aria-pressed="false"
+          >
+            Show saved markup
+          </button>
+          <button id="clearMarkupButton" class="quiet-danger" type="button">
+            Clear this screen
+          </button>
+          <span class="shortcut-help">Ctrl + wheel zooms · Space pans</span>
+        </div>
+        <p id="markupNotice" class="markup-notice" hidden>
+          These are your saved review pins, not app UI. Their positions refer to
+          the original screenshots and may not match the refreshed layout.
+        </p>
+
+        <div id="imageViewport" class="image-viewport" tabindex="0">
+          <div id="emptyState" class="empty-state" hidden>
+            No captured image is available for this screen.
+          </div>
+          <div id="imageStage" class="image-stage">
+            <img id="screenImage" alt="" draggable="false" />
+            <svg
+              id="markupLayer"
+              class="markup-layer"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-label="Screen markup"
+            ></svg>
+          </div>
+        </div>
+      </section>
+
+      <aside class="feedback-panel">
+        <button
+          id="closeFeedbackButton"
+          class="close-feedback"
+          type="button"
+          aria-label="Close feedback panel"
+        >
+          ×
+        </button>
+        <section
+          class="implementation-panel"
+          aria-labelledby="implementationTitle"
+        >
+          <h2 id="implementationTitle">Implementation check</h2>
+          <p id="implementationStatus">Loading implementation notes</p>
+          <ul id="implementationChanges"></ul>
+          <p class="implementation-limit">
+            Separate from your review. Source checks are not your approval or
+            native-device validation.
+          </p>
+        </section>
+        <div class="feedback-heading">
+          <div>
+            <span>Feedback</span>
+            <small id="saveState">Saved</small>
+          </div>
+          <label class="status-field">
+            <span>Status</span>
+            <select id="statusSelect">
+              <option value="unreviewed">Not reviewed</option>
+              <option value="needs-changes">Needs changes</option>
+              <option value="approved">Approved</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="notes-field">
+          <span>Overall feedback for this screen</span>
+          <textarea
+            id="screenNote"
+            rows="7"
+            placeholder="Describe what needs to change, what should stay, and the intended result."
+          ></textarea>
+        </label>
+
+        <div class="annotation-heading">
+          <div>
+            <span>Markup notes</span>
+            <small id="annotationCount">0 notes</small>
+          </div>
+          <button id="addPinButton" type="button">Add pin</button>
+        </div>
+        <div id="annotationList" class="annotation-list"></div>
+
+        <div class="feedback-actions">
+          <button id="saveButton" class="primary" type="button">
+            Save this screen
+          </button>
+          <button id="saveNextButton" type="button">Save and next</button>
+        </div>
+        <p class="privacy-note">
+          Submit saves the complete review into this shared project. Nothing is
+          uploaded.
+        </p>
+      </aside>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/studio/review.js"></script>
+  </body>
+</html>

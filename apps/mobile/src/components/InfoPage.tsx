@@ -11,11 +11,11 @@ export function InfoPage({
   children: ReactNode;
 }) {
   return (
-    <FlowScreen contentStyle={styles.content}>
-      <View style={styles.back}>
-        <FlowBackButton onPress={() => router.back()} />
-      </View>
-      <FlowHeading>{title}</FlowHeading>
+    <FlowScreen
+      contentStyle={styles.content}
+      navigation={<FlowBackButton onPress={() => router.back()} />}
+      header={<FlowHeading>{title}</FlowHeading>}
+    >
       <View style={styles.card}>{children}</View>
     </FlowScreen>
   );
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   content: { paddingTop: 28 },
   back: { height: 32, alignSelf: "flex-start" },
   card: {
-    marginTop: 16,
+    marginTop: 0,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.68)",

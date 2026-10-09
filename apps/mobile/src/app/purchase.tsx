@@ -1,21 +1,16 @@
 import { useState } from "react";
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { DrawingPreview } from "@/components/DrawingPreview";
+import { DocumentSignaturePreview } from "@/components/document-signature-preview";
 import { LayoutSlot } from "@/components/layout-slot";
+import { PurchaseAction } from "@/components/purchase-action";
+import { PurchaseFeedback } from "@/components/purchase-feedback";
 import {
   FlowBackButton,
   FlowHeading,
   FlowPrimaryButton,
   FlowScreen,
   FlowTextButton,
-  ScriptLabel,
   flowColors,
   flowRadii,
   flowShadows,
@@ -23,41 +18,21 @@ import {
 import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 import { useTransparentPurchase } from "@/hooks/use-transparent-purchase";
 import { hapticSelection } from "@/services/haptics";
-import { InlineStatus } from "@/components/feedback-ui";
 import { hasDrawing, type DrawingAsset } from "@/domain/models";
 import { useAppState } from "@/state/AppStateProvider";
+import { FocusPressable as Pressable } from "@/components/FocusPressable";
 
 type Background = "transparent" | "white";
-
-function CheckerSwatch() {
-  return (
-    <View accessibilityElementsHidden style={[styles.swatch, styles.checker]}>
-      {Array.from({ length: 16 }, (_, index) => (
-        <View
-          key={index}
-          style={[
-            styles.checkerSquare,
-            {
-              backgroundColor:
-                (Math.floor(index / 4) + index) % 2 === 0
-                  ? "#F5F5F5"
-                  : "#CFCFCF",
-            },
-          ]}
-        />
-      ))}
-    </View>
-  );
-}
 
 function BackgroundChoice({
   value,
   selected,
   title,
   description,
-  price,
   asset,
-  compact,
+  compact = false,
+  recoveryCompact = false,
+  disabled = false,
   onSelect,
   layerPrefix,
 }: {
@@ -65,22 +40,26 @@ function BackgroundChoice({
   selected: boolean;
   title: string;
   description: string;
-  price?: string;
   asset?: DrawingAsset | null;
   compact?: boolean;
+  recoveryCompact?: boolean;
+  disabled?: boolean;
   onSelect(): void;
   layerPrefix: string;
 }) {
   return (
     <Pressable
       accessibilityRole="radio"
-      accessibilityLabel={`${title}. ${description}${price ? ` ${price}` : ""}`}
-      accessibilityState={{ checked: selected }}
+      accessibilityLabel={`${title}. ${description}`}
+      accessibilityState={{ checked: selected, disabled }}
+      disabled={disabled}
       onPress={onSelect}
       style={({ pressed }) => [
         styles.choice,
         compact && styles.choiceCompact,
+        recoveryCompact && styles.recoveryChoice,
         selected && styles.choiceSelected,
+        disabled && styles.choiceDisabled,
         pressed && styles.pressed,
       ]}
     >
@@ -89,11 +68,26 @@ function BackgroundChoice({
       >
         <LayoutSlot id={`${layerPrefix}.swatch`}>
           {value === "transparent" ? (
-            <CheckerSwatch />
+            <View
+              accessibilityElementsHidden
+              style={[
+                styles.swatch,
+                styles.transparentSwatch,
+                recoveryCompact && styles.recoverySwatch,
+              ]}
+            >
+              <Text allowFontScaling={false} style={styles.swatchLabel}>
+                T
+              </Text>
+            </View>
           ) : (
             <View
               accessibilityElementsHidden
-              style={[styles.swatch, styles.whiteSwatch]}
+              style={[
+                styles.swatch,
+                styles.whiteSwatch,
+                recoveryCompact && styles.recoverySwatch,
+              ]}
             />
           )}
         </LayoutSlot>
@@ -110,23 +104,14 @@ function BackgroundChoice({
               </LayoutSlot>
             ) : null}
           </View>
-          <View style={styles.descriptionRow}>
-            <LayoutSlot
-              id={`${layerPrefix}.description`}
-              style={styles.descriptionSlot}
-            >
-              <Text selectable style={styles.choiceDescription}>
-                {description}
-              </Text>
-            </LayoutSlot>
-            {price ? (
-              <LayoutSlot id={`${layerPrefix}.price`}>
-                <Text selectable style={styles.price}>
-                  {price}
-                </Text>
-              </LayoutSlot>
-            ) : null}
-          </View>
+          <LayoutSlot
+            id={`${layerPrefix}.description`}
+            style={styles.descriptionSlot}
+          >
+            <Text selectable style={styles.choiceDescription}>
+              {description}
+            </Text>
+          </LayoutSlot>
         </View>
         <LayoutSlot id={`${layerPrefix}.radio`}>
           <View
@@ -137,33 +122,20 @@ function BackgroundChoice({
           </View>
         </LayoutSlot>
       </View>
-      <View
-        accessibilityElementsHidden
-        style={[
-          styles.optionPreview,
-          compact && styles.optionPreviewCompact,
-          value === "transparent"
-            ? styles.transparentPreview
-            : styles.whitePreview,
-        ]}
-      >
-        <View style={styles.previewRule} />
-        {asset ? (
-          <DrawingPreview
-            asset={asset}
-            align="baseline"
-            style={styles.optionArt}
-          />
-        ) : null}
-        <View style={styles.previewDateRule} />
-      </View>
+      {asset ? (
+        <DocumentSignaturePreview
+          asset={asset}
+          background={value}
+          compact={compact}
+        />
+      ) : null}
     </Pressable>
   );
 }
 
 export default function BackgroundScreen() {
-  const { height } = useWindowDimensions();
-  const compact = height <= 700;
+  const { height, fontScale } = useWindowDimensions();
+  const compact = height <= 860;
   const { activeSet } = useAppState();
   const { fixture } = useLocalSearchParams<{ fixture?: string }>();
   const purchaseErrorFixture = isAuthorizedScreenshotFixture(
@@ -174,6 +146,12 @@ export default function BackgroundScreen() {
     "both",
     "signature",
     "purchase-error",
+    "purchase-pending",
+    "purchase-interrupted",
+    "purchase-finishing",
+    "purchase-other-set",
+    "product-loading",
+    "product-unavailable",
   ]);
   const [background, setBackground] = useState<Background>("transparent");
   const optionAsset = hasDrawing(activeSet.signature)
@@ -184,7 +162,9 @@ export default function BackgroundScreen() {
     busy,
     clearError,
     displayPrice,
-    error,
+    productStatus,
+    retryProduct,
+    feedback,
     transparentUnavailable,
     unboundPurchase,
   } = useTransparentPurchase({
@@ -193,6 +173,8 @@ export default function BackgroundScreen() {
       : null,
     suppressSuccessRedirect: purchaseFixture,
   });
+  const compactRecovery =
+    Boolean(feedback) && height <= 700 && fontScale <= 1.15;
 
   const continueFlow = () => {
     if (background === "white") router.push("/clear-background" as never);
@@ -201,30 +183,31 @@ export default function BackgroundScreen() {
 
   return (
     <FlowScreen
-      scroll={false}
-      contentStyle={styles.content}
+      scroll={Boolean(feedback)}
+      contentStyle={[styles.content, compactRecovery && styles.recoveryContent]}
       testID="background-screen"
-    >
-      <View style={styles.back}>
+      navigation={
         <FlowBackButton
           onPress={() => router.back()}
           layoutId="background.back.icon"
         />
-      </View>
-      <LayoutSlot id="background.header" style={styles.header}>
-        <ScriptLabel
-          asset="select"
-          style={styles.script}
-          layoutId="background.script"
-        />
-        <FlowHeading style={styles.headingText} layoutId="background.title">
-          Choose a background
-        </FlowHeading>
-      </LayoutSlot>
+      }
+      header={
+        <LayoutSlot id="background.header" style={styles.header}>
+          <FlowHeading style={styles.headingText} layoutId="background.title">
+            Choose a background
+          </FlowHeading>
+        </LayoutSlot>
+      }
+    >
       <View
         accessibilityRole="radiogroup"
         accessibilityLabel="Background format"
-        style={[styles.options, compact && styles.optionsCompact]}
+        style={[
+          styles.options,
+          compact && styles.optionsCompact,
+          compactRecovery && styles.recoveryOptions,
+        ]}
       >
         <LayoutSlot id="background.transparent" style={styles.choiceSlot}>
           <BackgroundChoice
@@ -232,9 +215,10 @@ export default function BackgroundScreen() {
             selected={background === "transparent"}
             title="Transparent Background"
             description="Sits cleanly over lines, dates, and text."
-            price={displayPrice}
             asset={optionAsset}
             compact={compact}
+            recoveryCompact={compactRecovery}
+            disabled={busy}
             layerPrefix="background.transparent"
             onSelect={() => {
               void hapticSelection();
@@ -251,6 +235,8 @@ export default function BackgroundScreen() {
             description="May cover anything behind your signature."
             asset={optionAsset}
             compact={compact}
+            recoveryCompact={compactRecovery}
+            disabled={busy}
             layerPrefix="background.white"
             onSelect={() => {
               void hapticSelection();
@@ -260,51 +246,40 @@ export default function BackgroundScreen() {
           />
         </LayoutSlot>
       </View>
-      {busy ? (
-        <InlineStatus
-          message={
-            unboundPurchase
-              ? "Checking your Apple purchase"
-              : "Opening Apple purchase"
-          }
-          tone="light"
-        />
-      ) : null}
-      {error ? (
-        <LayoutSlot id="background.error">
-          <Text
-            accessibilityRole="alert"
-            maxFontSizeMultiplier={1.12}
-            style={styles.error}
-          >
-            {error}
-          </Text>
-        </LayoutSlot>
-      ) : null}
+      <PurchaseFeedback
+        busy={busy}
+        unboundPurchase={unboundPurchase}
+        feedback={feedback}
+        layoutId="background.error"
+      />
       <LayoutSlot
         id="background.actions"
-        style={[styles.actions, compact && styles.actionsCompact]}
+        style={[
+          styles.actions,
+          compact && styles.actionsCompact,
+          compactRecovery && styles.recoveryActions,
+        ]}
       >
-        <FlowPrimaryButton
-          label={
-            busy
-              ? unboundPurchase
-                ? "Applying Apple Purchase..."
-                : "Opening Apple Purchase..."
-              : background === "transparent"
-                ? unboundPurchase
-                  ? "Apply Apple Purchase to This Set"
-                  : "Purchase Transparent"
-                : "Continue With White Background"
-          }
-          onPress={continueFlow}
-          disabled={
-            busy || (background === "transparent" && transparentUnavailable)
-          }
-          loading={busy}
-          layoutId="background.primary.button"
-          labelLayoutId="background.primary.label"
-        />
+        {background === "transparent" ? (
+          <PurchaseAction
+            displayPrice={displayPrice}
+            productStatus={productStatus}
+            onRetry={() => void retryProduct()}
+            busy={busy}
+            unboundPurchase={unboundPurchase}
+            disabled={busy || transparentUnavailable}
+            onPress={continueFlow}
+            layoutPrefix="background.primary"
+          />
+        ) : (
+          <FlowPrimaryButton
+            label="Continue With White Background"
+            onPress={continueFlow}
+            disabled={busy}
+            layoutId="background.primary.button"
+            labelLayoutId="background.primary.label"
+          />
+        )}
         <FlowTextButton
           label={
             background === "transparent"
@@ -329,26 +304,32 @@ export default function BackgroundScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingTop: 16, paddingBottom: 14 },
+  content: {
+    paddingTop: 16,
+    paddingBottom: 14,
+    justifyContent: "center",
+  },
+  recoveryContent: { paddingTop: 4, paddingBottom: 4 },
   back: { position: "absolute", top: 8, left: 20, zIndex: 3 },
-  header: { marginTop: 32 },
-  script: { marginBottom: 7 },
-  headingText: { fontSize: 27, lineHeight: 32 },
-  options: { flex: 1, gap: 14, marginTop: 14, paddingBottom: 10 },
-  optionsCompact: { gap: 8, marginTop: 8, paddingBottom: 2 },
+  header: {},
+  headingText: { fontSize: 28, lineHeight: 33 },
+  options: { flex: 1, maxHeight: 560, gap: 12, paddingBottom: 6 },
+  optionsCompact: { gap: 10, paddingBottom: 0 },
+  recoveryOptions: { gap: 6 },
   choiceSlot: { flex: 1 },
   choice: {
     flex: 1,
-    minHeight: 124,
+    minHeight: 118,
     borderWidth: 1,
     borderColor: flowColors.outline,
     borderRadius: flowRadii.card,
-    padding: 17,
-    gap: 12,
+    padding: 14,
+    gap: 9,
     backgroundColor: flowColors.card,
     boxShadow: flowShadows.card,
   },
-  choiceCompact: { minHeight: 106, padding: 12, gap: 7 },
+  choiceCompact: { minHeight: 100, padding: 10, gap: 6 },
+  recoveryChoice: { padding: 6, gap: 4 },
   choiceHeader: {
     flexDirection: "row",
     gap: 13,
@@ -361,18 +342,30 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF9E8",
   },
   pressed: { opacity: 0.76 },
+  choiceDisabled: { opacity: 0.78 },
   swatch: {
-    width: 62,
-    height: 62,
-    borderRadius: 11,
+    width: 48,
+    height: 48,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: "#CCD3D6",
     overflow: "hidden",
     flexDirection: "row",
     flexWrap: "wrap",
   },
-  checker: { backgroundColor: "#FFF" },
-  checkerSquare: { width: 15.5, height: 15.5 },
+  recoverySwatch: { width: 44, height: 44 },
+  transparentSwatch: {
+    backgroundColor: "#FFF9E8",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  swatchLabel: {
+    color: flowColors.accessibleLink,
+    fontFamily: "Georgia",
+    fontSize: 24,
+    lineHeight: 29,
+    fontWeight: "700",
+  },
   whiteSwatch: { backgroundColor: "#FFF" },
   choiceCopy: { flex: 1, minWidth: 0 },
   choiceTitleRow: {
@@ -383,8 +376,8 @@ const styles = StyleSheet.create({
   },
   choiceTitle: {
     color: flowColors.cardText,
-    fontSize: 16,
-    lineHeight: 21,
+    fontSize: 17,
+    lineHeight: 22,
     fontWeight: "700",
   },
   tag: {
@@ -397,20 +390,12 @@ const styles = StyleSheet.create({
     fontSize: 10,
     lineHeight: 13,
   },
-  descriptionRow: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    gap: 7,
-    marginTop: 4,
-  },
-  descriptionSlot: { flex: 1 },
+  descriptionSlot: { marginTop: 3 },
   choiceDescription: {
     color: flowColors.cardMuted,
-    fontSize: 14,
-    lineHeight: 19,
-    flex: 1,
+    fontSize: 12,
+    lineHeight: 16,
   },
-  price: { color: flowColors.accessibleLink, fontSize: 14, lineHeight: 19 },
   radio: {
     width: 24,
     height: 24,
@@ -420,71 +405,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  radioSelected: { borderColor: flowColors.cyan },
+  radioSelected: { borderColor: flowColors.ink },
   radioDot: {
     width: 11,
     height: 11,
     borderRadius: 6,
-    backgroundColor: flowColors.cyan,
-  },
-  optionPreview: {
-    flex: 1,
-    minHeight: 74,
-    overflow: "hidden",
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(7,31,90,0.10)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  optionPreviewCompact: { minHeight: 46 },
-  transparentPreview: { backgroundColor: "#E9EEF0" },
-  whitePreview: { backgroundColor: "#FFFFFF" },
-  previewRule: {
-    position: "absolute",
-    left: 18,
-    right: 18,
-    top: "54%",
-    height: 1,
-    backgroundColor: "rgba(7,31,90,0.54)",
-  },
-  previewDateRule: {
-    position: "absolute",
-    left: 18,
-    width: "38%",
-    bottom: 13,
-    height: 1,
-    backgroundColor: "rgba(7,31,90,0.26)",
-  },
-  optionArt: { width: "84%", height: "82%" },
-  error: {
-    color: flowColors.destructive,
-    fontSize: 12,
-    lineHeight: 16,
-    marginTop: 7,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    backgroundColor: "#FFF1F0",
-    textAlign: "left",
-  },
-  retryNote: {
-    color: "#F0F5F2",
-    fontSize: 12,
-    lineHeight: 17,
-    marginTop: 8,
-    textAlign: "center",
+    backgroundColor: flowColors.ink,
   },
   actions: {
     marginTop: 4,
-    padding: 8,
-    paddingBottom: 2,
-    borderRadius: flowRadii.card,
-    borderWidth: 1,
-    borderColor: "rgba(7,31,90,0.08)",
-    backgroundColor: "rgba(255,255,255,0.54)",
-    boxShadow: flowShadows.card,
-    gap: 0,
+    gap: 2,
   },
-  actionsCompact: { marginTop: 2, paddingTop: 4, paddingBottom: 0 },
+  actionsCompact: { marginTop: 2 },
+  recoveryActions: { marginTop: 0 },
 });

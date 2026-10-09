@@ -8,6 +8,7 @@ import {
   FlowScreen,
   FlowTextButton,
   flowColors,
+  flowShadows,
 } from "@/components/flow-ui";
 import { hasDrawing } from "@/domain/models";
 import { useAppState } from "@/state/AppStateProvider";
@@ -18,11 +19,12 @@ export default function MissingSlotScreen() {
   const label = missing === "initials" ? "Initials" : "Signature";
 
   return (
-    <FlowScreen contentStyle={styles.content} testID="missing-slot-screen">
-      <View style={styles.back}>
-        <FlowBackButton onPress={() => router.back()} />
-      </View>
-      <FlowHeading>{label} included</FlowHeading>
+    <FlowScreen
+      contentStyle={styles.content}
+      testID="missing-slot-screen"
+      navigation={<FlowBackButton onPress={() => router.back()} />}
+      header={<FlowHeading>{label} included</FlowHeading>}
+    >
       <FlowBody style={styles.copy}>
         Add {missing === "initials" ? "them" : "it"} now or later. You will not
         pay again to fill this included slot.
@@ -54,13 +56,15 @@ export default function MissingSlotScreen() {
 
 const styles = StyleSheet.create({
   content: { paddingTop: 24 },
-  back: { height: 40, alignSelf: "flex-start" },
-  copy: { marginTop: 6 },
+  copy: { marginTop: 6, color: flowColors.cardMuted },
   card: {
     marginTop: 22,
     borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(216,182,106,0.58)",
     backgroundColor: flowColors.card,
     padding: 18,
+    boxShadow: flowShadows.card,
   },
   cardTitle: {
     color: flowColors.cardText,
@@ -74,5 +78,5 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginTop: 5,
   },
-  actions: { marginTop: "auto", paddingTop: 22 },
+  actions: { marginTop: 20, gap: 4 },
 });

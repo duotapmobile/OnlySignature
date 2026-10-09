@@ -1,23 +1,20 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { router } from "expo-router";
 import { DrawingPreview } from "@/components/DrawingPreview";
 import { LayoutSlot } from "@/components/layout-slot";
 import {
   FlowBackButton,
-  FlowBody,
   FlowHeading,
   FlowPrimaryButton,
   FlowScreen,
   PreviewCard,
-  ScriptLabel,
   flowColors,
-  flowRadii,
-  flowShadows,
 } from "@/components/flow-ui";
 import { hasDrawing } from "@/domain/models";
 import { useAppState } from "@/state/AppStateProvider";
 
 export default function ReviewScreen() {
+  const { fontScale } = useWindowDimensions();
   const { activeSet, setSelectedAsset } = useAppState();
   const signatureExists = hasDrawing(activeSet.signature);
   const initialsExists = hasDrawing(activeSet.initials);
@@ -32,8 +29,7 @@ export default function ReviewScreen() {
       scroll={false}
       contentStyle={styles.content}
       testID="review-screen"
-    >
-      <View style={styles.back}>
+      navigation={
         <FlowBackButton
           layoutId="review.back.icon"
           onPress={() => {
@@ -41,20 +37,26 @@ export default function ReviewScreen() {
             router.back();
           }}
         />
-      </View>
-      <LayoutSlot id="review.header" style={styles.header}>
-        <ScriptLabel
-          asset="review"
-          style={styles.script}
-          layoutId="review.script"
-        />
-        <FlowHeading style={styles.headingText} layoutId="review.title">
-          Review your signing set
-        </FlowHeading>
-        <FlowBody style={styles.copy} layoutId="review.subtitle">
-          Check both before choosing a background.
-        </FlowBody>
-      </LayoutSlot>
+      }
+      header={
+        <LayoutSlot id="review.header" style={styles.header}>
+          <FlowHeading style={styles.headingText} layoutId="review.title">
+            Review your signing set
+          </FlowHeading>
+          <LayoutSlot id="review.subtitle">
+            <Text
+              selectable
+              numberOfLines={fontScale > 1.15 ? undefined : 1}
+              adjustsFontSizeToFit={fontScale <= 1.15}
+              minimumFontScale={0.86}
+              style={styles.copy}
+            >
+              Check both before choosing a background.
+            </Text>
+          </LayoutSlot>
+        </LayoutSlot>
+      }
+    >
       <View style={styles.previews}>
         <LayoutSlot id="review.signature" style={styles.previewSlot}>
           <PreviewCard
@@ -74,6 +76,7 @@ export default function ReviewScreen() {
                 <DrawingPreview
                   asset={activeSet.signature}
                   align="baseline"
+                  baselineRatio={0.72}
                   style={styles.signature}
                 />
               </View>
@@ -118,19 +121,22 @@ export default function ReviewScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingTop: 16, paddingBottom: 14 },
+  content: {
+    paddingTop: 14,
+    paddingBottom: 14,
+    justifyContent: "center",
+  },
   back: { position: "absolute", top: 8, left: 20, zIndex: 3 },
-  header: { marginTop: 28 },
-  script: { marginBottom: 7 },
+  header: { gap: 3 },
   headingText: { fontSize: 27, lineHeight: 32 },
   copy: {
-    fontSize: 15,
-    lineHeight: 21,
+    fontSize: 14,
+    lineHeight: 19,
     color: "#E9E6DC",
-    marginTop: 5,
-    marginBottom: 12,
+    marginTop: 3,
+    marginBottom: 8,
   },
-  previews: { flex: 1, gap: 14, paddingTop: 4 },
+  previews: { flex: 1, maxHeight: 540, gap: 12, paddingTop: 2 },
   previewSlot: { flex: 1 },
   signatureStage: {
     width: "94%",
@@ -143,7 +149,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 8,
     right: 8,
-    bottom: 9,
+    top: "72%",
     height: 1,
     backgroundColor: flowColors.outline,
   },
@@ -151,17 +157,10 @@ const styles = StyleSheet.create({
     width: "96%",
     height: "100%",
     alignSelf: "center",
-    marginBottom: 9,
   },
-  initials: { width: "70%", height: "100%" },
+  initials: { width: "58%", height: "80%", maxHeight: 120 },
   missing: { color: flowColors.cardMuted, fontSize: 14, lineHeight: 20 },
   continue: {
-    marginTop: 14,
-    padding: 8,
-    borderRadius: flowRadii.card,
-    borderWidth: 1,
-    borderColor: "rgba(7,31,90,0.08)",
-    backgroundColor: "rgba(255,255,255,0.54)",
-    boxShadow: flowShadows.card,
+    marginTop: 10,
   },
 });

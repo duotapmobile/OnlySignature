@@ -1,10 +1,16 @@
 import { useEffect } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { LayoutSlot } from "@/components/layout-slot";
 import * as StoreReview from "expo-store-review";
 
-import { DrawingPreview } from "@/components/DrawingPreview";
+import { FocusPressable as Pressable } from "@/components/FocusPressable";
 import {
   FlowPrimaryButton,
   FlowScreen,
@@ -13,12 +19,13 @@ import {
 import { isAuthorizedScreenshotFixture } from "@/config/screenshotFixtures";
 import { screenshotFixtureSetsFor } from "@/domain/fixtures";
 import { hasDrawing, type SignatureSet } from "@/domain/models";
+import { savedSetCreationLabel } from "@/domain/saved-set-presentation";
 import { useAppState } from "@/state/AppStateProvider";
 import { InlineStatus } from "@/components/feedback-ui";
 
 function GearIcon() {
   return (
-    <Text accessibilityElementsHidden style={styles.settingsIcon}>
+    <Text accessibilityElementsHidden aria-hidden style={styles.settingsIcon}>
       ⚙︎
     </Text>
   );
@@ -37,11 +44,12 @@ function MiniButton({
   labelLayoutId?: string;
   wide?: boolean;
 }) {
+  const { fontScale } = useWindowDimensions();
   const labelNode = (
     <Text
-      adjustsFontSizeToFit
-      minimumFontScale={0.78}
-      numberOfLines={1}
+      adjustsFontSizeToFit={fontScale <= 1.15}
+      minimumFontScale={0.85}
+      numberOfLines={fontScale > 1.15 ? undefined : 1}
       style={styles.miniButtonText}
     >
       {label}
@@ -74,6 +82,7 @@ function SigningSetCard({
   item: SignatureSet;
   layerPrefix: string;
 }) {
+  const { fontScale } = useWindowDimensions();
   const { selectSet, setSelectedAsset } = useAppState();
   const signatureExists = hasDrawing(item.signature);
   const initialsExists = hasDrawing(item.initials);
@@ -86,37 +95,27 @@ function SigningSetCard({
     signatureExists &&
     initialsExists;
   const title = item.label.trim() || "Signing Set";
+  const creationLabel = savedSetCreationLabel(item);
   const select = () => selectSet(item.id);
 
   return (
     <LayoutSlot id={`${layerPrefix}.group`} style={styles.card}>
-      <View style={styles.cardTop}>
-        <LayoutSlot
-          id={`${layerPrefix}.signature`}
-          style={styles.signatureSlot}
-        >
-          {signatureExists && item.signature ? (
-            <DrawingPreview
-              asset={item.signature}
-              align="baseline"
-              style={styles.signature}
-            />
-          ) : (
-            <Text style={styles.empty}>Not added</Text>
-          )}
+      <View style={styles.cardHeading}>
+        <LayoutSlot id={`${layerPrefix}.title`}>
+          <Text selectable style={styles.setTitle}>
+            {title}
+          </Text>
         </LayoutSlot>
-        <LayoutSlot id={`${layerPrefix}.initials`} style={styles.initialsSlot}>
-          {initialsExists && item.initials ? (
-            <DrawingPreview asset={item.initials} style={styles.initials} />
-          ) : (
-            <Text style={styles.empty}>Not added</Text>
-          )}
+        <LayoutSlot id={`${layerPrefix}.date`}>
+          <Text selectable style={styles.creationDate}>
+            {creationLabel}
+          </Text>
         </LayoutSlot>
       </View>
-      <View style={styles.cardMeta}>
+      <View style={[styles.cardMeta, fontScale > 1.15 && styles.largeMeta]}>
         <View
           accessible
-          accessibilityLabel={`${title}. ${purchaseLocked ? "Apple purchase finishing" : transparent ? "Transparent Unlocked" : "White Background"}${initialsExists ? "" : ". Initials not added"}`}
+          accessibilityLabel={`${purchaseLocked ? "Apple purchase finishing" : transparent ? "Transparent Unlocked" : "White Background"}${initialsExists ? "" : ". Initials not added"}`}
           style={styles.metaCopy}
         >
           <LayoutSlot id={`${layerPrefix}.status`}>
@@ -126,14 +125,14 @@ function SigningSetCard({
                 tone="light"
               />
             ) : (
-              <Text selectable numberOfLines={1} style={styles.setStatus}>
+              <Text selectable style={styles.setStatus}>
                 {transparent ? "Transparent Unlocked" : "White Background"}
               </Text>
             )}
           </LayoutSlot>
           {!initialsExists ? (
             <LayoutSlot id={`${layerPrefix}.missing-initials`}>
-              <Text selectable numberOfLines={1} style={styles.missingStatus}>
+              <Text selectable style={styles.missingStatus}>
                 Initials not added
               </Text>
             </LayoutSlot>
@@ -172,7 +171,7 @@ function SigningSetCard({
         <View style={styles.unlockRow}>
           <MiniButton
             wide
-            label="Purchase Transparent"
+            label="Purchase Transparent Signature"
             layoutId={`${layerPrefix}.unlock.button`}
             labelLayoutId={`${layerPrefix}.unlock.label`}
             onPress={() => {
@@ -216,30 +215,6 @@ export default function SavedSetsScreen() {
 
   const listHeader = (
     <>
-      <LayoutSlot id="saved.header" style={styles.header}>
-        <LayoutSlot id="saved.title" style={styles.titleSlot}>
-          <Text
-            accessibilityRole="header"
-            selectable
-            adjustsFontSizeToFit
-            minimumFontScale={0.72}
-            numberOfLines={1}
-            style={styles.headingText}
-          >
-            My Signing Sets
-          </Text>
-        </LayoutSlot>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Open settings"
-          onPress={() => router.push("/settings")}
-          style={({ pressed }) => [styles.settings, pressed && styles.pressed]}
-        >
-          <LayoutSlot id="saved.settings.icon">
-            <GearIcon />
-          </LayoutSlot>
-        </Pressable>
-      </LayoutSlot>
       <LayoutSlot id="saved.actions" style={styles.create}>
         <FlowPrimaryButton
           label="Create New Signing Set"
@@ -258,12 +233,40 @@ export default function SavedSetsScreen() {
   return (
     <FlowScreen
       scroll={false}
+      scrollContainer="child"
       contentStyle={styles.content}
       testID="saved-sets-screen"
+      navigation={
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Open settings"
+          focusTone="navy"
+          onPress={() => router.push("/settings")}
+          style={({ pressed }) => [styles.settings, pressed && styles.pressed]}
+        >
+          <LayoutSlot id="saved.settings.icon">
+            <GearIcon />
+          </LayoutSlot>
+        </Pressable>
+      }
+      header={
+        <LayoutSlot id="saved.header">
+          <LayoutSlot id="saved.title" style={styles.titleSlot}>
+            <Text
+              accessibilityRole="header"
+              selectable
+              style={styles.headingText}
+            >
+              My Signing Sets
+            </Text>
+          </LayoutSlot>
+        </LayoutSlot>
+      }
     >
       <LayoutSlot id="saved.list" style={styles.list}>
         <FlatList
           data={visible}
+          contentInsetAdjustmentBehavior="automatic"
           keyExtractor={(item) => item.id}
           renderItem={({ item, index }) => (
             <SigningSetCard
@@ -300,20 +303,12 @@ const styles = StyleSheet.create({
   headingText: {
     color: flowColors.white,
     fontFamily: "Georgia",
-    fontSize: 34,
-    lineHeight: 40,
+    fontSize: 30,
+    lineHeight: 35,
     fontWeight: "700",
     letterSpacing: -1.1,
   },
-  content: { paddingTop: 18, paddingBottom: 8 },
-  header: {
-    minHeight: 52,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 16,
-  },
+  content: { paddingTop: 14, paddingBottom: 8 },
   settings: {
     width: 44,
     height: 44,
@@ -326,34 +321,31 @@ const styles = StyleSheet.create({
   listContent: { paddingBottom: 20 },
   separator: { height: 14 },
   card: {
-    minHeight: 146,
     borderRadius: 18,
     backgroundColor: flowColors.card,
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.62)",
     paddingHorizontal: 14,
-    paddingTop: 12,
-    paddingBottom: 10,
+    paddingTop: 16,
+    paddingBottom: 14,
     overflow: "hidden",
-    boxShadow: "0 8px 20px rgba(7,31,90,0.14)",
+    boxShadow: "0 6px 16px rgba(7,31,90,0.11)",
   },
-  cardTop: { height: 78, flexDirection: "row", alignItems: "center" },
-  signatureSlot: { flex: 1, height: 70 },
-  initialsSlot: {
-    width: 94,
-    height: 70,
-    alignItems: "center",
-    justifyContent: "center",
+  cardHeading: { gap: 4, marginBottom: 8 },
+  setTitle: {
+    color: flowColors.cardText,
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: "800",
   },
-  signature: { width: "100%", height: 70 },
-  initials: { width: 84, height: 66 },
-  empty: { color: flowColors.cardText, fontSize: 22, textAlign: "center" },
+  creationDate: { color: flowColors.cardMuted, fontSize: 14, lineHeight: 20 },
   cardMeta: {
     minHeight: 44,
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
+  largeMeta: { flexDirection: "column", alignItems: "stretch" },
   metaCopy: { flex: 1, minWidth: 0 },
   setStatus: {
     color: flowColors.accessibleLink,
@@ -371,8 +363,9 @@ const styles = StyleSheet.create({
   unlockRow: { marginTop: 8 },
   miniButton: {
     minWidth: 82,
-    height: 44,
+    minHeight: 44,
     paddingHorizontal: 12,
+    paddingVertical: 10,
     borderWidth: 1,
     borderColor: flowColors.cyan,
     borderRadius: 22,
@@ -380,12 +373,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  wideMiniButton: { width: "100%" },
+  wideMiniButton: { maxWidth: "100%", alignSelf: "center" },
   miniButtonText: {
     color: flowColors.accessibleLink,
-    fontSize: 14,
-    lineHeight: 18,
+    fontSize: 15,
+    lineHeight: 20,
     fontWeight: "700",
+    textAlign: "center",
   },
   pressed: { opacity: 0.72 },
   emptyCard: {
@@ -408,5 +402,5 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginTop: 5,
   },
-  create: { marginBottom: 16 },
+  create: { marginBottom: 12 },
 });

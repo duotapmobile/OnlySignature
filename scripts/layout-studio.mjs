@@ -12,6 +12,10 @@ const repoRoot = path.resolve(path.dirname(scriptPath), "..");
 const mobileRoot = path.join(repoRoot, "apps", "mobile");
 const distRoot = path.join(mobileRoot, "dist-layout-studio");
 const studioRoot = path.join(repoRoot, "tools", "layout-studio");
+const reviewAssetRoot = path.join(repoRoot, "artifacts", "actual-flow-preview");
+const reviewManifestPath = path.join(reviewAssetRoot, "manifest.json");
+const reviewFeedbackPath = path.join(reviewAssetRoot, "review-feedback.json");
+const reviewMarkdownPath = path.join(reviewAssetRoot, "SCREEN-FEEDBACK.md");
 const splashWordmarkPath = path.join(
   mobileRoot,
   "assets",
@@ -31,6 +35,8 @@ const valuesTsPath = path.join(
   "layout-studio-values.ts",
 );
 const port = Number(process.env.ONLY_SIGNATURE_LAYOUT_STUDIO_PORT ?? 4176);
+const reviewDevices = new Set(["iphone-small", "iphone", "ipad"]);
+const reviewStatuses = new Set(["unreviewed", "needs-changes", "approved"]);
 
 const slots = new Set([
   "splash.wordmark",
@@ -45,7 +51,6 @@ const slots = new Set([
   "signature-first.header",
   "signature-first.canvas",
   "signature-first.redo",
-  "signature-first.full-option",
   "signature-first.actions",
   "signature-last.header",
   "signature-last.canvas",
@@ -71,15 +76,13 @@ const slots = new Set([
   "warning.actions",
   "white-confirmation.message",
   "white-confirmation.actions",
-  "transparent-confirmation.message",
-  "transparent-confirmation.actions",
   "saved.header",
   "saved.list",
   "saved.actions",
 ]);
 
 const editableSlotPattern =
-  /^(splash|entry|signature|signature-first|signature-last|initials|review|background|clear|warning|white-confirmation|transparent-confirmation|saved)\.[a-z0-9.-]+$/;
+  /^(splash|entry|signature|signature-first|signature-last|initials|review|background|clear|warning|white-confirmation|saved)\.[a-z0-9.-]+$/;
 
 const screens = [
   {
@@ -128,11 +131,6 @@ const screens = [
     id: "white-confirmation",
     label: "White Confirmation",
     route: "/success?fixture=both&mode=white",
-  },
-  {
-    id: "transparent-confirmation",
-    label: "Transparent Confirmation",
-    route: "/success?fixture=purchased&mode=transparent",
   },
   {
     id: "saved",
@@ -249,6 +247,9 @@ async function buildApp() {
         "export",
         "--platform",
         "web",
+        // Expo Constants can retain another mode's embedded configuration.
+        // Clear only the local bundler cache when generating this QA preview.
+        "--clear",
         "--output-dir",
         "dist-layout-studio",
       ],
@@ -290,6 +291,212 @@ function json(response, statusCode, value) {
   response.setHeader("Content-Type", "application/json; charset=utf-8");
   response.setHeader("Cache-Control", "no-store");
   response.end(JSON.stringify(value));
+}
+
+async function loadReviewManifest() {
+  const manifest = JSON.parse(await readFile(reviewManifestPath, "utf8"));
+  const outputs = manifest?.outputs ?? {};
+  const devices = [...reviewDevices]
+    .filter((device) => outputs[device])
+    .map((device) => ({
+      id: device,
+      label:
+        device === "iphone-small"
+          ? "Small iPhone"
+          : device === "iphone"
+            ? "Large iPhone"
+            : "iPad",
+      width: Number(outputs[device].width),
+      height: Number(outputs[device].height),
+    }));
+  const reviewScreens = Array.isArray(manifest?.screenshots)
+    ? manifest.screenshots.map((screen, index) => ({
+        id: String(screen.id),
+        index: index + 1,
+        title: String(screen.headline ?? screen.id),
+        route: String(screen.route ?? ""),
+        assertions: Array.isArray(screen.assertions)
+          ? screen.assertions.map(String)
+          : [],
+        images: Object.fromEntries(
+          devices.map((device) => [
+            device.id,
+            `/review-assets/${encodeURIComponent(device.id)}/${encodeURIComponent(screen.id)}.png`,
+          ]),
+        ),
+      }))
+    : [];
+  return {
+    capturedOn: String(manifest?.capturedOn ?? ""),
+    classification: String(manifest?.classification ?? ""),
+    devices,
+    screens: reviewScreens,
+  };
+}
+
+function cleanText(value, maximum = 10_000) {
+  return typeof value === "string" ? value.slice(0, maximum) : "";
+}
+
+function cleanPoint(raw) {
+  return {
+    x: boundedNumber(raw?.x, 0, 1, 0),
+    y: boundedNumber(raw?.y, 0, 1, 0),
+  };
+}
+
+function validateReviewFeedback(value, manifest) {
+  const validScreenIds = new Set(manifest.screens.map((screen) => screen.id));
+  // Keep founder feedback on the retired confirmation route when saving a
+  // refreshed fifteen-screen review. Its removal must not delete the note.
+  validScreenIds.add("10-transparent-confirmation-popup");
+  const result = {
+    version: 1,
+    updatedAt: new Date().toISOString(),
+    submittedAt:
+      typeof value?.submittedAt === "string" &&
+      !Number.isNaN(Date.parse(value.submittedAt))
+        ? new Date(value.submittedAt).toISOString()
+        : null,
+    screens: {},
+  };
+  const rawScreens = value?.screens;
+  if (
+    !rawScreens ||
+    typeof rawScreens !== "object" ||
+    Array.isArray(rawScreens)
+  )
+    return result;
+  for (const [screenId, rawScreen] of Object.entries(rawScreens)) {
+    if (
+      !validScreenIds.has(screenId) ||
+      !rawScreen ||
+      typeof rawScreen !== "object"
+    )
+      continue;
+    const cleanScreen = {
+      status: reviewStatuses.has(rawScreen.status)
+        ? rawScreen.status
+        : "unreviewed",
+      note: cleanText(rawScreen.note),
+      devices: {},
+    };
+    for (const device of reviewDevices) {
+      const rawAnnotations = rawScreen.devices?.[device]?.annotations;
+      if (!Array.isArray(rawAnnotations)) continue;
+      const annotations = [];
+      for (const raw of rawAnnotations.slice(0, 250)) {
+        if (!raw || typeof raw !== "object") continue;
+        const type = ["pin", "box", "stroke"].includes(raw.type)
+          ? raw.type
+          : null;
+        if (!type) continue;
+        const annotation = {
+          id: cleanText(raw.id, 120) || crypto.randomUUID(),
+          type,
+          text: cleanText(raw.text, 2_000),
+          color: /^#[0-9a-f]{6}$/i.test(raw.color) ? raw.color : "#ff3b30",
+        };
+        if (type === "stroke") {
+          annotation.points = Array.isArray(raw.points)
+            ? raw.points.slice(0, 2_000).map(cleanPoint)
+            : [];
+          annotation.width = boundedNumber(raw.width, 1, 18, 4);
+          if (annotation.points.length < 2) continue;
+        } else {
+          Object.assign(annotation, cleanPoint(raw));
+          if (type === "box") {
+            annotation.width = boundedNumber(raw.width, 0.002, 1, 0.1);
+            annotation.height = boundedNumber(raw.height, 0.002, 1, 0.1);
+          }
+        }
+        annotations.push(annotation);
+      }
+      cleanScreen.devices[device] = { annotations };
+    }
+    result.screens[screenId] = cleanScreen;
+  }
+  return result;
+}
+
+async function loadReviewFeedback(manifest) {
+  try {
+    return validateReviewFeedback(
+      JSON.parse(await readFile(reviewFeedbackPath, "utf8")),
+      manifest,
+    );
+  } catch {
+    return validateReviewFeedback({}, manifest);
+  }
+}
+
+function reviewMarkdown(feedback, manifest) {
+  const statusLabel = {
+    unreviewed: "Not reviewed",
+    "needs-changes": "Needs changes",
+    approved: "Approved",
+  };
+  const lines = [
+    "# Only Signature Screen Feedback",
+    "",
+    `Updated: ${feedback.updatedAt}`,
+    `Submitted: ${feedback.submittedAt ?? "Not submitted"}`,
+    `Screenshot source: ${manifest.capturedOn || "current local capture"}`,
+    "",
+  ];
+  const renderedScreens = [...manifest.screens];
+  if (feedback.screens["10-transparent-confirmation-popup"])
+    renderedScreens.push({
+      id: "10-transparent-confirmation-popup",
+      index: "Archived",
+      title: "Transparent confirmation (removed from the current flow)",
+    });
+  for (const screen of renderedScreens) {
+    const saved = feedback.screens[screen.id] ?? {
+      status: "unreviewed",
+      note: "",
+      devices: {},
+    };
+    const annotations = [...reviewDevices].flatMap((device) =>
+      (saved.devices?.[device]?.annotations ?? [])
+        .filter((annotation) => annotation.text.trim())
+        .map((annotation) => ({ device, annotation })),
+    );
+    lines.push(`## ${screen.index}. ${screen.title}`);
+    lines.push("");
+    lines.push(`Status: ${statusLabel[saved.status] ?? "Not reviewed"}`);
+    lines.push("");
+    if (saved.note.trim()) {
+      lines.push(saved.note.trim());
+      lines.push("");
+    }
+    if (annotations.length) {
+      lines.push("### Markup notes");
+      lines.push("");
+      annotations.forEach(({ device, annotation }, index) => {
+        const deviceLabel =
+          manifest.devices.find((item) => item.id === device)?.label ?? device;
+        lines.push(`${index + 1}. [${deviceLabel}] ${annotation.text.trim()}`);
+      });
+      lines.push("");
+    }
+  }
+  return `${lines.join("\n").trim()}\n`;
+}
+
+async function saveReviewFeedback(value) {
+  const manifest = await loadReviewManifest();
+  const feedback = validateReviewFeedback(value, manifest);
+  await mkdir(reviewAssetRoot, { recursive: true });
+  await Promise.all([
+    writeFile(
+      reviewFeedbackPath,
+      `${JSON.stringify(feedback, null, 2)}\n`,
+      "utf8",
+    ),
+    writeFile(reviewMarkdownPath, reviewMarkdown(feedback, manifest), "utf8"),
+  ]);
+  return { feedback, manifest };
 }
 
 async function resolveStatic(root, urlPath) {
@@ -338,6 +545,47 @@ createServer(async (request, response) => {
       json(response, 200, { ok: true, built: true, profiles });
       return;
     }
+    if (urlPath === "/api/review/meta" && request.method === "GET") {
+      json(response, 200, await loadReviewManifest());
+      return;
+    }
+    if (urlPath === "/api/review" && request.method === "GET") {
+      const manifest = await loadReviewManifest();
+      json(response, 200, await loadReviewFeedback(manifest));
+      return;
+    }
+    if (urlPath === "/api/review" && request.method === "POST") {
+      const result = await saveReviewFeedback(
+        JSON.parse(await readBody(request)),
+      );
+      json(response, 200, {
+        ok: true,
+        feedback: result.feedback,
+        markdownPath: "artifacts/actual-flow-preview/SCREEN-FEEDBACK.md",
+      });
+      return;
+    }
+    if (urlPath === "/api/review/export" && request.method === "GET") {
+      const manifest = await loadReviewManifest();
+      const feedback = await loadReviewFeedback(manifest);
+      const format = url.searchParams.get("format") === "json" ? "json" : "md";
+      if (format === "json") {
+        response.setHeader("Content-Type", "application/json; charset=utf-8");
+        response.setHeader(
+          "Content-Disposition",
+          'attachment; filename="only-signature-screen-feedback.json"',
+        );
+        response.end(`${JSON.stringify(feedback, null, 2)}\n`);
+      } else {
+        response.setHeader("Content-Type", "text/markdown; charset=utf-8");
+        response.setHeader(
+          "Content-Disposition",
+          'attachment; filename="only-signature-screen-feedback.md"',
+        );
+        response.end(reviewMarkdown(feedback, manifest));
+      }
+      return;
+    }
     if (urlPath === "/api/rebuild" && request.method === "POST") {
       await buildApp();
       json(response, 200, { ok: true });
@@ -347,6 +595,17 @@ createServer(async (request, response) => {
       response.setHeader("Content-Type", "image/png");
       response.setHeader("Cache-Control", "no-store");
       createReadStream(splashWordmarkPath).pipe(response);
+      return;
+    }
+    if (urlPath.startsWith("/review-assets/")) {
+      const reviewPath = urlPath.slice("/review-assets".length);
+      const candidate = await resolveStatic(reviewAssetRoot, reviewPath);
+      response.setHeader(
+        "Content-Type",
+        contentTypes.get(path.extname(candidate)) ?? "application/octet-stream",
+      );
+      response.setHeader("Cache-Control", "no-store");
+      createReadStream(candidate).pipe(response);
       return;
     }
     const studioRequest = urlPath.startsWith("/studio/");

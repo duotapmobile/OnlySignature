@@ -1,13 +1,13 @@
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import Svg, { Path } from "react-native-svg";
-import { DrawingPreview } from "@/components/DrawingPreview";
+import { DocumentSignaturePreview } from "@/components/document-signature-preview";
 import { LayoutSlot } from "@/components/layout-slot";
+import { PurchaseAction } from "@/components/purchase-action";
+import { PurchaseFeedback } from "@/components/purchase-feedback";
 import {
   FlowBackButton,
-  FlowBody,
   FlowHeading,
-  FlowPrimaryButton,
   FlowScreen,
   FlowTextButton,
   flowColors,
@@ -68,68 +68,30 @@ function ComparisonCard({
         </LayoutSlot>
       </View>
       <View style={styles.document}>
-        <LayoutSlot
-          id={prefix + ".signature-label"}
-          style={styles.signatureLabel}
-        >
-          <Text selectable style={styles.documentLabel}>
-            Signature:
-          </Text>
-        </LayoutSlot>
-        <LayoutSlot
-          id={prefix + ".signature-line"}
-          style={styles.signatureRule}
-        >
-          <View style={styles.rule} />
-        </LayoutSlot>
-        {!positive ? (
-          <LayoutSlot
-            id="clear.bad.white-box"
-            accessibilityLabel="White signature background covering part of the document date"
-            style={styles.whiteBox}
-          />
-        ) : null}
-        <LayoutSlot id={prefix + ".signature-art"} style={styles.artLayer}>
-          <DrawingPreview
-            asset={asset}
-            accessibilityLabel={
-              positive
-                ? "Transparent signature sitting naturally on a document line"
-                : "Signature with a white rectangle covering the document"
-            }
-            style={styles.art}
-            align="baseline"
-          />
-        </LayoutSlot>
-        <LayoutSlot id={prefix + ".date-label"} style={styles.dateLabel}>
-          <Text selectable style={styles.documentLabel}>
-            Date:
-          </Text>
-        </LayoutSlot>
-        <LayoutSlot id={prefix + ".date-line"} style={styles.dateRule}>
-          <View style={styles.rule} />
-        </LayoutSlot>
-        <LayoutSlot
-          id={prefix + ".date-value"}
-          style={[styles.dateValue, !positive && styles.obstructedDate]}
-        >
-          <Text selectable style={styles.dateText}>
-            08-20-26
-          </Text>
-        </LayoutSlot>
+        <DocumentSignaturePreview
+          asset={asset}
+          background={positive ? "transparent" : "white"}
+          compact={!tablet}
+        />
       </View>
     </LayoutSlot>
   );
 }
 
 export default function ClearBackgroundScreen() {
-  const { width } = useWindowDimensions();
+  const { width, fontScale } = useWindowDimensions();
   const tablet = width >= 768;
   const { activeSet } = useAppState();
   const { fixture } = useLocalSearchParams<{ fixture?: string }>();
   const screenshotFixture = isAuthorizedScreenshotFixture(fixture, [
     "both",
     "signature",
+    "purchase-pending",
+    "purchase-interrupted",
+    "purchase-finishing",
+    "purchase-other-set",
+    "product-loading",
+    "product-unavailable",
   ]);
   const purchase = useTransparentPurchase({
     suppressSuccessRedirect: screenshotFixture,
@@ -142,51 +104,49 @@ export default function ClearBackgroundScreen() {
 
   return (
     <FlowScreen
-      scroll={false}
+      scroll={Boolean(purchase.feedback)}
       contentStyle={[styles.content, tablet && styles.tabletContent]}
       testID="clear-background-screen"
+      navigation={<FlowBackButton onPress={() => router.back()} />}
+      header={
+        <LayoutSlot id="clear.header" style={styles.header}>
+          <FlowHeading style={styles.title} layoutId="clear.title">
+            See the difference
+          </FlowHeading>
+          <LayoutSlot id="clear.subtitle">
+            <Text
+              selectable
+              numberOfLines={fontScale > 1.15 ? undefined : 1}
+              adjustsFontSizeToFit={fontScale <= 1.15}
+              minimumFontScale={0.86}
+              style={styles.subtitle}
+            >
+              A transparent signature sits naturally on any document.
+            </Text>
+          </LayoutSlot>
+        </LayoutSlot>
+      }
     >
-      <View style={styles.back}>
-        <FlowBackButton onPress={() => router.back()} />
-      </View>
-      <LayoutSlot id="clear.header" style={styles.header}>
-        <FlowHeading style={styles.title} layoutId="clear.title">
-          See the difference
-        </FlowHeading>
-        <FlowBody style={styles.subtitle} layoutId="clear.subtitle">
-          A transparent signature sits naturally on any document.
-        </FlowBody>
-      </LayoutSlot>
       <LayoutSlot id="clear.comparison" style={styles.comparison}>
         <ComparisonCard asset={asset} positive tablet={tablet} />
         <ComparisonCard asset={asset} positive={false} tablet={tablet} />
       </LayoutSlot>
-      {purchase.error ? (
-        <LayoutSlot id="clear.error">
-          <Text
-            accessibilityRole="alert"
-            selectable
-            maxFontSizeMultiplier={1.12}
-            style={styles.error}
-          >
-            {purchase.error}
-          </Text>
-        </LayoutSlot>
-      ) : null}
+      <PurchaseFeedback
+        busy={purchase.busy}
+        unboundPurchase={purchase.unboundPurchase}
+        feedback={purchase.feedback}
+        layoutId="clear.error"
+      />
       <LayoutSlot id="clear.actions" style={styles.actions}>
-        <FlowPrimaryButton
-          label={
-            purchase.busy
-              ? purchase.unboundPurchase
-                ? "Applying Apple Purchase..."
-                : "Opening Apple Purchase..."
-              : "Purchase Transparent"
-          }
+        <PurchaseAction
+          displayPrice={purchase.displayPrice}
+          productStatus={purchase.productStatus}
+          onRetry={() => void purchase.retryProduct()}
+          busy={purchase.busy}
+          unboundPurchase={purchase.unboundPurchase}
           onPress={() => void purchase.beginPurchase()}
           disabled={purchase.busy || purchase.transparentUnavailable}
-          loading={purchase.busy}
-          layoutId="clear.primary.button"
-          labelLayoutId="clear.primary.label"
+          layoutPrefix="clear.primary"
         />
         <FlowTextButton
           label="No Thanks"
@@ -201,10 +161,14 @@ export default function ClearBackgroundScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingTop: 16, paddingBottom: 14 },
+  content: {
+    paddingTop: 16,
+    paddingBottom: 14,
+    justifyContent: "center",
+  },
   tabletContent: { maxWidth: 780, paddingHorizontal: 38 },
   back: { position: "absolute", top: 8, left: 20, zIndex: 3 },
-  header: { alignItems: "center", marginTop: 34 },
+  header: { alignItems: "center" },
   title: {
     color: flowColors.white,
     fontSize: 27,
@@ -213,16 +177,17 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: flowColors.bodyText,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 18,
     textAlign: "center",
     marginTop: 5,
   },
   comparison: {
     flex: 1,
+    maxHeight: 540,
     flexDirection: "column",
     gap: 12,
-    marginTop: 14,
+    marginTop: 0,
   },
   card: {
     width: "100%",
@@ -245,7 +210,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  goodIcon: { backgroundColor: "#2DB65B" },
+  goodIcon: { backgroundColor: "#1F8840" },
   badIcon: { backgroundColor: "#F04438" },
   statusText: {
     flexShrink: 1,
@@ -253,67 +218,11 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     fontWeight: "800",
   },
-  good: { color: "#259F4D" },
+  good: { color: "#1D7B3B" },
   bad: { color: "#D9382F" },
   document: { flex: 1, marginTop: 8, position: "relative" },
-  documentLabel: {
-    color: "#1C2023",
-    fontFamily: "Georgia",
-    fontSize: 13,
-    lineHeight: 17,
-  },
-  signatureLabel: { position: "absolute", left: 0, top: "24%" },
-  signatureRule: { position: "absolute", left: 70, right: 1, top: "52%" },
-  dateLabel: { position: "absolute", left: 0, top: "66%" },
-  dateRule: { position: "absolute", left: 38, right: 1, top: "84%" },
-  rule: { height: 1.2, backgroundColor: "#252A2D" },
-  artLayer: {
-    position: "absolute",
-    left: 66,
-    right: 12,
-    top: "12%",
-    height: "38%",
-    zIndex: 3,
-  },
-  whiteBox: {
-    position: "absolute",
-    left: 62,
-    right: 8,
-    top: "18%",
-    height: "42%",
-    zIndex: 2,
-    backgroundColor: "#FFFFFF",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-  },
-  art: { width: "100%", height: "100%" },
-  dateValue: { position: "absolute", left: 43, top: "63%", zIndex: 3 },
-  obstructedDate: { zIndex: 1 },
-  dateText: {
-    color: "#1C2023",
-    fontFamily: "Georgia",
-    fontSize: 13,
-    lineHeight: 17,
-  },
-  error: {
-    color: flowColors.destructive,
-    fontSize: 12,
-    lineHeight: 16,
-    textAlign: "left",
-    marginTop: 7,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    backgroundColor: "#FFF1F0",
-  },
   actions: {
-    marginTop: 12,
-    padding: 8,
-    paddingBottom: 2,
-    borderRadius: flowRadii.card,
-    borderWidth: 1,
-    borderColor: "rgba(7,31,90,0.08)",
-    backgroundColor: "rgba(255,255,255,0.54)",
-    boxShadow: flowShadows.card,
-    gap: 0,
+    marginTop: 10,
+    gap: 2,
   },
 });

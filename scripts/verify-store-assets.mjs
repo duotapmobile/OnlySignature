@@ -6,6 +6,7 @@ import { readImageOpacity } from "./image-opacity.mjs";
 import {
   buildScreenshotMaestroFlow,
   iosOpenConfirmationPattern,
+  literalMaestroText,
   screenshotAppReadyTestId,
   screenshotColdLaunchPlan,
   screenshotDeepLink,
@@ -72,7 +73,7 @@ for (const [index, expected] of expectedStory.entries()) {
   const appReady = flow.indexOf(`id: "${screenshotAppReadyTestId}"`);
   const confirmation = flow.indexOf(JSON.stringify(iosOpenConfirmationPattern));
   const routeReady = flow.indexOf(
-    `visible: ${JSON.stringify(shot.assertions[0])}`,
+    `visible: ${JSON.stringify(literalMaestroText(shot.assertions[0]))}`,
   );
   if (
     coldLaunch.length !== 2 ||

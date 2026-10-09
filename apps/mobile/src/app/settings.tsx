@@ -1,4 +1,5 @@
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
+import { FocusPressable as Pressable } from "@/components/FocusPressable";
 import Constants from "expo-constants";
 import { router } from "expo-router";
 import {
@@ -50,11 +51,12 @@ export default function SettingsScreen() {
       ],
     );
   return (
-    <FlowScreen contentStyle={styles.content} testID="settings-screen">
-      <View style={styles.back}>
-        <FlowBackButton onPress={() => router.back()} />
-      </View>
-      <FlowHeading>Settings and About</FlowHeading>
+    <FlowScreen
+      contentStyle={styles.content}
+      testID="settings-screen"
+      navigation={<FlowBackButton onPress={() => router.back()} />}
+      header={<FlowHeading>Settings and About</FlowHeading>}
+    >
       <View style={styles.list}>
         {rows.map((row) => (
           <Pressable
@@ -87,7 +89,7 @@ const styles = StyleSheet.create({
   content: { paddingTop: 28 },
   back: { height: 32, alignSelf: "flex-start" },
   list: {
-    marginTop: 16,
+    marginTop: 0,
     paddingVertical: 7,
     paddingHorizontal: 14,
     borderRadius: 20,
@@ -121,7 +123,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   version: {
-    color: flowColors.muted,
+    color: flowColors.cardMuted,
     fontSize: 12,
     lineHeight: 17,
     textAlign: "center",

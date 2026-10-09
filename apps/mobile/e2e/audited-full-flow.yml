@@ -5,37 +5,69 @@ appId: com.duotap.onlysignature
 - openLink: "onlysignature:///?fixture=landing"
 - assertVisible: "Without the sign-up."
 - tapOn: "Create My FREE Signing Set"
-- assertVisible: "Write your full name"
-- openLink: "onlysignature:///draw?fixture=both"
+- assertVisible: "Sign"
+- assertVisible:
+    text: "Save Signature"
+    enabled: false
 - tapOn: "Sign First and Last Separately. More room for each name. We’ll align them for you."
-- assertVisible: "Write your first name"
-- tapOn: "Save First Name"
-- assertVisible: "Write your last name"
+- assertVisible: "First name"
+- assertVisible:
+    text: "Save First Name"
+    enabled: false
 - swipe:
     start: "24%, 45%"
     end: "76%, 45%"
     duration: 900
+- assertVisible:
+    text: "Save First Name"
+    enabled: true
+- tapOn: "Save First Name"
+- assertVisible: "Last name"
+- assertVisible:
+    text: "Save Last Name and Join"
+    enabled: false
+- swipe:
+    start: "24%, 45%"
+    end: "76%, 45%"
+    duration: 900
+- assertVisible:
+    text: "Save Last Name and Join"
+    enabled: true
 - tapOn: "Save Last Name and Join"
-- assertVisible: "Write your initials"
+- assertVisible: "Initials"
+- assertVisible:
+    text: "Save Initials"
+    enabled: false
+- swipe:
+    start: "24%, 45%"
+    end: "76%, 45%"
+    duration: 900
+- assertVisible:
+    text: "Save Initials"
+    enabled: true
 - tapOn: "Save Initials"
 - assertVisible: "Review your signing set"
 - tapOn: "Confirm and Choose Background"
 - assertVisible: "Choose a background"
-- tapOn: "White Background"
+- assertVisible: "Purchase Transparent Signature"
+- assertVisible: '\$1\.99 • One-time purchase'
+- tapOn: 'White Background\. May cover anything behind your signature\.'
 - tapOn: "Continue With White Background"
 - assertVisible: "See the difference"
 - assertVisible: "A transparent signature sits naturally on any document."
 - assertVisible: "White box"
 - tapOn: "No Thanks"
-- assertVisible: "Removing the background later can damage your signature."
+- assertVisible: "Download a Quality Signature"
+- assertVisible: 'Removing the background later can damage your signature\.'
 - tapOn: "No Thanks, Download Free White Set"
 - assertVisible: "White Background Export"
-- openLink: "onlysignature:///success?mode=free"
+- openLink: "onlysignature:///success?fixture=both&mode=white"
 - assertVisible: "White Background Set Saved"
 - tapOn: "Done"
 - assertVisible: "My Signing Sets"
-- openLink: "onlysignature:///success?mode=transparent"
-- assertVisible: "Transparent Set Unlocked"
+- openLink: "onlysignature:///export?fixture=purchased"
+- assertVisible: "Export Transparent Set"
+- assertVisible: "Download"
 - openLink: "onlysignature:///saved?fixture=purchased"
 - assertVisible: "My Signing Sets"
 - assertVisible: "Export"

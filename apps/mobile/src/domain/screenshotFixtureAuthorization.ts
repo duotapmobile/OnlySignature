@@ -8,7 +8,16 @@ const recognizedFixtures = new Set([
   "purchased",
   "purchase-error",
   "saved-home",
+  "empty",
   "native-export",
+  "startup-loading",
+  "startup-recovery",
+  "purchase-pending",
+  "purchase-interrupted",
+  "purchase-finishing",
+  "purchase-other-set",
+  "product-loading",
+  "product-unavailable",
 ]);
 
 export function isAuthorizedFixture(

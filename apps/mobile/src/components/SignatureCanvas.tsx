@@ -2,17 +2,11 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Svg, { Path } from "react-native-svg";
-import type {
-  AssetKind,
-  DrawingAsset,
-  Stroke,
-  StrokePoint,
-} from "@/domain/models";
+import type { AssetKind, DrawingAsset, Stroke } from "@/domain/models";
 import {
-  pointToDrawingPlane,
   shouldRecordStrokePoint,
   SIGNATURE_STROKE_WIDTH,
-  stabilizeStrokePoint,
+  stabilizeDrawingTouch,
   smoothPath,
   type StrokeStabilizerState,
 } from "@/domain/drawing";
@@ -83,27 +77,33 @@ export function SignatureCanvas({
     ],
   );
 
-  const pointFromEvent = useCallback(
-    (x: number, y: number, timestamp: number): StrokePoint | null => {
-      const point = pointToDrawingPlane(
-        x,
-        y,
-        size.width,
-        size.height,
-        plane.width,
-        plane.height,
-      );
-      return point ? { ...point, t: timestamp, pressure: null } : null;
-    },
-    [plane.height, plane.width, size.height, size.width],
+  const displayScale = Math.min(
+    Math.max(1, size.width) / Math.max(1, plane.width),
+    Math.max(1, size.height) / Math.max(1, plane.height),
+  );
+  const touchFromEvent = useCallback(
+    (
+      x: number,
+      y: number,
+      timestamp: number,
+      state: StrokeStabilizerState | null,
+      terminal = false,
+    ) =>
+      stabilizeDrawingTouch(
+        state,
+        { x, y, t: timestamp, pressure: null },
+        size,
+        plane,
+        terminal,
+      ),
+    [plane, size],
   );
 
   const grant = useCallback(
     (x: number, y: number) => {
       const timestamp = Date.now();
-      const point = pointFromEvent(x, y, timestamp);
-      if (!point) return;
-      const stabilized = stabilizeStrokePoint(null, point);
+      const stabilized = touchFromEvent(x, y, timestamp, null);
+      if (!stabilized) return;
       stabilizer.current = stabilized.state;
       sequence.current += 1;
       const stroke = {
@@ -113,23 +113,28 @@ export function SignatureCanvas({
       current.current = stroke;
       updateLocal([...strokesRef.current, stroke]);
     },
-    [pointFromEvent, updateLocal],
+    [touchFromEvent, updateLocal],
   );
 
   const move = useCallback(
     (x: number, y: number, terminal = false) => {
       if (!current.current) return;
       const timestamp = Date.now();
-      const point = pointFromEvent(x, y, timestamp);
-      if (!point) return;
-      const stabilized = stabilizeStrokePoint(
+      const stabilized = touchFromEvent(
+        x,
+        y,
+        timestamp,
         stabilizer.current,
-        point,
         terminal,
       );
+      if (!stabilized) return;
       stabilizer.current = stabilized.state;
       const previous = current.current.points.at(-1);
-      const shouldAppend = shouldRecordStrokePoint(previous, stabilized.point);
+      const shouldAppend = shouldRecordStrokePoint(
+        previous,
+        stabilized.point,
+        displayScale,
+      );
       if (!shouldAppend && !terminal) return;
       const updated = {
         ...current.current,
@@ -141,7 +146,7 @@ export function SignatureCanvas({
       current.current = updated;
       updateLocal([...strokesRef.current.slice(0, -1), updated]);
     },
-    [pointFromEvent, updateLocal],
+    [displayScale, touchFromEvent, updateLocal],
   );
 
   const release = useCallback(() => {
@@ -245,6 +250,8 @@ export function SignatureCanvas({
           <SampleDrawing
             asset={asset}
             accessibilityLabel={`${kind === "signature" ? "Signature" : "Initials"} sample`}
+            align="baseline"
+            baselineRatio={0.69}
             style={[
               styles.sample,
               kind === "initials" && styles.initialsSample,
@@ -294,8 +301,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  sample: { width: "92%", height: "86%" },
-  initialsSample: { width: "76%", height: "72%" },
+  sample: { width: "92%", height: "100%" },
+  initialsSample: { width: "76%" },
   hint: {
     color: "#686052",
     fontSize: 16,

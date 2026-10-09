@@ -24,9 +24,10 @@
       "headline": "No Editing or Cropping",
       "assertions": [
         "Choose a background",
-        "Transparent Background",
-        "White Background",
-        "Purchase Transparent"
+        "Transparent Background. Sits cleanly over lines, dates, and text.",
+        "White Background. May cover anything behind your signature.",
+        "Purchase Transparent Signature",
+        "$1.99 • One-time purchase"
       ]
     },
     {
@@ -35,7 +36,7 @@
       "headline": "Place It on Any Document",
       "assertions": [
         "Choose a background",
-        "Sits cleanly over lines, dates, and text.",
+        "Transparent Background. Sits cleanly over lines, dates, and text.",
         "Continue With White Background"
       ]
     },
@@ -45,7 +46,7 @@
       "headline": "No Login. No Subscription.",
       "assertions": [
         "Without the sign-up.",
-        "Create your reusable signature + initials.",
+        "Create your signature and initials.",
         "No Account",
         "No Document Upload",
         "No Subscription"

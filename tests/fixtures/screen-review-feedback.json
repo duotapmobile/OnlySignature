@@ -1,0 +1,406 @@
+{
+  "version": 1,
+  "description": "Synthetic structural review fixture. Contains no founder comments or personal handwriting.",
+  "screens": {
+    "01-splash": {
+      "devices": {
+        "iphone-small": {
+          "annotations": [
+            {
+              "id": "fixture-0",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            }
+          ]
+        }
+      }
+    },
+    "02-entry": {
+      "devices": {
+        "iphone-small": {
+          "annotations": [
+            {
+              "id": "fixture-0",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-1",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-2",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            }
+          ]
+        }
+      }
+    },
+    "03-signature-capture": {
+      "devices": {
+        "iphone-small": {
+          "annotations": [
+            {
+              "id": "fixture-0",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-1",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-2",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            }
+          ]
+        }
+      }
+    },
+    "03a-first-name-capture": {
+      "devices": {
+        "iphone-small": {
+          "annotations": [
+            {
+              "id": "fixture-0",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-1",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-2",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-3",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            }
+          ]
+        }
+      }
+    },
+    "03b-last-name-capture": {
+      "devices": {
+        "iphone-small": {
+          "annotations": [
+            {
+              "id": "fixture-0",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-1",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-2",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            }
+          ]
+        }
+      }
+    },
+    "04-initials-capture": {
+      "devices": {
+        "iphone-small": {
+          "annotations": []
+        }
+      }
+    },
+    "05-review-popup": {
+      "devices": {
+        "iphone-small": {
+          "annotations": [
+            {
+              "id": "fixture-0",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-1",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-2",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            }
+          ]
+        }
+      }
+    },
+    "06-background-popup": {
+      "devices": {
+        "iphone-small": {
+          "annotations": [
+            {
+              "id": "fixture-0",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            }
+          ]
+        }
+      }
+    },
+    "06a-purchase-error": {
+      "devices": {
+        "iphone-small": {
+          "annotations": [
+            {
+              "id": "fixture-0",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-1",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            }
+          ]
+        }
+      }
+    },
+    "07-clear-background": {
+      "devices": {
+        "iphone-small": {
+          "annotations": [
+            {
+              "id": "fixture-0",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-1",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-2",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-3",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-4",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            }
+          ]
+        }
+      }
+    },
+    "08-diy-warning-popup": {
+      "devices": {
+        "iphone-small": {
+          "annotations": [
+            {
+              "id": "fixture-0",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-1",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-2",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-3",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            }
+          ]
+        }
+      }
+    },
+    "08a-white-export": {
+      "devices": {
+        "iphone-small": {
+          "annotations": [
+            {
+              "id": "fixture-0",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-1",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            }
+          ]
+        }
+      }
+    },
+    "08b-transparent-export": {
+      "devices": {
+        "iphone-small": {
+          "annotations": [
+            {
+              "id": "fixture-0",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-1",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            }
+          ]
+        }
+      }
+    },
+    "09-white-confirmation-popup": {
+      "devices": {
+        "iphone-small": {
+          "annotations": [
+            {
+              "id": "fixture-0",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-1",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-2",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            },
+            {
+              "id": "fixture-3",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            }
+          ]
+        }
+      }
+    },
+    "10-transparent-confirmation-popup": {
+      "devices": {
+        "iphone-small": {
+          "annotations": [
+            {
+              "id": "fixture-0",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            }
+          ]
+        }
+      }
+    },
+    "11-saved-sets-home": {
+      "devices": {
+        "iphone-small": {
+          "annotations": [
+            {
+              "id": "fixture-0",
+              "type": "pin",
+              "x": 0.5,
+              "y": 0.5,
+              "text": "Fictional structural fixture"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

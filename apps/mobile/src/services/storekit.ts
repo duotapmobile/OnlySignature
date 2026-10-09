@@ -5,13 +5,11 @@ import {
   storeKitTransaction,
   type StoreKitTransaction,
 } from "./storekitContract";
+import { validatedProduct, type ProductInfo } from "./productCatalog";
 
 export type { PurchaseState, StoreKitTransaction } from "./storekitContract";
 
-export interface ProductInfo {
-  productId: string;
-  displayPrice: string;
-}
+export type { ProductInfo } from "./productCatalog";
 
 export interface StoreKitAdapter {
   loadProduct(): Promise<ProductInfo>;
@@ -47,9 +45,24 @@ const nativeModule = OnlySignatureStoreKit as {
   ): { remove(): void };
 } | null;
 
+let unavailablePriceFixtureAttempts = 0;
 const mock: StoreKitAdapter = {
-  loadProduct() {
-    return Promise.resolve({ productId, displayPrice: "$1.99" });
+  async loadProduct() {
+    // Isolated web QA only. These scenarios cannot affect real StoreKit.
+    const fixture =
+      extra?.screenshotFixtureMode === true &&
+      Platform.OS === "web" &&
+      typeof window !== "undefined"
+        ? new URL(window.location.href).searchParams.get("fixture")
+        : null;
+    if (fixture === "product-loading")
+      await new Promise((resolve) => setTimeout(resolve, 1_800));
+    if (
+      fixture === "product-unavailable" &&
+      unavailablePriceFixtureAttempts++ === 0
+    )
+      throw new Error("product-not-found");
+    return { productId, displayPrice: "$1.99" };
   },
   async purchase(appAccountToken) {
     await new Promise((resolve) => setTimeout(resolve, 350));
@@ -76,7 +89,10 @@ const real: StoreKitAdapter = {
   async loadProduct() {
     if (!nativeModule || Platform.OS !== "ios")
       throw new Error("product-unavailable");
-    return nativeModule.loadProduct(productId);
+    return validatedProduct(
+      await nativeModule.loadProduct(productId),
+      productId,
+    );
   },
   async purchase(appAccountToken) {
     if (!nativeModule || Platform.OS !== "ios")

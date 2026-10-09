@@ -13,7 +13,8 @@ import { useAppState } from "@/state/AppStateProvider";
 let hasShownOpening = false;
 
 export default function EntryScreen() {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+  const landscape = width > height;
   const tablet = width >= 768;
   const { data, createNew, setSelectedAsset, markOpeningSeen } = useAppState();
   const { fixture } = useGlobalSearchParams<{ fixture?: string | string[] }>();
@@ -66,7 +67,7 @@ export default function EntryScreen() {
     <FlowScreen
       chrome="none"
       scroll={false}
-      contentStyle={styles.content}
+      contentStyle={[styles.content, landscape && styles.landscapeContent]}
       testID="entry-screen"
     >
       <LayoutSlot
@@ -91,6 +92,7 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
   },
   heroSlot: { flex: 1 },
+  landscapeContent: { maxWidth: 1000 },
   tabletHeroSlot: { justifyContent: "center" },
   startup: {
     flex: 1,

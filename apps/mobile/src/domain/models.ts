@@ -28,6 +28,8 @@ export interface DrawingAsset {
 export interface SignatureSet {
   id: string;
   label: string;
+  /** Original creation time; absent/null for older sets that did not record it. */
+  createdAt?: string | null;
   status: SetStatus;
   signature: DrawingAsset | null;
   initials: DrawingAsset | null;
@@ -75,6 +77,7 @@ export const createDraftSet = (
 ): SignatureSet => ({
   id,
   label: "",
+  createdAt: now,
   status: "draft",
   signature: createEmptyAsset("signature"),
   initials: createEmptyAsset("initials"),

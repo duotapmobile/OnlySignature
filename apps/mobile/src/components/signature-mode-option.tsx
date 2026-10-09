@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { FocusPressable as Pressable } from "./FocusPressable";
 import { LayoutSlot } from "@/components/layout-slot";
-import { flowColors } from "@/components/flow-ui";
+import { flowColors, flowShadows } from "@/components/flow-ui";
 
 export function SignatureModeOption({
   eyebrow,
@@ -131,6 +132,9 @@ const styles = StyleSheet.create({
   compactTitle: { fontSize: 15, lineHeight: 18 },
   detail: { color: flowColors.bodyText, fontSize: 13, lineHeight: 18 },
   compactDetail: { fontSize: 12, lineHeight: 15 },
-  pressed: { opacity: 0.78, transform: [{ scale: 0.992 }] },
+  pressed: {
+    backgroundColor: "#083367",
+    boxShadow: flowShadows.controlPressed,
+  },
   disabled: { opacity: 0.42 },
 });

@@ -1,7 +1,14 @@
 {
-  "purpose": "Route and assertion contract for the twelve in-app states in the founder-approved thirteen-screen flow; the native splash is governed separately by app.config.ts",
+  "purpose": "Route and assertion contract for the complete fifteen-state redesigned app flow; the held animated-opening fixture is not evidence of native splash handoff or animation timing",
   "evidenceStatus": "No native evidence is created by this file; provenance is written only by the EAS capture runtime",
   "screenshots": [
+    {
+      "id": "01-splash",
+      "route": "/?fixture=opening",
+      "headline": "Animated opening",
+      "assertions": ["Only Signature animated opening. Tap to continue."],
+      "assertionIds": ["opening-splash-screen"]
+    },
     {
       "id": "02-entry",
       "route": "/?fixture=landing",
@@ -13,7 +20,7 @@
       "route": "/draw?fixture=both",
       "headline": "Full Name Capture",
       "assertions": [
-        "Write your full name",
+        "Sign",
         "Save Signature",
         "Sign First and Last Separately. More room for each name. We’ll align them for you."
       ]
@@ -22,19 +29,19 @@
       "id": "03a-first-name-capture",
       "route": "/draw?fixture=both&namePart=first",
       "headline": "Optional First Name Capture",
-      "assertions": ["Write your first name", "Save First Name"]
+      "assertions": ["First name", "Save First Name"]
     },
     {
       "id": "03b-last-name-capture",
       "route": "/draw?fixture=both&namePart=last",
       "headline": "Last Name Capture",
-      "assertions": ["Write your last name", "Save Last Name and Join"]
+      "assertions": ["Last name", "Save Last Name and Join"]
     },
     {
       "id": "04-initials-capture",
       "route": "/draw?fixture=initials",
       "headline": "Initials Capture",
-      "assertions": ["Write your initials", "Save Initials", "Skip for Now"]
+      "assertions": ["Initials", "Save Initials", "Skip for Now"]
     },
     {
       "id": "05-review-popup",
@@ -48,8 +55,20 @@
       "headline": "Background popup",
       "assertions": [
         "Choose a background",
-        "Transparent Background",
-        "White Background"
+        "Transparent Background. Sits cleanly over lines, dates, and text.",
+        "White Background. May cover anything behind your signature.",
+        "Purchase Transparent Signature",
+        "$1.99 • One-time purchase"
+      ]
+    },
+    {
+      "id": "06a-purchase-error",
+      "route": "/purchase?fixture=purchase-error",
+      "headline": "Purchase recovery message",
+      "assertions": [
+        "Choose a background",
+        "Transparent Background is temporarily unavailable. Your signing set is safe. Try again or continue with white.",
+        "Continue With White Background"
       ]
     },
     {
@@ -68,8 +87,33 @@
       "route": "/free-export?fixture=both",
       "headline": "DIY warning popup",
       "assertions": [
+        "Download a Quality Signature",
         "Removing the background later can damage your signature.",
         "No Thanks, Download Free White Set"
+      ]
+    },
+    {
+      "id": "08a-white-export",
+      "route": "/white-export?fixture=both",
+      "headline": "White Background Export",
+      "assertions": [
+        "White Background Export",
+        "Choose your export format.",
+        "Signature format. PNG, White Background",
+        "Initials format. PNG, White Background",
+        "Download"
+      ]
+    },
+    {
+      "id": "08b-transparent-export",
+      "route": "/export?fixture=purchased",
+      "headline": "Transparent Export",
+      "assertions": [
+        "Export Transparent Set",
+        "Choose your export format.",
+        "Signature format. PNG, Transparent",
+        "Initials format. PNG, Transparent",
+        "Download"
       ]
     },
     {
@@ -77,12 +121,6 @@
       "route": "/success?fixture=both&mode=white",
       "headline": "White confirmation popup",
       "assertions": ["White Background Set Saved", "Done"]
-    },
-    {
-      "id": "10-transparent-confirmation-popup",
-      "route": "/success?fixture=purchased&mode=transparent",
-      "headline": "Transparent confirmation popup",
-      "assertions": ["Transparent Set Unlocked", "Save or Share Files", "Done"]
     },
     {
       "id": "11-saved-sets-home",

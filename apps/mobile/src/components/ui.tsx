@@ -1,6 +1,5 @@
 import type { PropsWithChildren, ReactNode } from "react";
 import {
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +10,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { theme } from "@/integrations/workspace";
+import { FocusPressable as Pressable } from "./FocusPressable";
+import { flowShadows } from "./flow-ui";
 
 export function Screen({
   children,
@@ -106,7 +107,7 @@ export function PrimaryButton({
       testID={testID}
       style={({ pressed }) => [
         styles.button,
-        pressed && styles.pressed,
+        pressed && styles.primaryPressed,
         disabled && styles.disabled,
       ]}
     >
@@ -276,7 +277,11 @@ const styles = StyleSheet.create({
   },
   destructiveButton: { borderColor: theme.colors.destructive },
   destructiveText: { color: theme.colors.destructive },
-  pressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
+  primaryPressed: {
+    backgroundColor: "#083367",
+    boxShadow: flowShadows.controlPressed,
+  },
+  pressed: { opacity: 0.78 },
   disabled: { opacity: 0.48 },
   back: {
     minHeight: 48,

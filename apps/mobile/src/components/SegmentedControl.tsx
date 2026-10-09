@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { FocusPressable as Pressable } from "./FocusPressable";
 import { theme } from "@/integrations/workspace";
 
 export function SegmentedControl<T extends string>({

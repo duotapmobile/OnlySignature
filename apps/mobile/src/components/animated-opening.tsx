@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import Animated, {
   Easing,
   interpolate,
@@ -9,9 +15,10 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { SampleDrawing } from "./SampleDrawing";
+import { screenshotFixtureSet } from "@/domain/fixtures";
 
 const wordmarkSource = require("../../assets/brand/only-signature-wordmark.png");
-const signatureSource = require("../../assets/samples/taylor-brooks-signature.png");
 
 export const openingDurationMs = 2_200;
 export const returningOpeningDurationMs = 650;
@@ -26,7 +33,10 @@ export function AnimatedOpening({
   compact?: boolean;
 }) {
   const reducedMotion = useReducedMotion();
-  const progress = useSharedValue(previewFrame ? 0.9 : 0);
+  const { width, height } = useWindowDimensions();
+  const landscape = width > height;
+  const tablet = width >= 768;
+  const progress = useSharedValue(previewFrame ? 1 : 0);
   const [skipReady, setSkipReady] = useState(false);
   const finishedRef = useRef(false);
   const finish = useMemo(
@@ -157,7 +167,13 @@ export function AnimatedOpening({
       style={styles.fill}
       testID="opening-splash-screen"
     >
-      <View style={styles.opening}>
+      <View
+        style={[
+          styles.opening,
+          tablet && !landscape && styles.tabletOpening,
+          tablet && landscape && styles.wideOpening,
+        ]}
+      >
         <View accessibilityElementsHidden style={styles.blueGlow} />
         <View accessibilityElementsHidden style={styles.goldGlow} />
         <Animated.View
@@ -176,32 +192,59 @@ export function AnimatedOpening({
             source={wordmarkSource}
             accessibilityLabel="Only Signature"
             resizeMode="contain"
-            style={[styles.wordmark, wordmarkStyle]}
+            style={[
+              styles.wordmark,
+              landscape && styles.landscapeWordmark,
+              wordmarkStyle,
+            ]}
           />
-          {!compact ? (
-            <Animated.View
-              testID="opening-copy"
-              style={[styles.copy, copyStyle]}
+          <View
+            style={[
+              styles.composition,
+              landscape && styles.landscapeComposition,
+            ]}
+          >
+            {!compact ? (
+              <Animated.View
+                testID="opening-copy"
+                style={[
+                  styles.copy,
+                  landscape && styles.landscapeCopy,
+                  copyStyle,
+                ]}
+              >
+                <Text style={styles.sign}>Sign.</Text>
+                <Text style={styles.headline}>Without the sign-up.</Text>
+                <Text style={styles.subhead}>
+                  {"Your signature and initials.\nReady to reuse."}
+                </Text>
+              </Animated.View>
+            ) : null}
+            <View
+              style={[
+                styles.signatureStage,
+                landscape && styles.landscapeStage,
+                compact && styles.compactStage,
+              ]}
             >
-              <Text style={styles.sign}>Sign.</Text>
-              <Text style={styles.headline}>Without the sign-up.</Text>
-              <Text style={styles.subhead}>
-                Your signing set is coming together.
-              </Text>
-            </Animated.View>
-          ) : null}
-          <View style={styles.signatureStage}>
-            <Animated.Image
-              testID="opening-signature"
-              source={signatureSource}
-              accessibilityLabel="Sample signature"
-              resizeMode="contain"
-              style={[styles.signature, signatureStyle]}
-            />
-            <Animated.View
-              testID="opening-line"
-              style={[styles.signatureLine, lineStyle]}
-            />
+              <Animated.View
+                testID="opening-signature"
+                style={[styles.signature, signatureStyle]}
+              >
+                <SampleDrawing
+                  asset={screenshotFixtureSet.signature!}
+                  accessibilityLabel="Sample signature"
+                  align="baseline"
+                  baselineRatio={0.76}
+                  tintColor="#F8F6EF"
+                  style={styles.signatureImage}
+                />
+              </Animated.View>
+              <Animated.View
+                testID="opening-line"
+                style={[styles.signatureLine, lineStyle]}
+              />
+            </View>
           </View>
         </Animated.View>
         <Animated.View
@@ -219,15 +262,19 @@ export function AnimatedOpening({
 }
 
 const styles = StyleSheet.create({
-  fill: { flex: 1, backgroundColor: "#02040A" },
+  fill: { flex: 1, justifyContent: "center", backgroundColor: "#02040A" },
   opening: {
     flex: 1,
+    width: "100%",
+    alignSelf: "center",
     backgroundColor: "#02040A",
     paddingHorizontal: 12,
     paddingTop: 10,
     paddingBottom: 14,
     overflow: "hidden",
   },
+  tabletOpening: { maxWidth: 620, maxHeight: 860 },
+  wideOpening: { maxWidth: 1000, maxHeight: 440 },
   blueGlow: {
     position: "absolute",
     width: 540,
@@ -256,7 +303,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8F6EF",
     borderWidth: 1,
     borderColor: "rgba(216,182,106,0.76)",
-    boxShadow: "0 34px 76px rgba(0,0,0,0.58)",
+    boxShadow: "0 14px 30px rgba(7,31,90,0.18)",
   },
   paperFold: {
     width: 92,
@@ -278,7 +325,7 @@ const styles = StyleSheet.create({
     paddingTop: 22,
     paddingBottom: 30,
     overflow: "hidden",
-    boxShadow: "0 34px 76px rgba(0,0,0,0.68)",
+    boxShadow: "0 14px 30px rgba(2,12,32,0.24)",
   },
   edgeHighlight: {
     position: "absolute",
@@ -289,7 +336,25 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.38)",
   },
   wordmark: { width: 148, height: 62, alignSelf: "flex-end" },
-  copy: { marginTop: "18%" },
+  landscapeWordmark: {
+    position: "absolute",
+    right: 24,
+    top: 16,
+    width: 112,
+    height: 46,
+  },
+  composition: { flex: 1, justifyContent: "center", gap: 28 },
+  landscapeComposition: { flexDirection: "row", alignItems: "center", gap: 20 },
+  copy: { marginTop: 0 },
+  landscapeCopy: { flex: 1, minWidth: 0, marginTop: 0 },
+  landscapeStage: {
+    width: "48%",
+    height: 116,
+    marginTop: 0,
+    alignSelf: "flex-end",
+    marginBottom: 12,
+  },
+  compactStage: { width: "100%" },
   sign: {
     color: "#F8F6EF",
     fontFamily: "Georgia",
@@ -314,21 +379,25 @@ const styles = StyleSheet.create({
   },
   signatureStage: {
     height: 132,
-    marginTop: "auto",
-    justifyContent: "flex-end",
+    marginTop: 0,
+    position: "relative",
   },
   signature: {
+    position: "absolute",
+    left: "2%",
+    top: 0,
     width: "96%",
-    height: 104,
-    alignSelf: "center",
-    tintColor: "#F8F6EF",
+    height: "100%",
     zIndex: 2,
     transformOrigin: "left center",
   },
+  signatureImage: { width: "100%", height: "100%" },
   signatureLine: {
+    position: "absolute",
+    left: 8,
+    right: 8,
+    top: "76%",
     height: 1.5,
-    marginHorizontal: 8,
-    marginTop: -14,
     backgroundColor: "#D8B66A",
     transformOrigin: "left center",
   },

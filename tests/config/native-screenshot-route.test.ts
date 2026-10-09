@@ -7,6 +7,7 @@ import sharp from "sharp";
 import {
   buildScreenshotMaestroFlow,
   iosOpenConfirmationPattern,
+  literalMaestroText,
   screenshotAppReadyTestId,
   screenshotColdLaunchPlan,
   screenshotDeepLink,
@@ -25,6 +26,56 @@ describe("native screenshot deep-link readiness", () => {
   it("preserves the exact Expo Router fixture route", () => {
     expect(screenshotDeepLink(shot.route)).toBe(
       "onlysignature:///preview?fixture=both",
+    );
+  });
+
+  it("matches literal prices and copy instead of regex wildcards", () => {
+    for (const [copy, mismatch] of [
+      ["$1.99 • One-time purchase", "$1X99 • One-time purchase"],
+      ["Signature + initials.", "Signature  initials."],
+      ["Format (PNG)? [selected]", "Format PNG [selected]"],
+    ]) {
+      const pattern = new RegExp(`^(?:${literalMaestroText(copy)})$`);
+      expect(pattern.test(copy)).toBe(true);
+      expect(pattern.test(mismatch)).toBe(false);
+    }
+    expect(() => literalMaestroText(" ")).toThrow("nonempty text");
+    expect(() =>
+      buildScreenshotMaestroFlow({ id: "missing", assertions: ["Only one"] }),
+    ).toThrow("at least two");
+  });
+
+  it("retains the store-assets hydration and route-ready gate for literal selectors", () => {
+    const verifier = readFileSync("scripts/verify-store-assets.mjs", "utf8");
+    expect(verifier).toContain("literalMaestroText(shot.assertions[0])");
+    expect(verifier).toContain("appReady <= confirmation");
+    expect(verifier).toContain("routeReady <= appReady");
+    const landing = JSON.parse(
+      readFileSync("store-assets/screenshots/manifest.json", "utf8"),
+    ).screenshots.find(
+      (candidate: { id: string }) => candidate.id === "05-no-login",
+    );
+    expect(buildScreenshotMaestroFlow(landing)).toContain(
+      `visible: ${JSON.stringify(literalMaestroText(landing.assertions[0]))}`,
+    );
+  });
+
+  it("asserts the held opening without claiming real splash or animation coverage", () => {
+    const manifest = JSON.parse(
+      readFileSync("apps/mobile/e2e/native-actual-flow-manifest.json", "utf8"),
+    );
+    const opening = manifest.screenshots.find(
+      (candidate: { id: string }) => candidate.id === "01-splash",
+    );
+    const flow = buildScreenshotMaestroFlow(opening);
+    expect(flow).toContain('id: "opening-splash-screen"');
+    expect(flow).toContain(
+      JSON.stringify(
+        literalMaestroText("Only Signature animated opening. Tap to continue."),
+      ),
+    );
+    expect(manifest.purpose).toContain(
+      "not evidence of native splash handoff or animation timing",
     );
   });
 
@@ -112,9 +163,10 @@ describe("native screenshot deep-link readiness", () => {
 
     expect(purchase.assertions).toEqual([
       "Choose a background",
-      "Transparent Background",
-      "White Background",
-      "Purchase Transparent",
+      "Transparent Background. Sits cleanly over lines, dates, and text.",
+      "White Background. May cover anything behind your signature.",
+      "Purchase Transparent Signature",
+      "$1.99 • One-time purchase",
     ]);
   });
 
@@ -131,7 +183,7 @@ describe("native screenshot deep-link readiness", () => {
       privacyFixtureCopy.operatorStatement,
     ]);
     expect(buildScreenshotMaestroFlow(privacy)).toContain(
-      `- assertVisible: ${JSON.stringify(privacyFixtureCopy.operatorStatement)}`,
+      `- assertVisible: ${JSON.stringify(literalMaestroText(privacyFixtureCopy.operatorStatement))}`,
     );
   });
 
@@ -159,9 +211,11 @@ describe("native screenshot deep-link readiness", () => {
     ]);
     const flow = buildScreenshotMaestroFlow(formats);
     expect(flow).toContain(
-      `- assertVisible: ${JSON.stringify(signatureLabel)}`,
+      `- assertVisible: ${JSON.stringify(literalMaestroText(signatureLabel))}`,
     );
-    expect(flow).toContain(`- assertVisible: ${JSON.stringify(initialsLabel)}`);
+    expect(flow).toContain(
+      `- assertVisible: ${JSON.stringify(literalMaestroText(initialsLabel))}`,
+    );
     expect(flow).not.toContain('- assertVisible: "PNG, Transparent"');
   });
 

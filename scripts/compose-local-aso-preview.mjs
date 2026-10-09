@@ -35,7 +35,7 @@ const slides = [
   {
     id: "01-ready",
     headline: ["Your signature.", "Ready when you are."],
-    subhead: "Create a reusable signing set—without an account.",
+    subhead: "Create a reusable signing set without an account.",
     screens: ["01-entry.png"],
     background: palette.cream,
     accent: palette.tealPale,

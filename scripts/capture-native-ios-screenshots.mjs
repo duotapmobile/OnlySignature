@@ -510,6 +510,7 @@ try {
       id: shot.id,
       route: shot.route,
       assertions: shot.assertions,
+      assertionIds: shot.assertionIds ?? [],
       rawPath: rawPath.replaceAll("\\", "/"),
       rawSha256: await hashFile(rawPath),
       width: metadata.width,

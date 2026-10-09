@@ -155,6 +155,7 @@ const initials: DrawingAsset = {
 export const screenshotFixtureSet: SignatureSet = {
   id: "screenshot-fixture",
   label: "Alex Morgan",
+  createdAt: "2026-08-25T12:00:00.000Z",
   status: "purchased",
   signature,
   initials,
@@ -170,18 +171,48 @@ export const screenshotFixtureSet: SignatureSet = {
 
 export const screenshotFixtureSetFor = (fixture?: string): SignatureSet => {
   if (fixture === "purchased") return screenshotFixtureSet;
+  if (fixture === "purchase-finishing")
+    return { ...screenshotFixtureSet, transactionFinishPending: true };
   const signatureOnly = fixture === "signature";
+  const intent =
+    fixture === "purchase-pending"
+      ? "pending"
+      : fixture === "purchase-interrupted"
+        ? "interrupted"
+        : null;
   return {
     ...screenshotFixtureSet,
     status: "draft",
-    signature: { ...signature, finalizedHash: null },
-    initials: signatureOnly ? null : { ...initials, finalizedHash: null },
+    signature:
+      fixture === "empty"
+        ? null
+        : {
+            ...signature,
+            finalizedHash: intent ? signature.finalizedHash : null,
+          },
+    initials:
+      signatureOnly || fixture === "empty"
+        ? null
+        : {
+            ...initials,
+            finalizedHash: intent ? initials.finalizedHash : null,
+          },
     purchasedAt: null,
     transactionId: null,
+    pendingPurchaseId: intent ? "1d8e5621-54b3-4a07-a21e-186610c9f194" : null,
+    purchaseIntentState: intent,
   };
 };
 
 export const screenshotFixtureSetsFor = (fixture?: string): SignatureSet[] => {
+  if (fixture === "purchase-other-set")
+    return [
+      screenshotFixtureSetFor("both"),
+      {
+        ...screenshotFixtureSetFor("purchase-pending"),
+        id: "screenshot-other-pending",
+      },
+    ];
   if (fixture !== "saved-home") return [screenshotFixtureSetFor(fixture)];
 
   const whiteSet: SignatureSet = {
@@ -196,12 +227,14 @@ export const screenshotFixtureSetsFor = (fixture?: string): SignatureSet[] => {
   const transparentSet: SignatureSet = {
     ...screenshotFixtureSet,
     id: "screenshot-transparent-set",
+    createdAt: "2026-08-24T11:00:00.000Z",
     lastUsedAt: "2026-08-25T11:00:00.000Z",
   };
   const incompleteSet: SignatureSet = {
     ...whiteSet,
     id: "screenshot-incomplete-set",
     label: "Taylor Brooks",
+    createdAt: "2026-08-23T10:00:00.000Z",
     initials: null,
     lastUsedAt: "2026-08-25T10:00:00.000Z",
   };
